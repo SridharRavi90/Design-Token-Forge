@@ -5,8 +5,9 @@ on:
     branches: [main]
     paths:
       - 'packages/tokens/src/**'
-      - 'packages/components/src/**/**.tokens.css'
+      - 'packages/components/src/**'
       - 'packages/sync-server/**'
+      - 'demo/**'
   workflow_dispatch:
 
 permissions:

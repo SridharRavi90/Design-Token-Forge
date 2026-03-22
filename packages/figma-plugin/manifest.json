@@ -8,7 +8,7 @@
   "editorType": ["figma"],
   "ui": "ui.html",
   "networkAccess": {
-    "allowedDomains": ["http://localhost:9500"],
-    "reasoning": "Connects to local DTF Sync Server to receive live token updates"
+    "allowedDomains": ["*"],
+    "reasoning": "Connects to local DTF Sync Server or GitHub Pages for live token updates"
   }
 }

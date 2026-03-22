@@ -43,6 +43,17 @@ const OUT_DIR = outIdx !== -1 ? path.resolve(args[outIdx + 1]) : path.resolve(__
 // We'll import from the server module (ESM)
 const serverPath = path.join(__dirname, 'server.js');
 
+// ── Recursive directory copy ──────────────────────────────────
+function copyDirSync(src, dst) {
+  fs.mkdirSync(dst, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, entry.name);
+    const d = path.join(dst, entry.name);
+    if (entry.isDirectory()) copyDirSync(s, d);
+    else fs.copyFileSync(s, d);
+  }
+}
+
 async function main() {
   // Dynamically import server module to access runExport
   // First, we need to modify server.js to export runExport.
@@ -108,11 +119,39 @@ async function main() {
 <ul>
   <li><a href="status.json">status.json</a> — hash check (plugin polls this)</li>
   <li><a href="tokens.json">tokens.json</a> — full variable payload</li>
+  <li><a href="demo/">demo/</a> — Component Explorer</li>
 </ul>
 <p>Hash: <code>${data.contentHash}</code> | Variables: ${data.stats.totalVariables} | Built: ${data.exported}</p>
 </body></html>`;
   fs.writeFileSync(path.join(OUT_DIR, 'index.html'), indexHtml);
   console.log('  ✓ index.html   → landing page');
+
+  // ── Copy demo pages + dependencies ──────────────────────────
+  const ROOT = path.resolve(__dirname, '../..');
+  const demoSrc = path.join(ROOT, 'demo');
+  const demoDst = path.join(OUT_DIR, 'demo');
+
+  if (fs.existsSync(demoSrc)) {
+    copyDirSync(demoSrc, demoDst);
+    console.log('  ✓ demo/        → component explorer');
+
+    // Copy packages/ (tokens + components CSS) so ../packages/ refs work
+    const pkgSrc = path.join(ROOT, 'packages');
+    const pkgDst = path.join(OUT_DIR, 'packages');
+    // Only copy what demos need: tokens/src and components/src
+    const tokensSrc = path.join(pkgSrc, 'tokens', 'src');
+    const tokensDst = path.join(pkgDst, 'tokens', 'src');
+    if (fs.existsSync(tokensSrc)) {
+      copyDirSync(tokensSrc, tokensDst);
+      console.log('  ✓ packages/tokens/src/');
+    }
+    const compSrc = path.join(pkgSrc, 'components', 'src');
+    const compDst = path.join(pkgDst, 'components', 'src');
+    if (fs.existsSync(compSrc)) {
+      copyDirSync(compSrc, compDst);
+      console.log('  ✓ packages/components/src/');
+    }
+  }
 
   console.log('');
   console.log(`  Output: ${OUT_DIR}`);

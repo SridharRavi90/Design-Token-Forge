@@ -196,10 +196,11 @@
   }
   .btn-url-save:hover { background: #e5e5e5; }
   .server-presets { margin-top: 6px; font-size: 10px; color: #999; }
-  .server-presets a {
+  .server-presets button {
     color: #F97316; text-decoration: none; cursor: pointer; margin-right: 10px;
+    background: none; border: none; padding: 0; font: inherit; font-size: 10px;
   }
-  .server-presets a:hover { text-decoration: underline; }
+  .server-presets button:hover { text-decoration: underline; }
 
   /* ── Change notification pulse ───────────────────────── */
   .notif.has-changes { animation: slideIn 0.3s ease, ringPulse 1s ease 0.3s; }
@@ -287,12 +288,12 @@
   <summary>Server URL</summary>
   <div class="server-config-inner">
     <div class="server-url-row">
-      <input type="text" id="serverUrlInput" placeholder="http://localhost:9500" spellcheck="false">
+      <input type="text" id="serverUrlInput" placeholder="https://sridharravi90.github.io/Design-Token-Forge" spellcheck="false">
       <button class="btn-url-save" id="saveUrlBtn">Save</button>
     </div>
     <div class="server-presets">
-      <a id="presetLocal">Local</a>
-      <a id="presetGH">GitHub Pages</a>
+      <button type="button" id="presetLocal">Local</button>
+      <button type="button" id="presetGH">GitHub Pages</button>
     </div>
   </div>
 </details>
@@ -317,6 +318,14 @@
 </details>
 
 <script>
+  /* ── Global error handler — shows JS errors in the UI ── */
+  window.onerror = function(msg, src, line, col, err) {
+    var el = document.createElement('div');
+    el.style.cssText = 'background:#fef2f2;color:#991b1b;border:2px solid red;padding:10px;margin:8px 0;font-size:11px;font-family:monospace;word-break:break-all;border-radius:6px;';
+    el.textContent = 'JS ERROR: ' + msg + ' (line ' + line + ')';
+    document.body.insertBefore(el, document.body.firstChild);
+  };
+
   /* ── Elements ────────────────────────────────────────── */
   var connBar    = document.getElementById('connBar');
   var connText   = document.getElementById('connText');
@@ -341,8 +350,13 @@
   var serverUrlInput = document.getElementById('serverUrlInput');
   var saveUrlBtn = document.getElementById('saveUrlBtn');
 
+  /* Safe storage — Figma plugin iframes block localStorage */
+  var _mem = {};
+  function storageGet(k) { try { return localStorage.getItem(k); } catch(e) { return _mem[k] || null; } }
+  function storageSet(k,v) { try { localStorage.setItem(k,v); } catch(e) { _mem[k]=v; } }
+
   var DEFAULT_SERVER = 'http://localhost:9500';
-  var SERVER = localStorage.getItem('dtf-server-url') || DEFAULT_SERVER;
+  var SERVER = storageGet('dtf-server-url') || DEFAULT_SERVER;
   serverUrlInput.value = SERVER;
 
   /* Detect if server is static (GitHub Pages) or live (localhost/API) */
@@ -690,7 +704,7 @@
   function setServerUrl(url) {
     url = url.replace(/\/+$/, ''); /* strip trailing slash */
     SERVER = url;
-    localStorage.setItem('dtf-server-url', url);
+    storageSet('dtf-server-url', url);
     serverUrlInput.value = url;
     /* Reset state and reconnect */
     connected = false;
@@ -708,14 +722,12 @@
   });
 
   /* Presets */
-  document.getElementById('presetLocal').addEventListener('click', function(e) {
-    e.preventDefault();
-    setServerUrl(DEFAULT_SERVER);
+  document.getElementById('presetLocal').addEventListener('click', function() {
+    setServerUrl('http://localhost:9500');
   });
-  document.getElementById('presetGH').addEventListener('click', function(e) {
-    e.preventDefault();
-    var ghUrl = prompt('Enter your GitHub Pages URL:\ne.g. https://username.github.io/design-token-forge');
-    if (ghUrl) setServerUrl(ghUrl);
+  var GH_PAGES_URL = 'https://sridharravi90.github.io/Design-Token-Forge';
+  document.getElementById('presetGH').addEventListener('click', function() {
+    setServerUrl(GH_PAGES_URL);
   });
 </script>
 </body>
