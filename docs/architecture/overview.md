@@ -68,7 +68,7 @@ micro → tiny → small → base → medium → large → big → huge → mega
 
 ```
 surface-base | surface-bright | surface-deep | surface-accent | surface-dim
-container    | over-container | float         | inversesurface
+container    | over-container | float         | inverse
 ```
 
 Surfaces are applied via `[data-surface="base"]` on a containing element. All descendant

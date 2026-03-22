@@ -1,10 +1,11 @@
 /* ════════════════════════════════════════════════════════════════
    Design Token Forge — T2 Surface Context Tokens
-   8 surfaces × 16 tokens × light/dark
+   9 surfaces × 16 tokens × light/dark
    Page:      bright, base, dim, deep, accent
    Container: container
    Dialog:    over-container
    Float:     float (menus, dropdowns, popups, tooltips)
+   Inverse:   inverse (snackbars, toasts — opposite of current theme)
    ════════════════════════════════════════════════════════════════ */
 
 /* ── Light Theme (default) ───────────────────────────────────────── */
@@ -16,8 +17,8 @@
   --surface-bright-bg: #FFFFFF;
   --surface-bright-hover: #F7F7F7;
   --surface-bright-pressed: #F0F0F0;
-  --surface-bright-outline: #E8E8E8;
-  --surface-bright-separator: #EBEBEB;
+  --surface-bright-outline: #D4D4D4;
+  --surface-bright-separator: #D0D0D0;
   --surface-bright-ct-default: #1A1A1A;
   --surface-bright-ct-strong: #0A0A0A;
   --surface-bright-ct-subtle: #525252;
@@ -28,14 +29,14 @@
   --surface-bright-cm-outline: #D4D4D4;
   --surface-bright-cm-outline-hover: #BFBFBF;
   --surface-bright-cm-outline-pressed: #A8A8A8;
-  --surface-bright-cm-separator: #E8E8E8;
+  --surface-bright-cm-separator: #D0D0D0;
 
   /* ── SURFACE-BASE (default page canvas) ─────────────────── */
   --surface-base-bg: #FAFAFA;
   --surface-base-hover: #F0F0F0;
   --surface-base-pressed: #E8E8E8;
-  --surface-base-outline: #E0E0E0;
-  --surface-base-separator: #E2E2E2;
+  --surface-base-outline: #D4D4D4;
+  --surface-base-separator: #CCCCCC;
   --surface-base-ct-default: #1F1F1F;
   --surface-base-ct-strong: #0E0E0E;
   --surface-base-ct-subtle: #545454;
@@ -46,14 +47,14 @@
   --surface-base-cm-outline: #D4D4D4;
   --surface-base-cm-outline-hover: #BFBFBF;
   --surface-base-cm-outline-pressed: #A8A8A8;
-  --surface-base-cm-separator: #E0E0E0;
+  --surface-base-cm-separator: #CCCCCC;
 
   /* ── SURFACE-DIM (muted / receded areas) ────────────────── */
   --surface-dim-bg: #F2F2F2;
   --surface-dim-hover: #EAEAEA;
   --surface-dim-pressed: #E2E2E2;
-  --surface-dim-outline: #D8D8D8;
-  --surface-dim-separator: #DADADA;
+  --surface-dim-outline: #CCCCCC;
+  --surface-dim-separator: #C4C4C4;
   --surface-dim-ct-default: #222222;
   --surface-dim-ct-strong: #111111;
   --surface-dim-ct-subtle: #565656;
@@ -64,14 +65,14 @@
   --surface-dim-cm-outline: #C8C8C8;
   --surface-dim-cm-outline-hover: #B3B3B3;
   --surface-dim-cm-outline-pressed: #9E9E9E;
-  --surface-dim-cm-separator: #D8D8D8;
+  --surface-dim-cm-separator: #C4C4C4;
 
   /* ── SURFACE-DEEP (recessed / sidebars / wells) ─────────── */
   --surface-deep-bg: #E8E8E8;
   --surface-deep-hover: #DFDFDF;
   --surface-deep-pressed: #D4D4D4;
   --surface-deep-outline: #C4C4C4;
-  --surface-deep-separator: #C6C6C6;
+  --surface-deep-separator: #B8B8B8;
   --surface-deep-ct-default: #1C1C1C;
   --surface-deep-ct-strong: #0C0C0C;
   --surface-deep-ct-subtle: #4A4A4A;
@@ -82,14 +83,14 @@
   --surface-deep-cm-outline: #B5B5B5;
   --surface-deep-cm-outline-hover: #A0A0A0;
   --surface-deep-cm-outline-pressed: #8E8E8E;
-  --surface-deep-cm-separator: #C4C4C4;
+  --surface-deep-cm-separator: #B8B8B8;
 
   /* ── SURFACE-ACCENT (primary-tinted) ────────────────────── */
   --surface-accent-bg: #FFF2FC;
   --surface-accent-hover: #FFE9FA;
   --surface-accent-pressed: #FFDCF7;
   --surface-accent-outline: #F0C8EC;
-  --surface-accent-separator: #F0C0E8;
+  --surface-accent-separator: #E4B0DC;
   --surface-accent-ct-default: #3A1535;
   --surface-accent-ct-strong: #270E24;
   --surface-accent-ct-subtle: #6B3D64;
@@ -100,14 +101,14 @@
   --surface-accent-cm-outline: #E4B0DC;
   --surface-accent-cm-outline-hover: #D8A0D0;
   --surface-accent-cm-outline-pressed: #CC90C4;
-  --surface-accent-cm-separator: #F0C8EC;
+  --surface-accent-cm-separator: #E4B0DC;
 
   /* ── SURFACE-CONTAINER (cards, panels — one step above base) ─ */
   --surface-container-bg: #FFFFFF;
   --surface-container-hover: #F7F7F7;
   --surface-container-pressed: #F0F0F0;
-  --surface-container-outline: #E5E5E5;
-  --surface-container-separator: #EAEAEA;
+  --surface-container-outline: #D4D4D4;
+  --surface-container-separator: #D0D0D0;
   --surface-container-ct-default: #1A1A1A;
   --surface-container-ct-strong: #0A0A0A;
   --surface-container-ct-subtle: #525252;
@@ -118,14 +119,14 @@
   --surface-container-cm-outline: #D4D4D4;
   --surface-container-cm-outline-hover: #BFBFBF;
   --surface-container-cm-outline-pressed: #A8A8A8;
-  --surface-container-cm-separator: #E5E5E5;
+  --surface-container-cm-separator: #D0D0D0;
 
   /* ── SURFACE-OVER-CONTAINER (popovers, dropdowns, modals) ── */
   --surface-over-container-bg: #FFFFFF;
   --surface-over-container-hover: #F5F5F5;
   --surface-over-container-pressed: #EDEDED;
   --surface-over-container-outline: #E0E0E0;
-  --surface-over-container-separator: #E8E8E8;
+  --surface-over-container-separator: #D0D0D0;
   --surface-over-container-ct-default: #171717;
   --surface-over-container-ct-strong: #0A0A0A;
   --surface-over-container-ct-subtle: #4A4A4A;
@@ -136,14 +137,14 @@
   --surface-over-container-cm-outline: #CCCCCC;
   --surface-over-container-cm-outline-hover: #B5B5B5;
   --surface-over-container-cm-outline-pressed: #A0A0A0;
-  --surface-over-container-cm-separator: #E0E0E0;
+  --surface-over-container-cm-separator: #D0D0D0;
 
   /* ── SURFACE-FLOAT (menus, dropdowns, popups, tooltips) ── */
   --surface-float-bg: #FFFFFF;
   --surface-float-hover: #F5F5F5;
   --surface-float-pressed: #EBEBEB;
   --surface-float-outline: #DBDBDB;
-  --surface-float-separator: #E5E5E5;
+  --surface-float-separator: #D0D0D0;
   --surface-float-ct-default: #141414;
   --surface-float-ct-strong: #000000;
   --surface-float-ct-subtle: #454545;
@@ -154,25 +155,25 @@
   --surface-float-cm-outline: #C5C5C5;
   --surface-float-cm-outline-hover: #ABABAB;
   --surface-float-cm-outline-pressed: #959595;
-  --surface-float-cm-separator: #DBDBDB;
+  --surface-float-cm-separator: #D0D0D0;
 
-  /* ── SURFACE-INVERSESURFACE (fixed dark — toasts, snackbars, dark panels) ── */
-  --surface-inversesurface-bg: #1A1A1A;
-  --surface-inversesurface-hover: #222222;
-  --surface-inversesurface-pressed: #2C2C2C;
-  --surface-inversesurface-outline: #3C3C3C;
-  --surface-inversesurface-separator: #343434;
-  --surface-inversesurface-ct-default: #F7F7F7;
-  --surface-inversesurface-ct-strong: #FFFFFF;
-  --surface-inversesurface-ct-subtle: #B3B3B3;
-  --surface-inversesurface-ct-faint: #808080;
-  --surface-inversesurface-cm-bg: #2A2A2A;
-  --surface-inversesurface-cm-bg-hover: #343434;
-  --surface-inversesurface-cm-bg-pressed: #3C3C3C;
-  --surface-inversesurface-cm-outline: #505050;
-  --surface-inversesurface-cm-outline-hover: #606060;
-  --surface-inversesurface-cm-outline-pressed: #6E6E6E;
-  --surface-inversesurface-cm-separator: #3C3C3C;
+  /* ── SURFACE-INVERSE (snackbars, toasts — dark in light theme) ── */
+  --surface-inverse-bg: #1A1A1A;
+  --surface-inverse-hover: #222222;
+  --surface-inverse-pressed: #2C2C2C;
+  --surface-inverse-outline: #3C3C3C;
+  --surface-inverse-separator: #3C3C3C;
+  --surface-inverse-ct-default: #F7F7F7;
+  --surface-inverse-ct-strong: #FFFFFF;
+  --surface-inverse-ct-subtle: #B3B3B3;
+  --surface-inverse-ct-faint: #808080;
+  --surface-inverse-cm-bg: #2A2A2A;
+  --surface-inverse-cm-bg-hover: #343434;
+  --surface-inverse-cm-bg-pressed: #3C3C3C;
+  --surface-inverse-cm-outline: #505050;
+  --surface-inverse-cm-outline-hover: #606060;
+  --surface-inverse-cm-outline-pressed: #6E6E6E;
+  --surface-inverse-cm-separator: #404040;
 }
 
 /* ── Dark Theme ─────────────────────────────────────────────── */
@@ -185,7 +186,7 @@
   --surface-bright-hover: #282828;
   --surface-bright-pressed: #323232;
   --surface-bright-outline: #404040;
-  --surface-bright-separator: #383838;
+  --surface-bright-separator: #404040;
   --surface-bright-ct-default: #ECECEC;
   --surface-bright-ct-strong: #FFFFFF;
   --surface-bright-ct-subtle: #ABABAB;
@@ -196,14 +197,14 @@
   --surface-bright-cm-outline: #505050;
   --surface-bright-cm-outline-hover: #606060;
   --surface-bright-cm-outline-pressed: #707070;
-  --surface-bright-cm-separator: #383838;
+  --surface-bright-cm-separator: #404040;
 
   /* ── SURFACE-BASE (default dark canvas) ─────────────────── */
   --surface-base-bg: #141414;
   --surface-base-hover: #1E1E1E;
   --surface-base-pressed: #282828;
   --surface-base-outline: #363636;
-  --surface-base-separator: #2E2E2E;
+  --surface-base-separator: #383838;
   --surface-base-ct-default: #E5E5E5;
   --surface-base-ct-strong: #FAFAFA;
   --surface-base-ct-subtle: #A3A3A3;
@@ -214,50 +215,50 @@
   --surface-base-cm-outline: #444444;
   --surface-base-cm-outline-hover: #555555;
   --surface-base-cm-outline-pressed: #666666;
-  --surface-base-cm-separator: #2E2E2E;
+  --surface-base-cm-separator: #383838;
 
   /* ── SURFACE-DIM (muted dark areas) ─────────────────────── */
   --surface-dim-bg: #101010;
   --surface-dim-hover: #191919;
   --surface-dim-pressed: #222222;
   --surface-dim-outline: #303030;
-  --surface-dim-separator: #282828;
+  --surface-dim-separator: #343434;
   --surface-dim-ct-default: #D8D8D8;
   --surface-dim-ct-strong: #F0F0F0;
   --surface-dim-ct-subtle: #949494;
-  --surface-dim-ct-faint: #5C5C5C;
+  --surface-dim-ct-faint: #606060;
   --surface-dim-cm-bg: #1A1A1A;
   --surface-dim-cm-bg-hover: #232323;
   --surface-dim-cm-bg-pressed: #2C2C2C;
   --surface-dim-cm-outline: #3C3C3C;
   --surface-dim-cm-outline-hover: #4C4C4C;
   --surface-dim-cm-outline-pressed: #5C5C5C;
-  --surface-dim-cm-separator: #282828;
+  --surface-dim-cm-separator: #343434;
 
   /* ── SURFACE-DEEP (deepest dark / sidebars) ─────────────── */
   --surface-deep-bg: #0A0A0A;
   --surface-deep-hover: #131313;
   --surface-deep-pressed: #1C1C1C;
   --surface-deep-outline: #2A2A2A;
-  --surface-deep-separator: #222222;
+  --surface-deep-separator: #303030;
   --surface-deep-ct-default: #D0D0D0;
   --surface-deep-ct-strong: #EDEDED;
   --surface-deep-ct-subtle: #8E8E8E;
-  --surface-deep-ct-faint: #565656;
+  --surface-deep-ct-faint: #606060;
   --surface-deep-cm-bg: #151515;
   --surface-deep-cm-bg-hover: #1E1E1E;
   --surface-deep-cm-bg-pressed: #282828;
   --surface-deep-cm-outline: #383838;
   --surface-deep-cm-outline-hover: #484848;
   --surface-deep-cm-outline-pressed: #585858;
-  --surface-deep-cm-separator: #222222;
+  --surface-deep-cm-separator: #303030;
 
   /* ── SURFACE-ACCENT (primary-tinted dark) ───────────────── */
   --surface-accent-bg: #280C24;
   --surface-accent-hover: #3A1535;
   --surface-accent-pressed: #4E1E48;
   --surface-accent-outline: #622858;
-  --surface-accent-separator: #501E48;
+  --surface-accent-separator: #622858;
   --surface-accent-ct-default: #FFDCF7;
   --surface-accent-ct-strong: #FFFFFF;
   --surface-accent-ct-subtle: #FFB6F0;
@@ -268,14 +269,14 @@
   --surface-accent-cm-outline: #7A3870;
   --surface-accent-cm-outline-hover: #924888;
   --surface-accent-cm-outline-pressed: #A858A0;
-  --surface-accent-cm-separator: #501E48;
+  --surface-accent-cm-separator: #622858;
 
   /* ── SURFACE-CONTAINER (cards, panels — dark) ───────────── */
   --surface-container-bg: #1E1E1E;
   --surface-container-hover: #282828;
   --surface-container-pressed: #323232;
   --surface-container-outline: #3E3E3E;
-  --surface-container-separator: #363636;
+  --surface-container-separator: #404040;
   --surface-container-ct-default: #ECECEC;
   --surface-container-ct-strong: #FFFFFF;
   --surface-container-ct-subtle: #ABABAB;
@@ -286,14 +287,14 @@
   --surface-container-cm-outline: #505050;
   --surface-container-cm-outline-hover: #606060;
   --surface-container-cm-outline-pressed: #707070;
-  --surface-container-cm-separator: #363636;
+  --surface-container-cm-separator: #404040;
 
   /* ── SURFACE-OVER-CONTAINER (popovers, dropdowns — dark) ── */
   --surface-over-container-bg: #282828;
   --surface-over-container-hover: #323232;
   --surface-over-container-pressed: #3C3C3C;
   --surface-over-container-outline: #484848;
-  --surface-over-container-separator: #404040;
+  --surface-over-container-separator: #484848;
   --surface-over-container-ct-default: #F0F0F0;
   --surface-over-container-ct-strong: #FFFFFF;
   --surface-over-container-ct-subtle: #B0B0B0;
@@ -304,14 +305,14 @@
   --surface-over-container-cm-outline: #5A5A5A;
   --surface-over-container-cm-outline-hover: #6A6A6A;
   --surface-over-container-cm-outline-pressed: #7A7A7A;
-  --surface-over-container-cm-separator: #404040;
+  --surface-over-container-cm-separator: #484848;
 
   /* ── SURFACE-FLOAT (menus, dropdowns, popups — dark) ───── */
   --surface-float-bg: #303030;
   --surface-float-hover: #3A3A3A;
   --surface-float-pressed: #444444;
   --surface-float-outline: #525252;
-  --surface-float-separator: #484848;
+  --surface-float-separator: #505050;
   --surface-float-ct-default: #F5F5F5;
   --surface-float-ct-strong: #FFFFFF;
   --surface-float-ct-subtle: #B8B8B8;
@@ -322,23 +323,23 @@
   --surface-float-cm-outline: #626262;
   --surface-float-cm-outline-hover: #727272;
   --surface-float-cm-outline-pressed: #828282;
-  --surface-float-cm-separator: #484848;
+  --surface-float-cm-separator: #505050;
 
-  /* ── SURFACE-INVERSESURFACE (fixed dark — same in both themes) ── */
-  --surface-inversesurface-bg: #1A1A1A;
-  --surface-inversesurface-hover: #222222;
-  --surface-inversesurface-pressed: #2C2C2C;
-  --surface-inversesurface-outline: #3C3C3C;
-  --surface-inversesurface-separator: #343434;
-  --surface-inversesurface-ct-default: #F7F7F7;
-  --surface-inversesurface-ct-strong: #FFFFFF;
-  --surface-inversesurface-ct-subtle: #B3B3B3;
-  --surface-inversesurface-ct-faint: #808080;
-  --surface-inversesurface-cm-bg: #2A2A2A;
-  --surface-inversesurface-cm-bg-hover: #343434;
-  --surface-inversesurface-cm-bg-pressed: #3C3C3C;
-  --surface-inversesurface-cm-outline: #505050;
-  --surface-inversesurface-cm-outline-hover: #606060;
-  --surface-inversesurface-cm-outline-pressed: #6E6E6E;
-  --surface-inversesurface-cm-separator: #3C3C3C;
+  /* ── SURFACE-INVERSE (snackbars, toasts — light in dark theme) ── */
+  --surface-inverse-bg: #F0F0F0;
+  --surface-inverse-hover: #E8E8E8;
+  --surface-inverse-pressed: #E0E0E0;
+  --surface-inverse-outline: #C8C8C8;
+  --surface-inverse-separator: #C4C4C4;
+  --surface-inverse-ct-default: #1A1A1A;
+  --surface-inverse-ct-strong: #0A0A0A;
+  --surface-inverse-ct-subtle: #525252;
+  --surface-inverse-ct-faint: #808080;
+  --surface-inverse-cm-bg: #FAFAFA;
+  --surface-inverse-cm-bg-hover: #F0F0F0;
+  --surface-inverse-cm-bg-pressed: #E8E8E8;
+  --surface-inverse-cm-outline: #B3B3B3;
+  --surface-inverse-cm-outline-hover: #A3A3A3;
+  --surface-inverse-cm-outline-pressed: #8F8F8F;
+  --surface-inverse-cm-separator: #C4C4C4;
 }

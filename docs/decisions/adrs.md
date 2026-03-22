@@ -220,7 +220,7 @@ Design Token Forge needed a global color and sizing token foundation. We conside
 
 - **T0 Primitives**: 148 color tokens (8 palettes × 21 perceptual steps), 39 spacing, 19 typography
 - **T1 Semantic Roles**: 6 roles (primary, brand, success, warning, danger, info) × 18 tokens × light/dark = 251 variables
-- **T2 Surface Contexts**: 9 surfaces (base, bright, deep, accent, dim, container, over-container, float, inversesurface) × 34 tokens × light/dark
+- **T2 Surface Contexts**: 9 surfaces (base, bright, deep, accent, dim, container, over-container, float, inverse) × 16 tokens × light/dark
 - **T3 Component Sizes**: 93 tokens × 10 density modes (micro → tiny → small → base → medium → large → big → huge → mega → ultra)
 - **Utility tokens**: 5 (white, black, fixed-white, fixed-black, fixed-primary)
 

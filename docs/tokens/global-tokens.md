@@ -132,7 +132,7 @@ Naming: `--{role}-{group}-{property}` (e.g., `--primary-component-bg-default`, `
 | container | Card / container |
 | over-container | Elements on top of containers |
 | float | Floating — tooltips, popovers |
-| inversesurface | Always dark in both themes |
+| inverse | Opposite of current theme — dark in light, light in dark |
 
 ### Per-surface token structure (34):
 

@@ -55,7 +55,7 @@ const startedAt    = new Date().toISOString();
 
 const SURFACE_NAMES = [
   'bright', 'base', 'dim', 'deep', 'accent',
-  'container', 'over-container', 'float', 'inversesurface'
+  'container', 'over-container', 'float', 'inverse'
 ];
 
 const SEMANTIC_ROLES = [
