@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Editor — Design Token Forge</title>
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     Token Editor — Live edit → GitHub commit → Figma sync
+     ═══════════════════════════════════════════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #fafafa; --surface: #fff; --fg: #1a1a1a; --fg2: #666;
+    --fg3: #999; --border: #e5e5e5; --border2: #d4d4d4;
+    --accent: #BD22AB; --accent-bg: #FFF2FC; --accent-border: #FFCEF4;
+    --ok: #16A34A; --ok-bg: #DCFCE7; --ok-border: #BBF7D0;
+    --err: #DC2626; --err-bg: #FEF2F2; --err-border: #FECACA;
+    --warn-bg: #FEF3C7; --warn-border: #FCD34D; --warn: #92400E;
+    --radius: 8px; --mono: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+  }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px; color: var(--fg); background: var(--bg);
+    line-height: 1.5;
+  }
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  .top-bar {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 24px; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .top-bar h1 { font-size: 16px; font-weight: 700; }
+  .top-bar h1 span { font-weight: 300; color: var(--fg2); }
+  .top-bar .spacer { flex: 1; }
+  .top-bar .status { font-size: 11px; color: var(--fg3); }
+  .top-bar .status.ok { color: var(--ok); }
+  .top-bar .status.err { color: var(--err); }
+
+  .main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  /* ── Auth section ────────────────────────────────────────── */
+  .auth-card {
+    max-width: 520px; margin: 60px auto; padding: 32px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); text-align: center;
+  }
+  .auth-card h2 { font-size: 20px; margin-bottom: 8px; }
+  .auth-card p { color: var(--fg2); font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
+  .auth-card .hint { font-size: 11px; color: var(--fg3); margin-top: 12px; line-height: 1.5; }
+  .auth-card .hint a { color: var(--accent); }
+  .auth-row { display: flex; gap: 8px; }
+  .auth-row input {
+    flex: 1; padding: 10px 14px; border: 1px solid var(--border2);
+    border-radius: var(--radius); font-size: 13px; font-family: var(--mono);
+  }
+  .auth-row input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+  /* ── Buttons ─────────────────────────────────────────────── */
+  .btn {
+    padding: 8px 18px; border: none; border-radius: var(--radius);
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 120ms;
+    white-space: nowrap;
+  }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { filter: brightness(0.9); }
+  .btn-accent:disabled { background: #ccc; color: #888; cursor: not-allowed; filter: none; }
+  .btn-ghost {
+    background: transparent; color: var(--fg2); border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { background: #f5f5f5; }
+  .btn-save {
+    background: var(--ok); color: #fff; padding: 10px 28px; font-size: 14px;
+  }
+  .btn-save:hover { filter: brightness(0.9); }
+  .btn-save:disabled { background: #ccc; color: #888; cursor: not-allowed; filter: none; }
+
+  /* ── File tabs ───────────────────────────────────────────── */
+  .file-tabs {
+    display: flex; gap: 4px; margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0;
+  }
+  .file-tab {
+    padding: 8px 16px; font-size: 12px; font-weight: 600;
+    color: var(--fg3); cursor: pointer; border: none; background: none;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    transition: all 120ms;
+  }
+  .file-tab:hover { color: var(--fg); }
+  .file-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Token grid ──────────────────────────────────────────── */
+  .section-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--fg3); padding: 16px 0 8px;
+    border-bottom: 1px solid var(--border); margin-bottom: 12px;
+  }
+  .token-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px; margin-bottom: 24px;
+  }
+  .token-row {
+    display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+    border-radius: 6px; transition: background 120ms;
+  }
+  .token-row:hover { background: #f5f5f5; }
+  .token-row.changed { background: var(--accent-bg); }
+  .token-swatch {
+    width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.1); cursor: pointer; position: relative;
+    overflow: hidden;
+  }
+  .token-swatch input[type="color"] {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    border: none; padding: 0; cursor: pointer; opacity: 0;
+  }
+  .token-name {
+    flex: 1; font-size: 11px; font-family: var(--mono);
+    color: var(--fg2); overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .token-hex {
+    width: 76px; padding: 4px 6px; border: 1px solid var(--border);
+    border-radius: 4px; font-family: var(--mono); font-size: 11px;
+    color: var(--fg); text-transform: uppercase; text-align: center;
+    background: var(--surface);
+  }
+  .token-hex:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .token-hex.changed { border-color: var(--accent); background: var(--accent-bg); }
+
+  /* ── Non-color tokens ────────────────────────────────────── */
+  .token-value {
+    width: 100px; padding: 4px 6px; border: 1px solid var(--border);
+    border-radius: 4px; font-family: var(--mono); font-size: 11px;
+    color: var(--fg); text-align: center; background: var(--surface);
+  }
+  .token-value:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .token-value.changed { border-color: var(--accent); background: var(--accent-bg); }
+
+  /* ── Floating save bar ───────────────────────────────────── */
+  .save-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    display: none; align-items: center; gap: 12px; justify-content: center;
+    padding: 14px 24px; background: var(--surface);
+    border-top: 2px solid var(--accent);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  }
+  .save-bar.visible { display: flex; }
+  .save-bar .change-count {
+    font-size: 13px; font-weight: 600; color: var(--accent);
+  }
+
+  /* ── Toast ───────────────────────────────────────────────── */
+  .toast {
+    position: fixed; top: 60px; right: 24px; z-index: 300;
+    padding: 12px 20px; border-radius: var(--radius); font-size: 13px;
+    font-weight: 600; opacity: 0; transform: translateY(-10px);
+    transition: all 300ms ease; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: none; }
+  .toast.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+  .toast.err { background: var(--err-bg); color: var(--err); border: 1px solid var(--err-border); }
+  .toast.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+
+  /* ── Deploy progress ─────────────────────────────────────── */
+  .deploy-status {
+    display: none; align-items: center; gap: 10px;
+    padding: 12px 16px; border-radius: var(--radius);
+    background: var(--accent-bg); border: 1px solid var(--accent-border);
+    font-size: 12px; color: var(--accent); margin-bottom: 16px;
+  }
+  .deploy-status.visible { display: flex; }
+  .deploy-spinner {
+    width: 16px; height: 16px; border: 2px solid var(--accent-border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ──────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .top-bar { padding: 10px 16px; }
+    .main { padding: 16px; }
+    .token-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <h1>Token Editor <span>— Design Token Forge</span></h1>
+  <div class="spacer"></div>
+  <span class="status" id="connStatus"></span>
+  <button class="btn btn-ghost" id="logoutBtn" style="display:none">Logout</button>
+</div>
+
+<!-- Auth screen -->
+<div id="authScreen" class="auth-card">
+  <h2>Connect to GitHub</h2>
+  <p>
+    Enter a GitHub Personal Access Token with <strong>repo</strong> scope
+    to read and write token files.
+  </p>
+  <div class="auth-row">
+    <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <button class="btn btn-accent" id="connectBtn">Connect</button>
+  </div>
+  <p class="hint">
+    Create a token at
+    <a href="https://github.com/settings/tokens/new?scopes=repo&description=DTF+Token+Editor" target="_blank" rel="noopener">
+      github.com/settings/tokens
+    </a> with <code>repo</code> scope.
+  </p>
+</div>
+
+<!-- Editor (hidden until auth) -->
+<div id="editorScreen" class="main" style="display:none">
+  <!-- Deploy status -->
+  <div class="deploy-status" id="deployStatus">
+    <div class="deploy-spinner"></div>
+    <span id="deployText">Deploying...</span>
+  </div>
+
+  <!-- File tabs -->
+  <div class="file-tabs" id="fileTabs"></div>
+
+  <!-- Token list -->
+  <div id="tokenList"></div>
+</div>
+
+<!-- Floating save bar -->
+<div class="save-bar" id="saveBar">
+  <span class="change-count" id="changeCount">0 changes</span>
+  <button class="btn btn-save" id="saveBtn">Save &amp; Deploy to Figma</button>
+  <button class="btn btn-ghost" id="discardBtn">Discard</button>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Token Editor — Core Logic
+   ═══════════════════════════════════════════════════════════════ */
+
+var OWNER = 'SridharRavi90';
+var REPO  = 'Design-Token-Forge';
+var BRANCH = 'main';
+var API = 'https://api.github.com';
+
+var TOKEN_FILES = [
+  { path: 'packages/tokens/src/primitives.css', label: 'Primitives' },
+  { path: 'packages/tokens/src/semantic.css',   label: 'Semantic' },
+  { path: 'packages/tokens/src/surfaces.css',   label: 'Surfaces' },
+  { path: 'packages/tokens/src/extras.css',     label: 'Extras' }
+];
+
+var pat = '';
+var files = {};       /* { filePath: { raw, sha, tokens: [{name, value, line}], original } } */
+var activeFile = '';
+var changes = {};     /* { filePath: { varName: newValue } } */
+
+/* ── DOM refs ──────────────────────────────────────────────── */
+var authScreen  = document.getElementById('authScreen');
+var editorScreen = document.getElementById('editorScreen');
+var patInput    = document.getElementById('patInput');
+var connectBtn  = document.getElementById('connectBtn');
+var logoutBtn   = document.getElementById('logoutBtn');
+var connStatus  = document.getElementById('connStatus');
+var fileTabs    = document.getElementById('fileTabs');
+var tokenList   = document.getElementById('tokenList');
+var saveBar     = document.getElementById('saveBar');
+var saveBtn     = document.getElementById('saveBtn');
+var discardBtn  = document.getElementById('discardBtn');
+var changeCount = document.getElementById('changeCount');
+var deployStatus = document.getElementById('deployStatus');
+var deployText  = document.getElementById('deployText');
+var toastEl     = document.getElementById('toast');
+
+/* ── Auth ──────────────────────────────────────────────────── */
+connectBtn.addEventListener('click', doConnect);
+patInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doConnect();
+});
+logoutBtn.addEventListener('click', function() {
+  pat = '';
+  files = {};
+  changes = {};
+  authScreen.style.display = '';
+  editorScreen.style.display = 'none';
+  logoutBtn.style.display = 'none';
+  saveBar.classList.remove('visible');
+  connStatus.textContent = '';
+  patInput.value = '';
+});
+
+function doConnect() {
+  pat = patInput.value.trim();
+  if (!pat) return;
+  connectBtn.disabled = true;
+  connectBtn.textContent = 'Connecting...';
+
+  ghFetch('/user').then(function(user) {
+    connStatus.textContent = user.login;
+    connStatus.className = 'status ok';
+    authScreen.style.display = 'none';
+    editorScreen.style.display = '';
+    logoutBtn.style.display = '';
+    loadAllFiles();
+  }).catch(function(err) {
+    toast('Auth failed: ' + err.message, 'err');
+  }).finally(function() {
+    connectBtn.disabled = false;
+    connectBtn.textContent = 'Connect';
+  });
+}
+
+/* ── GitHub API helpers ────────────────────────────────────── */
+function ghFetch(endpoint, opts) {
+  opts = opts || {};
+  var url = endpoint.startsWith('http') ? endpoint : API + endpoint;
+  return fetch(url, {
+    method: opts.method || 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + pat,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  }).then(function(r) {
+    if (!r.ok) return r.json().then(function(d) { throw new Error(d.message || r.status); });
+    return r.json();
+  });
+}
+
+function getFileContent(filePath) {
+  return ghFetch('/repos/' + OWNER + '/' + REPO + '/contents/' + filePath + '?ref=' + BRANCH)
+    .then(function(data) {
+      return { raw: decodeBase64(data.content), sha: data.sha };
+    });
+}
+
+function decodeBase64(str) {
+  /* Handle GitHub's base64 with line breaks */
+  return decodeURIComponent(escape(atob(str.replace(/\n/g, ''))));
+}
+
+function encodeBase64(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+/* ── Load all files ────────────────────────────────────────── */
+function loadAllFiles() {
+  connStatus.textContent = 'Loading files...';
+  var promises = TOKEN_FILES.map(function(f) {
+    return getFileContent(f.path).then(function(data) {
+      var tokens = parseCSSVars(data.raw);
+      files[f.path] = {
+        raw: data.raw,
+        sha: data.sha,
+        tokens: tokens,
+        original: data.raw
+      };
+    });
+  });
+
+  Promise.all(promises).then(function() {
+    connStatus.textContent = 'Connected';
+    connStatus.className = 'status ok';
+    buildTabs();
+    switchToFile(TOKEN_FILES[0].path);
+  }).catch(function(err) {
+    toast('Failed to load: ' + err.message, 'err');
+    connStatus.textContent = 'Error';
+    connStatus.className = 'status err';
+  });
+}
+
+/* ── CSS parser ────────────────────────────────────────────── */
+function parseCSSVars(css) {
+  var tokens = [];
+  var lines = css.split('\n');
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    var m = line.match(/^\s*(--[\w-]+)\s*:\s*(.+?)\s*;\s*$/);
+    if (m) {
+      tokens.push({ name: m[1], value: m[2], line: i });
+    }
+  }
+  return tokens;
+}
+
+function isColor(val) {
+  return /^#[0-9a-fA-F]{3,8}$/.test(val.trim());
+}
+
+/* ── Tabs ──────────────────────────────────────────────────── */
+function buildTabs() {
+  fileTabs.innerHTML = '';
+  TOKEN_FILES.forEach(function(f) {
+    var btn = document.createElement('button');
+    btn.className = 'file-tab';
+    btn.textContent = f.label;
+    btn.setAttribute('data-path', f.path);
+    btn.addEventListener('click', function() { switchToFile(f.path); });
+    fileTabs.appendChild(btn);
+  });
+}
+
+function switchToFile(filePath) {
+  activeFile = filePath;
+  /* Update tab highlights */
+  var tabs = fileTabs.querySelectorAll('.file-tab');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle('active', tabs[i].getAttribute('data-path') === filePath);
+  }
+  renderTokens(filePath);
+}
+
+/* ── Render tokens ─────────────────────────────────────────── */
+function renderTokens(filePath) {
+  var f = files[filePath];
+  if (!f) return;
+  tokenList.innerHTML = '';
+
+  var currentSection = '';
+  var grid = null;
+
+  f.tokens.forEach(function(tok) {
+    /* Detect section from CSS comments */
+    var rawLines = f.raw.split('\n');
+    for (var scan = tok.line - 1; scan >= 0; scan--) {
+      var cLine = rawLines[scan].trim();
+      if (cLine.match(/^\/\*.*──.*──/)) {
+        var sectionMatch = cLine.match(/──\s*(.+?)\s*[─(]/);
+        if (sectionMatch) {
+          var sName = sectionMatch[1].trim();
+          if (sName !== currentSection) {
+            currentSection = sName;
+            var title = document.createElement('div');
+            title.className = 'section-title';
+            title.textContent = currentSection;
+            tokenList.appendChild(title);
+            grid = document.createElement('div');
+            grid.className = 'token-grid';
+            tokenList.appendChild(grid);
+          }
+        }
+        break;
+      }
+    }
+    if (!grid) {
+      grid = document.createElement('div');
+      grid.className = 'token-grid';
+      tokenList.appendChild(grid);
+    }
+
+    var fileChanges = changes[filePath] || {};
+    var currentValue = fileChanges[tok.name] !== undefined ? fileChanges[tok.name] : tok.value;
+    var isChanged = fileChanges[tok.name] !== undefined;
+    var colorVal = isColor(currentValue);
+
+    var row = document.createElement('div');
+    row.className = 'token-row' + (isChanged ? ' changed' : '');
+
+    if (colorVal) {
+      var swatch = document.createElement('div');
+      swatch.className = 'token-swatch';
+      swatch.style.background = currentValue;
+      var picker = document.createElement('input');
+      picker.type = 'color';
+      picker.value = currentValue;
+      picker.addEventListener('input', makeColorHandler(filePath, tok, row, swatch));
+      swatch.appendChild(picker);
+      row.appendChild(swatch);
+
+      var name = document.createElement('span');
+      name.className = 'token-name';
+      name.textContent = tok.name;
+      name.title = tok.name;
+      row.appendChild(name);
+
+      var hex = document.createElement('input');
+      hex.type = 'text';
+      hex.className = 'token-hex' + (isChanged ? ' changed' : '');
+      hex.value = currentValue;
+      hex.setAttribute('data-var', tok.name);
+      hex.addEventListener('change', makeHexHandler(filePath, tok, row, swatch, picker));
+      row.appendChild(hex);
+    } else {
+      var blankSwatch = document.createElement('div');
+      blankSwatch.className = 'token-swatch';
+      blankSwatch.style.background = '#f0f0f0';
+      blankSwatch.style.display = 'flex';
+      blankSwatch.style.alignItems = 'center';
+      blankSwatch.style.justifyContent = 'center';
+      blankSwatch.style.fontSize = '10px';
+      blankSwatch.style.color = '#999';
+      blankSwatch.textContent = 'Aa';
+      row.appendChild(blankSwatch);
+
+      var name2 = document.createElement('span');
+      name2.className = 'token-name';
+      name2.textContent = tok.name;
+      name2.title = tok.name;
+      row.appendChild(name2);
+
+      var valInput = document.createElement('input');
+      valInput.type = 'text';
+      valInput.className = 'token-value' + (isChanged ? ' changed' : '');
+      valInput.value = currentValue;
+      valInput.addEventListener('change', makeValueHandler(filePath, tok, row));
+      row.appendChild(valInput);
+    }
+
+    grid.appendChild(row);
+  });
+}
+
+/* ── Change handlers ───────────────────────────────────────── */
+function makeColorHandler(filePath, tok, row, swatch) {
+  return function(e) {
+    var val = e.target.value.toUpperCase();
+    setChange(filePath, tok.name, val);
+    swatch.style.background = val;
+    var hex = row.querySelector('.token-hex');
+    if (hex) hex.value = val;
+    row.classList.add('changed');
+    if (hex) hex.classList.add('changed');
+  };
+}
+
+function makeHexHandler(filePath, tok, row, swatch, picker) {
+  return function(e) {
+    var val = e.target.value.trim().toUpperCase();
+    if (!isColor(val)) { toast('Invalid hex color', 'err'); return; }
+    setChange(filePath, tok.name, val);
+    swatch.style.background = val;
+    picker.value = val;
+    row.classList.add('changed');
+    e.target.classList.add('changed');
+  };
+}
+
+function makeValueHandler(filePath, tok, row) {
+  return function(e) {
+    var val = e.target.value.trim();
+    setChange(filePath, tok.name, val);
+    row.classList.add('changed');
+    e.target.classList.add('changed');
+  };
+}
+
+function setChange(filePath, varName, newValue) {
+  /* Find original value */
+  var f = files[filePath];
+  var origToken = f.tokens.find(function(t) { return t.name === varName; });
+  if (!changes[filePath]) changes[filePath] = {};
+
+  if (origToken && origToken.value === newValue) {
+    delete changes[filePath][varName];
+    if (Object.keys(changes[filePath]).length === 0) delete changes[filePath];
+  } else {
+    changes[filePath][varName] = newValue;
+  }
+  updateSaveBar();
+}
+
+function updateSaveBar() {
+  var total = 0;
+  for (var fp in changes) total += Object.keys(changes[fp]).length;
+  if (total > 0) {
+    saveBar.classList.add('visible');
+    changeCount.textContent = total + ' change' + (total > 1 ? 's' : '');
+    saveBtn.disabled = false;
+  } else {
+    saveBar.classList.remove('visible');
+  }
+}
+
+/* ── Discard ───────────────────────────────────────────────── */
+discardBtn.addEventListener('click', function() {
+  changes = {};
+  updateSaveBar();
+  renderTokens(activeFile);
+  toast('Changes discarded', 'warn');
+});
+
+/* ── Save & Deploy ─────────────────────────────────────────── */
+saveBtn.addEventListener('click', doSaveAndDeploy);
+
+function doSaveAndDeploy() {
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving...';
+
+  var filesToCommit = [];
+  for (var filePath in changes) {
+    var f = files[filePath];
+    var newRaw = applyChanges(f.raw, changes[filePath]);
+    filesToCommit.push({ path: filePath, content: newRaw, sha: f.sha });
+  }
+
+  if (filesToCommit.length === 0) return;
+
+  /* Commit all changed files in one commit using the Git Trees API */
+  commitFiles(filesToCommit, 'Update tokens via DTF Editor')
+    .then(function() {
+      toast('Committed! Deployment starting...', 'ok');
+      changes = {};
+      updateSaveBar();
+      /* Reload files to get new SHAs */
+      loadAllFiles();
+      /* Poll for deployment */
+      showDeployStatus();
+      pollDeployment();
+    })
+    .catch(function(err) {
+      toast('Commit failed: ' + err.message, 'err');
+    })
+    .finally(function() {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save & Deploy to Figma';
+    });
+}
+
+function applyChanges(raw, fileChanges) {
+  var lines = raw.split('\n');
+  for (var varName in fileChanges) {
+    var newVal = fileChanges[varName];
+    for (var i = 0; i < lines.length; i++) {
+      var m = lines[i].match(/^(\s*)(--[\w-]+)(\s*:\s*).+?(;\s*)$/);
+      if (m && m[2] === varName) {
+        lines[i] = m[1] + m[2] + m[3] + newVal + m[4];
+        break;
+      }
+    }
+  }
+  return lines.join('\n');
+}
+
+/* ── Git commit (multi-file) ──────────────────────────────── */
+function commitFiles(filesToCommit, message) {
+  /* Get current commit SHA */
+  return ghFetch('/repos/' + OWNER + '/' + REPO + '/git/ref/heads/' + BRANCH)
+    .then(function(ref) {
+      var commitSha = ref.object.sha;
+      return ghFetch('/repos/' + OWNER + '/' + REPO + '/git/commits/' + commitSha)
+        .then(function(commit) {
+          /* Create blobs for each file */
+          var blobPromises = filesToCommit.map(function(f) {
+            return ghFetch('/repos/' + OWNER + '/' + REPO + '/git/blobs', {
+              method: 'POST',
+              body: { content: encodeBase64(f.content), encoding: 'base64' }
+            }).then(function(blob) {
+              return { path: f.path, sha: blob.sha };
+            });
+          });
+          return Promise.all(blobPromises).then(function(blobs) {
+            /* Create tree */
+            var tree = blobs.map(function(b) {
+              return { path: b.path, mode: '100644', type: 'blob', sha: b.sha };
+            });
+            return ghFetch('/repos/' + OWNER + '/' + REPO + '/git/trees', {
+              method: 'POST',
+              body: { base_tree: commit.tree.sha, tree: tree }
+            });
+          }).then(function(newTree) {
+            /* Create commit */
+            return ghFetch('/repos/' + OWNER + '/' + REPO + '/git/commits', {
+              method: 'POST',
+              body: {
+                message: message,
+                tree: newTree.sha,
+                parents: [commitSha]
+              }
+            });
+          }).then(function(newCommit) {
+            /* Update ref */
+            return ghFetch('/repos/' + OWNER + '/' + REPO + '/git/refs/heads/' + BRANCH, {
+              method: 'PATCH',
+              body: { sha: newCommit.sha }
+            });
+          });
+        });
+    });
+}
+
+/* ── Deployment polling ────────────────────────────────────── */
+function showDeployStatus() {
+  deployStatus.classList.add('visible');
+  deployText.textContent = 'GitHub Action triggered — building & deploying...';
+}
+
+function pollDeployment() {
+  var startTime = Date.now();
+  var interval = setInterval(function() {
+    ghFetch('/repos/' + OWNER + '/' + REPO + '/actions/runs?branch=' + BRANCH + '&per_page=1')
+      .then(function(data) {
+        if (!data.workflow_runs || data.workflow_runs.length === 0) return;
+        var run = data.workflow_runs[0];
+        var elapsed = Math.round((Date.now() - startTime) / 1000);
+
+        if (run.status === 'completed') {
+          clearInterval(interval);
+          if (run.conclusion === 'success') {
+            deployText.textContent = 'Deployed! Figma plugin will detect changes automatically.';
+            deployStatus.style.borderColor = 'var(--ok-border)';
+            deployStatus.style.background = 'var(--ok-bg)';
+            deployStatus.style.color = 'var(--ok)';
+            toast('Deploy complete! Figma plugin will auto-detect.', 'ok');
+          } else {
+            deployText.textContent = 'Deploy failed: ' + run.conclusion;
+            deployStatus.style.borderColor = 'var(--err-border)';
+            deployStatus.style.background = 'var(--err-bg)';
+            deployStatus.style.color = 'var(--err)';
+            toast('Deploy failed', 'err');
+          }
+          setTimeout(function() { deployStatus.classList.remove('visible'); }, 8000);
+        } else {
+          deployText.textContent = 'Building & deploying... (' + elapsed + 's)';
+        }
+      })
+      .catch(function() {});
+
+    /* Timeout after 5 minutes */
+    if (Date.now() - startTime > 300000) {
+      clearInterval(interval);
+      deployText.textContent = 'Deploy status unknown — check GitHub Actions';
+      setTimeout(function() { deployStatus.classList.remove('visible'); }, 5000);
+    }
+  }, 5000);
+}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+function toast(msg, type) {
+  toastEl.textContent = msg;
+  toastEl.className = 'toast ' + (type || '') + ' show';
+  clearTimeout(toastEl._timer);
+  toastEl._timer = setTimeout(function() {
+    toastEl.classList.remove('show');
+  }, 4000);
+}
+
+</script>
+</body>
+</html>
