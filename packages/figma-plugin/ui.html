@@ -108,6 +108,9 @@
   .btn-sync.ready { background: #16A34A; }
   .btn-sync.ready:hover { background: #15803D; }
   .btn-sync:disabled { background: #ccc; color: #888; cursor: not-allowed; }
+  .btn-reset { background: transparent; color: #888; border: 1px solid #d4d4d4; flex: 0 0 auto; padding: 10px 10px; font-size: 11px; }
+  .btn-reset:hover { background: #fee2e2; color: #DC2626; border-color: #DC2626; }
+  .btn-reset:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-cancel { background: #f0f0f0; color: #555; border: 1px solid #d4d4d4; flex: 0 0 auto; padding: 10px 14px; }
   .btn-cancel:hover { background: #e5e5e5; }
 
@@ -273,6 +276,7 @@
 <!-- Actions -->
 <div class="actions">
   <button class="btn-cancel" id="cancelBtn">Close</button>
+  <button class="btn-reset" id="resetBtn" disabled title="Delete all DTF variables and recreate from scratch. Use only if variables are corrupted.">Reset &amp; Recreate</button>
   <button class="btn-sync" id="syncBtn" disabled>Waiting for server&hellip;</button>
 </div>
 
@@ -337,6 +341,7 @@
   var notifBody  = document.getElementById('notifBody');
   var changeList = document.getElementById('changeList');
   var syncBtn    = document.getElementById('syncBtn');
+  var resetBtn   = document.getElementById('resetBtn');
   var cancelBtn  = document.getElementById('cancelBtn');
   var statusBar  = document.getElementById('statusBar');
   var figmaStats = document.getElementById('figmaStats');
@@ -448,6 +453,7 @@
       notifBody.innerHTML = '<strong>' + data.totalVariables + '</strong> variables ready. '
         + 'Server hash: <strong>' + serverHash + '</strong>';
       syncBtn.disabled = false;
+      resetBtn.disabled = false;
       syncBtn.textContent = 'Changes found — Update Variables';
       syncBtn.className = 'btn-sync';
 
@@ -463,6 +469,7 @@
       notifBadge.style.display = 'none';
       notifBody.innerHTML = '<strong>' + data.totalVariables + '</strong> variables available in <strong>' + data.totalCollections + '</strong> collections.';
       syncBtn.disabled = false;
+      resetBtn.disabled = false;
       syncBtn.textContent = hasExistingVars ? 'Update Variables' : 'Create in Figma';
       syncBtn.className = 'btn-sync' + (hasExistingVars ? '' : ' ready');
     } else if (figmaHash === serverHash) {
@@ -548,10 +555,24 @@
     if (!tokenData || syncing) return;
     syncing = true;
     syncBtn.disabled = true;
+    resetBtn.disabled = true;
     syncBtn.textContent = 'Syncing\u2026';
-    setStatus('Applying token changes to Figma\u2026', 'work');
+    setStatus('Updating variables in-place\u2026', 'work');
     parent.postMessage({
       pluginMessage: { type: 'sync', data: tokenData, hash: tokenData.contentHash || '' }
+    }, '*');
+  });
+
+  resetBtn.addEventListener('click', function() {
+    if (!tokenData || syncing) return;
+    if (!confirm('This will DELETE all DTF variables and recreate them.\nComponent bindings will break. Continue?')) return;
+    syncing = true;
+    syncBtn.disabled = true;
+    resetBtn.disabled = true;
+    resetBtn.textContent = 'Resetting\u2026';
+    setStatus('Deleting all DTF variables and recreating\u2026', 'work');
+    parent.postMessage({
+      pluginMessage: { type: 'reset', data: tokenData, hash: tokenData.contentHash || '' }
     }, '*');
   });
 
@@ -599,8 +620,10 @@
       syncing = false;
       var s = msg.stats;
       figmaHash = msg.hash || (tokenData ? tokenData.contentHash : '');
-      var text = (msg.replaced ? 'Replaced old collections. ' : '')
-        + 'Created ' + s.variables + ' variables in ' + s.collections + ' collections.'
+      var text = msg.replaced ? 'Reset complete. ' : '';
+      if (s.updated > 0) text += s.updated + ' updated in-place. ';
+      if (s.created > 0) text += s.created + ' created. ';
+      text += s.variables + ' variables in ' + s.collections + ' collections.'
         + (s.aliases > 0 ? ' ' + s.aliases + ' aliases linked.' : '');
       setStatus(text, s.errors.length > 0 ? 'err' : 'ok');
 
@@ -636,6 +659,8 @@
       syncing = false;
       setStatus('Error: ' + msg.error, 'err');
       syncBtn.disabled = false;
+      resetBtn.disabled = false;
+      resetBtn.textContent = 'Reset & Recreate';
       syncBtn.textContent = 'Retry Sync';
     }
 
@@ -660,6 +685,7 @@
     try {
       tokenData = JSON.parse(jsonInput.value.trim());
       syncBtn.disabled = false;
+      resetBtn.disabled = false;
       syncBtn.textContent = 'Sync (manual)';
     } catch(e) {}
   }
@@ -690,6 +716,7 @@
     lastSyncedVarCount = 0;
     undoWarn.className = 'undo-warn visible';
     syncBtn.disabled = false;
+    resetBtn.disabled = false;
     syncBtn.textContent = 'Re-sync Variables';
     syncBtn.className = 'btn-sync';
     figmaStats.style.display = 'none';

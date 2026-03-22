@@ -49,7 +49,7 @@ function findDTFCollections() {
   return found;
 }
 
-/* ── Delete all DTF collections ──────────────────────────── */
+/* ── Delete all DTF collections (only for explicit reset) ── */
 
 function deleteAllDTF() {
   var cols = findDTFCollections();
@@ -65,12 +65,34 @@ function deleteAllDTF() {
   return cols.length;
 }
 
-/* ── Create all collections from token data ──────────────── */
+/* ── Build lookup of existing DTF variables ──────────────── */
 
-function createAll(data) {
-  var stats = { collections: 0, variables: 0, aliases: 0, errors: [] };
+function buildExistingLookup() {
+  var cols = findDTFCollections();
+  var colMap = {};   // collectionName => { collection, modeMap, varMap }
+  for (var i = 0; i < cols.length; i++) {
+    var c = cols[i];
+    var modeMap = {};
+    for (var m = 0; m < c.modes.length; m++) {
+      modeMap[c.modes[m].name] = c.modes[m].modeId;
+    }
+    var varMap = {};  // varName => figma Variable
+    for (var j = 0; j < c.variableIds.length; j++) {
+      var v = figma.variables.getVariableById(c.variableIds[j]);
+      if (v) varMap[v.name] = v;
+    }
+    colMap[c.name] = { collection: c, modeMap: modeMap, varMap: varMap };
+  }
+  return colMap;
+}
 
-  /* Pass 1: Create all collections, modes, and variables.
+/* ── Sync all collections — update-in-place, preserving IDs */
+
+function syncAll(data) {
+  var stats = { collections: 0, variables: 0, aliases: 0, updated: 0, created: 0, errors: [] };
+  var existing = buildExistingLookup();
+
+  /* Pass 1: Create/update collections, modes, and variables.
      Build a lookup so aliases can be resolved in pass 2. */
   var varLookup = {}; // "CollectionName::VarPath" => figma Variable obj
   var pendingAliases = []; // { variable, modeId, ref }
@@ -78,28 +100,48 @@ function createAll(data) {
   for (var ci = 0; ci < data.collections.length; ci++) {
     var col = data.collections[ci];
     try {
-      var collection = figma.variables.createVariableCollection(col.name);
+      var collection, modeMap;
+      var ex = existing[col.name];
+
+      if (ex) {
+        /* ─── Reuse existing collection ─── */
+        collection = ex.collection;
+        modeMap = ex.modeMap;
+
+        /* Ensure all required modes exist */
+        for (var mi = 0; mi < col.modes.length; mi++) {
+          if (!modeMap[col.modes[mi]]) {
+            try {
+              var newModeId = collection.addMode(col.modes[mi]);
+              modeMap[col.modes[mi]] = newModeId;
+            } catch (modeErr) {
+              stats.errors.push('Mode ' + col.modes[mi] + ' in ' + col.name + ': ' + modeErr.message);
+              log('Mode limit hit: ' + col.modes[mi] + ' — ' + modeErr.message);
+            }
+          }
+        }
+      } else {
+        /* ─── Create new collection ─── */
+        collection = figma.variables.createVariableCollection(col.name);
+        modeMap = {};
+        var firstModeId = collection.modes[0].modeId;
+        collection.renameMode(firstModeId, col.modes[0]);
+        modeMap[col.modes[0]] = firstModeId;
+
+        for (var mi2 = 1; mi2 < col.modes.length; mi2++) {
+          try {
+            var newMId = collection.addMode(col.modes[mi2]);
+            modeMap[col.modes[mi2]] = newMId;
+          } catch (modeErr2) {
+            stats.errors.push('Mode ' + col.modes[mi2] + ' in ' + col.name + ': ' + modeErr2.message);
+            log('Mode limit hit: ' + col.modes[mi2] + ' — ' + modeErr2.message);
+          }
+        }
+      }
       stats.collections++;
 
-      /* Hide foundation collections from the property panel */
       if (col.hiddenFromPublishing) {
         collection.hiddenFromPublishing = true;
-      }
-
-      var modeMap = {};
-      var firstModeId = collection.modes[0].modeId;
-      collection.renameMode(firstModeId, col.modes[0]);
-      modeMap[col.modes[0]] = firstModeId;
-
-      for (var mi = 1; mi < col.modes.length; mi++) {
-        try {
-          var newModeId = collection.addMode(col.modes[mi]);
-          modeMap[col.modes[mi]] = newModeId;
-        } catch (modeErr) {
-          stats.errors.push('Mode ' + col.modes[mi] + ' in ' + col.name + ': ' + modeErr.message
-            + ' (Figma plan may limit modes to 4)');
-          log('Mode limit hit: ' + col.modes[mi] + ' — ' + modeErr.message);
-        }
       }
 
       for (var vi = 0; vi < col.variables.length; vi++) {
@@ -111,10 +153,21 @@ function createAll(data) {
         if (!resolvedType) continue;
 
         try {
-          var variable = figma.variables.createVariable(v.name, collection.id, resolvedType);
+          var variable;
+          var existingVar = ex && ex.varMap[v.name];
+
+          if (existingVar) {
+            /* ─── Update existing variable in-place ─── */
+            variable = existingVar;
+            stats.updated++;
+          } else {
+            /* ─── Create new variable ─── */
+            variable = figma.variables.createVariable(v.name, collection.id, resolvedType);
+            stats.created++;
+          }
+
           varLookup[col.name + '::' + v.name] = variable;
 
-          /* Apply Figma scopes — empty array hides from all pickers */
           if (Array.isArray(v.scopes)) {
             try {
               variable.scopes = v.scopes;
@@ -130,7 +183,6 @@ function createAll(data) {
             if (!mId) continue;
             var rawVal = v.values[modeName];
 
-            /* Check if this is an alias reference */
             if (rawVal && typeof rawVal === 'object' && rawVal.type === 'VARIABLE_ALIAS') {
               pendingAliases.push({ variable: variable, modeId: mId, ref: rawVal });
             } else {
@@ -158,7 +210,6 @@ function createAll(data) {
         pa.variable.setValueForMode(pa.modeId, alias);
         stats.aliases++;
       } catch (ae) {
-        /* Fallback: if alias fails, log but don't break */
         stats.errors.push('Alias ' + pa.ref.name + ': ' + ae.message);
       }
     } else {
@@ -209,14 +260,26 @@ figma.ui.onmessage = function(msg) {
 
   if (msg.type === 'sync') {
     try {
-      var deleted = deleteAllDTF();
-      figma.ui.postMessage({ type: 'progress', text: 'Creating T0 → T1 → T2/T3 collections...' });
-      var stats = createAll(msg.data);
-      figma.ui.postMessage({ type: 'done', stats: stats, replaced: deleted > 0, hash: msg.hash || '' });
+      figma.ui.postMessage({ type: 'progress', text: 'Syncing T0 → T1 → T2/T3 collections...' });
+      var stats = syncAll(msg.data);
+      figma.ui.postMessage({ type: 'done', stats: stats, replaced: false, hash: msg.hash || '' });
       figma.notify(
-        'DTF: ' + stats.variables + ' variables synced, ' + stats.aliases + ' aliases' +
+        'DTF: ' + stats.variables + ' vars (' + stats.updated + ' updated, ' +
+        stats.created + ' created), ' + stats.aliases + ' aliases' +
         (stats.errors.length > 0 ? ' (' + stats.errors.length + ' errors)' : '')
       );
+    } catch (e) {
+      figma.ui.postMessage({ type: 'error', error: e.message });
+    }
+  }
+
+  if (msg.type === 'reset') {
+    try {
+      var deleted = deleteAllDTF();
+      figma.ui.postMessage({ type: 'progress', text: 'Creating T0 → T1 → T2/T3 collections...' });
+      var stats = syncAll(msg.data);
+      figma.ui.postMessage({ type: 'done', stats: stats, replaced: deleted > 0, hash: msg.hash || '' });
+      figma.notify('DTF: Reset complete — ' + stats.variables + ' variables, ' + stats.aliases + ' aliases');
     } catch (e) {
       figma.ui.postMessage({ type: 'error', error: e.message });
     }
