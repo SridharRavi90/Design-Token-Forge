@@ -253,7 +253,7 @@ html[data-theme="dark"] .cert-badge[data-status="FAILED"]{background:#7F1D1D;col
     <h2>1. Color Roles</h2>
     <span class="section-tag">All Palettes</span>
   </div>
-  <p class="section-desc">Each role generates a WCAG-guaranteed 21-step palette from a single key color. Neutral is auto-derived from the primary hue. Add custom roles for secondary, tertiary, or accent colors.</p>
+  <p class="section-desc">Each role generates a WCAG-guaranteed 21-step palette from a single key color. Desaturated is auto-derived from the primary hue. Add custom roles for secondary, tertiary, or accent colors.</p>
   <div class="section-body">
     <div class="role-list" id="rolesList"></div>
     <div class="add-role-wrap">
@@ -559,7 +559,7 @@ var DEFAULT_ROLES = [
   {id:'info',     label:'Info',     keyHex:'#0EA5E9', type:'fixed'},
   {id:'success',  label:'Success',  keyHex:'#16A34A', type:'fixed'},
   {id:'greyscale', label:'Greyscale', keyHex:null, type:'auto', derive:'greyscale'},
-  {id:'neutral', label:'Neutral', keyHex:null, type:'auto', derive:'neutral'},
+  {id:'desaturated', label:'Desaturated', keyHex:null, type:'auto', derive:'desaturated'},
 ];
 
 function initRoles() {
@@ -570,8 +570,8 @@ function deriveKeyHex(derive) {
   var primary = roles[0];
   if (!primary) return '#737373';
   var oklch = PE.hexToOklch(primary.keyHex);
-  if (derive === 'neutral') {
-    return PE.oklchToHex(oklch[0], Math.min(oklch[1] * 0.35, 0.06), oklch[2]);
+  if (derive === 'desaturated') {
+    return PE.oklchToHex(oklch[0], 0.012, oklch[2]);
   }
   if (derive === 'greyscale') {
     return PE.oklchToHex(oklch[0], 0, 0);
@@ -1109,7 +1109,7 @@ function renderExport(format) {
 
 function rolePrefix(r) {
   if (TOKEN_ROLES.indexOf(r.id) >= 0) return r.id;
-  if (r.id === 'neutral') return r.id;
+  if (r.id === 'desaturated') return r.id;
   return r.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
@@ -1432,7 +1432,7 @@ function buildPrimitivesFileCSS() {
   lines.push(':root {');
   lines.push('');
   // Map role IDs to primitive prefix names
-  var PRIM_PREFIX = { primary:'monochromatic', brand:'brand', danger:'danger', warning:'warning', info:'info', success:'success', greyscale:'greyscale', neutral:'neutral' };
+  var PRIM_PREFIX = { primary:'monochromatic', brand:'brand', danger:'danger', warning:'warning', info:'info', success:'success', greyscale:'greyscale', desaturated:'desaturated' };
   for (var i = 0; i < roles.length; i++) {
     var r = roles[i];
     var pal = palettes[r.id];
@@ -1543,7 +1543,7 @@ function buildSemanticFileCSS() {
 }
 
 function rolePrefix(r) {
-  var PRIM_PREFIX = { primary:'monochromatic', brand:'brand', danger:'danger', warning:'warning', info:'info', success:'success', greyscale:'greyscale', neutral:'neutral' };
+  var PRIM_PREFIX = { primary:'monochromatic', brand:'brand', danger:'danger', warning:'warning', info:'info', success:'success', greyscale:'greyscale', desaturated:'desaturated' };
   return PRIM_PREFIX[r.id] || r.id;
 }
 

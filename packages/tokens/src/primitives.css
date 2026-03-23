@@ -167,28 +167,28 @@
   --prim-greyscale-900: #1B1B1B;
   --prim-greyscale-black: #000000;
 
-  /* ── Neutral (key ≈ #637498) ────────────────────────── */
-  --prim-neutral-white: #FFFFFF;
-  --prim-neutral-25: #F3F6FF;
-  --prim-neutral-50: #EBF1FF;
-  --prim-neutral-75: #DFE8FF;
-  --prim-neutral-100: #D4DFFD;
-  --prim-neutral-150: #C5D1F1;
-  --prim-neutral-175: #B9C6E8;
-  --prim-neutral-200: #ADBBDF;
-  --prim-neutral-250: #9CAAD0;
-  --prim-neutral-300: #8998BF;
-  --prim-neutral-400: #7785AD;
-  --prim-neutral-450: #6C7BA4;
-  --prim-neutral-500: #64739C;
-  --prim-neutral-550: #5B6991;
-  --prim-neutral-600: #505D82;
-  --prim-neutral-700: #404C6F;
-  --prim-neutral-750: #364161;
-  --prim-neutral-800: #293351;
-  --prim-neutral-850: #202943;
-  --prim-neutral-900: #131A31;
-  --prim-neutral-black: #000000;
+  /* ── Desaturated (key ≈ #71747C) ────────────────────────── */
+  --prim-desaturated-white: #FFFFFF;
+  --prim-desaturated-25: #F5F6FB;
+  --prim-desaturated-50: #EFF0F6;
+  --prim-desaturated-75: #E6E8EE;
+  --prim-desaturated-100: #DDDFE6;
+  --prim-desaturated-150: #CFD1D9;
+  --prim-desaturated-175: #C4C6CE;
+  --prim-desaturated-200: #B9BBC3;
+  --prim-desaturated-250: #A8ABB3;
+  --prim-desaturated-300: #9698A1;
+  --prim-desaturated-400: #83868F;
+  --prim-desaturated-450: #797C85;
+  --prim-desaturated-500: #72747D;
+  --prim-desaturated-550: #686A73;
+  --prim-desaturated-600: #5C5E66;
+  --prim-desaturated-700: #4B4D55;
+  --prim-desaturated-750: #404249;
+  --prim-desaturated-800: #33343B;
+  --prim-desaturated-850: #282A30;
+  --prim-desaturated-900: #1A1B20;
+  --prim-desaturated-black: #000000;
 
   /* ═══════════════════════════════════════════════════════════
      Spacing  (43 tokens, dense in 1–15 px range)
