@@ -144,29 +144,6 @@
   --prim-success-900: #002304;
   --prim-success-black: #000000;
 
-  /* ── Neutral (key ≈ #71747C) ────────────────────────── */
-  --prim-neutral-white: #FFFFFF;
-  --prim-neutral-25: #F5F6FB;
-  --prim-neutral-50: #EFF0F6;
-  --prim-neutral-75: #E6E8EE;
-  --prim-neutral-100: #DDDFE6;
-  --prim-neutral-150: #CFD1D9;
-  --prim-neutral-175: #C4C6CE;
-  --prim-neutral-200: #B9BBC3;
-  --prim-neutral-250: #A8ABB3;
-  --prim-neutral-300: #9698A1;
-  --prim-neutral-400: #83868F;
-  --prim-neutral-450: #797C85;
-  --prim-neutral-500: #72747D;
-  --prim-neutral-550: #686A73;
-  --prim-neutral-600: #5C5E66;
-  --prim-neutral-700: #4B4D55;
-  --prim-neutral-750: #404249;
-  --prim-neutral-800: #33343B;
-  --prim-neutral-850: #282A30;
-  --prim-neutral-900: #1A1B20;
-  --prim-neutral-black: #000000;
-
   /* ── Greyscale (key ≈ #747474) ────────────────────────── */
   --prim-greyscale-white: #FFFFFF;
   --prim-greyscale-25: #F6F6F6;
@@ -190,28 +167,28 @@
   --prim-greyscale-900: #1B1B1B;
   --prim-greyscale-black: #000000;
 
-  /* ── Desaturated (key ≈ #637498) ────────────────────────── */
-  --prim-desaturated-white: #FFFFFF;
-  --prim-desaturated-25: #F3F6FF;
-  --prim-desaturated-50: #EBF1FF;
-  --prim-desaturated-75: #DFE8FF;
-  --prim-desaturated-100: #D4DFFD;
-  --prim-desaturated-150: #C5D1F1;
-  --prim-desaturated-175: #B9C6E8;
-  --prim-desaturated-200: #ADBBDF;
-  --prim-desaturated-250: #9CAAD0;
-  --prim-desaturated-300: #8998BF;
-  --prim-desaturated-400: #7785AD;
-  --prim-desaturated-450: #6C7BA4;
-  --prim-desaturated-500: #64739C;
-  --prim-desaturated-550: #5B6991;
-  --prim-desaturated-600: #505D82;
-  --prim-desaturated-700: #404C6F;
-  --prim-desaturated-750: #364161;
-  --prim-desaturated-800: #293351;
-  --prim-desaturated-850: #202943;
-  --prim-desaturated-900: #131A31;
-  --prim-desaturated-black: #000000;
+  /* ── Neutral (key ≈ #637498) ────────────────────────── */
+  --prim-neutral-white: #FFFFFF;
+  --prim-neutral-25: #F3F6FF;
+  --prim-neutral-50: #EBF1FF;
+  --prim-neutral-75: #DFE8FF;
+  --prim-neutral-100: #D4DFFD;
+  --prim-neutral-150: #C5D1F1;
+  --prim-neutral-175: #B9C6E8;
+  --prim-neutral-200: #ADBBDF;
+  --prim-neutral-250: #9CAAD0;
+  --prim-neutral-300: #8998BF;
+  --prim-neutral-400: #7785AD;
+  --prim-neutral-450: #6C7BA4;
+  --prim-neutral-500: #64739C;
+  --prim-neutral-550: #5B6991;
+  --prim-neutral-600: #505D82;
+  --prim-neutral-700: #404C6F;
+  --prim-neutral-750: #364161;
+  --prim-neutral-800: #293351;
+  --prim-neutral-850: #202943;
+  --prim-neutral-900: #131A31;
+  --prim-neutral-black: #000000;
 
   /* ═══════════════════════════════════════════════════════════
      Spacing  (43 tokens, dense in 1–15 px range)
