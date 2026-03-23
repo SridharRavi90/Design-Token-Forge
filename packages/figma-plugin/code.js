@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    Design Token Forge — Figma Plugin (Live Sync Edition)
    Connects to DTF Sync Server for real-time token updates.
+   Uses async Figma APIs for compatibility with Figma 2025+.
    ═══════════════════════════════════════════════════════════════ */
 
 figma.showUI(__html__, { width: 480, height: 560 });
@@ -38,8 +39,8 @@ function isDTFCollection(name) {
   return false;
 }
 
-function findDTFCollections() {
-  var all = figma.variables.getLocalVariableCollections();
+async function findDTFCollections() {
+  var all = await figma.variables.getLocalVariableCollectionsAsync();
   var found = [];
   for (var i = 0; i < all.length; i++) {
     if (isDTFCollection(all[i].name)) {
@@ -51,8 +52,8 @@ function findDTFCollections() {
 
 /* ── Build lookup of existing DTF variables ──────────────── */
 
-function buildExistingLookup() {
-  var cols = findDTFCollections();
+async function buildExistingLookup() {
+  var cols = await findDTFCollections();
   var colMap = {};   // collectionName => { collection, modeMap, varMap }
   for (var i = 0; i < cols.length; i++) {
     var c = cols[i];
@@ -62,7 +63,7 @@ function buildExistingLookup() {
     }
     var varMap = {};  // varName => figma Variable
     for (var j = 0; j < c.variableIds.length; j++) {
-      var v = figma.variables.getVariableById(c.variableIds[j]);
+      var v = await figma.variables.getVariableByIdAsync(c.variableIds[j]);
       if (v) varMap[v.name] = v;
     }
     colMap[c.name] = { collection: c, modeMap: modeMap, varMap: varMap };
@@ -72,9 +73,9 @@ function buildExistingLookup() {
 
 /* ── Sync all collections — update-in-place, preserving IDs */
 
-function syncAll(data) {
+async function syncAll(data) {
   var stats = { collections: 0, variables: 0, aliases: 0, updated: 0, created: 0, errors: [] };
-  var existing = buildExistingLookup();
+  var existing = await buildExistingLookup();
 
   /* Pass 1: Create/update collections, modes, and variables.
      Build a lookup so aliases can be resolved in pass 2. */
@@ -146,7 +147,7 @@ function syncAll(data) {
             stats.updated++;
           } else {
             /* ─── Create new variable ─── */
-            variable = figma.variables.createVariable(v.name, collection.id, resolvedType);
+            variable = figma.variables.createVariable(v.name, collection, resolvedType);
             stats.created++;
           }
 
@@ -206,11 +207,11 @@ function syncAll(data) {
 
 /* ── Message handler ─────────────────────────────────────── */
 
-figma.ui.onmessage = function(msg) {
+figma.ui.onmessage = async function(msg) {
 
   if (msg.type === 'scan') {
     try {
-      var cols = findDTFCollections();
+      var cols = await findDTFCollections();
       var varCount = 0;
       var colNames = [];
       for (var i = 0; i < cols.length; i++) {
@@ -235,7 +236,7 @@ figma.ui.onmessage = function(msg) {
   /* Lightweight verify — just check if DTF variables still exist */
   if (msg.type === 'verify') {
     try {
-      var cols = findDTFCollections();
+      var cols = await findDTFCollections();
       var varCount = 0;
       for (var i = 0; i < cols.length; i++) {
         varCount += cols[i].variableIds.length;
@@ -249,7 +250,7 @@ figma.ui.onmessage = function(msg) {
   if (msg.type === 'sync') {
     try {
       figma.ui.postMessage({ type: 'progress', text: 'Syncing T0 → T1 → T2/T3 collections...' });
-      var stats = syncAll(msg.data);
+      var stats = await syncAll(msg.data);
       var syncHash = msg.hash || '';
       /* Persist sync state to this document */
       figma.root.setPluginData('dtf-hash', syncHash);
