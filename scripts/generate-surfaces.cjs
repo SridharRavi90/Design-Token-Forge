@@ -182,7 +182,7 @@ const LIGHT_SURFACE_MAP = {
     'cm-outline-pressed': '300',
     'cm-separator':       '175',
   },
-  // Surface-inverse: dark surface in light theme (snackbars, toasts)
+  // Surface-inverse: FIXED dark surface in all themes (snackbars, toasts)
   inverse: {
     bg:                   '900',
     hover:                '850',
@@ -331,24 +331,24 @@ const DARK_SURFACE_MAP = {
     'cm-outline-pressed': '400',
     'cm-separator':       '550',
   },
-  // Surface-inverse dark theme: light surface (flipped)
+  // Surface-inverse dark theme: FIXED dark colors (same as light — snackbars always dark)
   inverse: {
-    bg:                   '50',
-    hover:                '75',
-    pressed:              '100',
-    outline:              '175',
-    separator:            '175',
-    'ct-default':         '900',
-    'ct-strong':          'black',
-    'ct-subtle':          '600',
+    bg:                   '900',
+    hover:                '850',
+    pressed:              '800',
+    outline:              '700',
+    separator:            '700',
+    'ct-default':         '25',
+    'ct-strong':          'white',
+    'ct-subtle':          '250',
     'ct-faint':           '400',
-    'cm-bg':              '25',
-    'cm-bg-hover':        '50',
-    'cm-bg-pressed':      '75',
-    'cm-outline':         '200',
-    'cm-outline-hover':   '250',
-    'cm-outline-pressed': '300',
-    'cm-separator':       '175',
+    'cm-bg':              '850',
+    'cm-bg-hover':        '800',
+    'cm-bg-pressed':      '750',
+    'cm-outline':         '600',
+    'cm-outline-hover':   '550',
+    'cm-outline-pressed': '500',
+    'cm-separator':       '700',
   },
 };
 
@@ -430,7 +430,7 @@ function generate() {
     container:        'SURFACE-CONTAINER (cards, panels)',
     'over-container': 'SURFACE-OVER-CONTAINER (popovers, dropdowns, modals)',
     float:            'SURFACE-FLOAT (menus, dropdowns, popups, tooltips)',
-    inverse:          'SURFACE-INVERSE (snackbars, toasts — opposite of current theme)',
+    inverse:          'SURFACE-INVERSE (snackbars, toasts — FIXED dark in all themes)',
   };
   const DARK_SURFACE_LABELS = {
     bright:           'SURFACE-BRIGHT (elevated / cards / modals)',
@@ -441,7 +441,7 @@ function generate() {
     container:        'SURFACE-CONTAINER (cards, panels — dark)',
     'over-container': 'SURFACE-OVER-CONTAINER (popovers, dropdowns — dark)',
     float:            'SURFACE-FLOAT (menus, dropdowns, popups — dark)',
-    inverse:          'SURFACE-INVERSE (snackbars, toasts — light in dark theme)',
+    inverse:          'SURFACE-INVERSE (snackbars, toasts — FIXED dark in all themes)',
   };
 
   let out = '';

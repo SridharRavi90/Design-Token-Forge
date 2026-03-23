@@ -30,7 +30,7 @@ const DEFAULT_OUTPUT = path.resolve(
 // Surface names ordered longest-first so "over-container" matches before "container"
 const SURFACE_NAMES = [
   'over-container', 'container',
-  'bright', 'base', 'dim', 'deep', 'accent', 'float'
+  'bright', 'base', 'dim', 'deep', 'accent', 'float', 'inverse'
 ];
 
 // ── CSS Parsing ───────────────────────────────────────────────
