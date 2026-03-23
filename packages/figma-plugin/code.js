@@ -49,22 +49,6 @@ function findDTFCollections() {
   return found;
 }
 
-/* ── Delete all DTF collections (only for explicit reset) ── */
-
-function deleteAllDTF() {
-  var cols = findDTFCollections();
-  log('Deleting ' + cols.length + ' existing DTF collections');
-  for (var i = 0; i < cols.length; i++) {
-    var varIds = cols[i].variableIds;
-    for (var j = 0; j < varIds.length; j++) {
-      var v = figma.variables.getVariableById(varIds[j]);
-      if (v) v.remove();
-    }
-    cols[i].remove();
-  }
-  return cols.length;
-}
-
 /* ── Build lookup of existing DTF variables ──────────────── */
 
 function buildExistingLookup() {
@@ -262,24 +246,12 @@ figma.ui.onmessage = function(msg) {
     try {
       figma.ui.postMessage({ type: 'progress', text: 'Syncing T0 → T1 → T2/T3 collections...' });
       var stats = syncAll(msg.data);
-      figma.ui.postMessage({ type: 'done', stats: stats, replaced: false, hash: msg.hash || '' });
+      figma.ui.postMessage({ type: 'done', stats: stats, hash: msg.hash || '' });
       figma.notify(
         'DTF: ' + stats.variables + ' vars (' + stats.updated + ' updated, ' +
         stats.created + ' created), ' + stats.aliases + ' aliases' +
         (stats.errors.length > 0 ? ' (' + stats.errors.length + ' errors)' : '')
       );
-    } catch (e) {
-      figma.ui.postMessage({ type: 'error', error: e.message });
-    }
-  }
-
-  if (msg.type === 'reset') {
-    try {
-      var deleted = deleteAllDTF();
-      figma.ui.postMessage({ type: 'progress', text: 'Creating T0 → T1 → T2/T3 collections...' });
-      var stats = syncAll(msg.data);
-      figma.ui.postMessage({ type: 'done', stats: stats, replaced: deleted > 0, hash: msg.hash || '' });
-      figma.notify('DTF: Reset complete — ' + stats.variables + ' variables, ' + stats.aliases + ' aliases');
     } catch (e) {
       figma.ui.postMessage({ type: 'error', error: e.message });
     }
