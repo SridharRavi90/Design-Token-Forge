@@ -217,14 +217,18 @@ figma.ui.onmessage = function(msg) {
         varCount += cols[i].variableIds.length;
         colNames.push(cols[i].name);
       }
+      var savedHash = figma.root.getPluginData('dtf-hash') || '';
+      var savedVarCount = parseInt(figma.root.getPluginData('dtf-var-count') || '0', 10);
       figma.ui.postMessage({
         type: 'scan-result',
         found: cols.length > 0,
         colNames: colNames,
-        varCount: varCount
+        varCount: varCount,
+        savedHash: savedHash,
+        savedVarCount: savedVarCount
       });
     } catch (e) {
-      figma.ui.postMessage({ type: 'scan-result', found: false, colNames: [], varCount: 0 });
+      figma.ui.postMessage({ type: 'scan-result', found: false, colNames: [], varCount: 0, savedHash: '', savedVarCount: 0 });
     }
   }
 
@@ -246,7 +250,11 @@ figma.ui.onmessage = function(msg) {
     try {
       figma.ui.postMessage({ type: 'progress', text: 'Syncing T0 → T1 → T2/T3 collections...' });
       var stats = syncAll(msg.data);
-      figma.ui.postMessage({ type: 'done', stats: stats, hash: msg.hash || '' });
+      var syncHash = msg.hash || '';
+      /* Persist sync state to this document */
+      figma.root.setPluginData('dtf-hash', syncHash);
+      figma.root.setPluginData('dtf-var-count', String(stats.variables));
+      figma.ui.postMessage({ type: 'done', stats: stats, hash: syncHash });
       figma.notify(
         'DTF: ' + stats.variables + ' vars (' + stats.updated + ' updated, ' +
         stats.created + ' created), ' + stats.aliases + ' aliases' +

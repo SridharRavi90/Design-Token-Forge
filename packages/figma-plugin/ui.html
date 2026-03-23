@@ -566,6 +566,11 @@
 
     if (msg.type === 'scan-result') {
       hasExistingVars = msg.found;
+      /* Restore per-document sync state */
+      if (msg.savedHash && figmaHash === '') {
+        figmaHash = msg.savedHash;
+        lastSyncedVarCount = msg.savedVarCount || 0;
+      }
       if (msg.found) {
         figmaStats.style.display = 'flex';
         document.getElementById('fVars').textContent = msg.varCount;
