@@ -8,6 +8,12 @@
 <link rel="stylesheet" href="../packages/components/src/badge/badge.tokens.css">
 <link rel="stylesheet" href="../packages/components/src/badge/badge.css">
 <link rel="stylesheet" href="shared.css">
+<style>
+  .badge-stage{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:24px}
+  .density-strip{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;padding:24px}
+  .density-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .density-meta{font-size:10px;opacity:.5;font-weight:600;font-variant-numeric:tabular-nums}
+</style>
 </head>
 <body>
 
@@ -42,13 +48,13 @@
         <a href="slider.html" role="menuitem">Slider <span class="dd-hint">120 vars</span></a>
         <a href="datepicker.html" role="menuitem">DatePicker <span class="dd-hint">~190 vars</span></a>
         <a href="file-upload.html" role="menuitem">FileUpload <span class="dd-hint">~120 vars</span></a>
-        <a href="avatar.html" role="menuitem">Avatar <span class="dd-hint">~80 vars</span></a>
-        <a href="badge.html" role="menuitem" aria-current="page">Badge <span class="dd-hint">~90 vars</span></a>
-        <a href="tooltip.html" role="menuitem">Tooltip <span class="dd-hint">~60 vars</span></a>
-        <a href="alert.html" role="menuitem">Alert <span class="dd-hint">~80 vars</span></a>
-        <a href="toast.html" role="menuitem">Toast <span class="dd-hint">~90 vars</span></a>
-        <a href="progress-bar.html" role="menuitem">Progress Bar <span class="dd-hint">~60 vars</span></a>
-        <a href="progress-circle.html" role="menuitem">Progress Circle <span class="dd-hint">~50 vars</span></a>
+        <a href="avatar.html" role="menuitem">Avatar <span class="dd-hint">~87 vars</span></a>
+        <a href="badge.html" role="menuitem" aria-current="page">Badge <span class="dd-hint">~117 vars</span></a>
+        <a href="tooltip.html" role="menuitem">Tooltip <span class="dd-hint">66 vars</span></a>
+        <a href="alert.html" role="menuitem">Alert <span class="dd-hint">91 vars</span></a>
+        <a href="toast.html" role="menuitem">Toast <span class="dd-hint">89 vars</span></a>
+        <a href="progress-bar.html" role="menuitem">Progress Bar <span class="dd-hint">~110 vars</span></a>
+        <a href="progress-circle.html" role="menuitem">Progress Circle <span class="dd-hint">~86 vars</span></a>
       </div>
     </div>
   </div>
@@ -59,138 +65,166 @@
 
 <div class="page-layout">
 <aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
-  <a href="#sec-hero"><span class="sn-num">1</span>Hero Preview</a>
-  <a href="#sec-variants"><span class="sn-num">2</span>Style Variants</a>
-  <a href="#sec-shapes"><span class="sn-num">3</span>Shape Gallery</a>
-  <a href="#sec-density"><span class="sn-num">4</span>Density Scale</a>
-  <a href="#sec-roles"><span class="sn-num">5</span>Roles × Variants</a>
-  <a href="#sec-dot"><span class="sn-num">6</span>Dot Indicator</a>
-  <a href="#sec-dismiss"><span class="sn-num">7</span>Dismissible</a>
-  <a href="#sec-a11y"><span class="sn-num">8</span>Accessibility</a>
-  <a href="#sec-framework"><span class="sn-num">9</span>Use in Framework</a>
+  <a href="#sec-hero"><span class="sn-num">01</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">02</span>Variant Gallery</a>
+  <a href="#sec-shapes"><span class="sn-num">03</span>Shape Gallery</a>
+  <a href="#sec-density"><span class="sn-num">04</span>Density Scale</a>
+  <a href="#sec-roles"><span class="sn-num">05</span>Roles × Variants</a>
+  <a href="#sec-state"><span class="sn-num">06</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">07</span>Surface Context</a>
+  <a href="#sec-dot"><span class="sn-num">08</span>Dot Indicator</a>
+  <a href="#sec-slots"><span class="sn-num">09</span>Slots &amp; Dismiss</a>
+  <a href="#sec-a11y"><span class="sn-num">10</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
 </aside>
 <div class="page-content">
 
 <header class="demo-header">
   <h1>Badge Explorer <span>— Design Token Forge</span></h1>
   <div class="demo-meta">
-    <span class="demo-badge">~90 CSS Variables</span>
-    <span class="demo-badge">4 Variants</span>
+    <span class="demo-badge">~117 CSS Variables</span>
+    <span class="demo-badge">3 Variants + Dot</span>
     <span class="demo-badge">3 Shapes</span>
     <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">5 Roles</span>
     <span class="demo-badge">7 Axes</span>
   </div>
 </header>
 
-<nav class="global-controls" aria-label="Global badge preview controls">
-  <div class="control-group">
-    <label>Shape</label>
-    <div class="pill-bar" id="shapeBar" role="radiogroup" aria-label="Shape selector">
-      <button class="pill" role="radio" aria-pressed="true" data-ctrl-shape="pill" type="button">Pill</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-shape="rounded" type="button">Rounded</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-shape="square" type="button">Square</button>
-    </div>
-  </div>
-  <div class="control-divider"></div>
-  <div class="control-group">
-    <label>Size</label>
-    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
-      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
-    </div>
-  </div>
-</nav>
+<!-- ─── GLOBAL CONTROLS ─────────────────────────────────── -->
+<div class="section-body" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
+  <fieldset class="pill-bar" id="variantBar">
+    <legend>Variant</legend>
+    <input type="radio" name="g-variant" value="filled"  id="gv-filled" checked><label for="gv-filled">Filled</label>
+    <input type="radio" name="g-variant" value="outline" id="gv-outline"><label for="gv-outline">Outline</label>
+    <input type="radio" name="g-variant" value="soft"    id="gv-soft"><label for="gv-soft">Soft</label>
+  </fieldset>
+  <fieldset class="pill-bar" id="shapeBar">
+    <legend>Shape</legend>
+    <input type="radio" name="g-shape" value="pill"    id="gsh-pill" checked><label for="gsh-pill">Pill</label>
+    <input type="radio" name="g-shape" value="rounded" id="gsh-rounded"><label for="gsh-rounded">Rounded</label>
+    <input type="radio" name="g-shape" value="square"  id="gsh-square"><label for="gsh-square">Square</label>
+  </fieldset>
+  <fieldset class="pill-bar" id="sizeBar">
+    <legend>Size</legend>
+    <input type="radio" name="g-size" value="micro" id="gs-micro"><label for="gs-micro">Micro</label>
+    <input type="radio" name="g-size" value="tiny"  id="gs-tiny"><label for="gs-tiny">Tiny</label>
+    <input type="radio" name="g-size" value="small" id="gs-small"><label for="gs-small">Small</label>
+    <input type="radio" name="g-size" value="base"  id="gs-base" checked><label for="gs-base">Base</label>
+    <input type="radio" name="g-size" value="medium" id="gs-medium"><label for="gs-medium">Medium</label>
+    <input type="radio" name="g-size" value="large" id="gs-large"><label for="gs-large">Large</label>
+    <input type="radio" name="g-size" value="big"   id="gs-big"><label for="gs-big">Big</label>
+    <input type="radio" name="g-size" value="huge"  id="gs-huge"><label for="gs-huge">Huge</label>
+    <input type="radio" name="g-size" value="mega"  id="gs-mega"><label for="gs-mega">Mega</label>
+    <input type="radio" name="g-size" value="ultra" id="gs-ultra"><label for="gs-ultra">Ultra</label>
+  </fieldset>
+  <fieldset class="pill-bar" id="roleBar">
+    <legend>Role</legend>
+    <input type="radio" name="g-role" value="primary" id="gr-primary" checked><label for="gr-primary">Primary</label>
+    <input type="radio" name="g-role" value="danger"  id="gr-danger"><label for="gr-danger">Danger</label>
+    <input type="radio" name="g-role" value="success" id="gr-success"><label for="gr-success">Success</label>
+    <input type="radio" name="g-role" value="warning" id="gr-warning"><label for="gr-warning">Warning</label>
+    <input type="radio" name="g-role" value="neutral" id="gr-neutral"><label for="gr-neutral">Neutral</label>
+  </fieldset>
+</div>
 
 <main class="demo-main">
 
-  <!-- 1. HERO -->
+  <!-- ─── 1. HERO + INSPECTOR ─────────────────────────── -->
   <section class="section" id="sec-hero">
-    <div class="section-header"><h2>Hero Preview</h2><span class="section-tag">Live</span></div>
-    <p class="section-desc">Reflects global shape and size controls. All four style variants with icon and label slots.</p>
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects all global controls. Inspector shows resolved token → alias → computed value.</p>
     <div class="section-body">
       <div class="hero">
         <div class="hero-preview" id="heroPreview" style="gap:12px;flex-wrap:wrap"></div>
-        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+        <div class="hero-inspector" id="heroInspector"></div>
       </div>
     </div>
   </section>
 
-  <!-- 2. STYLE VARIANTS -->
+  <!-- ─── 2. VARIANT GALLERY ──────────────────────────── -->
   <section class="section" id="sec-variants">
-    <div class="section-header"><h2>Style Variants</h2><span class="section-tag">Surface</span></div>
-    <p class="section-desc">Filled (default), outline, soft, and dot. Each variant targets different visual weight.</p>
-    <div class="section-body"><div class="preview-grid" id="variantGallery" style="gap:32px"></div></div>
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">3 Variants + Dot</span></div>
+    <p class="section-desc">Filled (solid bg), outline (border only), soft (tinted bg), and dot (minimal indicator).</p>
+    <div class="section-body"><div class="badge-stage" id="variantGallery"></div></div>
   </section>
 
-  <!-- 3. SHAPES -->
+  <!-- ─── 3. SHAPE GALLERY ────────────────────────────── -->
   <section class="section" id="sec-shapes">
-    <div class="section-header"><h2>Shape Gallery</h2><span class="section-tag">Shape</span></div>
-    <p class="section-desc">Pill (full radius, default), rounded, and square. Shape is orthogonal to size and variant.</p>
-    <div class="section-body"><div class="preview-grid" id="shapeGallery" style="gap:32px"></div></div>
+    <div class="section-header"><h2>Shape Gallery</h2><span class="section-tag">3 Shapes</span></div>
+    <p class="section-desc">Pill (full radius), rounded (medium radius), and square (small radius). Shape × variant combos.</p>
+    <div class="section-body"><div class="badge-stage" id="shapeGallery"></div></div>
   </section>
 
-  <!-- 4. DENSITY SCALE -->
+  <!-- ─── 4. DENSITY SCALE ────────────────────────────── -->
   <section class="section" id="sec-density">
-    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
-    <p class="section-desc">All 10 density modes — micro through ultra. Height, padding, font-size, icon-size, and gap scale proportionally.</p>
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">10 Sizes</span></div>
+    <p class="section-desc">Micro → Ultra. Height, padding, font-size, icon-size, and gap scale proportionally.</p>
     <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
   </section>
 
-  <!-- 5. ROLES × VARIANTS -->
+  <!-- ─── 5. ROLES × VARIANTS ─────────────────────────── -->
   <section class="section" id="sec-roles">
-    <div class="section-header"><h2>Roles × Variants</h2><span class="section-tag">Surface</span></div>
-    <p class="section-desc">5 semantic roles (primary, danger, success, warning, neutral) across filled, outline, and soft variants.</p>
-    <div class="section-body"><div class="preview-grid" id="roleMatrix" style="gap:16px;flex-direction:column"></div></div>
+    <div class="section-header"><h2>Roles × Variants</h2><span class="section-tag">5 × 3 Matrix</span></div>
+    <p class="section-desc">All 5 semantic roles across filled, outline, and soft variants plus dot indicators.</p>
+    <div class="section-body" id="roleMatrix"></div>
   </section>
 
-  <!-- 6. DOT INDICATOR -->
+  <!-- ─── 6. STATE MATRIX ─────────────────────────────── -->
+  <section class="section" id="sec-state">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">Variant × State</span></div>
+    <p class="section-desc">Each variant in default, hover (interactive), and disabled states.</p>
+    <div class="section-body" id="stateMatrix"></div>
+  </section>
+
+  <!-- ─── 7. SURFACE CONTEXT ──────────────────────────── -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">3 BG Levels</span></div>
+    <p class="section-desc">Badges on base, elevated, and sunken backgrounds to verify contrast and border visibility.</p>
+    <div class="section-body"><div class="surface-strip" id="surfaceStrip"></div></div>
+  </section>
+
+  <!-- ─── 8. DOT INDICATOR ────────────────────────────── -->
   <section class="section" id="sec-dot">
-    <div class="section-header"><h2>Dot Indicator</h2><span class="section-tag">Variant</span></div>
-    <p class="section-desc">Minimal dot variant for status indicators. No label, no padding — just the colored dot.</p>
-    <div class="section-body"><div class="preview-grid" id="dotGallery" style="gap:24px"></div></div>
+    <div class="section-header"><h2>Dot Indicator</h2><span class="section-tag">Minimal</span></div>
+    <p class="section-desc">No label, no padding — just a colored dot. Uses <code>badge--dot</code> modifier.</p>
+    <div class="section-body"><div class="badge-stage" id="dotGallery"></div></div>
   </section>
 
-  <!-- 7. DISMISSIBLE -->
-  <section class="section" id="sec-dismiss">
-    <div class="section-header"><h2>Dismissible</h2><span class="section-tag">Interactive</span></div>
-    <p class="section-desc">Badges with dismiss buttons. Click × to remove. Demonstrates the interactive hover state.</p>
-    <div class="section-body"><div class="preview-grid" id="dismissDemo" style="gap:12px;flex-wrap:wrap"></div></div>
+  <!-- ─── 9. SLOTS & DISMISS ──────────────────────────── -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Dismiss</h2><span class="section-tag">Interactive</span></div>
+    <p class="section-desc">Icon, label, and dismiss button slots. Click × to remove badges with animated exit.</p>
+    <div class="section-body"><div class="badge-stage" id="slotsGallery" style="flex-wrap:wrap"></div></div>
   </section>
 
-  <!-- 8. ACCESSIBILITY -->
+  <!-- ─── 10. ACCESSIBILITY ───────────────────────────── -->
   <section class="section" id="sec-a11y">
     <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
-    <p class="section-desc">Focus ring, forced colors, reduced motion, and semantic roles.</p>
+    <p class="section-desc">Focus ring, dismiss ARIA, forced colors, and reduced motion support.</p>
     <div class="section-body">
       <div class="a11y-grid">
         <div class="a11y-card">
           <div class="a11y-card-title">Focus Ring</div>
-          <p class="a11y-card-desc">Interactive badges show a <code>2px</code> focus ring on <code>:focus-visible</code>.</p>
-          <div style="display:flex;gap:8px;margin-top:4px" id="a11yFocusDemo"></div>
+          <p class="a11y-card-desc">Interactive badges show <code>2px</code> focus ring on <code>:focus-visible</code>. Width and color are tokenised.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Dismiss Button</div>
+          <p class="a11y-card-desc">Dismiss button has <code>aria-label="Remove"</code>. Badges use <code>role="status"</code> when showing counts.</p>
         </div>
         <div class="a11y-card">
           <div class="a11y-card-title">Forced Colors</div>
-          <p class="a11y-card-desc">High Contrast mode shows a <code>1px solid ButtonText</code> border on all badges.</p>
-          <div style="display:flex;gap:8px;margin-top:4px" id="a11yHcDemo"></div>
+          <p class="a11y-card-desc">High Contrast shows <code>1px solid ButtonText</code> border. Dot uses <code>ButtonText</code> background.</p>
         </div>
         <div class="a11y-card">
-          <div class="a11y-card-title">Dismiss A11y</div>
-          <p class="a11y-card-desc">Dismiss button includes <code>aria-label="Remove"</code> for screen readers.</p>
-          <div style="display:flex;gap:8px;margin-top:4px" id="a11yDismissDemo"></div>
+          <div class="a11y-card-title">Reduced Motion</div>
+          <p class="a11y-card-desc">All transitions resolve to near-instant (0.01ms) when <code>prefers-reduced-motion: reduce</code>.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 9. FRAMEWORK -->
+  <!-- ─── 11. FRAMEWORK ───────────────────────────────── -->
   <section class="section" id="sec-framework">
     <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
     <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
@@ -207,80 +241,86 @@
           <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
         </div>
         <div class="fw-snippet-code" data-panel="react" data-active>&lt;span
-  className="badge"
+  className={`badge${dot ? ' badge--dot' : ''}`}
   data-variant={variant}     {/* filled | outline | soft */}
   data-size={size}           {/* micro … ultra */}
   data-shape={shape}         {/* pill | rounded | square */}
   data-role={role}           {/* primary | danger | success | warning | neutral */}
-  data-interactive={interactive || undefined}
+  data-interactive={interactive ? '' : undefined}
+  data-disabled={disabled ? '' : undefined}
 &gt;
-  {icon &amp;&amp; &lt;span className="badge__icon"&gt;{icon}&lt;/span&gt;}
-  &lt;span className="badge__label"&gt;{children}&lt;/span&gt;
-  {dismissible &amp;&amp; (
-    &lt;button className="badge__dismiss" aria-label="Remove" onClick={onDismiss}&gt;
-      &lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"/&gt;&lt;/svg&gt;
-    &lt;/button&gt;
+  {!dot &amp;&amp; icon &amp;&amp; &lt;span className="badge__icon"&gt;{icon}&lt;/span&gt;}
+  {!dot &amp;&amp; &lt;span className="badge__label"&gt;{children}&lt;/span&gt;}
+  {!dot &amp;&amp; dismissible &amp;&amp; (
+    &lt;button className="badge__dismiss" aria-label="Remove" onClick={onDismiss}&gt;×&lt;/button&gt;
   )}
 &lt;/span&gt;</div>
         <div class="fw-snippet-code" data-panel="vue">&lt;span
-  class="badge"
+  :class="['badge', { 'badge--dot': dot }]"
   :data-variant="variant ?? 'filled'"
   :data-size="size ?? 'base'"
   :data-shape="shape || undefined"
   :data-role="role || undefined"
   :data-interactive="interactive || undefined"
+  :data-disabled="disabled ? '' : undefined"
 &gt;
-  &lt;span v-if="$slots.icon" class="badge__icon"&gt;&lt;slot name="icon" /&gt;&lt;/span&gt;
-  &lt;span class="badge__label"&gt;&lt;slot /&gt;&lt;/span&gt;
-  &lt;button v-if="dismissible" class="badge__dismiss" aria-label="Remove" @click="$emit('dismiss')"&gt;
-    &lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"/&gt;&lt;/svg&gt;
-  &lt;/button&gt;
+  &lt;span v-if="!dot &amp;&amp; $slots.icon" class="badge__icon"&gt;&lt;slot name="icon" /&gt;&lt;/span&gt;
+  &lt;span v-if="!dot" class="badge__label"&gt;&lt;slot /&gt;&lt;/span&gt;
+  &lt;button v-if="!dot &amp;&amp; dismissible" class="badge__dismiss" aria-label="Remove" @click="$emit('dismiss')"&gt;×&lt;/button&gt;
 &lt;/span&gt;</div>
-        <div class="fw-snippet-code" data-panel="html">&lt;span class="badge" data-variant="filled" data-size="base" data-role="primary"&gt;
+        <div class="fw-snippet-code" data-panel="html">&lt;!-- Filled badge with icon --&gt;
+&lt;span class="badge" data-variant="filled" data-size="base" data-role="primary"&gt;
   &lt;span class="badge__icon"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/span&gt;
   &lt;span class="badge__label"&gt;Label&lt;/span&gt;
 &lt;/span&gt;
 
-&lt;!-- Dismissible --&gt;
-&lt;span class="badge" data-variant="soft" data-size="base" data-role="success" data-interactive&gt;
+&lt;!-- Dismissible soft badge --&gt;
+&lt;span class="badge" data-variant="soft" data-role="success" data-interactive&gt;
   &lt;span class="badge__label"&gt;Active&lt;/span&gt;
   &lt;button class="badge__dismiss" aria-label="Remove"&gt;×&lt;/button&gt;
 &lt;/span&gt;
 
 &lt;!-- Dot indicator --&gt;
-&lt;span class="badge badge--dot" data-role="success"&gt;&lt;/span&gt;</div>
-        <div class="fw-snippet-code" data-panel="css">/* Shape */
---badge-radius-{size}           /* border radius per density (pill default) */
---badge-radius-rounded          /* rounded shape override */
---badge-radius-square           /* square shape override */
+&lt;span class="badge badge--dot" data-role="success"&gt;&lt;/span&gt;
+
+&lt;!-- Disabled --&gt;
+&lt;span class="badge" data-variant="filled" data-disabled&gt;
+  &lt;span class="badge__label"&gt;Disabled&lt;/span&gt;
+&lt;/span&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* ── Shape ── */
+--badge-radius-{size}           /* per-density (pill default) */
+--badge-radius-rounded / -square
 --badge-border-width / -style
 
-/* Dimension */
+/* ── Dimension ── */
 --badge-height-{size}           /* height per density */
---badge-padding-x-{size}        /* horizontal padding per density */
---badge-gap-{size}              /* gap between slots */
+--badge-padding-x-{size}        /* horizontal padding */
+--badge-gap-{size}              /* icon–label gap */
 
-/* Surface (per variant) */
+/* ── Surface (per variant) ── */
 --badge-filled-bg / -fg / -border-color / -bg-hover / -fg-hover
 --badge-outline-bg / -fg / -border-color / -bg-hover / -fg-hover
 --badge-soft-bg / -fg / -border-color / -bg-hover / -fg-hover
 --badge-dot-size / -color
---badge-{role}-filled-bg / -fg     /* role surface overrides */
+--badge-{role}-filled-bg / -fg
 --badge-{role}-outline-border / -fg
 --badge-{role}-soft-bg / -fg
 
-/* Typography */
+/* ── Typography ── */
 --badge-font-family / -weight / -letter-spacing / -line-height
 --badge-font-size-{size}
 
-/* Slots */
+/* ── Slots ── */
 --badge-icon-size-{size}
 --badge-dismiss-size / -radius
 
-/* Motion */
+/* ── Motion ── */
 --badge-transition-property / -duration / -easing
 
-/* A11y */
+/* ── State ── */
+--badge-disabled-opacity
+
+/* ── A11y ── */
 --badge-focus-outline-width / -color</div>
       </div>
     </div>
@@ -294,200 +334,288 @@
 (function(){
   'use strict';
 
-  var SHAPES=['pill','rounded','square'];
-  var SIZES=['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
-  var VARIANTS=['filled','outline','soft'];
-  var ROLES=['primary','danger','success','warning','neutral'];
-  var ICON_TAG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>';
-  var ICON_CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-  var ICON_STAR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
-  var ICON_X='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>';
+  var SHAPES   = ['pill','rounded','square'];
+  var SIZES    = ['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var VARIANTS = [{key:'filled',label:'Filled'},{key:'outline',label:'Outline'},{key:'soft',label:'Soft'}];
+  var ROLES    = [{key:'primary',label:'Primary'},{key:'danger',label:'Danger'},{key:'success',label:'Success'},{key:'warning',label:'Warning'},{key:'neutral',label:'Neutral'}];
 
-  var curShape='pill', curS='base';
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  var ICON_STAR  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  var ICON_X     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>';
+
+  var G = { variant:'filled', shape:'pill', size:'base', role:'primary' };
+
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1) }
+  function clr(id){ var e=document.getElementById(id); if(e) e.innerHTML=''; return e }
 
   function makeBadge(opts){
-    opts=opts||{};
-    var el=document.createElement('span');
-    el.className='badge';
-    if(!opts.noSync)el.classList.add('synced-bd');
-    el.dataset.size=opts.size||curS;
-    el.dataset.variant=opts.variant||'filled';
-    if(opts.shape&&opts.shape!=='pill')el.dataset.shape=opts.shape;
-    else if(curShape!=='pill'&&!opts.forceShape)el.dataset.shape=curShape;
-    if(opts.role)el.dataset.role=opts.role;
-    if(opts.interactive)el.dataset.interactive='';
-
-    if(opts.icon){
-      var ic=document.createElement('span');ic.className='badge__icon';ic.innerHTML=opts.icon;el.appendChild(ic);
+    opts = opts || {};
+    var el = document.createElement('span');
+    el.className = 'badge';
+    el.dataset.variant = opts.variant || G.variant;
+    el.dataset.size = opts.size || G.size;
+    if ((opts.shape && opts.shape !== 'pill') || (!opts.forceDefault && G.shape !== 'pill' && !opts.shape)) {
+      el.dataset.shape = opts.shape || G.shape;
     }
-    if(opts.label){
-      var lb=document.createElement('span');lb.className='badge__label';lb.textContent=opts.label;el.appendChild(lb);
+    if (opts.role) el.dataset.role = opts.role;
+    else if (!opts.noGlobalRole) el.dataset.role = G.role;
+    if (opts.interactive) el.dataset.interactive = '';
+    if (opts.disabled) el.dataset.disabled = '';
+    if (opts.icon) {
+      var ic = document.createElement('span');
+      ic.className = 'badge__icon';
+      ic.innerHTML = opts.icon;
+      el.appendChild(ic);
     }
-    if(opts.dismiss){
-      var btn=document.createElement('button');btn.className='badge__dismiss';btn.setAttribute('aria-label','Remove');
-      btn.innerHTML=ICON_X;el.appendChild(btn);
-      btn.addEventListener('click',function(e){
+    if (opts.label) {
+      var lb = document.createElement('span');
+      lb.className = 'badge__label';
+      lb.textContent = opts.label;
+      el.appendChild(lb);
+    }
+    if (opts.dismiss) {
+      var btn = document.createElement('button');
+      btn.className = 'badge__dismiss';
+      btn.setAttribute('aria-label','Remove');
+      btn.innerHTML = ICON_X;
+      el.appendChild(btn);
+      btn.addEventListener('click', function(e){
         e.stopPropagation();
-        el.style.transition='opacity 150ms ease, transform 150ms ease';
-        el.style.opacity='0';el.style.transform='scale(0.8)';
-        setTimeout(function(){el.remove()},160);
+        el.style.transition = 'opacity 150ms ease, transform 150ms ease';
+        el.style.opacity = '0';
+        el.style.transform = 'scale(0.8)';
+        setTimeout(function(){ el.remove() }, 160);
       });
     }
     return el;
   }
 
   function makeDot(opts){
-    opts=opts||{};
-    var el=document.createElement('span');
-    el.className='badge badge--dot';
-    if(opts.role)el.dataset.role=opts.role;
+    opts = opts || {};
+    var el = document.createElement('span');
+    el.className = 'badge badge--dot';
+    if (opts.role) el.dataset.role = opts.role;
     return el;
   }
 
-  function wrapCard(el,label){
-    var d=document.createElement('div');d.className='variant-card';
-    d.appendChild(el);
-    if(label){var l=document.createElement('span');l.className='variant-label';l.textContent=label;d.appendChild(l)}
-    return d;
+  /* ── Inspector ───────────────────────────────────────── */
+  function getInspectRows(){
+    return [
+      ['--badge-height-'+G.size,        '--spacing-*'],
+      ['--badge-radius-'+G.size,        '--radius-full'],
+      ['--badge-padding-x-'+G.size,     '--spacing-*'],
+      ['--badge-gap-'+G.size,           '--spacing-*'],
+      ['--badge-font-size-'+G.size,     '--font-size-*'],
+      ['--badge-icon-size-'+G.size,     '--spacing-*'],
+      ['--badge-'+G.variant+'-bg',      '—'],
+      ['--badge-'+G.variant+'-fg',      '—'],
+      ['--badge-border-width',          '0px'],
+      ['--badge-transition-duration',   '--duration-fast'],
+      ['--badge-disabled-opacity',      '0.5'],
+      ['--badge-dismiss-size',          '--spacing-14']
+    ];
   }
-  function clr(id){var e=document.getElementById(id);e.innerHTML='';return e}
-  function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 
-  /* ── Renderers ─────────────────────────────────────── */
+  function renderInspector(){
+    var el = clr('heroInspector');
+    var target = document.querySelector('#heroPreview .badge:not(.badge--dot)');
+    if (!el || !target) return;
+    var cs = getComputedStyle(target);
+    getInspectRows().forEach(function(row){
+      var r = document.createElement('div');
+      r.className = 'inspector-row';
+      var v = cs.getPropertyValue(row[0]).trim() || '—';
+      r.innerHTML = '<span class="inspector-token">'+row[0]+'</span>'+
+                    '<span class="inspector-alias">'+row[1]+'</span>'+
+                    '<span class="inspector-computed">'+v+'</span>';
+      el.appendChild(r);
+    });
+  }
+
+  /* ── Section Renderers ────────────────────────────── */
 
   function renderHero(){
-    var el=clr('heroPreview');
-    el.appendChild(makeBadge({variant:'filled',label:'Filled',icon:ICON_CHECK}));
-    el.appendChild(makeBadge({variant:'outline',label:'Outline',icon:ICON_STAR}));
-    el.appendChild(makeBadge({variant:'soft',label:'Soft',icon:ICON_TAG}));
-    el.appendChild(makeBadge({variant:'filled',label:'Dismiss',dismiss:true,interactive:true}));
-    el.appendChild(makeDot());
-    el.appendChild(makeDot({role:'success'}));
-    el.appendChild(makeDot({role:'danger'}));
+    var el = clr('heroPreview');
+    el.appendChild(makeBadge({label:'Label',icon:ICON_CHECK}));
+    el.appendChild(makeBadge({label:'Dismiss',dismiss:true,interactive:true}));
+    el.appendChild(makeBadge({label:'No Icon'}));
+    el.appendChild(makeDot({role:G.role}));
+    renderInspector();
   }
 
-  function renderVariants(){
-    var el=clr('variantGallery');
-    ['filled','outline','soft'].forEach(function(v){
-      var row=document.createElement('div');row.className='variant-card';row.style.display='flex';row.style.gap='8px';row.style.alignItems='center';row.style.flexDirection='column';
-      row.appendChild(makeBadge({variant:v,label:cap(v),noSync:true,size:'medium'}));
-      row.appendChild(makeBadge({variant:v,label:'With Icon',icon:ICON_CHECK,noSync:true,size:'medium'}));
-      var lbl=document.createElement('span');lbl.className='variant-label';lbl.textContent=cap(v);
-      row.appendChild(lbl);el.appendChild(row);
+  function renderVariantGallery(){
+    var el = clr('variantGallery');
+    VARIANTS.forEach(function(v){
+      el.appendChild(makeBadge({variant:v.key,label:v.label,icon:ICON_CHECK,noGlobalRole:false,size:'medium'}));
+      el.appendChild(makeBadge({variant:v.key,label:v.label+' Only',noGlobalRole:false,size:'medium'}));
     });
-    // Dot variant
-    var dotCard=document.createElement('div');dotCard.className='variant-card';dotCard.style.display='flex';dotCard.style.gap='8px';dotCard.style.alignItems='center';dotCard.style.flexDirection='column';
-    dotCard.appendChild(makeDot());
-    var dotLbl=document.createElement('span');dotLbl.className='variant-label';dotLbl.textContent='Dot';
-    dotCard.appendChild(dotLbl);el.appendChild(dotCard);
+    el.appendChild(makeDot({role:G.role}));
   }
 
   function renderShapes(){
-    var el=clr('shapeGallery');
+    var el = clr('shapeGallery');
     SHAPES.forEach(function(sh){
-      var card=document.createElement('div');card.className='variant-card';card.style.display='flex';card.style.gap='8px';card.style.alignItems='center';card.style.flexDirection='column';
-      ['filled','outline','soft'].forEach(function(v){
-        card.appendChild(makeBadge({shape:sh,variant:v,label:cap(v),icon:ICON_STAR,noSync:true,forceShape:true,size:'medium'}));
+      VARIANTS.forEach(function(v){
+        el.appendChild(makeBadge({shape:sh,forceDefault:true,variant:v.key,label:cap(sh),icon:ICON_STAR,size:'medium'}));
       });
-      var lbl=document.createElement('span');lbl.className='variant-label';lbl.textContent=cap(sh);
-      card.appendChild(lbl);el.appendChild(card);
     });
   }
 
   function renderDensity(){
-    var el=clr('densityScale');
+    var el = clr('densityScale');
     SIZES.forEach(function(s){
-      var it=document.createElement('div');it.className='density-item';
-      it.appendChild(makeBadge({size:s,label:cap(s),variant:'filled',noSync:true}));
-      var m=document.createElement('div');m.className='density-meta';m.textContent=s;it.appendChild(m);el.appendChild(it);
+      var item = document.createElement('div');
+      item.className = 'density-item';
+      item.appendChild(makeBadge({size:s,label:cap(s),variant:G.variant}));
+      var m = document.createElement('div');
+      m.className = 'density-meta';
+      m.textContent = s;
+      item.appendChild(m);
+      el.appendChild(item);
     });
   }
 
   function renderRoles(){
-    var el=clr('roleMatrix');
+    var el = clr('roleMatrix');
     ROLES.forEach(function(role){
-      var row=document.createElement('div');row.style.display='flex';row.style.gap='10px';row.style.alignItems='center';row.style.padding='8px 0';
-      var lbl=document.createElement('span');lbl.style.width='80px';lbl.style.fontWeight='600';lbl.style.fontSize='13px';lbl.textContent=cap(role);row.appendChild(lbl);
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:10px;align-items:center;padding:8px 0';
+      var lbl = document.createElement('span');
+      lbl.style.cssText = 'width:80px;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em';
+      lbl.textContent = role.label;
+      row.appendChild(lbl);
       VARIANTS.forEach(function(v){
-        row.appendChild(makeBadge({role:role,variant:v,label:cap(v),icon:ICON_CHECK,noSync:true,size:'medium'}));
+        row.appendChild(makeBadge({role:role.key,noGlobalRole:true,variant:v.key,label:v.label,icon:ICON_CHECK,size:'medium'}));
       });
-      row.appendChild(makeDot({role:role}));
+      row.appendChild(makeDot({role:role.key}));
       el.appendChild(row);
     });
   }
 
-  function renderDot(){
-    var el=clr('dotGallery');
-    el.appendChild(wrapCard(makeDot(),'Primary'));
-    ROLES.slice(1).forEach(function(r){
-      el.appendChild(wrapCard(makeDot({role:r}),cap(r)));
-    });
-  }
-
-  function renderDismiss(){
-    var el=clr('dismissDemo');
-    var labels=['React','Vue','Angular','Svelte','Solid','Lit','Qwik','Preact'];
-    labels.forEach(function(label,i){
-      var role=ROLES[i%ROLES.length];
-      var variant=VARIANTS[i%VARIANTS.length];
-      el.appendChild(makeBadge({label:label,role:role,variant:variant,dismiss:true,interactive:true,noSync:true,size:'medium'}));
-    });
-  }
-
-  function renderA11y(){
-    var focus=clr('a11yFocusDemo');
-    var b=makeBadge({label:'Focus me',interactive:true,noSync:true,size:'medium'});
-    b.setAttribute('tabindex','0');focus.appendChild(b);
-
-    clr('a11yHcDemo').appendChild(makeBadge({label:'Filled',noSync:true,size:'medium'}));
-    document.getElementById('a11yHcDemo').appendChild(makeBadge({variant:'outline',label:'Outline',noSync:true,size:'medium'}));
-
-    var dm=clr('a11yDismissDemo');
-    dm.appendChild(makeBadge({label:'Removable',dismiss:true,interactive:true,noSync:true,size:'medium'}));
-  }
-
-  function updateInspector(){
-    var bd=document.querySelector('#heroPreview .badge:not(.badge--dot)');
-    if(!bd)return;
-    var cs=getComputedStyle(bd);
-    var rows=[
-      ['--badge-height-'+curS, cs.height],
-      ['--badge-radius', cs.borderRadius],
-      ['--badge-padding-x-'+curS, cs.paddingLeft+' / '+cs.paddingRight],
-      ['--badge-font-size-'+curS, cs.fontSize],
-      ['--badge-gap-'+curS, cs.gap||cs.columnGap||'—'],
-      ['background', cs.backgroundColor],
-      ['color', cs.color],
-      ['border', cs.borderWidth+' '+cs.borderStyle],
-      ['transition', cs.transitionDuration]
+  function renderStateMatrix(){
+    var el = clr('stateMatrix');
+    var states = [
+      {label:'Default',   st:{}},
+      {label:'Interactive',st:{interactive:true}},
+      {label:'Disabled',  st:{disabled:true}}
     ];
-    var ins=document.getElementById('heroInspector');
-    ins.innerHTML='<div class="inspector-title">Resolved Tokens ('+curShape+' / '+curS+')</div>'+
-      rows.map(function(t){return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+t[1]+'</span></div>'}).join('');
+    var hdr = document.createElement('div');
+    hdr.style.cssText = 'display:grid;grid-template-columns:90px repeat('+states.length+',1fr);gap:12px;margin-bottom:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;opacity:.6';
+    hdr.innerHTML = '<span></span>';
+    states.forEach(function(s){ hdr.innerHTML += '<span>'+s.label+'</span>' });
+    el.appendChild(hdr);
+
+    VARIANTS.forEach(function(v){
+      var row = document.createElement('div');
+      row.style.cssText = 'display:grid;grid-template-columns:90px repeat('+states.length+',1fr);gap:12px;align-items:center;margin-bottom:8px;padding:8px 0';
+      var rl = document.createElement('span');
+      rl.style.cssText = 'font-size:12px;font-weight:600';
+      rl.textContent = v.label;
+      row.appendChild(rl);
+      states.forEach(function(s){
+        var cell = document.createElement('div');
+        var opts = {variant:v.key,label:v.label,icon:ICON_CHECK,size:'medium'};
+        if (s.st.interactive) opts.interactive = true;
+        if (s.st.disabled) opts.disabled = true;
+        cell.appendChild(makeBadge(opts));
+        row.appendChild(cell);
+      });
+      el.appendChild(row);
+    });
   }
 
+  function renderSurface(){
+    var el = clr('surfaceStrip');
+    var surfaces = [
+      {label:'Base',     bg:'var(--surface-base-bg)'},
+      {label:'Elevated', bg:'var(--surface-base-cm-bg)'},
+      {label:'Sunken',   bg:'var(--surface-base-cm-bg-pressed)'}
+    ];
+    surfaces.forEach(function(s){
+      var panel = document.createElement('div');
+      panel.className = 'surface-panel';
+      panel.style.background = s.bg;
+      var lbl = document.createElement('div');
+      lbl.className = 'surface-label';
+      lbl.textContent = s.label;
+      panel.appendChild(lbl);
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin-top:12px';
+      VARIANTS.forEach(function(v){
+        row.appendChild(makeBadge({variant:v.key,label:v.label,size:'medium'}));
+      });
+      row.appendChild(makeDot({role:G.role}));
+      panel.appendChild(row);
+      el.appendChild(panel);
+    });
+  }
+
+  function renderDot(){
+    var el = clr('dotGallery');
+    ROLES.forEach(function(r){
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px';
+      wrap.appendChild(makeDot({role:r.key}));
+      var lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:11px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.04em';
+      lbl.textContent = r.label;
+      wrap.appendChild(lbl);
+      el.appendChild(wrap);
+    });
+  }
+
+  function renderSlots(){
+    var el = clr('slotsGallery');
+    el.appendChild(makeBadge({label:'Label Only',size:'medium'}));
+    el.appendChild(makeBadge({label:'With Icon',icon:ICON_CHECK,size:'medium'}));
+    el.appendChild(makeBadge({label:'Icon + Dismiss',icon:ICON_STAR,dismiss:true,interactive:true,size:'medium'}));
+    // Dismissible row
+    var tags = ['React','Vue','Angular','Svelte','Solid','Lit','Qwik','Preact'];
+    tags.forEach(function(tag,i){
+      var role = ROLES[i % ROLES.length].key;
+      var variant = VARIANTS[i % VARIANTS.length].key;
+      el.appendChild(makeBadge({label:tag,role:role,noGlobalRole:true,variant:variant,dismiss:true,interactive:true,size:'medium'}));
+    });
+  }
+
+  /* ── Master render ─────────────────────────────────── */
   function applyGlobals(){
-    renderHero();renderVariants();renderShapes();renderDensity();
-    renderRoles();renderDot();renderDismiss();renderA11y();
-    requestAnimationFrame(updateInspector);
+    renderHero();
+    renderVariantGallery();
+    renderShapes();
+    renderDensity();
+    renderRoles();
+    renderStateMatrix();
+    renderSurface();
+    renderDot();
+    renderSlots();
   }
 
-  /* ── Controls ──────────────────────────────────────── */
+  function wirePillBar(id, cb){
+    var bar = document.getElementById(id);
+    if(!bar) return;
+    bar.addEventListener('change', function(e){ if(e.target.name) cb(e.target.value) });
+  }
+  wirePillBar('variantBar', function(v){ G.variant=v; applyGlobals() });
+  wirePillBar('shapeBar',   function(v){ G.shape=v;   applyGlobals() });
+  wirePillBar('sizeBar',    function(v){ G.size=v;    applyGlobals() });
+  wirePillBar('roleBar',    function(v){ G.role=v;    applyGlobals() });
 
-  document.getElementById('shapeBar').addEventListener('click',function(e){
-    var pill=e.target.closest('.pill');if(!pill)return;
-    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
-    pill.setAttribute('aria-pressed','true');curShape=pill.dataset.ctrlShape;applyGlobals();
+  document.querySelectorAll('.fw-snippet-tabs').forEach(function(tabs){
+    tabs.addEventListener('click',function(e){
+      var btn=e.target.closest('.fw-snippet-tab');if(!btn)return;
+      var panel=btn.dataset.tab;
+      var snippet=tabs.closest('.fw-snippet');
+      snippet.querySelectorAll('.fw-snippet-tab').forEach(function(t){t.setAttribute('aria-selected','false')});
+      btn.setAttribute('aria-selected','true');
+      snippet.querySelectorAll('.fw-snippet-code').forEach(function(c){delete c.dataset.active});
+      var target=snippet.querySelector('[data-panel="'+panel+'"]');
+      if(target)target.dataset.active='';
+    });
   });
 
-  document.getElementById('sizeBar').addEventListener('click',function(e){
-    var pill=e.target.closest('.pill');if(!pill)return;
-    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
-    pill.setAttribute('aria-pressed','true');curS=pill.dataset.ctrlSize;applyGlobals();
-  });
-
-  window.DTF.onThemeChange = updateInspector;
   applyGlobals();
+  window.DTF.onThemeChange = function(){ applyGlobals() };
 })();
 </script>
 </body>
