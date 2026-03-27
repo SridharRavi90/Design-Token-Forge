@@ -1,0 +1,533 @@
+<!-- ════════════════════════════════════════════════════════════
+     TEMPLATE — DTF Component Explorer Page
+     ────────────────────────────────────────────────────────────
+     Copy this file to demo/{component}.html and replace:
+       {{COMP_NAME}}       → Display name (e.g. "Alert", "Badge")
+       {{comp-folder}}     → Folder name (e.g. "alert", "badge")
+       {{comp-css-prefix}} → CSS class prefix (e.g. "alert", "badge")
+       {{VAR_COUNT}}       → Token variable count
+       {{VARIANT_COUNT}}   → Number of variants or roles
+       {{SIZE_COUNT}}      → Number of sizes
+       {{AXIS_COUNT}}      → Number of design axes
+
+     SECTIONS:
+       Standard sections (1-6, 9-11) use shared DTFPage helpers.
+       Component-specific sections go in the CUSTOM SLOT (between 6 and 9).
+       Mark them with sequential numbers continuing from the last standard section.
+
+     PILL BARS:
+       Adjust the pill-bar groups in the global-controls nav:
+       - Button-family: variantBar (10 variants) + sizeBar + roundedBar
+       - Input-family:  variantBar (outline/filled/ghost) + sizeBar
+       - Display/feedback: roleBar (primary/success/warning/danger/neutral) + variantBar (filled/outline/soft) + sizeBar
+       - Compound:      variantBar (""=filled, outlined) + sizeBar + checkedBar/stateBar
+
+     JS PATTERN:
+       Every page follows the same IIFE structure:
+       1. Constants (variants, sizes, icons)
+       2. G = { variant/role, size, shape } state object
+       3. make{Comp}(opts) factory
+       4. render{Section}() for each section
+       5. applyGlobals() calls all renders + inspector
+       6. wirePillBar() for each bar → update G → applyGlobals()
+       7. DTF.onThemeChange = updateInspector
+       8. applyGlobals() initial call
+     ════════════════════════════════════════════════════════════ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — {{COMP_NAME}} Explorer</title>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/{{comp-folder}}/{{comp-folder}}.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/{{comp-folder}}/{{comp-folder}}.css">
+<link rel="stylesheet" href="shared.css">
+<!-- Component-specific demo styles (if needed) -->
+<style>
+/* Demo-only layout rules go here. Example:
+   .alert-stack { display:flex; flex-direction:column; gap:16px; width:100% }
+*/
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV BAR (identical across all pages) ═══════════════ -->
+<nav class="explorer-nav" aria-label="Component navigation">
+  <div class="nav-crumb">
+    <a href="index.html" class="nav-home" aria-label="Component Explorer" title="Component Explorer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M5 10v9a1 1 0 001 1h3v-5h6v5h3a1 1 0 001-1v-9"/></svg></a>
+    <span class="nav-sep">/</span>
+    <div class="nav-switcher">
+      <button class="nav-switcher-btn" id="navSwitcher" aria-expanded="false" aria-haspopup="true" type="button">
+        {{COMP_NAME}}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="navDropdown" role="menu">
+        <div class="dd-group">Color System</div>
+        <a href="color-system.html" role="menuitem">Color System <span class="dd-hint">Live</span></a>
+        <a href="color-tokens.html" role="menuitem">Color Tokens <span class="dd-hint">~740 vars</span></a>
+        <div class="dd-sep" role="separator"></div>
+        <div class="dd-group">Guides</div>
+        <a href="frameworks.html" role="menuitem">Frameworks <span class="dd-hint">Integration</span></a>
+        <div class="dd-sep" role="separator"></div>
+        <div class="dd-group">Components</div>
+        <a href="button.html" role="menuitem">Button <span class="dd-hint">246 vars</span></a>
+        <a href="icon-button.html" role="menuitem">IconButton <span class="dd-hint">120 vars</span></a>
+        <a href="split-button.html" role="menuitem">SplitButton <span class="dd-hint">154 vars</span></a>
+        <a href="input.html" role="menuitem">Input <span class="dd-hint">172 vars</span></a>
+        <a href="textarea.html" role="menuitem">Textarea <span class="dd-hint">114 vars</span></a>
+        <a href="select.html" role="menuitem">Select <span class="dd-hint">120 vars</span></a>
+        <a href="menu-button.html" role="menuitem">MenuButton <span class="dd-hint">139 vars</span></a>
+        <a href="toggle.html" role="menuitem">Toggle <span class="dd-hint">93 vars</span></a>
+        <a href="checkbox.html" role="menuitem">Checkbox <span class="dd-hint">74 vars</span></a>
+        <a href="radio.html" role="menuitem">Radio <span class="dd-hint">73 vars</span></a>
+        <a href="slider.html" role="menuitem">Slider <span class="dd-hint">120 vars</span></a>
+        <a href="datepicker.html" role="menuitem">DatePicker <span class="dd-hint">~190 vars</span></a>
+        <a href="file-upload.html" role="menuitem">FileUpload <span class="dd-hint">~120 vars</span></a>
+        <a href="avatar.html" role="menuitem">Avatar <span class="dd-hint">~80 vars</span></a>
+        <a href="badge.html" role="menuitem">Badge <span class="dd-hint">~90 vars</span></a>
+        <a href="tooltip.html" role="menuitem">Tooltip <span class="dd-hint">~60 vars</span></a>
+        <a href="alert.html" role="menuitem">Alert <span class="dd-hint">~80 vars</span></a>
+        <a href="toast.html" role="menuitem">Toast <span class="dd-hint">~90 vars</span></a>
+        <a href="progress-bar.html" role="menuitem">Progress Bar <span class="dd-hint">~60 vars</span></a>
+        <a href="progress-circle.html" role="menuitem">Progress Circle <span class="dd-hint">~50 vars</span></a>
+        <!-- ⬆ ADD NEW COMPONENTS HERE (alphabetical within type group) -->
+      </div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <button class="theme-toggle" id="themeToggle" type="button">Toggle Dark</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ PAGE LAYOUT ═══════════════ -->
+<div class="page-layout">
+
+<!-- ── Sidebar Nav ─────────────────────────────────────── -->
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <!-- Standard sections 1-6 -->
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Preview</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Variant Gallery</a>
+  <!-- ↑ For role-based components use: "Role Gallery" and #sec-roles -->
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Shape &amp; Shadow</a>
+  <!-- Component-specific sections — number continues from 6 -->
+  <a href="#sec-slots"><span class="sn-num">7</span>Slots &amp; Anatomy</a>
+  <!-- {{CUSTOM_SIDEBAR_LINKS}} — e.g.:
+  <a href="#sec-motion"><span class="sn-num">8</span>Motion</a>
+  <a href="#sec-placement"><span class="sn-num">8</span>Placement</a>
+  <a href="#sec-dismiss"><span class="sn-num">8</span>Dismiss</a>
+  -->
+  <!-- Standard tail sections (playground, a11y, framework) -->
+  <a href="#sec-playground"><span class="sn-num">9</span>Context Playground</a>
+  <a href="#sec-a11y"><span class="sn-num">10</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+
+<div class="page-content">
+
+<!-- ── Header ──────────────────────────────────────────── -->
+<header class="demo-header">
+  <h1>{{COMP_NAME}} Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">{{VAR_COUNT}} CSS Variables</span>
+    <span class="demo-badge">{{VARIANT_COUNT}} Variants</span>
+    <span class="demo-badge">{{SIZE_COUNT}} Sizes</span>
+    <span class="demo-badge">{{AXIS_COUNT}} Axes</span>
+  </div>
+</header>
+
+<!-- ── Global Controls ─────────────────────────────────── -->
+<!--
+  ADJUST for component type:
+  - Button-family: Variant (10) + Size (10) + Shape (default/rounded)
+  - Input-family:  Variant (outline/filled/ghost) + Size (10)
+  - Display/feedback: Role (primary/success/warning/danger/neutral) + Variant (filled/outline/soft) + Size
+  - Compound: Variant (""=filled/outlined) + Size (10) + Checked/State
+-->
+<nav class="global-controls" aria-label="Global {{comp-css-prefix}} preview controls">
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <!-- DEFAULT pill gets aria-pressed="true" — adjust per component -->
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="primary" type="button">Primary</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="secondary" type="button">Secondary</button>
+      <!-- ... add all variants ... -->
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+  <!-- Optional: Shape pill bar -->
+  <!--
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Shape</label>
+    <div class="pill-bar" id="roundedBar" role="radiogroup" aria-label="Rounded toggle">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-rounded="false" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-rounded="true" type="button">Rounded</button>
+    </div>
+  </div>
+  -->
+</nav>
+
+<main class="demo-main">
+
+  <!-- ═══════════ STANDARD SECTION 1: HERO ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Preview</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects the global controls. Inspector shows resolved computed values.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" id="heroPreview">
+          <!-- JS renders the synced component here -->
+        </div>
+        <div class="hero-inspector" id="heroInspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STANDARD SECTION 2: VARIANT / ROLE GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">All variants at the globally selected size.</p>
+    <div class="section-body"><div class="preview-grid" id="variantGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ STANDARD SECTION 3: DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All density sizes at the globally selected variant.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- ═══════════ STANDARD SECTION 4: STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every variant in every interactive state.</p>
+    <div class="section-body"><div id="stateMatrix"></div></div>
+  </section>
+
+  <!-- ═══════════ STANDARD SECTION 5: SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Component on three background levels to verify contrast.</p>
+    <div class="section-body">
+      <div class="surface-strip" id="surfaceStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STANDARD SECTION 6: SHAPE & SHADOW ═══════════ -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Radius scales with density. Shadows reference global shadow tokens.</p>
+    <div class="section-body">
+      <div class="sub-label">Radius per density</div>
+      <div class="density-strip" id="radiusScale"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Shadow presets</div>
+      <div class="shadow-strip" id="shadowStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STANDARD SECTION 7: SLOTS & ANATOMY ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">All sub-elements and slot combinations.</p>
+    <div class="section-body"><div class="slot-grid" id="slotsDemo"></div></div>
+  </section>
+
+  <!-- ╔══════════════════════════════════════════════════════╗
+       ║  CUSTOM SLOT — Component-specific sections go here   ║
+       ║  Continue numbering from section 7.                   ║
+       ║  Examples:                                            ║
+       ║  • Motion (#sec-motion) — for animated components     ║
+       ║  • Placement (#sec-placement) — for tooltip/toast     ║
+       ║  • Dismiss (#sec-dismiss) — for dismissible alerts    ║
+       ║  • Accent (#sec-accent) — for accent-bar components   ║
+       ║  • Resize (#sec-resize) — for textarea                ║
+       ║  • Groups (#sec-groups) — for radio groups            ║
+       ╚══════════════════════════════════════════════════════╝ -->
+
+  <!-- {{CUSTOM_SECTIONS}} -->
+
+  <!-- ═══════════ STANDARD SECTION: CONTEXT PLAYGROUND ═══════════ -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how the component adapts across surface contexts and semantic color roles.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="micro" type="button">micro</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="ultra" type="button">ultra</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="primary" selected>Primary</option><option value="brand">Brand</option><option value="danger">Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA">
+            <!-- JS populates with component variants -->
+          </div>
+        </div>
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="primary">Primary</option><option value="brand">Brand</option><option value="danger" selected>Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB">
+            <!-- JS populates with component variants -->
+          </div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STANDARD SECTION: ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, disabled states, reduced motion, and forced-colors handling.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to component. <code>:focus-visible</code> shows keyboard-only ring.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="a11yFocus">
+            <!-- JS: add 1-2 focusable component instances -->
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>disabled</code> and <code>data-disabled</code> apply per-variant opacity.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="a11yDisabled">
+            <!-- JS: add disabled component instances -->
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Reduced Motion</div>
+          <p class="a11y-card-desc"><code>prefers-reduced-motion</code> simplifies transitions and animations.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="a11yMotion">
+            <!-- JS: add animated/loading component instance -->
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast uses system colors (<code>ButtonText</code>, <code>Highlight</code>, <code>GrayText</code>).</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="a11yHC">
+            <!-- JS: add component instance -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STANDARD SECTION: FRAMEWORK ═══════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>{{COMP_NAME}} Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-comp">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <!-- {{FRAMEWORK_PANELS}} — Fill in React, Vue, HTML, CSS Tokens panels -->
+        <div class="fw-snippet-code" data-panel="react" data-active>
+{/* TODO: React JSX snippet */}
+        </div>
+        <div class="fw-snippet-code" data-panel="vue">
+&lt;!-- TODO: Vue template snippet --&gt;
+        </div>
+        <div class="fw-snippet-code" data-panel="html">
+&lt;!-- TODO: HTML snippet --&gt;
+        </div>
+        <div class="fw-snippet-code" data-panel="css">
+/* TODO: CSS token reference grouped by axis */
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script src="shared.js"></script>
+<script src="shared-page.js"></script>
+<script>
+(function() {
+  'use strict';
+  var P = window.DTFPage;
+
+  /* ── Component Config ────────────────────────────────── */
+  // TODO: Adjust for your component
+  var VARIANTS = ['primary','secondary','ghost'];  // or ROLES for display components
+  var SIZES = P.SIZES;  // or a subset: ['small','base','large']
+
+  /* ── State ───────────────────────────────────────────── */
+  var G = {
+    variant: 'primary', // or role: 'primary'
+    size: 'base',
+    rounded: false
+  };
+
+  /* ── Factory ─────────────────────────────────────────── */
+  // TODO: Replace with component-specific factory
+  function makeComp(opts) {
+    opts = opts || {};
+    var el = document.createElement('div');
+    el.className = '{{comp-css-prefix}}';
+    if (opts.variant) el.dataset.variant = opts.variant;
+    if (opts.role) el.dataset.role = opts.role;
+    if (opts.size) el.dataset.size = opts.size;
+    if (opts.disabled) el.dataset.disabled = '';
+    // ... add component-specific markup
+    return el;
+  }
+
+  /* ── Render: Hero ────────────────────────────────────── */
+  function renderHero() {
+    var el = P.clr('heroPreview');
+    el.appendChild(makeComp({ variant: G.variant, size: G.size }));
+  }
+
+  /* ── Render: Variants ────────────────────────────────── */
+  function renderVariants() {
+    var el = P.clr('variantGallery');
+    VARIANTS.forEach(function(v) {
+      el.appendChild(P.wrapCard(
+        makeComp({ variant: v, size: G.size }),
+        v
+      ));
+    });
+  }
+
+  /* ── Render: Density ─────────────────────────────────── */
+  function renderDensity() {
+    var el = P.clr('densityScale');
+    SIZES.forEach(function(s) {
+      el.appendChild(P.wrapDensityItem(
+        makeComp({ variant: G.variant, size: s }),
+        s
+      ));
+    });
+  }
+
+  /* ── Render: State Matrix ────────────────────────────── */
+  function renderStates() {
+    P.renderStateMatrix('stateMatrix', VARIANTS,
+      ['Default', 'Hover', 'Active', 'Disabled'],
+      function(variant, state) {
+        var opts = { variant: variant, size: G.size };
+        if (state === 'Disabled') opts.disabled = true;
+        return makeComp(opts);
+      }
+    );
+  }
+
+  /* ── Render: Surface Context ─────────────────────────── */
+  function renderSurface() {
+    P.renderSurfacePanels('surfaceStrip', function(panel) {
+      panel.appendChild(makeComp({ variant: G.variant, size: G.size }));
+    });
+  }
+
+  /* ── Render: Shape & Shadow ──────────────────────────── */
+  function renderShape() {
+    // TODO: Radius scale + shadow presets
+  }
+
+  /* ── Render: Slots ───────────────────────────────────── */
+  function renderSlots() {
+    // TODO: Show all slot combinations
+  }
+
+  /* ══════════ CUSTOM SECTION RENDERS ══════════ */
+  // TODO: Add component-specific render functions
+  // function renderMotion() { ... }
+  // function renderPlacement() { ... }
+
+  /* ── Inspector ───────────────────────────────────────── */
+  function updateInspector() {
+    var target = document.querySelector('#heroPreview .{{comp-css-prefix}}');
+    if (!target) return;
+    var cs = getComputedStyle(target);
+    // TODO: Build token rows specific to this component
+    var rows = [
+      ['--{{comp-css-prefix}}-height-' + G.size, '--spacing-36', cs.height],
+      ['--{{comp-css-prefix}}-' + G.variant + '-bg', '—', cs.backgroundColor],
+      ['--{{comp-css-prefix}}-' + G.variant + '-fg', '—', cs.color]
+    ];
+    P.buildInspector('heroInspector',
+      'Resolved Tokens (' + G.variant + ' / ' + G.size + ')',
+      rows
+    );
+  }
+
+  /* ── Apply All ───────────────────────────────────────── */
+  function applyGlobals() {
+    renderHero();
+    renderVariants();
+    renderDensity();
+    renderStates();
+    renderSurface();
+    renderShape();
+    renderSlots();
+    // TODO: call custom section renders
+    requestAnimationFrame(updateInspector);
+  }
+
+  /* ── Wire Pill Bars ──────────────────────────────────── */
+  P.wirePillBar('variantBar', 'ctrlVariant', function(v) { G.variant = v; applyGlobals(); });
+  P.wirePillBar('sizeBar', 'ctrlSize', function(s) { G.size = s; applyGlobals(); });
+  // P.wirePillBar('roundedBar', 'ctrlRounded', function(v) { G.rounded = v === 'true'; applyGlobals(); });
+  // P.wirePillBar('roleBar', 'ctrlRole', function(r) { G.role = r; applyGlobals(); });
+
+  /* ── Theme Hook ──────────────────────────────────────── */
+  window.DTF.onThemeChange = updateInspector;
+
+  /* ── Playground (optional — wire if section exists) ──── */
+  // TODO: Wire playground surface/role selects using P.applySurface / P.applyRole
+
+  /* ── Init ────────────────────────────────────────────── */
+  applyGlobals();
+
+})();
+</script>
+</body>
+</html>

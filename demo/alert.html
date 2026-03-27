@@ -12,6 +12,7 @@
 </head>
 <body>
 
+<!-- ═══════════════ NAV BAR ═══════════════ -->
 <nav class="explorer-nav" aria-label="Component navigation">
   <div class="nav-crumb">
     <a href="index.html" class="nav-home" aria-label="Component Explorer" title="Component Explorer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M5 10v9a1 1 0 001 1h3v-5h6v5h3a1 1 0 001-1v-9"/></svg></a>
@@ -58,18 +59,20 @@
   </div>
 </nav>
 
+<!-- ═══════════════ PAGE LAYOUT ═══════════════ -->
 <div class="page-layout">
 <aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
-  <a href="#sec-hero"><span class="sn-num">01</span>Hero Inspector</a>
-  <a href="#sec-variants"><span class="sn-num">02</span>Variant Gallery</a>
-  <a href="#sec-density"><span class="sn-num">03</span>Density</a>
-  <a href="#sec-state"><span class="sn-num">04</span>State Matrix</a>
-  <a href="#sec-surface"><span class="sn-num">05</span>Surface Context</a>
-  <a href="#sec-accent"><span class="sn-num">06</span>Accent Bar</a>
-  <a href="#sec-slots"><span class="sn-num">07</span>Slots &amp; Anatomy</a>
-  <a href="#sec-dismiss"><span class="sn-num">08</span>Dismiss</a>
-  <a href="#sec-a11y"><span class="sn-num">09</span>Accessibility</a>
-  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Preview</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-slots"><span class="sn-num">6</span>Slots &amp; Anatomy</a>
+  <a href="#sec-accent"><span class="sn-num">7</span>Accent Bar</a>
+  <a href="#sec-dismiss"><span class="sn-num">8</span>Dismiss</a>
+  <a href="#sec-playground"><span class="sn-num">9</span>Context Playground</a>
+  <a href="#sec-a11y"><span class="sn-num">10</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
 </aside>
 <div class="page-content">
 
@@ -77,9 +80,9 @@
   <h1>Alert Explorer <span>— Design Token Forge</span></h1>
   <div class="demo-meta">
     <span class="demo-badge">91 CSS Variables</span>
-    <span class="demo-badge">4 Roles</span>
+    <span class="demo-badge">6 Roles</span>
     <span class="demo-badge">3 Sizes</span>
-    <span class="demo-badge">3 Variants</span>
+    <span class="demo-badge">4 Variants</span>
     <span class="demo-badge">7 Axes</span>
   </div>
 </header>
@@ -90,9 +93,21 @@
     <label>Role</label>
     <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
       <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="primary" type="button">Primary</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outline" type="button">Outline</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="soft" type="button">Soft</button>
     </div>
   </div>
   <div class="control-divider"></div>
@@ -104,111 +119,147 @@
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
     </div>
   </div>
-  <div class="control-divider"></div>
-  <div class="control-group">
-    <label>Variant</label>
-    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
-      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="" type="button">Default</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="filled" type="button">Filled</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outline" type="button">Outline</button>
-    </div>
-  </div>
 </nav>
 
 <main class="demo-main">
 
-  <!-- ─── 1. HERO + INSPECTOR ─────────────────────────── -->
+  <!-- 1. HERO + INSPECTOR -->
   <section class="section" id="sec-hero">
-    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
-    <p class="section-desc">Live alert reflecting global controls. Inspector shows resolved token → alias → computed value.</p>
+    <div class="section-header"><h2>Hero Preview</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Live alert reflecting global role, variant, and size controls. Inspector shows the full resolution chain: component token → alias → computed value.</p>
     <div class="section-body">
       <div class="hero">
         <div class="hero-preview" id="heroPreview" style="width:100%"></div>
-        <div class="hero-inspector" id="heroInspector"></div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
       </div>
     </div>
   </section>
 
-  <!-- ─── 2. VARIANT GALLERY ──────────────────────────── -->
+  <!-- 2. VARIANT GALLERY -->
   <section class="section" id="sec-variants">
-    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">3 × 4</span></div>
-    <p class="section-desc">Default (soft tinted bg), Filled (solid role bg), Outline (transparent + role border). Each shown for all 4 roles.</p>
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">4 structural variants × 6 semantic roles at the globally selected size. Default = tinted container bg, Filled = solid component bg, Outline = transparent + role border, Soft = subtle container bg. Each variant routes to specific token layers.</p>
     <div class="section-body" id="variantGallery"></div>
   </section>
 
-  <!-- ─── 3. DENSITY ──────────────────────────────────── -->
+  <!-- 3. DENSITY SCALE -->
   <section class="section" id="sec-density">
-    <div class="section-header"><h2>Density</h2><span class="section-tag">3 Sizes</span></div>
-    <p class="section-desc">Small, Base, Large. Padding, gap, font-size, icon, and close button all scale per-size.</p>
-    <div class="section-body"><div class="alert-stack" id="densityGallery"></div></div>
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">3 density modes at the globally selected variant. Each maps 8 dimensions: padding-y/x, gap, content-gap, font-size, title-font-size, icon-size, close-size.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
   </section>
 
-  <!-- ─── 4. STATE MATRIX ─────────────────────────────── -->
-  <section class="section" id="sec-state">
-    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">Variant × State</span></div>
-    <p class="section-desc">Each variant in visible, dismissing, and disabled states.</p>
-    <div class="section-body" id="stateMatrix"></div>
+  <!-- 4. STATE MATRIX -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every variant in every interactive state at the globally selected role and size. Dismissing applies opacity+translateY animation.</p>
+    <div class="section-body"><div id="stateMatrix"></div></div>
   </section>
 
-  <!-- ─── 5. SURFACE CONTEXT ──────────────────────────── -->
+  <!-- 5. SURFACE CONTEXT -->
   <section class="section" id="sec-surface">
-    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">3 BG Levels</span></div>
-    <p class="section-desc">Alerts on base, elevated, and sunken backgrounds to verify contrast and contrast ratios.</p>
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Alerts on three background levels (surface-base-bg → hover → pressed) to verify contrast remains readable across surface depths.</p>
     <div class="section-body">
       <div class="surface-strip" id="surfaceStrip"></div>
     </div>
   </section>
 
-  <!-- ─── 6. ACCENT BAR ──────────────────────────────── -->
+  <!-- 6. SLOTS & ANATOMY -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">6 slot configurations. Accent bar, icon, title, body (with links), close button — all optional. Icon and close sizes scale with the density token.</p>
+    <div class="section-body"><div class="alert-stack" id="slotsDemo" style="padding:32px"></div></div>
+  </section>
+
+  <!-- ═══ CUSTOM SECTIONS ═══ -->
+
+  <!-- 7. ACCENT BAR -->
   <section class="section" id="sec-accent">
     <div class="section-header"><h2>Accent Bar</h2><span class="section-tag">Shape</span></div>
-    <p class="section-desc">Left-border accent bar with rounded cap. Width via <code>--alert-accent-width</code>. Hidden on filled variant.</p>
-    <div class="section-body"><div class="alert-stack" id="accentGallery"></div></div>
+    <p class="section-desc">Left-border accent bar. Width: <code>--alert-accent-width</code> (4px). Radius: <code>--alert-accent-radius</code> (radius-full). Color: <code>--_al-accent</code> → <code>--{role}-component-bg-default</code>. Hidden on filled and soft variants.</p>
+    <div class="section-body"><div class="alert-stack" id="accentGallery" style="padding:32px"></div></div>
   </section>
 
-  <!-- ─── 7. SLOTS & ANATOMY ──────────────────────────── -->
-  <section class="section" id="sec-slots">
-    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">5 Sub-elements</span></div>
-    <p class="section-desc">Accent bar, icon, title, body (with links), close button. All optional.</p>
-    <div class="section-body"><div class="alert-stack" id="slotsGallery"></div></div>
-  </section>
-
-  <!-- ─── 8. DISMISS ──────────────────────────────────── -->
+  <!-- 8. DISMISS -->
   <section class="section" id="sec-dismiss">
-    <div class="section-header"><h2>Dismiss</h2><span class="section-tag">Interactive</span></div>
-    <p class="section-desc">Click × to dismiss. Alert animates out with opacity + translateY transition. Try it live:</p>
-    <div class="section-body"><div class="alert-stack" id="dismissDemo"></div>
-    <button type="button" id="resetDismiss" style="margin-top:12px;padding:6px 14px;font:inherit;font-size:13px;font-weight:600;border-radius:6px;border:1px solid var(--surface-base-cm-outline);background:var(--surface-base-cn-bg);color:var(--surface-base-ct-default);cursor:pointer">Reset alerts</button>
+    <div class="section-header"><h2>Dismiss</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Dismiss transition: <code>--alert-transition-duration</code> (duration-normal) × <code>--alert-transition-easing</code> (easing-in-out) on <code>opacity, transform</code>. Click × to dismiss, then reset.</p>
+    <div class="section-body">
+      <div class="alert-stack" id="dismissDemo" style="padding:32px"></div>
+      <div style="padding:0 32px 16px">
+        <button type="button" id="resetDismiss" style="padding:6px 14px;font:inherit;font-size:13px;font-weight:600;border-radius:6px;border:1px solid var(--surface-base-cm-outline);background:var(--surface-base-cn-bg);color:var(--surface-base-ct-default);cursor:pointer">Reset alerts</button>
+      </div>
     </div>
   </section>
 
-  <!-- ─── 9. ACCESSIBILITY ────────────────────────────── -->
+  <!-- 9. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how alerts adapt across surface contexts and semantic color roles. Two cards with independent surface + role overrides — compare them side by side. Token Resolution Chain below shows the full mapping for Card A.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="primary" selected>Primary</option><option value="info">Info</option><option value="brand">Brand</option><option value="danger">Danger</option><option value="success">Success</option><option value="warning">Warning</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA"></div>
+        </div>
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="primary">Primary</option><option value="info">Info</option><option value="brand">Brand</option><option value="danger" selected>Danger</option><option value="success">Success</option><option value="warning">Warning</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB"></div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 10. ACCESSIBILITY -->
   <section class="section" id="sec-a11y">
     <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
-    <p class="section-desc">ARIA roles, keyboard navigation, forced colors, and reduced motion behavior.</p>
+    <p class="section-desc">ARIA roles (<code>role="alert"</code> for danger/warning, <code>role="status"</code> for info), keyboard navigation, forced colors, and reduced motion behavior.</p>
     <div class="section-body">
       <div class="a11y-grid">
         <div class="a11y-card">
-          <div class="a11y-card-title">ARIA Live Regions</div>
-          <p class="a11y-card-desc">Danger/warning use <code>role="alert"</code> (assertive). Info/success use <code>role="status"</code> (polite). Content is announced automatically by screen readers.</p>
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Close button shows <code>:focus-visible</code> ring via <code>--alert-focus-outline-width</code> (2px) + <code>--alert-focus-outline-color</code> → <code>--primary-component-outline-default</code>.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="a11yFocus"></div>
         </div>
         <div class="a11y-card">
-          <div class="a11y-card-title">Keyboard</div>
-          <p class="a11y-card-desc">Close button is tabbable and activatable via Enter/Space. Links in body text are focusable. <code>:focus-visible</code> ring on all interactive elements.</p>
-        </div>
-        <div class="a11y-card">
-          <div class="a11y-card-title">Forced Colors</div>
-          <p class="a11y-card-desc">High Contrast mode: border falls back to <code>CanvasText</code>. Accent bar uses <code>Highlight</code> for visibility.</p>
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>data-disabled</code> applies <code>--alert-disabled-opacity</code> (0.5) and <code>pointer-events:none</code>. Close button becomes inert.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="a11yDisabled"></div>
         </div>
         <div class="a11y-card">
           <div class="a11y-card-title">Reduced Motion</div>
-          <p class="a11y-card-desc">When <code>prefers-reduced-motion: reduce</code> is active, dismiss transition resolves to near-instant (0.01ms).</p>
+          <p class="a11y-card-desc">When <code>prefers-reduced-motion: reduce</code> is active, dismiss transition resolves to near-instant (0.01ms). Shimmer animations removed.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="a11yMotion"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast mode: border falls back to <code>CanvasText</code>. Accent bar uses <code>Highlight</code>. All role colors collapse to system palette.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="a11yHC"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ─── 10. FRAMEWORK ───────────────────────────────── -->
+  <!-- 11. FRAMEWORK -->
   <section class="section" id="sec-framework">
     <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
     <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
@@ -226,8 +277,8 @@
         </div>
         <div class="fw-snippet-code" data-panel="react" data-active>&lt;div
   className="alert"
-  data-role={role}           {/* primary | success | warning | danger */}
-  data-variant={variant}     {/* filled | outline (omit for default) */}
+  data-role={role}           {/* primary | info | success | warning | danger | neutral */}
+  data-variant={variant}     {/* filled | outline | soft (omit for default) */}
   data-size={size}           {/* small | base | large */}
   role={['danger','warning'].includes(role) ? 'alert' : 'status'}
 &gt;
@@ -266,7 +317,7 @@
     &lt;/svg&gt;
   &lt;/button&gt;
 &lt;/div&gt;</div>
-        <div class="fw-snippet-code" data-panel="html">&lt;div class="alert" data-role="primary" data-size="base" role="status"&gt;
+        <div class="fw-snippet-code" data-panel="html">&lt;div class="alert" data-role="info" data-size="base" role="status"&gt;
   &lt;span class="alert__accent"&gt;&lt;/span&gt;
   &lt;span class="alert__icon"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/span&gt;
   &lt;div class="alert__content"&gt;
@@ -279,44 +330,71 @@
     &lt;/svg&gt;
   &lt;/button&gt;
 &lt;/div&gt;</div>
-        <div class="fw-snippet-code" data-panel="css">/* ── Shape ── */
---alert-radius                /* border-radius (default: radius-md) */
---alert-border-width / -style / -color
---alert-accent-width / -radius
+        <div class="fw-snippet-code" data-panel="css">/* ── Shape (6 vars) ── */
+--alert-radius                    /* → --radius-md */
+--alert-border-width              /* 1px */
+--alert-border-style              /* solid */
+--alert-border-color              /* transparent */
+--alert-accent-width              /* 4px */
+--alert-accent-radius             /* → --radius-full */
 
-/* ── Per-Size (small / base / large) ── */
---alert-padding-y-{size}     /* vertical padding */
---alert-padding-x-{size}     /* horizontal padding */
---alert-gap-{size}            /* main flex gap */
---alert-content-gap-{size}    /* title↔body gap */
---alert-font-size-{size}      /* body font-size */
---alert-title-font-size-{size}
---alert-icon-size-{size}      /* icon dimensions */
---alert-close-size-{size}     /* close button dimensions */
+/* ── Per-Size Dimension (8 vars × 3 sizes = 24 vars) ── */
+--alert-padding-y-{size}          /* sm→--spacing-10  base→--spacing-14  lg→--spacing-18 */
+--alert-padding-x-{size}          /* sm→--spacing-12  base→--spacing-16  lg→--spacing-20 */
+--alert-gap-{size}                /* sm→--spacing-8   base→--spacing-12  lg→--spacing-14 */
+--alert-content-gap-{size}        /* sm→--spacing-2   base→--spacing-4   lg→--spacing-6 */
+--alert-font-size-{size}          /* sm→--font-size-13 base→--font-size-14 lg→--font-size-16 */
+--alert-title-font-size-{size}    /* sm→--font-size-13 base→--font-size-14 lg→--font-size-16 */
+--alert-icon-size-{size}          /* sm→--spacing-16  base→--spacing-20  lg→--spacing-24 */
+--alert-close-size-{size}         /* sm→--spacing-16  base→--spacing-20  lg→--spacing-24 */
 
-/* ── Surface (per role) ── */
---alert-{role}-bg / -fg / -accent / -border
---alert-{role}-icon-color / -title-color
---alert-{role}-link-color / -link-hover
---alert-{role}-filled-bg / -filled-fg
---alert-{role}-outline-border
---alert-shadow
+/* ── Dimension (2 vars) ── */
+--alert-min-height                /* 48px */
+--alert-icon-offset               /* 2px */
 
-/* ── Typography ── */
---alert-font-family / -font-weight / -line-height
---alert-title-font-weight
+/* ── Surface — per-role (6 roles × 8 = 48 vars) ── */
+--alert-{role}-bg                 /* default bg: → --{role}-container-bg */
+--alert-{role}-fg                 /* body text: → --{role}-content-default */
+--alert-{role}-accent             /* accent bar: → --{role}-component-bg-default */
+--alert-{role}-border             /* border: → --{role}-container-bg */
+--alert-{role}-icon-color         /* icon: → --{role}-component-bg-default */
+--alert-{role}-title-color        /* title: → --{role}-content-strong */
+--alert-{role}-link-color         /* link: → --{role}-content-default */
+--alert-{role}-link-hover         /* link hover: → --{role}-content-strong */
 
-/* ── Slots ── */
---alert-close-radius / -opacity / -hover-opacity / -hover-bg
+/* ── Variant overrides (filled/outline/soft per role) ── */
+--alert-{role}-filled-bg          /* → --{role}-component-bg-default */
+--alert-{role}-filled-fg          /* → --{role}-on-component */
+--alert-{role}-outline-border     /* → --{role}-component-bg-default */
+--alert-{role}-soft-bg            /* → --{role}-container-bg */
+--alert-shadow                    /* none */
 
-/* ── Motion ── */
---alert-transition-property / -duration / -easing
+/* ── Typography (4 vars) ── */
+--alert-font-family               /* → --font-family-sans */
+--alert-font-weight               /* → --font-weight-normal */
+--alert-line-height               /* 1.5 */
+--alert-title-font-weight         /* → --font-weight-semibold */
 
-/* ── State ── */
---alert-disabled-opacity
+/* ── Slots (4 vars) ── */
+--alert-close-radius              /* → --radius-sm */
+--alert-close-opacity             /* 0.6 */
+--alert-close-hover-opacity       /* 1 */
+--alert-close-hover-bg            /* rgba(0,0,0,0.06) */
 
-/* ── A11y ── */
---alert-focus-outline-width / -color</div>
+/* ── Motion (3 vars) ── */
+--alert-transition-property       /* opacity, transform */
+--alert-transition-duration       /* → --duration-normal */
+--alert-transition-easing         /* → --easing-in-out */
+
+/* ── State (1 var) ── */
+--alert-disabled-opacity          /* 0.5 */
+
+/* ── A11y (2 vars) ── */
+--alert-focus-outline-width       /* 2px */
+--alert-focus-outline-color       /* → --primary-component-outline-default */
+
+/* ── Shadow (1 var) ── */
+--alert-shadow                    /* none */</div>
       </div>
     </div>
   </section>
@@ -324,59 +402,92 @@
 </main>
 </div></div>
 
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script src="shared.js"></script>
+<script src="shared-page.js"></script>
 <script>
 (function(){
   'use strict';
+  var P = window.DTFPage;
 
-  /* ── Constants ─────────────────────────────────────── */
-  var ROLES    = ['primary','success','warning','danger'];
+  /* ══════════════════════════════════════════════════════
+     CONSTANTS — sourced from alert.tokens.css
+     ══════════════════════════════════════════════════════ */
+  var ROLES    = ['primary','info','success','warning','danger','neutral'];
   var SIZES    = ['small','base','large'];
-  var SLABELS  = ['Small','Base','Large'];
-  var VARIANTS = ['','filled','outline'];
-  var VLABELS  = ['Default','Filled','Outline'];
+  var VARIANTS = ['','filled','outline','soft'];
+  var VLABELS  = {'':'Default', filled:'Filled', outline:'Outline', soft:'Soft'};
 
+  /* Token alias map per-size (from alert.tokens.css §2) */
+  var AL_TOKENS = {
+    py:         { small:'--spacing-10',   base:'--spacing-14',   large:'--spacing-18' },
+    px:         { small:'--spacing-12',   base:'--spacing-16',   large:'--spacing-20' },
+    gap:        { small:'--spacing-8',    base:'--spacing-12',   large:'--spacing-14' },
+    contentGap: { small:'--spacing-2',    base:'--spacing-4',    large:'--spacing-6' },
+    fontSize:   { small:'--font-size-13', base:'--font-size-14', large:'--font-size-16' },
+    titleFs:    { small:'--font-size-13', base:'--font-size-14', large:'--font-size-16' },
+    iconSize:   { small:'--spacing-16',   base:'--spacing-20',   large:'--spacing-24' },
+    closeSize:  { small:'--spacing-16',   base:'--spacing-20',   large:'--spacing-24' }
+  };
+
+  /* Role → semantic upstream token (per-role, default/container layer) */
+  var ROLE_UPSTREAM = {
+    primary: '--primary-', info: '--info-', success: '--success-',
+    warning: '--warning-', danger: '--danger-', neutral: '--surface-base-'
+  };
+
+  /* Per-role icons */
   var ICONS = {
     primary: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+    info:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
     success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
     warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
-    danger:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/></svg>'
+    danger:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/></svg>',
+    neutral: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>'
   };
   var CLOSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>';
-  var TITLES = { primary:'Information', success:'Success', warning:'Warning', danger:'Error' };
+  var TITLES = { primary:'Information', info:'Info', success:'Success', warning:'Warning', danger:'Error', neutral:'Notice' };
   var BODIES = {
     primary: 'This is an informational message to help guide the user.',
+    info:    'Here are some additional details you might find useful.',
     success: 'Your changes have been saved successfully.',
     warning: 'Please review the settings before proceeding.',
-    danger:  'Something went wrong. Please try again or contact support.'
+    danger:  'Something went wrong. Please try again or contact support.',
+    neutral: 'This is a neutral notification for general context.'
   };
 
-  /* ── Global state ──────────────────────────────────── */
+  /* ══════════════════════════════════════════════════════
+     STATE — global controls
+     ══════════════════════════════════════════════════════ */
   var G = { role:'primary', size:'base', variant:'' };
 
-  /* ── Helpers ───────────────────────────────────────── */
-  function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1) }
-  function clr(id) { var e=document.getElementById(id); if(e) e.innerHTML=''; return e }
-
+  /* ══════════════════════════════════════════════════════
+     FACTORY — creates a real alert component.
+     Reads G.role, G.size, G.variant as defaults.
+     Explicit opts override globals.
+     ══════════════════════════════════════════════════════ */
   function makeAlert(opts) {
     opts = opts || {};
-    var role = opts.role || 'primary';
+    var role = opts.role || G.role;
+    var size = opts.size !== undefined ? opts.size : G.size;
+    var v    = opts.variant !== undefined ? opts.variant : G.variant;
+
     var el = document.createElement('div');
     el.className = 'alert';
     el.dataset.role = role;
-    if (opts.size && opts.size !== 'base') el.dataset.size = opts.size;
-    if (opts.variant) el.dataset.variant = opts.variant;
+    if (size && size !== 'base') el.dataset.size = size;
+    if (v) el.dataset.variant = v;
     if (opts.disabled) el.dataset.disabled = '';
     if (opts.dismissing) el.dataset.dismissing = '';
     el.setAttribute('role', (role==='danger'||role==='warning') ? 'alert' : 'status');
 
-    if (opts.accent !== false && opts.variant !== 'filled') {
+    if (opts.accent !== false && v !== 'filled' && v !== 'soft') {
       el.appendChild(Object.assign(document.createElement('span'), { className:'alert__accent' }));
     }
     if (opts.icon !== false) {
       var ic = document.createElement('span');
       ic.className = 'alert__icon';
-      ic.innerHTML = ICONS[role];
+      ic.innerHTML = ICONS[role] || ICONS.primary;
       el.appendChild(ic);
     }
     var content = document.createElement('div');
@@ -403,229 +514,353 @@
       el.appendChild(btn);
       btn.addEventListener('click', function() {
         el.dataset.dismissing = '';
-        setTimeout(function() { el.remove() }, 300);
+        setTimeout(function() { el.remove(); }, 300);
       });
     }
     return el;
   }
 
-  /* ── Inspector data ────────────────────────────────── */
-  var INSPECT = [
-    ['--alert-radius',             '--radius-md'],
-    ['--alert-padding-y-base',     '--spacing-14'],
-    ['--alert-padding-x-base',     '--spacing-16'],
-    ['--alert-gap-base',           '--spacing-12'],
-    ['--alert-font-size-base',     '--font-size-14'],
-    ['--alert-icon-size-base',     '--spacing-20'],
-    ['--alert-close-size-base',    '--spacing-20'],
-    ['--alert-primary-bg',           '--primary-container-bg'],
-    ['--alert-primary-accent',       '--primary-component-bg-default'],
-    ['--alert-primary-title-color',  '--primary-content-strong'],
-    ['--alert-accent-width',       '4px'],
-    ['--alert-transition-duration','--duration-normal']
-  ];
-
-  function renderInspector() {
-    var el = clr('heroInspector');
-    var target = document.querySelector('#heroPreview .alert');
-    if (!el || !target) return;
-    var cs = getComputedStyle(target);
-    INSPECT.forEach(function(row) {
-      var r = document.createElement('div');
-      r.className = 'inspector-row';
-      var v = cs.getPropertyValue(row[0]).trim() || '—';
-      r.innerHTML = '<span class="inspector-token">'+row[0]+'</span>' +
-                    '<span class="inspector-alias">'+row[1]+'</span>' +
-                    '<span class="inspector-computed">'+v+'</span>';
-      el.appendChild(r);
-    });
-  }
-
-  /* ── Section renderers ─────────────────────────────── */
-
+  /* ══════════════════════════════════════════════════════
+     1. HERO + INSPECTOR
+     ══════════════════════════════════════════════════════ */
   function renderHero() {
-    var el = clr('heroPreview');
-    el.appendChild(makeAlert({ role:G.role, size:G.size, variant:G.variant||undefined, dismiss:true }));
-    renderInspector();
+    var el = P.clr('heroPreview');
+    el.appendChild(makeAlert({ dismiss:true }));
   }
 
-  function renderVariantGallery() {
-    var el = clr('variantGallery');
+  function updateInspector() {
+    var target = document.querySelector('#heroPreview .alert');
+    if (!target) return;
+    var cs = getComputedStyle(target);
+    var s = G.size, r = G.role, v = G.variant;
+    var vLabel = VLABELS[v] || 'Default';
+    var up = ROLE_UPSTREAM[r] || '--primary-';
+    var rows = [
+      /* Dimension tokens — per-size */
+      ['--alert-padding-y-'+s,          AL_TOKENS.py[s],         cs.paddingTop],
+      ['--alert-padding-x-'+s,          AL_TOKENS.px[s],         cs.paddingLeft],
+      ['--alert-gap-'+s,                AL_TOKENS.gap[s],        cs.gap || '—'],
+      ['--alert-content-gap-'+s,        AL_TOKENS.contentGap[s], cs.getPropertyValue('--_al-content-gap').trim()||'—'],
+      ['--alert-font-size-'+s,          AL_TOKENS.fontSize[s],   cs.fontSize],
+      ['--alert-title-font-size-'+s,    AL_TOKENS.titleFs[s],    cs.getPropertyValue('--_al-title-fs').trim()||'—'],
+      ['--alert-icon-size-'+s,          AL_TOKENS.iconSize[s],   cs.getPropertyValue('--_al-icon-size').trim()||'—'],
+      ['--alert-close-size-'+s,         AL_TOKENS.closeSize[s],  cs.getPropertyValue('--_al-close-size').trim()||'—'],
+      /* Shape */
+      ['--alert-radius',                '--radius-md',           cs.borderRadius],
+      ['--alert-accent-width',          '4px',                   cs.getPropertyValue('--alert-accent-width').trim()||'4px'],
+      /* Surface tokens — per-role */
+      ['--alert-'+r+'-bg',             up+'container-bg',       cs.backgroundColor],
+      ['--alert-'+r+'-fg',             up+'content-default',    cs.color],
+      ['--alert-'+r+'-accent',         up+'component-bg-default', cs.getPropertyValue('--_al-accent').trim()||'—'],
+      ['--alert-'+r+'-icon-color',     up+'component-bg-default', cs.getPropertyValue('--_al-icon-color').trim()||'—'],
+      ['--alert-'+r+'-title-color',    up+'content-strong',     cs.getPropertyValue('--_al-title-color').trim()||'—'],
+      ['--alert-'+r+'-border',         up+'container-bg',       cs.borderColor],
+      /* Typography + Motion + Shadow */
+      ['--alert-font-weight',           '--font-weight-normal',  cs.fontWeight],
+      ['--alert-title-font-weight',     '--font-weight-semibold','—'],
+      ['--alert-transition-duration',   '--duration-normal',     cs.transitionDuration],
+      ['--alert-shadow',                'none',                  cs.boxShadow==='none'?'none':cs.boxShadow]
+    ];
+    P.buildInspector('heroInspector', 'Resolved Tokens ('+r+' / '+vLabel+' / '+s+')', rows);
+  }
+
+  /* ══════════════════════════════════════════════════════
+     2. VARIANT GALLERY — 4 variants × 6 roles
+     ══════════════════════════════════════════════════════ */
+  function renderVariants() {
+    var el = P.clr('variantGallery');
+    el.style.padding = '32px';
     VARIANTS.forEach(function(v, vi) {
       var label = document.createElement('div');
-      label.style.cssText = 'font-weight:600;font-size:13px;margin-bottom:6px;margin-top:'+(vi?'20px':'0');
-      label.textContent = VLABELS[vi];
+      label.className = 'sub-label';
+      label.style.padding = '0 0 8px';
+      if (vi) label.style.marginTop = '20px';
+      label.textContent = VLABELS[v];
       el.appendChild(label);
       var stack = document.createElement('div');
       stack.className = 'alert-stack';
       ROLES.forEach(function(r) {
-        stack.appendChild(makeAlert({ role:r, variant:v||undefined }));
+        stack.appendChild(makeAlert({ role:r, variant:v||undefined, title:P.cap(r), body:VLABELS[v]+' variant — '+r+' role' }));
       });
       el.appendChild(stack);
     });
   }
 
+  /* ══════════════════════════════════════════════════════
+     3. DENSITY SCALE — shows computed dimensions per size
+     ══════════════════════════════════════════════════════ */
   function renderDensity() {
-    var el = clr('densityGallery');
-    SIZES.forEach(function(sz, si) {
-      var label = document.createElement('div');
-      label.className = 'variant-label';
-      label.textContent = SLABELS[si];
-      el.appendChild(label);
-      el.appendChild(makeAlert({
-        role: G.role,
+    var el = P.clr('densityScale');
+    SIZES.forEach(function(sz) {
+      var it = document.createElement('div');
+      it.className = 'density-item';
+      it.style.flexDirection = 'column';
+      it.style.alignItems = 'stretch';
+      it.style.flex = '1';
+      it.style.minWidth = '0';
+      it.appendChild(makeAlert({
         size: sz,
-        variant: G.variant||undefined,
-        title: SLABELS[si]+' alert',
-        body: 'Padding, gap, font, icon, and close all scale with the size token.'
+        title: P.cap(sz),
+        body: 'py:'+AL_TOKENS.py[sz]+' px:'+AL_TOKENS.px[sz]+' gap:'+AL_TOKENS.gap[sz]+' fs:'+AL_TOKENS.fontSize[sz]+' icon:'+AL_TOKENS.iconSize[sz],
+        dismiss: true
       }));
+      var m = document.createElement('div');
+      m.className = 'density-meta';
+      m.textContent = sz+' — '+AL_TOKENS.py[sz]+' / '+AL_TOKENS.px[sz]+' / '+AL_TOKENS.fontSize[sz];
+      it.appendChild(m);
+      el.appendChild(it);
     });
   }
 
-  function renderStateMatrix() {
-    var el = clr('stateMatrix');
-    var states = [
-      { label:'Visible' },
-      { label:'Dismissing', dismissing:true },
-      { label:'Disabled', disabled:true }
-    ];
-    var hdr = document.createElement('div');
-    hdr.style.cssText = 'display:grid;grid-template-columns:100px repeat('+states.length+',1fr);gap:8px;margin-bottom:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;opacity:.6';
-    hdr.innerHTML = '<span></span>';
-    states.forEach(function(s) { hdr.innerHTML += '<span>'+s.label+'</span>' });
-    el.appendChild(hdr);
-    VARIANTS.forEach(function(v, vi) {
-      var row = document.createElement('div');
-      row.style.cssText = 'display:grid;grid-template-columns:100px repeat('+states.length+',1fr);gap:8px;align-items:start;margin-bottom:12px';
-      var rl = document.createElement('span');
-      rl.style.cssText = 'font-size:12px;font-weight:600;padding-top:12px';
-      rl.textContent = VLABELS[vi];
-      row.appendChild(rl);
-      states.forEach(function(s) {
-        var cell = document.createElement('div');
-        cell.appendChild(makeAlert({
-          role: G.role,
+  /* ══════════════════════════════════════════════════════
+     4. STATE MATRIX — variant × state at global role+size
+     ══════════════════════════════════════════════════════ */
+  function renderStates() {
+    var vlabels = VARIANTS.map(function(v) { return VLABELS[v]; });
+    P.renderStateMatrix('stateMatrix', vlabels,
+      ['Default', 'Dismissing', 'Disabled'],
+      function(variantLabel, state) {
+        var v = '';
+        for (var key in VLABELS) { if (VLABELS[key] === variantLabel) v = key; }
+        return makeAlert({
           variant: v||undefined,
-          disabled: s.disabled||false,
-          dismissing: s.dismissing||false,
-          title: s.label,
-          body: VLABELS[vi]+' variant'
-        }));
-        row.appendChild(cell);
-      });
-      el.appendChild(row);
+          disabled: state === 'Disabled',
+          dismissing: state === 'Dismissing',
+          title: state,
+          body: variantLabel + ' variant'
+        });
+      }
+    );
+  }
+
+  /* ══════════════════════════════════════════════════════
+     5. SURFACE CONTEXT — 3 background levels
+     ══════════════════════════════════════════════════════ */
+  function renderSurface() {
+    P.renderSurfacePanels('surfaceStrip', function(panel) {
+      panel.appendChild(makeAlert({ dismiss:true }));
     });
   }
 
-  function renderSurfaceContext() {
-    var el = clr('surfaceStrip');
-    var surfaces = [
-      { label:'Base',     bg:'var(--surface-base-bg)' },
-      { label:'Elevated', bg:'var(--surface-base-cm-bg)' },
-      { label:'Sunken',   bg:'var(--surface-base-cm-bg-pressed)' }
-    ];
-    surfaces.forEach(function(s) {
-      var panel = document.createElement('div');
-      panel.className = 'surface-panel';
-      panel.style.background = s.bg;
-      var lbl = document.createElement('div');
-      lbl.className = 'surface-label';
-      lbl.textContent = s.label;
-      panel.appendChild(lbl);
-      panel.appendChild(makeAlert({ role:G.role, variant:G.variant||undefined }));
-      el.appendChild(panel);
-    });
-  }
-
-  function renderAccent() {
-    var el = clr('accentGallery');
-    ROLES.forEach(function(r) {
-      el.appendChild(makeAlert({ role:r, title:cap(r)+' accent', body:'Left border accent bar with rounded cap.' }));
-    });
-    var lbl = document.createElement('div');
-    lbl.className = 'variant-label';
-    lbl.textContent = 'Filled (accent hidden)';
-    lbl.style.marginTop = '16px';
-    el.appendChild(lbl);
-    el.appendChild(makeAlert({ role:'primary', variant:'filled', title:'No accent on filled', body:'Accent bar is hidden when variant="filled" — the bg IS the role color.' }));
-  }
-
+  /* ══════════════════════════════════════════════════════
+     6. SLOTS & ANATOMY — 6 configurations
+     ══════════════════════════════════════════════════════ */
   function renderSlots() {
-    var el = clr('slotsGallery');
+    var el = P.clr('slotsDemo');
     var demos = [
-      { label:'Full anatomy', opts:{dismiss:true} },
+      { label:'Full anatomy (accent+icon+title+body+close)', opts:{dismiss:true} },
       { label:'Body only (minimal)', opts:{title:false, accent:false, icon:false, body:'Minimal alert — body text only.'} },
-      { label:'Title + body', opts:{accent:false, icon:false} },
-      { label:'With link in body', opts:{bodyHtml:'Check the <a href="#">documentation</a> for more details.'} },
-      { label:'No close button', opts:{body:'Non-dismissible alert. No close button.'} },
-      { label:'Icon + body only', opts:{title:false, accent:false} }
+      { label:'Title + body (no icon, no accent)', opts:{accent:false, icon:false} },
+      { label:'With link in body', opts:{bodyHtml:'Check the <a href="#">documentation</a> for more details. Links use <code>--alert-{role}-link-color</code>.'} },
+      { label:'Non-dismissible (no close button)', opts:{body:'This alert cannot be dismissed. Close button slot is empty.'} },
+      { label:'Icon + body (no title, no accent)', opts:{title:false, accent:false} }
     ];
     demos.forEach(function(d) {
       var lbl = document.createElement('div');
       lbl.className = 'variant-label';
       lbl.textContent = d.label;
       el.appendChild(lbl);
-      var opts = Object.assign({ role:G.role }, d.opts);
-      el.appendChild(makeAlert(opts));
+      el.appendChild(makeAlert(d.opts));
     });
   }
 
-  function renderDismiss() {
-    var el = clr('dismissDemo');
+  /* ══════════════════════════════════════════════════════
+     7. ACCENT BAR — per-role color + filled/soft hidden
+     ══════════════════════════════════════════════════════ */
+  function renderAccent() {
+    var el = P.clr('accentGallery');
+    var lbl1 = document.createElement('div');
+    lbl1.className = 'variant-label';
+    lbl1.textContent = 'Default variant — accent visible per role';
+    el.appendChild(lbl1);
     ROLES.forEach(function(r) {
-      el.appendChild(makeAlert({ role:r, dismiss:true, title:'Dismissible '+cap(r), body:'Click × to dismiss this alert.' }));
+      el.appendChild(makeAlert({ role:r, variant:undefined, title:P.cap(r)+' accent', body:'--alert-'+r+'-accent → --'+ROLE_UPSTREAM[r]+'component-bg-default' }));
+    });
+    var lbl2 = document.createElement('div');
+    lbl2.className = 'variant-label';
+    lbl2.textContent = 'Filled variant — accent hidden (bg IS the role color)';
+    lbl2.style.marginTop = '16px';
+    el.appendChild(lbl2);
+    el.appendChild(makeAlert({ variant:'filled', title:'No accent on filled' }));
+    var lbl3 = document.createElement('div');
+    lbl3.className = 'variant-label';
+    lbl3.textContent = 'Soft variant — accent hidden';
+    lbl3.style.marginTop = '16px';
+    el.appendChild(lbl3);
+    el.appendChild(makeAlert({ variant:'soft', title:'No accent on soft' }));
+  }
+
+  /* ══════════════════════════════════════════════════════
+     8. DISMISS — interactive with reset
+     ══════════════════════════════════════════════════════ */
+  function renderDismiss() {
+    var el = P.clr('dismissDemo');
+    ROLES.forEach(function(r) {
+      el.appendChild(makeAlert({ role:r, dismiss:true, title:'Dismissible '+P.cap(r), body:'Click × to dismiss. Transition: opacity+translateY via --alert-transition-duration → --duration-normal.' }));
     });
   }
 
-  /* ── Master render ─────────────────────────────────── */
+  /* ══════════════════════════════════════════════════════
+     10. A11Y DEMOS
+     ══════════════════════════════════════════════════════ */
+  function renderA11y() {
+    var f = P.clr('a11yFocus');
+    f.appendChild(makeAlert({ dismiss:true, title:'Tab to close button', body:'Focus ring: --alert-focus-outline-width (2px) + --alert-focus-outline-color → --primary-component-outline-default' }));
+    var d = P.clr('a11yDisabled');
+    d.appendChild(makeAlert({ disabled:true, body:'--alert-disabled-opacity → 0.5. pointer-events: none.' }));
+    var m = P.clr('a11yMotion');
+    m.appendChild(makeAlert({ dismiss:true, body:'With prefers-reduced-motion: reduce, dismiss resolves ≈instantly.' }));
+    var h = P.clr('a11yHC');
+    h.appendChild(makeAlert({ body:'Forced colors: border → CanvasText, accent bar → Highlight, role colors → system palette.' }));
+  }
+
+  /* ══════════════════════════════════════════════════════
+     9. CONTEXT PLAYGROUND — surface × role cards + chain
+     ══════════════════════════════════════════════════════ */
+  function pgRenderCard(card) {
+    var body = document.getElementById('pgBody'+card);
+    var surfSel = document.querySelector('[data-pg-surface="'+card+'"]');
+    var roleSel = document.querySelector('[data-pg-role="'+card+'"]');
+    P.applySurface(body, surfSel.value);
+    P.applyRole(body, roleSel.value);
+    body.innerHTML = '';
+    body.style.display = 'flex';
+    body.style.flexDirection = 'column';
+    body.style.gap = '12px';
+    body.style.padding = '20px';
+    var pgSize = 'base';
+    var activePill = document.querySelector('#pgDensityBar .pill[aria-pressed="true"]');
+    if (activePill) pgSize = activePill.dataset.pgSize;
+    VARIANTS.forEach(function(v) {
+      var row = document.createElement('div');
+      row.className = 'pg-variant-row';
+      row.style.flexDirection = 'column';
+      row.style.alignItems = 'stretch';
+      var lbl = document.createElement('span');
+      lbl.className = 'pg-variant-label';
+      lbl.textContent = VLABELS[v];
+      row.appendChild(lbl);
+      row.appendChild(makeAlert({ variant:v||undefined, size:pgSize, dismiss:true, role:'primary' }));
+      body.appendChild(row);
+    });
+  }
+
+  /* ── Token Resolution Chain (mirrors button.html pg-chain) ── */
+  function pgUpdateChain() {
+    var body = document.getElementById('pgBodyA');
+    var surfSel = document.querySelector('[data-pg-surface="A"]');
+    var roleSel = document.querySelector('[data-pg-role="A"]');
+    var alert0 = body.querySelector('.alert');
+    if (!alert0) return;
+    var cs = getComputedStyle(alert0);
+    var chain = document.getElementById('pgChain');
+    var s = surfSel.value, r = roleSel.value;
+
+    var rows = [
+      {sec:'Default (tinted container bg)'},
+      {label:'BG',      token:'--alert-'+r+'-bg',          via:'--'+r+'-container-bg',          val:cs.backgroundColor},
+      {label:'FG',      token:'--alert-'+r+'-fg',          via:'--'+r+'-content-default',       val:cs.color},
+      {label:'Accent',  token:'--alert-'+r+'-accent',      via:'--'+r+'-component-bg-default'},
+      {label:'Border',  token:'--alert-'+r+'-border',      via:'--'+r+'-container-bg'},
+      {label:'Icon',    token:'--alert-'+r+'-icon-color',  via:'--'+r+'-component-bg-default'},
+      {label:'Title',   token:'--alert-'+r+'-title-color', via:'--'+r+'-content-strong'},
+      {label:'Link',    token:'--alert-'+r+'-link-color',  via:'--'+r+'-content-default'},
+      {label:'Link Hover', token:'--alert-'+r+'-link-hover', via:'--'+r+'-content-strong'},
+
+      {sec:'Filled (solid component bg)'},
+      {label:'BG',      token:'--alert-'+r+'-filled-bg',   via:'--'+r+'-component-bg-default'},
+      {label:'FG',      token:'--alert-'+r+'-filled-fg',   via:'--'+r+'-on-component'},
+
+      {sec:'Outline (transparent + role border)'},
+      {label:'BG',      token:'(transparent)',              via:'—'},
+      {label:'Border',  token:'--alert-'+r+'-outline-border', via:'--'+r+'-component-bg-default'},
+
+      {sec:'Soft (subtle container bg)'},
+      {label:'BG',      token:'--alert-'+r+'-soft-bg',     via:'--'+r+'-container-bg'},
+
+      {sec:'Neutral (surface-context)'},
+      {label:'BG',      token:'--alert-neutral-bg',         via:'--surface-'+s+'-cn-bg'},
+      {label:'FG',      token:'--alert-neutral-fg',         via:'--surface-'+s+'-ct-default'},
+      {label:'Accent',  token:'--alert-neutral-accent',     via:'--surface-'+s+'-cm-outline'},
+      {label:'Title',   token:'--alert-neutral-title-color',via:'--surface-'+s+'-ct-strong'},
+
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring', token:'--alert-focus-outline-color', via:'--'+r+'-component-outline-default'}
+    ];
+
+    var h = '<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row) {
+      if (row.sec) { h += '<div class="pg-chain-sec">'+row.sec+'</div>'; return; }
+      h += '<div class="pg-chain-row">';
+      if (row.val) h += '<span class="pg-swatch" style="background:'+row.val+'"></span>';
+      h += '<span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span>';
+      if (row.val) h += ' <span class="pg-chain-arrow">\u2192</span> <span style="font-weight:600">'+row.val+'</span>';
+      h += '</div>';
+    });
+    chain.innerHTML = h;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     APPLY ALL — re-renders every section from G state
+     ══════════════════════════════════════════════════════ */
   function applyGlobals() {
     renderHero();
-    renderVariantGallery();
+    renderVariants();
     renderDensity();
-    renderStateMatrix();
-    renderSurfaceContext();
-    renderAccent();
+    renderStates();
+    renderSurface();
     renderSlots();
+    renderAccent();
     renderDismiss();
+    renderA11y();
+    requestAnimationFrame(updateInspector);
   }
 
-  /* ── Pill-bar wiring ───────────────────────────────── */
-  function wirePillBar(id, cb) {
-    var bar = document.getElementById(id);
-    if (!bar) return;
-    bar.addEventListener('click', function(e) {
-      var pill = e.target.closest('.pill');
-      if (!pill) return;
-      this.querySelectorAll('.pill').forEach(function(p) { p.setAttribute('aria-pressed','false') });
-      pill.setAttribute('aria-pressed','true');
-      cb(pill);
-    });
-  }
-  wirePillBar('roleBar',    function(p) { G.role=p.dataset.ctrlRole;       applyGlobals() });
-  wirePillBar('sizeBar',    function(p) { G.size=p.dataset.ctrlSize;       applyGlobals() });
-  wirePillBar('variantBar', function(p) { G.variant=p.dataset.ctrlVariant; applyGlobals() });
+  /* ══════════════════════════════════════════════════════
+     WIRE PILL BARS — shared helper
+     ══════════════════════════════════════════════════════ */
+  P.wirePillBar('roleBar',    'ctrlRole',    function(v) { G.role=v;    applyGlobals(); });
+  P.wirePillBar('variantBar', 'ctrlVariant', function(v) { G.variant=v; applyGlobals(); });
+  P.wirePillBar('sizeBar',    'ctrlSize',    function(v) { G.size=v;    applyGlobals(); });
 
-  /* ── Reset dismiss ─────────────────────────────────── */
-  document.getElementById('resetDismiss').addEventListener('click', function() { renderDismiss() });
+  /* ── Reset dismiss button ──────────────────────────── */
+  document.getElementById('resetDismiss').addEventListener('click', function() { renderDismiss(); });
 
-  /* ── Framework tabs ────────────────────────────────── */
-  document.querySelectorAll('.fw-snippet-tabs').forEach(function(tabs) {
-    tabs.addEventListener('click', function(e) {
-      var btn = e.target.closest('.fw-snippet-tab');
-      if (!btn) return;
-      var panel = btn.dataset.tab;
-      var snippet = tabs.closest('.fw-snippet');
-      snippet.querySelectorAll('.fw-snippet-tab').forEach(function(t) { t.setAttribute('aria-selected','false') });
-      btn.setAttribute('aria-selected','true');
-      snippet.querySelectorAll('.fw-snippet-code').forEach(function(c) { delete c.dataset.active });
-      var target = snippet.querySelector('[data-panel="'+panel+'"]');
-      if (target) target.dataset.active = '';
+  /* ══════════════════════════════════════════════════════
+     PLAYGROUND WIRING
+     ══════════════════════════════════════════════════════ */
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel) {
+    sel.addEventListener('change', function() {
+      var card = this.dataset.pgSurface || this.dataset.pgRole;
+      pgRenderCard(card);
+      requestAnimationFrame(pgUpdateChain);
     });
   });
 
-  /* ── Init ─────────────────────────────────────────── */
+  document.getElementById('pgDensityBar').addEventListener('click', function(e) {
+    var pill = e.target.closest('.pill');
+    if (!pill) return;
+    this.querySelectorAll('.pill').forEach(function(p) { p.setAttribute('aria-pressed','false'); });
+    pill.setAttribute('aria-pressed','true');
+    pgRenderCard('A');
+    pgRenderCard('B');
+    requestAnimationFrame(pgUpdateChain);
+  });
+
+  /* ── Theme hook ────────────────────────────────────── */
+  window.DTF.onThemeChange = function() {
+    requestAnimationFrame(updateInspector);
+    requestAnimationFrame(pgUpdateChain);
+  };
+
+  /* ══════════════════════════════════════════════════════
+     INIT
+     ══════════════════════════════════════════════════════ */
   applyGlobals();
-  window.DTF.onThemeChange = function() { applyGlobals() };
+  pgRenderCard('A');
+  pgRenderCard('B');
+  requestAnimationFrame(pgUpdateChain);
+
 })();
 </script>
 </body>

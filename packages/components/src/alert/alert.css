@@ -31,18 +31,19 @@
   --_al-icon-size:   var(--alert-icon-size-base);
   --_al-close-size:  var(--alert-close-size-base);
 
-  /* — role active vars (info default) — */
-  --_al-bg:             var(--alert-info-bg);
-  --_al-fg:             var(--alert-info-fg);
-  --_al-accent:         var(--alert-info-accent);
-  --_al-border:         var(--alert-info-border);
-  --_al-icon-color:     var(--alert-info-icon-color);
-  --_al-title-color:    var(--alert-info-title-color);
-  --_al-link-color:     var(--alert-info-link-color);
-  --_al-link-hover:     var(--alert-info-link-hover);
-  --_al-filled-bg:      var(--alert-info-filled-bg);
-  --_al-filled-fg:      var(--alert-info-filled-fg);
-  --_al-outline-border: var(--alert-info-outline-border);
+  /* — role active vars (primary default) — */
+  --_al-bg:             var(--alert-primary-bg);
+  --_al-fg:             var(--alert-primary-fg);
+  --_al-accent:         var(--alert-primary-accent);
+  --_al-border:         var(--alert-primary-border);
+  --_al-icon-color:     var(--alert-primary-icon-color);
+  --_al-title-color:    var(--alert-primary-title-color);
+  --_al-link-color:     var(--alert-primary-link-color);
+  --_al-link-hover:     var(--alert-primary-link-hover);
+  --_al-filled-bg:      var(--alert-primary-filled-bg);
+  --_al-filled-fg:      var(--alert-primary-filled-fg);
+  --_al-outline-border: var(--alert-primary-outline-border);
+  --_al-soft-bg:        var(--alert-primary-soft-bg);
 
   /* — rendering — */
   position: relative;
@@ -93,8 +94,23 @@
 /* ────────────────────────────────────────────────────────────────
    3.  ROLE SELECTORS
    ──────────────────────────────────────────────────────────────── */
-/* primary = alias for info (default) — consistency with other components */
+/* primary = default role — uses --primary-* palette */
 .alert[data-role="primary"] {
+  --_al-bg:             var(--alert-primary-bg);
+  --_al-fg:             var(--alert-primary-fg);
+  --_al-accent:         var(--alert-primary-accent);
+  --_al-border:         var(--alert-primary-border);
+  --_al-icon-color:     var(--alert-primary-icon-color);
+  --_al-title-color:    var(--alert-primary-title-color);
+  --_al-link-color:     var(--alert-primary-link-color);
+  --_al-link-hover:     var(--alert-primary-link-hover);
+  --_al-filled-bg:      var(--alert-primary-filled-bg);
+  --_al-filled-fg:      var(--alert-primary-filled-fg);
+  --_al-outline-border: var(--alert-primary-outline-border);
+  --_al-soft-bg:        var(--alert-primary-soft-bg);
+}
+/* info — dedicated info palette (distinct blue) */
+.alert[data-role="info"] {
   --_al-bg:             var(--alert-info-bg);
   --_al-fg:             var(--alert-info-fg);
   --_al-accent:         var(--alert-info-accent);

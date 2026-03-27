@@ -72,15 +72,15 @@
   --alert-primary-link-color:  var(--primary-content-default);
   --alert-primary-link-hover:  var(--primary-content-strong);
 
-  /* info — backward-compatible alias for primary */
-  --alert-info-bg:          var(--alert-primary-bg);
-  --alert-info-fg:          var(--alert-primary-fg);
-  --alert-info-accent:      var(--alert-primary-accent);
-  --alert-info-border:      var(--alert-primary-border);
-  --alert-info-icon-color:  var(--alert-primary-icon-color);
-  --alert-info-title-color: var(--alert-primary-title-color);
-  --alert-info-link-color:  var(--alert-primary-link-color);
-  --alert-info-link-hover:  var(--alert-primary-link-hover);
+  /* info — dedicated info palette (unique blue, distinct from primary) */
+  --alert-info-bg:          var(--info-container-bg);
+  --alert-info-fg:          var(--info-content-default);
+  --alert-info-accent:      var(--info-component-bg-default);
+  --alert-info-border:      var(--info-container-bg);
+  --alert-info-icon-color:  var(--info-component-bg-default);
+  --alert-info-title-color: var(--info-content-strong);
+  --alert-info-link-color:  var(--info-content-default);
+  --alert-info-link-hover:  var(--info-content-strong);
 
   --alert-success-bg:          var(--success-container-bg);
   --alert-success-fg:          var(--success-content-default);
@@ -122,8 +122,8 @@
   /* ── filled variant  (5 roles × 2 = 10 vars) ───── */
   --alert-primary-filled-bg:  var(--primary-component-bg-default);
   --alert-primary-filled-fg:  var(--primary-on-component);
-  --alert-info-filled-bg:     var(--alert-primary-filled-bg);
-  --alert-info-filled-fg:     var(--alert-primary-filled-fg);
+  --alert-info-filled-bg:     var(--info-component-bg-default);
+  --alert-info-filled-fg:     var(--info-on-component);
   --alert-success-filled-bg:  var(--success-component-bg-default);
   --alert-success-filled-fg:  var(--success-on-component);
   --alert-warning-filled-bg:  var(--warning-component-bg-default);
@@ -135,7 +135,7 @@
 
   /* ── outline variant border  (5 vars) ──────────── */
   --alert-primary-outline-border: var(--primary-component-bg-default);
-  --alert-info-outline-border:    var(--alert-primary-outline-border);
+  --alert-info-outline-border:    var(--info-component-bg-default);
   --alert-success-outline-border: var(--success-component-bg-default);
   --alert-warning-outline-border: var(--warning-component-bg-default);
   --alert-danger-outline-border:  var(--danger-component-bg-default);
@@ -143,7 +143,7 @@
 
   /* ── soft variant bg  (6 vars) ────────────────── */
   --alert-primary-soft-bg: var(--primary-container-bg);
-  --alert-info-soft-bg:    var(--alert-primary-soft-bg);
+  --alert-info-soft-bg:    var(--info-container-bg);
   --alert-success-soft-bg: var(--success-container-bg);
   --alert-warning-soft-bg: var(--warning-container-bg);
   --alert-danger-soft-bg:  var(--danger-container-bg);
