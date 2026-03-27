@@ -60,16 +60,27 @@
   --alert-icon-offset: 2px;
 
   /* ────────────────────────────────────────────────────────────
-     4 · SURFACE — per-role default/soft  (4 roles × 8 = 32 vars)
-     ──────────────────────────────────────────────────────────── */
-  --alert-info-bg:          var(--primary-container-bg);
-  --alert-info-fg:          var(--primary-content-default);
-  --alert-info-accent:      var(--primary-component-bg-default);
-  --alert-info-border:      var(--primary-container-bg);
-  --alert-info-icon-color:  var(--primary-component-bg-default);
-  --alert-info-title-color: var(--primary-content-strong);
-  --alert-info-link-color:  var(--primary-content-default);
-  --alert-info-link-hover:  var(--primary-content-strong);
+     4 · SURFACE — per-role default/soft  (5 roles × 8 = 40 vars)
+     ────────────────────────────────────────────────────────── */
+  /* primary — canonical name (matches other components) */
+  --alert-primary-bg:          var(--primary-container-bg);
+  --alert-primary-fg:          var(--primary-content-default);
+  --alert-primary-accent:      var(--primary-component-bg-default);
+  --alert-primary-border:      var(--primary-container-bg);
+  --alert-primary-icon-color:  var(--primary-component-bg-default);
+  --alert-primary-title-color: var(--primary-content-strong);
+  --alert-primary-link-color:  var(--primary-content-default);
+  --alert-primary-link-hover:  var(--primary-content-strong);
+
+  /* info — backward-compatible alias for primary */
+  --alert-info-bg:          var(--alert-primary-bg);
+  --alert-info-fg:          var(--alert-primary-fg);
+  --alert-info-accent:      var(--alert-primary-accent);
+  --alert-info-border:      var(--alert-primary-border);
+  --alert-info-icon-color:  var(--alert-primary-icon-color);
+  --alert-info-title-color: var(--alert-primary-title-color);
+  --alert-info-link-color:  var(--alert-primary-link-color);
+  --alert-info-link-hover:  var(--alert-primary-link-hover);
 
   --alert-success-bg:          var(--success-container-bg);
   --alert-success-fg:          var(--success-content-default);
@@ -98,9 +109,11 @@
   --alert-danger-link-color:  var(--danger-content-default);
   --alert-danger-link-hover:  var(--danger-content-strong);
 
-  /* ── filled variant  (4 roles × 2 = 8 vars) ───── */
-  --alert-info-filled-bg:     var(--primary-component-bg-default);
-  --alert-info-filled-fg:     var(--primary-on-component);
+  /* ── filled variant  (5 roles × 2 = 10 vars) ───── */
+  --alert-primary-filled-bg:  var(--primary-component-bg-default);
+  --alert-primary-filled-fg:  var(--primary-on-component);
+  --alert-info-filled-bg:     var(--alert-primary-filled-bg);
+  --alert-info-filled-fg:     var(--alert-primary-filled-fg);
   --alert-success-filled-bg:  var(--success-component-bg-default);
   --alert-success-filled-fg:  var(--success-on-component);
   --alert-warning-filled-bg:  var(--warning-component-bg-default);
@@ -108,8 +121,9 @@
   --alert-danger-filled-bg:   var(--danger-component-bg-default);
   --alert-danger-filled-fg:   var(--danger-on-component);
 
-  /* ── outline variant border  (4 vars) ──────────── */
-  --alert-info-outline-border:    var(--primary-component-bg-default);
+  /* ── outline variant border  (5 vars) ──────────── */
+  --alert-primary-outline-border: var(--primary-component-bg-default);
+  --alert-info-outline-border:    var(--alert-primary-outline-border);
   --alert-success-outline-border: var(--success-component-bg-default);
   --alert-warning-outline-border: var(--warning-component-bg-default);
   --alert-danger-outline-border:  var(--danger-component-bg-default);

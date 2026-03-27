@@ -93,6 +93,20 @@
 /* ────────────────────────────────────────────────────────────────
    3.  ROLE SELECTORS
    ──────────────────────────────────────────────────────────────── */
+/* primary = alias for info (default) — consistency with other components */
+.alert[data-role="primary"] {
+  --_al-bg:             var(--alert-info-bg);
+  --_al-fg:             var(--alert-info-fg);
+  --_al-accent:         var(--alert-info-accent);
+  --_al-border:         var(--alert-info-border);
+  --_al-icon-color:     var(--alert-info-icon-color);
+  --_al-title-color:    var(--alert-info-title-color);
+  --_al-link-color:     var(--alert-info-link-color);
+  --_al-link-hover:     var(--alert-info-link-hover);
+  --_al-filled-bg:      var(--alert-info-filled-bg);
+  --_al-filled-fg:      var(--alert-info-filled-fg);
+  --_al-outline-border: var(--alert-info-outline-border);
+}
 .alert[data-role="success"] {
   --_al-bg:             var(--alert-success-bg);
   --_al-fg:             var(--alert-success-fg);

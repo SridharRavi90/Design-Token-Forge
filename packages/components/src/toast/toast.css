@@ -136,6 +136,16 @@
 /* ────────────────────────────────────────────────────────────────
    4.  ROLE SELECTORS
    ──────────────────────────────────────────────────────────────── */
+/* primary = alias for info (default) — consistency with other components */
+.toast[data-role="primary"] {
+  --_ts-accent:         var(--toast-info-accent);
+  --_ts-icon-color:     var(--toast-info-icon-color);
+  --_ts-title-color:    var(--toast-info-title-color);
+  --_ts-soft-bg:        var(--toast-info-soft-bg);
+  --_ts-filled-bg:      var(--toast-info-filled-bg);
+  --_ts-filled-fg:      var(--toast-info-filled-fg);
+  --_ts-outline-border: var(--toast-info-outline-border);
+}
 .toast[data-role="success"] {
   --_ts-accent:         var(--toast-success-accent);
   --_ts-icon-color:     var(--toast-success-icon-color);

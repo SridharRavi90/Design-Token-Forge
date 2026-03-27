@@ -96,7 +96,7 @@
   <div class="control-group">
     <label>Role</label>
     <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
-      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="primary" type="button">Primary</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
@@ -243,7 +243,7 @@
     &lt;div
       key={t.id}
       className="toast"
-      data-role={t.role}           {/* info | success | warning | danger */}
+      data-role={t.role}           {/* primary | success | warning | danger */}
       data-size={t.size}           {/* sm | md | lg */}
       data-variant={t.variant}     {/* soft | filled | outline */}
       data-state={t.state}
@@ -364,29 +364,29 @@
   'use strict';
 
   /* ── Constants ─────────────────────────────────────── */
-  var ROLES    = ['info','success','warning','danger'];
+  var ROLES    = ['primary','success','warning','danger'];
   var SIZES    = ['sm','md','lg'];
   var VARIANTS = ['','soft','filled','outline'];
   var VLABELS  = ['Default','Soft','Filled','Outline'];
   var POSITIONS= ['top-left','top-center','top-right','bottom-left','bottom-center','bottom-right'];
 
   var ICONS = {
-    info:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+    primary: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
     success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
     warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
     danger:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/></svg>'
   };
   var CLOSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>';
-  var TITLES = { info:'New Update', success:'Saved', warning:'Warning', danger:'Error' };
+  var TITLES = { primary:'New Update', success:'Saved', warning:'Warning', danger:'Error' };
   var BODIES = {
-    info:    'A new version is available for download.',
+    primary: 'A new version is available for download.',
     success: 'Your changes have been saved successfully.',
     warning: 'Storage is almost full. Free up space soon.',
     danger:  'Failed to save changes. Please retry.'
   };
 
   /* ── Global state ──────────────────────────────────── */
-  var G = { role:'info', size:'md', variant:'' };
+  var G = { role:'primary', size:'md', variant:'' };
 
   /* ── Helpers ───────────────────────────────────────── */
   function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1) }
@@ -394,7 +394,7 @@
 
   function makeToast(opts) {
     opts = opts || {};
-    var role = opts.role || 'info';
+    var role = opts.role || 'primary';
     var el = document.createElement('div');
     el.className = 'toast';
     el.dataset.role = role;
@@ -470,7 +470,7 @@
     ['--toast-bg',                '--surface-base-cn-bg'],
     ['--toast-fg',                '--surface-base-ct-default'],
     ['--toast-shadow',            '--shadow-lg'],
-    ['--toast-info-accent',       '--primary-component-bg-default'],
+    ['--toast-primary-accent',    '--primary-component-bg-default'],
     ['--toast-accent-width',      '4px'],
     ['--toast-transition-duration','--duration-normal']
   ];

@@ -70,10 +70,16 @@
   --toast-fg:     var(--surface-base-ct-default);
   --toast-shadow: var(--shadow-lg);
 
-  /* ── per-role accents  (4 roles × 3 = 12 vars) ──── */
-  --toast-info-accent:        var(--primary-component-bg-default);
-  --toast-info-icon-color:    var(--primary-component-bg-default);
-  --toast-info-title-color:   var(--primary-content-strong);
+  /* ── per-role accents  (5 roles × 3 = 15 vars) ──── */
+  /* primary — canonical name */
+  --toast-primary-accent:      var(--primary-component-bg-default);
+  --toast-primary-icon-color:  var(--primary-component-bg-default);
+  --toast-primary-title-color: var(--primary-content-strong);
+
+  /* info — backward-compatible alias */
+  --toast-info-accent:        var(--toast-primary-accent);
+  --toast-info-icon-color:    var(--toast-primary-icon-color);
+  --toast-info-title-color:   var(--toast-primary-title-color);
 
   --toast-success-accent:      var(--success-component-bg-default);
   --toast-success-icon-color:  var(--success-component-bg-default);
@@ -87,15 +93,18 @@
   --toast-danger-icon-color:   var(--danger-component-bg-default);
   --toast-danger-title-color:  var(--danger-content-strong);
 
-  /* ── soft variant bg  (4 vars) ──────────────────── */
-  --toast-info-soft-bg:    var(--primary-container-bg);
+  /* ── soft variant bg  (5 vars) ──────────────── */
+  --toast-primary-soft-bg: var(--primary-container-bg);
+  --toast-info-soft-bg:    var(--toast-primary-soft-bg);
   --toast-success-soft-bg: var(--success-container-bg);
   --toast-warning-soft-bg: var(--warning-container-bg);
   --toast-danger-soft-bg:  var(--danger-container-bg);
 
-  /* ── filled variant  (4 roles × 2 = 8 vars) ───── */
-  --toast-info-filled-bg:     var(--primary-component-bg-default);
-  --toast-info-filled-fg:     var(--primary-on-component);
+  /* ── filled variant  (5 roles × 2 = 10 vars) ───── */
+  --toast-primary-filled-bg:  var(--primary-component-bg-default);
+  --toast-primary-filled-fg:  var(--primary-on-component);
+  --toast-info-filled-bg:     var(--toast-primary-filled-bg);
+  --toast-info-filled-fg:     var(--toast-primary-filled-fg);
   --toast-success-filled-bg:  var(--success-component-bg-default);
   --toast-success-filled-fg:  var(--success-on-component);
   --toast-warning-filled-bg:  var(--warning-component-bg-default);
@@ -103,8 +112,9 @@
   --toast-danger-filled-bg:   var(--danger-component-bg-default);
   --toast-danger-filled-fg:   var(--danger-on-component);
 
-  /* ── outline variant border  (4 vars) ──────────── */
-  --toast-info-outline-border:    var(--primary-component-bg-default);
+  /* ── outline variant border  (5 vars) ──────────── */
+  --toast-primary-outline-border: var(--primary-component-bg-default);
+  --toast-info-outline-border:    var(--toast-primary-outline-border);
   --toast-success-outline-border: var(--success-component-bg-default);
   --toast-warning-outline-border: var(--warning-component-bg-default);
   --toast-danger-outline-border:  var(--danger-component-bg-default);

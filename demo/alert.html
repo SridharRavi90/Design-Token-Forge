@@ -89,7 +89,7 @@
   <div class="control-group">
     <label>Role</label>
     <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
-      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="primary" type="button">Primary</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
@@ -226,7 +226,7 @@
         </div>
         <div class="fw-snippet-code" data-panel="react" data-active>&lt;div
   className="alert"
-  data-role={role}           {/* info | success | warning | danger */}
+  data-role={role}           {/* primary | success | warning | danger */}
   data-variant={variant}     {/* filled | outline (omit for default) */}
   data-size={size}           {/* small | base | large */}
   role={['danger','warning'].includes(role) ? 'alert' : 'status'}
@@ -248,7 +248,7 @@
 &lt;/div&gt;</div>
         <div class="fw-snippet-code" data-panel="vue">&lt;div
   class="alert"
-  :data-role="role ?? 'info'"
+  :data-role="role ?? 'primary'"
   :data-variant="variant || undefined"
   :data-size="size ?? 'base'"
   :role="['danger','warning'].includes(role) ? 'alert' : 'status'"
@@ -266,7 +266,7 @@
     &lt;/svg&gt;
   &lt;/button&gt;
 &lt;/div&gt;</div>
-        <div class="fw-snippet-code" data-panel="html">&lt;div class="alert" data-role="info" data-size="base" role="status"&gt;
+        <div class="fw-snippet-code" data-panel="html">&lt;div class="alert" data-role="primary" data-size="base" role="status"&gt;
   &lt;span class="alert__accent"&gt;&lt;/span&gt;
   &lt;span class="alert__icon"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/span&gt;
   &lt;div class="alert__content"&gt;
@@ -330,29 +330,29 @@
   'use strict';
 
   /* ── Constants ─────────────────────────────────────── */
-  var ROLES    = ['info','success','warning','danger'];
+  var ROLES    = ['primary','success','warning','danger'];
   var SIZES    = ['small','base','large'];
   var SLABELS  = ['Small','Base','Large'];
   var VARIANTS = ['','filled','outline'];
   var VLABELS  = ['Default','Filled','Outline'];
 
   var ICONS = {
-    info:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+    primary: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
     success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
     warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
     danger:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/></svg>'
   };
   var CLOSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>';
-  var TITLES = { info:'Information', success:'Success', warning:'Warning', danger:'Error' };
+  var TITLES = { primary:'Information', success:'Success', warning:'Warning', danger:'Error' };
   var BODIES = {
-    info:    'This is an informational message to help guide the user.',
+    primary: 'This is an informational message to help guide the user.',
     success: 'Your changes have been saved successfully.',
     warning: 'Please review the settings before proceeding.',
     danger:  'Something went wrong. Please try again or contact support.'
   };
 
   /* ── Global state ──────────────────────────────────── */
-  var G = { role:'info', size:'base', variant:'' };
+  var G = { role:'primary', size:'base', variant:'' };
 
   /* ── Helpers ───────────────────────────────────────── */
   function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1) }
@@ -360,7 +360,7 @@
 
   function makeAlert(opts) {
     opts = opts || {};
-    var role = opts.role || 'info';
+    var role = opts.role || 'primary';
     var el = document.createElement('div');
     el.className = 'alert';
     el.dataset.role = role;
@@ -418,9 +418,9 @@
     ['--alert-font-size-base',     '--font-size-14'],
     ['--alert-icon-size-base',     '--spacing-20'],
     ['--alert-close-size-base',    '--spacing-20'],
-    ['--alert-info-bg',            '--primary-container-bg'],
-    ['--alert-info-accent',        '--primary-component-bg-default'],
-    ['--alert-info-title-color',   '--primary-content-strong'],
+    ['--alert-primary-bg',           '--primary-container-bg'],
+    ['--alert-primary-accent',       '--primary-component-bg-default'],
+    ['--alert-primary-title-color',  '--primary-content-strong'],
     ['--alert-accent-width',       '4px'],
     ['--alert-transition-duration','--duration-normal']
   ];
@@ -547,7 +547,7 @@
     lbl.textContent = 'Filled (accent hidden)';
     lbl.style.marginTop = '16px';
     el.appendChild(lbl);
-    el.appendChild(makeAlert({ role:'info', variant:'filled', title:'No accent on filled', body:'Accent bar is hidden when variant="filled" — the bg IS the role color.' }));
+    el.appendChild(makeAlert({ role:'primary', variant:'filled', title:'No accent on filled', body:'Accent bar is hidden when variant="filled" — the bg IS the role color.' }));
   }
 
   function renderSlots() {

@@ -88,10 +88,11 @@
   --_tt-border-color: var(--tooltip-light-border-color);
   --_tt-shadow: var(--tooltip-light-shadow);
 }
-.tooltip[data-variant="error"] {
-  --_tt-bg: var(--tooltip-error-bg);
-  --_tt-fg: var(--tooltip-error-fg);
-  --_tt-arrow-color: var(--tooltip-error-arrow-color);
+.tooltip[data-variant="error"],
+.tooltip[data-variant="danger"] {
+  --_tt-bg: var(--tooltip-danger-bg);
+  --_tt-fg: var(--tooltip-danger-fg);
+  --_tt-arrow-color: var(--tooltip-danger-arrow-color);
 }
 .tooltip[data-variant="success"] {
   --_tt-bg: var(--tooltip-success-bg);

@@ -66,11 +66,17 @@
   --radio-circle-border-color-disabled: var(--surface-base-cm-outline);
   --radio-opacity-disabled: 0.5;
 
-  /* ── Error (shared across variants) ── */
-  --radio-circle-border-color-error: var(--danger-component-outline-default);
-  --radio-circle-border-color-error-hover: var(--danger-component-outline-hover);
-  --radio-circle-bg-on-error: var(--danger-component-bg-default);
-  --radio-circle-bg-on-error-hover: var(--danger-component-bg-hover);
+  /* ── Danger / Error (shared across variants) ── */
+  /* danger — canonical name */
+  --radio-circle-border-color-danger: var(--danger-component-outline-default);
+  --radio-circle-border-color-danger-hover: var(--danger-component-outline-hover);
+  --radio-circle-bg-on-danger: var(--danger-component-bg-default);
+  --radio-circle-bg-on-danger-hover: var(--danger-component-bg-hover);
+  /* error — backward-compatible alias */
+  --radio-circle-border-color-error: var(--radio-circle-border-color-danger);
+  --radio-circle-border-color-error-hover: var(--radio-circle-border-color-danger-hover);
+  --radio-circle-bg-on-error: var(--radio-circle-bg-on-danger);
+  --radio-circle-bg-on-error-hover: var(--radio-circle-bg-on-danger-hover);
 
   /* ────────────────────────────────────────────────────────────
      🎨 SURFACE — OUTLINE VARIANT  (13 vars)

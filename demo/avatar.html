@@ -358,7 +358,7 @@
   function clr(id){ var e=document.getElementById(id); if(e) e.innerHTML=''; return e }
 
   function fakeImg(text, hue){
-    return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="hsl('+(hue||200)+',50%,60%)"/><text x="40" y="44" text-anchor="middle" fill="white" font-size="28" font-family="system-ui">'+text+'</text></svg>');
+    return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="hsl('+(hue||200)+',50%,60%)"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" fill="white" font-size="28" font-family="system-ui" font-weight="600">'+text+'</text></svg>');
   }
 
   function makeAvatar(opts){

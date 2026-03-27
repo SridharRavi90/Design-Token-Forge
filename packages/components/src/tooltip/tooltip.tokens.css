@@ -61,10 +61,15 @@
   --tooltip-light-border-color: var(--surface-base-cm-outline);
   --tooltip-light-arrow-color: var(--surface-base-cn-bg);
 
-  /* ── ERROR ──────────────────────────────────────────── */
-  --tooltip-error-bg: var(--danger-component-bg-default);
-  --tooltip-error-fg: var(--danger-on-component);
-  --tooltip-error-arrow-color: var(--danger-component-bg-default);
+  /* ── DANGER (canonical name) ─────────────────────────────── */
+  --tooltip-danger-bg: var(--danger-component-bg-default);
+  --tooltip-danger-fg: var(--danger-on-component);
+  --tooltip-danger-arrow-color: var(--danger-component-bg-default);
+
+  /* ── ERROR (backward-compatible alias for danger) ────────── */
+  --tooltip-error-bg: var(--tooltip-danger-bg);
+  --tooltip-error-fg: var(--tooltip-danger-fg);
+  --tooltip-error-arrow-color: var(--tooltip-danger-arrow-color);
 
   /* ── SUCCESS ────────────────────────────────────────── */
   --tooltip-success-bg: var(--success-component-bg-default);

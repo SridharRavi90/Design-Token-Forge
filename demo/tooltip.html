@@ -100,7 +100,7 @@
     <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
       <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="" type="button">Default</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="light" type="button">Light</button>
-      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="error" type="button">Error</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="danger" type="button">Danger</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="success" type="button">Success</button>
     </div>
   </div>
@@ -234,7 +234,7 @@
   className="tooltip"
   data-placement={placement}   {/* top | bottom | left | right */}
   data-size={size}             {/* small | base | large */}
-  data-variant={variant}       {/* light | error | success (omit for default) */}
+  data-variant={variant}       {/* light | danger | success (omit for default) */}
   data-state={visible ? 'visible' : 'hidden'}
   role="tooltip"
   id={tooltipId}
@@ -286,7 +286,7 @@
 /* ── Surface ── */
 --tooltip-bg / -fg / -arrow-color
 --tooltip-light-bg / -fg / -border-color / -arrow-color
---tooltip-error-bg / -fg / -arrow-color
+--tooltip-danger-bg / -fg / -arrow-color
 --tooltip-success-bg / -fg / -arrow-color
 --tooltip-shadow / -light-shadow
 
@@ -316,7 +316,7 @@
   'use strict';
 
   var PLACEMENTS = ['top','bottom','left','right'];
-  var VARIANTS   = [{key:'',label:'Default'},{key:'light',label:'Light'},{key:'error',label:'Error'},{key:'success',label:'Success'}];
+  var VARIANTS   = [{key:'',label:'Default'},{key:'light',label:'Light'},{key:'danger',label:'Danger'},{key:'success',label:'Success'}];
   var SIZES      = ['small','base','large'];
   var SLABELS    = ['Small','Base','Large'];
 
@@ -420,7 +420,7 @@
       variant: G.variant || undefined,
       size: G.size,
       body: 'Tooltip content',
-      icon: G.variant === 'error' ? WARN_ICON : (G.variant === 'success' ? CHECK_ICON : undefined)
+      icon: G.variant === 'danger' ? WARN_ICON : (G.variant === 'success' ? CHECK_ICON : undefined)
     }, cap(G.variant || 'Default')));
     renderInspector();
   }
@@ -430,7 +430,7 @@
     VARIANTS.forEach(function(v) {
       var opts = { body:'Tooltip content' };
       if (v.key) opts.variant = v.key;
-      if (v.key === 'error') opts.icon = WARN_ICON;
+      if (v.key === 'danger') opts.icon = WARN_ICON;
       if (v.key === 'success') opts.icon = CHECK_ICON;
       el.appendChild(makeWrap('top', opts, v.label));
     });
@@ -524,7 +524,7 @@
     el.appendChild(makeWrap('top', { icon:INFO_ICON, title:'Keyboard Shortcut', body:'Press Ctrl+S to save your work.', size:'large' }, 'Rich'));
     el.appendChild(makeWrap('top', { title:'Permissions', body:'You need admin access to modify this setting. Contact your team lead for access.', size:'large' }, 'Multiline'));
     el.appendChild(makeWrap('top', { icon:CHECK_ICON, body:'Copied!', variant:'success', size:'small' }, 'Feedback'));
-    el.appendChild(makeWrap('top', { icon:WARN_ICON, body:'This field is required', variant:'error' }, 'Validation'));
+    el.appendChild(makeWrap('top', { icon:WARN_ICON, body:'This field is required', variant:'danger' }, 'Validation'));
   }
 
   /* ── Master render ─────────────────────────────────── */

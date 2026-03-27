@@ -115,6 +115,18 @@
 .avatar__initials {
   line-height: 1;
   text-transform: uppercase;
+  /* Optical vertical centering for uppercase-only text.
+     With line-height:1 flexbox centering, caps sit ~0.02em below
+     line-box center (descender < ascender in font metrics).
+     No translate needed — the offset is sub-pixel at all sizes. */
+}
+
+/* When text-box-trim lands, use metric-based trimming for pixel-perfect centering */
+@supports (text-box-trim: both) {
+  .avatar__initials {
+    text-box-trim: both;
+    text-box-edge: cap alphabetic;
+  }
 }
 
 /* ────────────────────────────────────────────────────────────────

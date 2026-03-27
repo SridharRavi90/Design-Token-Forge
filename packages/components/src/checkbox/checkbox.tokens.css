@@ -93,12 +93,18 @@
   --checkbox-outline-box-border-width: 2px;
 
   /* ────────────────────────────────────────────────────────────
-     🎨 SURFACE — ERROR  (4 vars, shared across variants)
-     ──────────────────────────────────────────────────────────── */
-  --checkbox-box-border-color-error: var(--danger-component-outline-default);
-  --checkbox-box-border-color-error-hover: var(--danger-component-outline-hover);
-  --checkbox-box-bg-on-error: var(--danger-component-bg-default);
-  --checkbox-box-bg-on-error-hover: var(--danger-component-bg-hover);
+     🎨 SURFACE — DANGER / ERROR  (8 vars, shared across variants)
+     ────────────────────────────────────────────────────────── */
+  /* danger — canonical name */
+  --checkbox-box-border-color-danger: var(--danger-component-outline-default);
+  --checkbox-box-border-color-danger-hover: var(--danger-component-outline-hover);
+  --checkbox-box-bg-on-danger: var(--danger-component-bg-default);
+  --checkbox-box-bg-on-danger-hover: var(--danger-component-bg-hover);
+  /* error — backward-compatible alias */
+  --checkbox-box-border-color-error: var(--checkbox-box-border-color-danger);
+  --checkbox-box-border-color-error-hover: var(--checkbox-box-border-color-danger-hover);
+  --checkbox-box-bg-on-error: var(--checkbox-box-bg-on-danger);
+  --checkbox-box-bg-on-error-hover: var(--checkbox-box-bg-on-danger-hover);
 
   /* ────────────────────────────────────────────────────────────
      ✏️ TYPOGRAPHY  (14 vars)
