@@ -186,7 +186,13 @@
   <section class="section" id="sec-surface">
     <div class="section-header"><h2>Surface Context</h2><span class="section-tag">3 BG Levels</span></div>
     <p class="section-desc">Avatars on base, elevated, and sunken backgrounds to verify contrast and ring visibility.</p>
-    <div class="section-body"><div class="surface-strip" id="surfaceStrip"></div></div>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase"><span class="surface-panel-label">surface-base-bg</span></div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt"><span class="surface-panel-label">surface-base-hover</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep"><span class="surface-panel-label">surface-base-pressed</span></div>
+      </div>
+    </div>
   </section>
 
   <!-- ─── 8. STATUS BADGES ────────────────────────────── -->
@@ -534,28 +540,16 @@
   }
 
   function renderSurface(){
-    var el = clr('surfaceStrip');
-    var surfaces = [
-      {label:'Base',     bg:'var(--surface-base-bg)'},
-      {label:'Elevated', bg:'var(--surface-base-cm-bg)'},
-      {label:'Sunken',   bg:'var(--surface-base-cm-bg-pressed)'}
-    ];
-    surfaces.forEach(function(s){
-      var panel = document.createElement('div');
-      panel.className = 'surface-panel';
-      panel.style.background = s.bg;
-      var lbl = document.createElement('div');
-      lbl.className = 'surface-label';
-      lbl.textContent = s.label;
-      panel.appendChild(lbl);
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p = document.getElementById(id);
+      while(p.children.length > 1) p.removeChild(p.lastChild);
       var row = document.createElement('div');
-      row.style.cssText = 'display:flex;gap:12px;align-items:center;margin-top:12px';
+      row.style.cssText = 'display:flex;gap:12px;align-items:center';
       row.appendChild(makeAvatar({name:'Alice',image:true,initials:'AC',hue:220}));
       row.appendChild(makeAvatar({name:'Bob',initials:'BR',role:'primary',noGlobalRole:true}));
       row.appendChild(makeAvatar({name:'User'}));
       row.appendChild(makeAvatar({name:'User',initials:'JD',role:'brand',noGlobalRole:true,status:'online'}));
-      panel.appendChild(row);
-      el.appendChild(panel);
+      p.appendChild(row);
     });
   }
 
