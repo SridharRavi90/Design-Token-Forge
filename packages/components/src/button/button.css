@@ -414,166 +414,223 @@
 }
 
 /* ════════════════════════════════════════════════════════════════
-   ROLE × VARIANT — 2-Axis API  (backward-compatible)
-   Usage: data-variant="filled" data-role="danger"
-   Structural variants: filled | outline | ghost | soft
-   Semantic roles:      primary | danger | success | warning | neutral | brand
-   Legacy single-value data-variant names continue to work unchanged.
+   STRUCTURAL VARIANT ALIASES
+   Canonical structural names that map to the existing token groups.
+   These work identically to their legacy counterparts:
+     filled  ≡ primary   (solid background)
+     outlined ≡ secondary (border emphasis)
+     soft    ≡ tertiary  (tinted container)
+     ghost   — already exists above
    ════════════════════════════════════════════════════════════════ */
 
-/* ── FILLED + role ──────────────────────────────────────────── */
-.btn[data-variant="filled"]:not([data-role]),
-.btn[data-variant="filled"][data-role="primary"] {
+/* ── FILLED (alias for primary) ─────────────────────────────── */
+.btn[data-variant="filled"] {
   --_btn-bg: var(--btn-primary-bg);
   --_btn-fg: var(--btn-primary-fg);
   --_btn-border-color: var(--btn-primary-border-color);
   --_btn-shadow: var(--btn-shadow);
 }
-.btn[data-variant="filled"]:not([data-role]):hover,
-.btn[data-variant="filled"][data-role="primary"]:hover {
+.btn[data-variant="filled"]:hover {
   --_btn-bg: var(--btn-primary-bg-hover);
   --_btn-fg: var(--btn-primary-fg-hover);
   --_btn-border-color: var(--btn-primary-border-color-hover);
   --_btn-shadow: var(--btn-shadow-hover);
 }
-.btn[data-variant="filled"]:not([data-role]):active,
-.btn[data-variant="filled"][data-role="primary"]:active {
+.btn[data-variant="filled"]:active {
   --_btn-bg: var(--btn-primary-bg-active);
   --_btn-border-color: var(--btn-primary-border-color-active);
   --_btn-shadow: var(--btn-shadow-active);
 }
 
-.btn[data-variant="filled"][data-role="danger"] {
-  --_btn-bg: var(--btn-danger-bg);
-  --_btn-fg: var(--btn-danger-fg);
-  --_btn-border-color: var(--btn-danger-border-color);
-  --_btn-shadow: var(--btn-shadow);
-}
-.btn[data-variant="filled"][data-role="danger"]:hover {
-  --_btn-bg: var(--btn-danger-bg-hover);
-  --_btn-fg: var(--btn-danger-fg-hover);
-  --_btn-border-color: var(--btn-danger-border-color-hover);
-  --_btn-shadow: var(--btn-shadow-hover);
-}
-.btn[data-variant="filled"][data-role="danger"]:active {
-  --_btn-bg: var(--btn-danger-bg-active);
-  --_btn-border-color: var(--btn-danger-border-color-active);
-  --_btn-shadow: var(--btn-shadow-active);
-}
-
-.btn[data-variant="filled"][data-role="success"] {
-  --_btn-bg: var(--btn-success-bg);
-  --_btn-fg: var(--btn-success-fg);
-  --_btn-border-color: var(--btn-success-border-color);
-  --_btn-shadow: var(--btn-shadow);
-}
-.btn[data-variant="filled"][data-role="success"]:hover {
-  --_btn-bg: var(--btn-success-bg-hover);
-  --_btn-fg: var(--btn-success-fg-hover);
-  --_btn-border-color: var(--btn-success-border-color-hover);
-  --_btn-shadow: var(--btn-shadow-hover);
-}
-.btn[data-variant="filled"][data-role="success"]:active {
-  --_btn-bg: var(--btn-success-bg-active);
-  --_btn-border-color: var(--btn-success-border-color-active);
-  --_btn-shadow: var(--btn-shadow-active);
-}
-
-.btn[data-variant="filled"][data-role="warning"] {
-  --_btn-bg: var(--btn-warning-bg);
-  --_btn-fg: var(--btn-warning-fg);
-  --_btn-border-color: var(--btn-warning-border-color);
-  --_btn-shadow: var(--btn-shadow);
-}
-.btn[data-variant="filled"][data-role="warning"]:hover {
-  --_btn-bg: var(--btn-warning-bg-hover);
-  --_btn-fg: var(--btn-warning-fg-hover);
-  --_btn-border-color: var(--btn-warning-border-color-hover);
-  --_btn-shadow: var(--btn-shadow-hover);
-}
-.btn[data-variant="filled"][data-role="warning"]:active {
-  --_btn-bg: var(--btn-warning-bg-active);
-  --_btn-border-color: var(--btn-warning-border-color-active);
-  --_btn-shadow: var(--btn-shadow-active);
-}
-
-.btn[data-variant="filled"][data-role="neutral"] {
-  --_btn-bg: var(--btn-neutral-bg);
-  --_btn-fg: var(--btn-neutral-fg);
-  --_btn-border-color: var(--btn-neutral-border-color);
-  --_btn-shadow: var(--btn-shadow);
-}
-.btn[data-variant="filled"][data-role="neutral"]:hover {
-  --_btn-bg: var(--btn-neutral-bg-hover);
-  --_btn-fg: var(--btn-neutral-fg-hover);
-  --_btn-border-color: var(--btn-neutral-border-color-hover);
-  --_btn-shadow: var(--btn-shadow-hover);
-}
-.btn[data-variant="filled"][data-role="neutral"]:active {
-  --_btn-bg: var(--btn-neutral-bg-active);
-  --_btn-border-color: var(--btn-neutral-border-color-active);
-  --_btn-shadow: var(--btn-shadow-active);
-}
-
-.btn[data-variant="filled"][data-role="brand"] {
-  --_btn-bg: var(--btn-brand-bg);
-  --_btn-fg: var(--btn-brand-fg);
-  --_btn-border-color: var(--btn-brand-border-color);
-  --_btn-shadow: var(--btn-shadow);
-}
-.btn[data-variant="filled"][data-role="brand"]:hover {
-  --_btn-bg: var(--btn-brand-bg-hover);
-  --_btn-fg: var(--btn-brand-fg-hover);
-  --_btn-border-color: var(--btn-brand-border-color-hover);
-  --_btn-shadow: var(--btn-shadow-hover);
-}
-.btn[data-variant="filled"][data-role="brand"]:active {
-  --_btn-bg: var(--btn-brand-bg-active);
-  --_btn-border-color: var(--btn-brand-border-color-active);
-  --_btn-shadow: var(--btn-shadow-active);
-}
-
-/* ── OUTLINE + role aliases ─────────────────────────────────── */
-/* data-variant="outline" already exists — alias "secondary" to outline */
-.btn[data-variant="outline"][data-role="primary"] {
+/* ── OUTLINED (alias for secondary) ─────────────────────────── */
+.btn[data-variant="outlined"] {
   --_btn-bg: var(--btn-secondary-bg);
   --_btn-fg: var(--btn-secondary-fg);
   --_btn-border-color: var(--btn-secondary-border-color);
   --_btn-shadow: var(--btn-shadow);
 }
-.btn[data-variant="outline"][data-role="primary"]:hover {
+.btn[data-variant="outlined"]:hover {
   --_btn-bg: var(--btn-secondary-bg-hover);
   --_btn-fg: var(--btn-secondary-fg-hover);
   --_btn-border-color: var(--btn-secondary-border-color-hover);
   --_btn-shadow: var(--btn-shadow-hover);
 }
-.btn[data-variant="outline"][data-role="primary"]:active {
+.btn[data-variant="outlined"]:active {
   --_btn-bg: var(--btn-secondary-bg-active);
   --_btn-border-color: var(--btn-secondary-border-color-active);
   --_btn-shadow: var(--btn-shadow-active);
 }
 
-/* ── SOFT + role aliases ────────────────────────────────────── */
-/* data-variant="soft" aliases tertiary (tinted fill treatment) */
-.btn[data-variant="soft"],
-.btn[data-variant="soft"][data-role="primary"] {
+/* ── SOFT (alias for tertiary) ──────────────────────────────── */
+.btn[data-variant="soft"] {
   --_btn-bg: var(--btn-tertiary-bg);
   --_btn-fg: var(--btn-tertiary-fg);
   --_btn-border-color: var(--btn-tertiary-border-color);
   --_btn-shadow: var(--btn-shadow);
 }
-.btn[data-variant="soft"]:hover,
-.btn[data-variant="soft"][data-role="primary"]:hover {
+.btn[data-variant="soft"]:hover {
   --_btn-bg: var(--btn-tertiary-bg-hover);
   --_btn-fg: var(--btn-tertiary-fg-hover);
   --_btn-border-color: var(--btn-tertiary-border-color-hover);
   --_btn-shadow: var(--btn-shadow-hover);
 }
-.btn[data-variant="soft"]:active,
-.btn[data-variant="soft"][data-role="primary"]:active {
+.btn[data-variant="soft"]:active {
   --_btn-bg: var(--btn-tertiary-bg-active);
   --_btn-border-color: var(--btn-tertiary-border-color-active);
   --_btn-shadow: var(--btn-shadow-active);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ROLE REMAPPING — Orthogonal 2-Axis API
+   ────────────────────────────────────────────────────────────────
+   Usage:  data-variant="filled"   data-role="danger"
+           data-variant="outlined" data-role="success"
+           data-variant="soft"     data-role="warning"
+           data-variant="ghost"    data-role="brand"
+
+   Structural variants: filled | outlined | soft | ghost
+   Semantic roles:      primary | danger | success | warning | brand | info | neutral
+
+   HOW IT WORKS:
+   • Structural variants (filled/outlined/soft) read from --primary-* semantic palette.
+   • Role selectors remap --primary-* to the chosen role palette at the element level.
+   • This composes automatically — any structure × any role without per-combo selectors.
+   • Ghost defaults to neutral (surface tokens). Role selectors override ghost tokens too.
+   • Legacy single-value names (danger, success, etc.) keep working unchanged above.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── data-role="primary" ────────────────────────────────────── */
+/* Filled/outlined/soft already read --primary-* by default.
+   Only ghost needs explicit primary override (default ghost = neutral). */
+.btn[data-role="primary"] {
+  --btn-ghost-bg-hover: var(--primary-container-bg);
+  --btn-ghost-bg-active: var(--primary-container-pressed);
+  --btn-ghost-fg: var(--primary-content-default);
+  --btn-ghost-fg-hover: var(--primary-content-default);
+  --btn-ghost-fg-disabled: var(--primary-content-default);
+}
+
+/* ── data-role="danger" ─────────────────────────────────────── */
+.btn[data-role="danger"] {
+  --primary-component-bg-default: var(--danger-component-bg-default);
+  --primary-component-bg-hover: var(--danger-component-bg-hover);
+  --primary-component-bg-pressed: var(--danger-component-bg-pressed);
+  --primary-on-component: var(--danger-on-component);
+  --primary-content-default: var(--danger-content-default);
+  --primary-container-bg: var(--danger-container-bg);
+  --primary-container-hover: var(--danger-container-hover);
+  --primary-container-pressed: var(--danger-container-pressed);
+  --primary-component-outline-default: var(--danger-component-outline-default);
+  --primary-component-outline-hover: var(--danger-component-outline-hover);
+  --primary-component-outline-pressed: var(--danger-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--danger-container-bg);
+  --btn-ghost-bg-active: var(--danger-container-pressed);
+  --btn-ghost-fg: var(--danger-content-default);
+  --btn-ghost-fg-hover: var(--danger-content-default);
+  --btn-ghost-fg-disabled: var(--danger-content-default);
+}
+
+/* ── data-role="success" ────────────────────────────────────── */
+.btn[data-role="success"] {
+  --primary-component-bg-default: var(--success-component-bg-default);
+  --primary-component-bg-hover: var(--success-component-bg-hover);
+  --primary-component-bg-pressed: var(--success-component-bg-pressed);
+  --primary-on-component: var(--success-on-component);
+  --primary-content-default: var(--success-content-default);
+  --primary-container-bg: var(--success-container-bg);
+  --primary-container-hover: var(--success-container-hover);
+  --primary-container-pressed: var(--success-container-pressed);
+  --primary-component-outline-default: var(--success-component-outline-default);
+  --primary-component-outline-hover: var(--success-component-outline-hover);
+  --primary-component-outline-pressed: var(--success-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--success-container-bg);
+  --btn-ghost-bg-active: var(--success-container-pressed);
+  --btn-ghost-fg: var(--success-content-default);
+  --btn-ghost-fg-hover: var(--success-content-default);
+  --btn-ghost-fg-disabled: var(--success-content-default);
+}
+
+/* ── data-role="warning" ────────────────────────────────────── */
+.btn[data-role="warning"] {
+  --primary-component-bg-default: var(--warning-component-bg-default);
+  --primary-component-bg-hover: var(--warning-component-bg-hover);
+  --primary-component-bg-pressed: var(--warning-component-bg-pressed);
+  --primary-on-component: var(--warning-on-component);
+  --primary-content-default: var(--warning-content-default);
+  --primary-container-bg: var(--warning-container-bg);
+  --primary-container-hover: var(--warning-container-hover);
+  --primary-container-pressed: var(--warning-container-pressed);
+  --primary-component-outline-default: var(--warning-component-outline-default);
+  --primary-component-outline-hover: var(--warning-component-outline-hover);
+  --primary-component-outline-pressed: var(--warning-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--warning-container-bg);
+  --btn-ghost-bg-active: var(--warning-container-pressed);
+  --btn-ghost-fg: var(--warning-content-default);
+  --btn-ghost-fg-hover: var(--warning-content-default);
+  --btn-ghost-fg-disabled: var(--warning-content-default);
+}
+
+/* ── data-role="brand" ──────────────────────────────────────── */
+.btn[data-role="brand"] {
+  --primary-component-bg-default: var(--brand-component-bg-default);
+  --primary-component-bg-hover: var(--brand-component-bg-hover);
+  --primary-component-bg-pressed: var(--brand-component-bg-pressed);
+  --primary-on-component: var(--brand-on-component);
+  --primary-content-default: var(--brand-content-default);
+  --primary-container-bg: var(--brand-container-bg);
+  --primary-container-hover: var(--brand-container-hover);
+  --primary-container-pressed: var(--brand-container-pressed);
+  --primary-component-outline-default: var(--brand-component-outline-default);
+  --primary-component-outline-hover: var(--brand-component-outline-hover);
+  --primary-component-outline-pressed: var(--brand-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--brand-container-bg);
+  --btn-ghost-bg-active: var(--brand-container-pressed);
+  --btn-ghost-fg: var(--brand-content-default);
+  --btn-ghost-fg-hover: var(--brand-content-default);
+  --btn-ghost-fg-disabled: var(--brand-content-default);
+}
+
+/* ── data-role="info" ───────────────────────────────────────── */
+.btn[data-role="info"] {
+  --primary-component-bg-default: var(--info-component-bg-default);
+  --primary-component-bg-hover: var(--info-component-bg-hover);
+  --primary-component-bg-pressed: var(--info-component-bg-pressed);
+  --primary-on-component: var(--info-on-component);
+  --primary-content-default: var(--info-content-default);
+  --primary-container-bg: var(--info-container-bg);
+  --primary-container-hover: var(--info-container-hover);
+  --primary-container-pressed: var(--info-container-pressed);
+  --primary-component-outline-default: var(--info-component-outline-default);
+  --primary-component-outline-hover: var(--info-component-outline-hover);
+  --primary-component-outline-pressed: var(--info-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--info-container-bg);
+  --btn-ghost-bg-active: var(--info-container-pressed);
+  --btn-ghost-fg: var(--info-content-default);
+  --btn-ghost-fg-hover: var(--info-content-default);
+  --btn-ghost-fg-disabled: var(--info-content-default);
+}
+
+/* ── data-role="neutral" ────────────────────────────────────── */
+/* Remaps primary palette → surface-context tokens so structural
+   variants automatically get neutral/surface treatment. */
+.btn[data-role="neutral"] {
+  --primary-component-bg-default: var(--surface-base-cm-bg);
+  --primary-component-bg-hover: var(--surface-base-cm-bg-hover);
+  --primary-component-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --primary-on-component: var(--surface-base-ct-default);
+  --primary-content-default: var(--surface-base-ct-default);
+  --primary-container-bg: var(--surface-base-hover);
+  --primary-container-hover: var(--surface-base-pressed);
+  --primary-container-pressed: var(--surface-base-pressed);
+  --primary-component-outline-default: var(--surface-base-cm-outline);
+  --primary-component-outline-hover: var(--surface-base-cm-outline-hover);
+  --primary-component-outline-pressed: var(--surface-base-cm-outline-pressed);
+  /* Ghost stays at its surface-token defaults — no override needed */
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -665,6 +722,29 @@
   --_btn-fg: var(--btn-brand-fg-disabled);
   --_btn-border-color: var(--btn-brand-border-color-disabled);
   opacity: var(--btn-brand-opacity-disabled);
+}
+
+/* Disabled: structural variant aliases (cascade through role remap) */
+.btn:disabled[data-variant="filled"],
+.btn[data-disabled][data-variant="filled"] {
+  --_btn-bg: var(--btn-primary-bg-disabled);
+  --_btn-fg: var(--btn-primary-fg-disabled);
+  --_btn-border-color: var(--btn-primary-border-color-disabled);
+  opacity: var(--btn-primary-opacity-disabled);
+}
+.btn:disabled[data-variant="outlined"],
+.btn[data-disabled][data-variant="outlined"] {
+  --_btn-bg: var(--btn-secondary-bg-disabled);
+  --_btn-fg: var(--btn-secondary-fg-disabled);
+  --_btn-border-color: var(--btn-secondary-border-color-disabled);
+  opacity: var(--btn-secondary-opacity-disabled);
+}
+.btn:disabled[data-variant="soft"],
+.btn[data-disabled][data-variant="soft"] {
+  --_btn-bg: var(--btn-tertiary-bg-disabled);
+  --_btn-fg: var(--btn-tertiary-fg-disabled);
+  --_btn-border-color: var(--btn-tertiary-border-color-disabled);
+  opacity: var(--btn-tertiary-opacity-disabled);
 }
 
 /* Loading state — text shimmer, no spinner icon */
