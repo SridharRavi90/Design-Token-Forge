@@ -144,6 +144,14 @@
   --_ta-placeholder: var(--textarea-filled-placeholder);
 }
 
+/* Underline */
+.textarea-group[data-variant="underline"] {
+  --_ta-bg: var(--textarea-underline-bg);
+  --_ta-fg: var(--textarea-underline-fg);
+  --_ta-border-color: var(--textarea-underline-border-color);
+  --_ta-placeholder: var(--textarea-underline-placeholder);
+}
+
 /* ────────────────────────────────────────────────────────────────
    4.  STATE OVERRIDES — hover, focus, error, disabled
    ──────────────────────────────────────────────────────────────── */
@@ -161,6 +169,12 @@
   --_ta-border-color: var(--textarea-filled-border-color-hover);
 }
 
+/* ── Hover (underline) ────────────────────────────────────── */
+.textarea-group[data-variant="underline"]:not([data-disabled]):not([data-readonly]):has(.textarea-field:hover) {
+  --_ta-bg: var(--textarea-underline-bg-hover);
+  --_ta-border-color: var(--textarea-underline-border-color-hover);
+}
+
 /* ── Focus (outline) ──────────────────────────────────────── */
 .textarea-group:not([data-disabled]):not([data-variant]):has(.textarea-field:focus-within),
 .textarea-group[data-variant="outline"]:not([data-disabled]):has(.textarea-field:focus-within) {
@@ -176,6 +190,13 @@
   --_ta-shadow: var(--textarea-shadow-focus);
 }
 
+/* ── Focus (underline) ────────────────────────────────────── */
+.textarea-group[data-variant="underline"]:not([data-disabled]):has(.textarea-field:focus-within) {
+  --_ta-bg: var(--textarea-underline-bg-focus);
+  --_ta-border-color: var(--textarea-underline-border-color-focus);
+  --_ta-shadow: var(--textarea-shadow-focus);
+}
+
 /* ── Error (outline) ──────────────────────────────────────── */
 .textarea-group[data-error]:not([data-variant]),
 .textarea-group[data-error][data-variant="outline"] {
@@ -187,6 +208,12 @@
 .textarea-group[data-error][data-variant="filled"] {
   --_ta-bg: var(--textarea-filled-bg-error);
   --_ta-border-color: var(--textarea-filled-border-color-error);
+}
+
+/* ── Error (underline) ────────────────────────────────────── */
+.textarea-group[data-error][data-variant="underline"] {
+  --_ta-bg: var(--textarea-underline-bg-error);
+  --_ta-border-color: var(--textarea-underline-border-color-error);
 }
 
 /* Error + Focus should keep error border color */
@@ -209,6 +236,14 @@
   --_ta-fg: var(--textarea-filled-fg-disabled);
   --_ta-border-color: var(--textarea-filled-border-color-disabled);
   --_ta-placeholder: var(--textarea-filled-placeholder-disabled);
+}
+
+/* ── Disabled (underline) ─────────────────────────────────── */
+.textarea-group[data-disabled][data-variant="underline"] {
+  --_ta-bg: var(--textarea-underline-bg-disabled);
+  --_ta-fg: var(--textarea-underline-fg-disabled);
+  --_ta-border-color: var(--textarea-underline-border-color-disabled);
+  --_ta-placeholder: var(--textarea-underline-placeholder-disabled);
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -237,6 +272,15 @@
   transition-property: var(--textarea-transition-property);
   transition-duration: var(--textarea-transition-duration);
   transition-timing-function: var(--textarea-transition-easing);
+}
+
+/* Underline variant shape override — only bottom border */
+.textarea-group[data-variant="underline"] .textarea-field {
+  border-width: 0 0 var(--textarea-border-width) 0;
+  border-radius: 0;
+}
+.textarea-group[data-variant="underline"]:not([data-disabled]):has(.textarea-field:focus-within) .textarea-field {
+  border-bottom-width: 2px;
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -296,6 +340,9 @@
 }
 .textarea-group[data-disabled][data-variant="filled"] .textarea-field {
   opacity: var(--textarea-filled-opacity-disabled);
+}
+.textarea-group[data-disabled][data-variant="underline"] .textarea-field {
+  opacity: var(--textarea-underline-opacity-disabled);
 }
 
 .textarea-group[data-disabled] .textarea-field textarea {

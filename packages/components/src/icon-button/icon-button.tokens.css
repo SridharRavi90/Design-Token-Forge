@@ -147,6 +147,62 @@
   --icon-btn-outline-border-color-disabled: var(--surface-base-outline);
   --icon-btn-outline-opacity-disabled: 0.5;
 
+  /* ── TERTIARY (soft, tinted fill) ────────────────────────── */
+  --icon-btn-tertiary-bg: var(--primary-container-bg);
+  --icon-btn-tertiary-bg-hover: var(--primary-container-hover);
+  --icon-btn-tertiary-bg-active: var(--primary-container-pressed);
+  --icon-btn-tertiary-bg-disabled: var(--primary-container-bg);
+  --icon-btn-tertiary-fg: var(--primary-content-default);
+  --icon-btn-tertiary-fg-hover: var(--primary-content-default);
+  --icon-btn-tertiary-fg-disabled: var(--primary-content-default);
+  --icon-btn-tertiary-border-color: transparent;
+  --icon-btn-tertiary-border-color-hover: transparent;
+  --icon-btn-tertiary-border-color-active: transparent;
+  --icon-btn-tertiary-border-color-disabled: transparent;
+  --icon-btn-tertiary-opacity-disabled: 0.5;
+
+  /* ── SUCCESS (filled, green) ─────────────────────────────── */
+  --icon-btn-success-bg: var(--success-component-bg-default);
+  --icon-btn-success-bg-hover: var(--success-component-bg-hover);
+  --icon-btn-success-bg-active: var(--success-component-bg-pressed);
+  --icon-btn-success-bg-disabled: var(--success-component-bg-default);
+  --icon-btn-success-fg: var(--success-on-component);
+  --icon-btn-success-fg-hover: var(--success-on-component);
+  --icon-btn-success-fg-disabled: var(--success-on-component);
+  --icon-btn-success-border-color: var(--success-component-bg-default);
+  --icon-btn-success-border-color-hover: var(--success-component-bg-hover);
+  --icon-btn-success-border-color-active: var(--success-component-bg-pressed);
+  --icon-btn-success-border-color-disabled: var(--success-component-bg-default);
+  --icon-btn-success-opacity-disabled: 0.5;
+
+  /* ── WARNING (filled, amber) ─────────────────────────────── */
+  --icon-btn-warning-bg: var(--warning-component-bg-default);
+  --icon-btn-warning-bg-hover: var(--warning-component-bg-hover);
+  --icon-btn-warning-bg-active: var(--warning-component-bg-pressed);
+  --icon-btn-warning-bg-disabled: var(--warning-component-bg-default);
+  --icon-btn-warning-fg: var(--warning-on-component);
+  --icon-btn-warning-fg-hover: var(--warning-on-component);
+  --icon-btn-warning-fg-disabled: var(--warning-on-component);
+  --icon-btn-warning-border-color: var(--warning-component-bg-default);
+  --icon-btn-warning-border-color-hover: var(--warning-component-bg-hover);
+  --icon-btn-warning-border-color-active: var(--warning-component-bg-pressed);
+  --icon-btn-warning-border-color-disabled: var(--warning-component-bg-default);
+  --icon-btn-warning-opacity-disabled: 0.5;
+
+  /* ── BRAND (filled, brand palette) ───────────────────────── */
+  --icon-btn-brand-bg: var(--brand-component-bg-default);
+  --icon-btn-brand-bg-hover: var(--brand-component-bg-hover);
+  --icon-btn-brand-bg-active: var(--brand-component-bg-pressed);
+  --icon-btn-brand-bg-disabled: var(--brand-component-bg-default);
+  --icon-btn-brand-fg: var(--brand-on-component);
+  --icon-btn-brand-fg-hover: var(--brand-on-component);
+  --icon-btn-brand-fg-disabled: var(--brand-on-component);
+  --icon-btn-brand-border-color: var(--brand-component-bg-default);
+  --icon-btn-brand-border-color-hover: var(--brand-component-bg-hover);
+  --icon-btn-brand-border-color-active: var(--brand-component-bg-pressed);
+  --icon-btn-brand-border-color-disabled: var(--brand-component-bg-default);
+  --icon-btn-brand-opacity-disabled: 0.5;
+
   /* ────────────────────────────────────────────────────────────
      🧩 SLOTS  (2 vars)
      ──────────────────────────────────────────────────────────── */

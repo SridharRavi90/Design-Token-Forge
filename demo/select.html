@@ -95,6 +95,7 @@
     <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
       <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="outline" type="button">Outline</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="underline" type="button">Underline</button>
     </div>
   </div>
   <div class="control-divider"></div>
@@ -156,9 +157,9 @@
   <section class="section" id="sec-variants">
     <div class="section-header">
       <h2>Variant Gallery</h2>
-      <span class="section-tag">2 Variants</span>
+      <span class="section-tag">3 Variants</span>
     </div>
-    <p class="section-desc">Outline (default, transparent bg) and Filled (solid bg + border) — each with distinct surface treatment.</p>
+    <p class="section-desc">Outline (default, transparent bg), Filled (solid bg + border), and Underline (bottom-border only, no background) — each with distinct surface treatment.</p>
     <div class="section-body">
       <div class="preview-grid">
         <div class="preview-col">
@@ -174,6 +175,16 @@
         <div class="preview-col">
           <span class="col-label">Filled</span>
           <div class="select-group" data-variant="filled" data-size="base" style="width:260px">
+            <label class="select__label">Category</label>
+            <div class="select-field">
+              <select><option value="" disabled selected>Choose…</option><option>Electronics</option><option>Clothing</option><option>Books</option></select>
+              <span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Underline</span>
+          <div class="select-group" data-variant="underline" data-size="base" style="width:260px">
             <label class="select__label">Category</label>
             <div class="select-field">
               <select><option value="" disabled selected>Choose…</option><option>Electronics</option><option>Clothing</option><option>Books</option></select>
@@ -576,8 +587,8 @@ var TOKEN_MAP = {
   chevron: { micro: '--spacing-10', tiny: '--spacing-12', small: '--spacing-13', base: '--spacing-16', medium: '--spacing-16', large: '--spacing-18', big: '--spacing-18', huge: '--spacing-20', mega: '--spacing-24', ultra: '--spacing-28' }
 };
 
-var VARIANT_BG = { outline: '--select-outline-bg', filled: '--select-filled-bg' };
-var VARIANT_BORDER = { outline: '--select-outline-border-color', filled: '--select-filled-border-color' };
+var VARIANT_BG = { outline: '--select-outline-bg', filled: '--select-filled-bg', underline: '--select-underline-bg' };
+var VARIANT_BORDER = { outline: '--select-outline-border-color', filled: '--select-filled-border-color', underline: '--select-underline-border-color' };
 
 function updateInspector() {
   var hero = document.getElementById('heroSelect');

@@ -106,6 +106,7 @@
   --_al-filled-bg:      var(--alert-info-filled-bg);
   --_al-filled-fg:      var(--alert-info-filled-fg);
   --_al-outline-border: var(--alert-info-outline-border);
+  --_al-soft-bg:        var(--alert-info-soft-bg);
 }
 .alert[data-role="success"] {
   --_al-bg:             var(--alert-success-bg);
@@ -118,8 +119,7 @@
   --_al-link-hover:     var(--alert-success-link-hover);
   --_al-filled-bg:      var(--alert-success-filled-bg);
   --_al-filled-fg:      var(--alert-success-filled-fg);
-  --_al-outline-border: var(--alert-success-outline-border);
-}
+  --_al-outline-border: var(--alert-success-outline-border);  --_al-soft-bg:        var(--alert-success-soft-bg);}
 .alert[data-role="warning"] {
   --_al-bg:             var(--alert-warning-bg);
   --_al-fg:             var(--alert-warning-fg);
@@ -132,6 +132,7 @@
   --_al-filled-bg:      var(--alert-warning-filled-bg);
   --_al-filled-fg:      var(--alert-warning-filled-fg);
   --_al-outline-border: var(--alert-warning-outline-border);
+  --_al-soft-bg:        var(--alert-warning-soft-bg);
 }
 .alert[data-role="danger"] {
   --_al-bg:             var(--alert-danger-bg);
@@ -145,7 +146,31 @@
   --_al-filled-bg:      var(--alert-danger-filled-bg);
   --_al-filled-fg:      var(--alert-danger-filled-fg);
   --_al-outline-border: var(--alert-danger-outline-border);
+  --_al-soft-bg:        var(--alert-danger-soft-bg);
 }
+.alert[data-role="neutral"] {
+  --_al-bg:             var(--alert-neutral-bg);
+  --_al-fg:             var(--alert-neutral-fg);
+  --_al-accent:         var(--alert-neutral-accent);
+  --_al-border:         var(--alert-neutral-border);
+  --_al-icon-color:     var(--alert-neutral-icon-color);
+  --_al-title-color:    var(--alert-neutral-title-color);
+  --_al-link-color:     var(--alert-neutral-link-color);
+  --_al-link-hover:     var(--alert-neutral-link-hover);
+  --_al-filled-bg:      var(--alert-neutral-filled-bg);
+  --_al-filled-fg:      var(--alert-neutral-filled-fg);
+  --_al-outline-border: var(--alert-neutral-outline-border);
+  --_al-soft-bg:        var(--alert-neutral-soft-bg);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   4a. VARIANT: SOFT (tinted role bg — parity with toast)
+   ────────────────────────────────────────────────────────────────── */
+.alert[data-variant="soft"] {
+  --_al-bg: var(--_al-soft-bg);
+  --_al-border: transparent;
+}
+.alert[data-variant="soft"] .alert__accent { display: none }
 
 /* ────────────────────────────────────────────────────────────────
    4.  VARIANT: FILLED (solid role bg — no compound selectors)

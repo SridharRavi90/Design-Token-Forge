@@ -123,6 +123,25 @@
   --textarea-filled-opacity-disabled: 0.5;
 
   /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — UNDERLINE VARIANT  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-underline-bg: transparent;
+  --textarea-underline-bg-hover: transparent;
+  --textarea-underline-bg-focus: transparent;
+  --textarea-underline-bg-disabled: transparent;
+  --textarea-underline-bg-error: transparent;
+  --textarea-underline-fg: var(--surface-base-ct-default);
+  --textarea-underline-fg-disabled: var(--surface-base-ct-faint);
+  --textarea-underline-border-color: var(--surface-base-cm-outline);
+  --textarea-underline-border-color-hover: var(--surface-base-ct-subtle);
+  --textarea-underline-border-color-focus: var(--primary-component-outline-default);
+  --textarea-underline-border-color-disabled: var(--surface-base-cm-outline);
+  --textarea-underline-border-color-error: var(--danger-component-outline-default);
+  --textarea-underline-placeholder: var(--surface-base-ct-faint);
+  --textarea-underline-placeholder-disabled: var(--surface-base-ct-faint);
+  --textarea-underline-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
      🎨 SURFACE — SHARED  (7 vars)
      ──────────────────────────────────────────────────────────── */
   --textarea-label-color: var(--surface-base-ct-subtle);

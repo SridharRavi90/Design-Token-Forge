@@ -13,6 +13,13 @@
     "build:tokens": "node packages/sync-server/build-static.js",
     "serve:tokens": "node packages/sync-server/server.js",
     "lint": "pnpm -r lint",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "vrt": "npx playwright test --config=playwright.config.js",
+    "vrt:update": "npx playwright test --config=playwright.config.js --update-snapshots",
+    "vrt:ui": "npx playwright test --config=playwright.config.js --ui",
+    "vrt:report": "npx playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
   }
 }

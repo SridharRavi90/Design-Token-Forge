@@ -98,6 +98,7 @@
     <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
       <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="outline" type="button">Outline</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="underline" type="button">Underline</button>
     </div>
   </div>
   <div class="control-divider"></div>
@@ -158,9 +159,9 @@
   <section class="section" id="sec-variants">
     <div class="section-header">
       <h2>Variant Gallery</h2>
-      <span class="section-tag">2 Variants</span>
+      <span class="section-tag">3 Variants</span>
     </div>
-    <p class="section-desc">Outline (default, transparent bg) and Filled (solid bg + border) — each with distinct surface treatment.</p>
+    <p class="section-desc">Outline (default, transparent bg), Filled (solid bg + border), and Underline (bottom-border only, no background) — each with distinct surface treatment.</p>
     <div class="section-body">
       <div class="preview-grid">
         <div class="preview-col">
@@ -175,6 +176,15 @@
         <div class="preview-col">
           <span class="col-label">Filled</span>
           <div class="textarea-group" data-variant="filled" data-size="base" style="width:300px">
+            <label class="textarea__label">Notes</label>
+            <div class="textarea-field">
+              <textarea placeholder="Enter your notes…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Underline</span>
+          <div class="textarea-group" data-variant="underline" data-size="base" style="width:300px">
             <label class="textarea__label">Notes</label>
             <div class="textarea-field">
               <textarea placeholder="Enter your notes…" rows="3"></textarea>
@@ -745,8 +755,8 @@ var TOKEN_MAP = {
   height: { micro: '24px', tiny: '28px', small: '32px', base: '36px', medium: '40px', large: '44px', big: '48px', huge: '56px', mega: '64px', ultra: '80px' }
 };
 
-var VARIANT_BG = { outline: '--textarea-outline-bg', filled: '--textarea-filled-bg' };
-var VARIANT_BORDER = { outline: '--textarea-outline-border-color', filled: '--textarea-filled-border-color' };
+var VARIANT_BG = { outline: '--textarea-outline-bg', filled: '--textarea-filled-bg', underline: '--textarea-underline-bg' };
+var VARIANT_BORDER = { outline: '--textarea-outline-border-color', filled: '--textarea-filled-border-color', underline: '--textarea-underline-border-color' };
 
 function updateInspector() {
   var hero = document.getElementById('heroTextarea');

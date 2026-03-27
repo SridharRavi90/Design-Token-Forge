@@ -127,6 +127,7 @@
     <label>Variant</label>
     <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
       <button class="pill" role="radio" aria-pressed="true"  data-ctrl-variant="filled" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outline" type="button">Outline</button>
       <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="soft" type="button">Soft</button>
     </div>
   </div>
@@ -186,7 +187,7 @@
   <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
   <section class="section" id="sec-variants">
     <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Surface</span></div>
-    <p class="section-desc">Default (muted track) and soft (role-tinted track) variants, shown with all five semantic roles.</p>
+    <p class="section-desc">Default (muted track), outline (low-opacity track), and soft (role-tinted track) variants, shown with all five semantic roles.</p>
     <div class="section-body"><div class="variant-grid" id="variantGallery"></div></div>
   </section>
 
@@ -382,7 +383,7 @@
 
   var SIZES = ['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
   var ROLES = ['primary','success','warning','danger','neutral'];
-  var VARIANTS = ['filled','soft'];
+  var VARIANTS = ['filled','outline','soft'];
   var STATES = ['Determinate','Indeterminate','Disabled'];
 
   var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';

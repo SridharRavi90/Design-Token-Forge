@@ -150,6 +150,14 @@
   --_sel-placeholder: var(--select-filled-placeholder);
 }
 
+/* Underline */
+.select-group[data-variant="underline"] {
+  --_sel-bg: var(--select-underline-bg);
+  --_sel-fg: var(--select-underline-fg);
+  --_sel-border-color: var(--select-underline-border-color);
+  --_sel-placeholder: var(--select-underline-placeholder);
+}
+
 /* ────────────────────────────────────────────────────────────────
    4.  STATE OVERRIDES — hover, focus, error, disabled
    ──────────────────────────────────────────────────────────────── */
@@ -167,6 +175,12 @@
   --_sel-border-color: var(--select-filled-border-color-hover);
 }
 
+/* ── Hover (underline) ────────────────────────────────────── */
+.select-group[data-variant="underline"]:not([data-disabled]):has(.select-field:hover) {
+  --_sel-bg: var(--select-underline-bg-hover);
+  --_sel-border-color: var(--select-underline-border-color-hover);
+}
+
 /* ── Focus (outline) ──────────────────────────────────────── */
 .select-group:not([data-disabled]):not([data-variant]):has(.select-field:focus-within),
 .select-group[data-variant="outline"]:not([data-disabled]):has(.select-field:focus-within) {
@@ -182,6 +196,13 @@
   --_sel-shadow: var(--select-shadow-focus);
 }
 
+/* ── Focus (underline) ────────────────────────────────────── */
+.select-group[data-variant="underline"]:not([data-disabled]):has(.select-field:focus-within) {
+  --_sel-bg: var(--select-underline-bg-focus);
+  --_sel-border-color: var(--select-underline-border-color-focus);
+  --_sel-shadow: var(--select-shadow-focus);
+}
+
 /* ── Error (outline) ──────────────────────────────────────── */
 .select-group[data-error]:not([data-variant]),
 .select-group[data-error][data-variant="outline"] {
@@ -193,6 +214,12 @@
 .select-group[data-error][data-variant="filled"] {
   --_sel-bg: var(--select-filled-bg-error);
   --_sel-border-color: var(--select-filled-border-color-error);
+}
+
+/* ── Error (underline) ────────────────────────────────────── */
+.select-group[data-error][data-variant="underline"] {
+  --_sel-bg: var(--select-underline-bg-error);
+  --_sel-border-color: var(--select-underline-border-color-error);
 }
 
 /* Error + Focus keeps error border */
@@ -215,6 +242,14 @@
   --_sel-fg: var(--select-filled-fg-disabled);
   --_sel-border-color: var(--select-filled-border-color-disabled);
   --_sel-placeholder: var(--select-filled-placeholder-disabled);
+}
+
+/* ── Disabled (underline) ─────────────────────────────────── */
+.select-group[data-disabled][data-variant="underline"] {
+  --_sel-bg: var(--select-underline-bg-disabled);
+  --_sel-fg: var(--select-underline-fg-disabled);
+  --_sel-border-color: var(--select-underline-border-color-disabled);
+  --_sel-placeholder: var(--select-underline-placeholder-disabled);
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -243,6 +278,15 @@
   transition-property: var(--select-transition-property);
   transition-duration: var(--select-transition-duration);
   transition-timing-function: var(--select-transition-easing);
+}
+
+/* Underline variant shape override — only bottom border */
+.select-group[data-variant="underline"] .select-field {
+  border-width: 0 0 var(--select-border-width) 0;
+  border-radius: 0;
+}
+.select-group[data-variant="underline"]:not([data-disabled]):has(.select-field:focus-within) .select-field {
+  border-bottom-width: 2px;
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -315,6 +359,9 @@
 }
 .select-group[data-disabled][data-variant="filled"] .select-field {
   opacity: var(--select-filled-opacity-disabled);
+}
+.select-group[data-disabled][data-variant="underline"] .select-field {
+  opacity: var(--select-underline-opacity-disabled);
 }
 
 .select-group[data-disabled] .select-field select {

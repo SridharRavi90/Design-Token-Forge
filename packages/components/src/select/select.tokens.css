@@ -115,6 +115,25 @@
   --select-filled-opacity-disabled: 0.5;
 
   /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — UNDERLINE VARIANT  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --select-underline-bg: transparent;
+  --select-underline-bg-hover: transparent;
+  --select-underline-bg-focus: transparent;
+  --select-underline-bg-disabled: transparent;
+  --select-underline-bg-error: transparent;
+  --select-underline-fg: var(--surface-base-ct-default);
+  --select-underline-fg-disabled: var(--surface-base-ct-faint);
+  --select-underline-border-color: var(--surface-base-cm-outline);
+  --select-underline-border-color-hover: var(--surface-base-ct-subtle);
+  --select-underline-border-color-focus: var(--primary-component-outline-default);
+  --select-underline-border-color-disabled: var(--surface-base-cm-outline);
+  --select-underline-border-color-error: var(--danger-component-outline-default);
+  --select-underline-placeholder: var(--surface-base-ct-faint);
+  --select-underline-placeholder-disabled: var(--surface-base-ct-faint);
+  --select-underline-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
      🎨 SURFACE — SHARED  (7 vars)
      ──────────────────────────────────────────────────────────── */
   --select-label-color: var(--surface-base-ct-subtle);

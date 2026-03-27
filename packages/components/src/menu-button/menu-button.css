@@ -252,7 +252,89 @@
   --_mb-shadow: var(--menu-btn-shadow);
   --_mb-shadow-hover: var(--menu-btn-shadow-hover);
 }
+/* ── TERTIARY (soft, tinted fill) ──────────────────────────── */
+.menu-btn[data-variant="tertiary"] {
+  --_mb-bg: var(--menu-btn-tertiary-bg);
+  --_mb-bg-hover: var(--menu-btn-tertiary-bg-hover);
+  --_mb-bg-active: var(--menu-btn-tertiary-bg-active);
+  --_mb-fg: var(--menu-btn-tertiary-fg);
+  --_mb-fg-hover: var(--menu-btn-tertiary-fg-hover);
+  --_mb-border-color: var(--menu-btn-tertiary-border-color);
+  --_mb-border-color-hover: var(--menu-btn-tertiary-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-tertiary-border-color-active);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+}
 
+/* ── DANGER (filled, red) ─────────────────────────────────── */
+.menu-btn[data-variant="danger"] {
+  --_mb-bg: var(--menu-btn-danger-bg);
+  --_mb-bg-hover: var(--menu-btn-danger-bg-hover);
+  --_mb-bg-active: var(--menu-btn-danger-bg-active);
+  --_mb-fg: var(--menu-btn-danger-fg);
+  --_mb-fg-hover: var(--menu-btn-danger-fg-hover);
+  --_mb-border-color: var(--menu-btn-danger-border-color);
+  --_mb-border-color-hover: var(--menu-btn-danger-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-danger-border-color-active);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+}
+
+/* ── SUCCESS (filled, green) ───────────────────────────────── */
+.menu-btn[data-variant="success"] {
+  --_mb-bg: var(--menu-btn-success-bg);
+  --_mb-bg-hover: var(--menu-btn-success-bg-hover);
+  --_mb-bg-active: var(--menu-btn-success-bg-active);
+  --_mb-fg: var(--menu-btn-success-fg);
+  --_mb-fg-hover: var(--menu-btn-success-fg-hover);
+  --_mb-border-color: var(--menu-btn-success-border-color);
+  --_mb-border-color-hover: var(--menu-btn-success-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-success-border-color-active);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+}
+
+/* ── WARNING (filled, amber) ───────────────────────────────── */
+.menu-btn[data-variant="warning"] {
+  --_mb-bg: var(--menu-btn-warning-bg);
+  --_mb-bg-hover: var(--menu-btn-warning-bg-hover);
+  --_mb-bg-active: var(--menu-btn-warning-bg-active);
+  --_mb-fg: var(--menu-btn-warning-fg);
+  --_mb-fg-hover: var(--menu-btn-warning-fg-hover);
+  --_mb-border-color: var(--menu-btn-warning-border-color);
+  --_mb-border-color-hover: var(--menu-btn-warning-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-warning-border-color-active);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+}
+
+/* ── OUTLINE (outlined, surface-context border) ───────────── */
+.menu-btn[data-variant="outline"] {
+  --_mb-bg: var(--menu-btn-outline-bg);
+  --_mb-bg-hover: var(--menu-btn-outline-bg-hover);
+  --_mb-bg-active: var(--menu-btn-outline-bg-active);
+  --_mb-fg: var(--menu-btn-outline-fg);
+  --_mb-fg-hover: var(--menu-btn-outline-fg-hover);
+  --_mb-border-color: var(--menu-btn-outline-border-color);
+  --_mb-border-color-hover: var(--menu-btn-outline-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-outline-border-color-active);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+}
+
+/* ── BRAND (filled, brand palette) ───────────────────────────── */
+.menu-btn[data-variant="brand"] {
+  --_mb-bg: var(--menu-btn-brand-bg);
+  --_mb-bg-hover: var(--menu-btn-brand-bg-hover);
+  --_mb-bg-active: var(--menu-btn-brand-bg-active);
+  --_mb-fg: var(--menu-btn-brand-fg);
+  --_mb-fg-hover: var(--menu-btn-brand-fg-hover);
+  --_mb-border-color: var(--menu-btn-brand-border-color);
+  --_mb-border-color-hover: var(--menu-btn-brand-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-brand-border-color-active);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+}
 /* ════════════════════════════════════════════════════════════════
    STATES
    ════════════════════════════════════════════════════════════════ */
@@ -299,6 +381,48 @@
   --_mb-fg: var(--menu-btn-neutral-fg-disabled);
   --_mb-border-color: var(--menu-btn-neutral-border-color-disabled);
   opacity: var(--menu-btn-neutral-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="tertiary"],
+.menu-btn[data-disabled][data-variant="tertiary"] {
+  --_mb-bg: var(--menu-btn-tertiary-bg-disabled);
+  --_mb-fg: var(--menu-btn-tertiary-fg-disabled);
+  --_mb-border-color: var(--menu-btn-tertiary-border-color-disabled);
+  opacity: var(--menu-btn-tertiary-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="danger"],
+.menu-btn[data-disabled][data-variant="danger"] {
+  --_mb-bg: var(--menu-btn-danger-bg-disabled);
+  --_mb-fg: var(--menu-btn-danger-fg-disabled);
+  --_mb-border-color: var(--menu-btn-danger-border-color-disabled);
+  opacity: var(--menu-btn-danger-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="success"],
+.menu-btn[data-disabled][data-variant="success"] {
+  --_mb-bg: var(--menu-btn-success-bg-disabled);
+  --_mb-fg: var(--menu-btn-success-fg-disabled);
+  --_mb-border-color: var(--menu-btn-success-border-color-disabled);
+  opacity: var(--menu-btn-success-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="warning"],
+.menu-btn[data-disabled][data-variant="warning"] {
+  --_mb-bg: var(--menu-btn-warning-bg-disabled);
+  --_mb-fg: var(--menu-btn-warning-fg-disabled);
+  --_mb-border-color: var(--menu-btn-warning-border-color-disabled);
+  opacity: var(--menu-btn-warning-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="outline"],
+.menu-btn[data-disabled][data-variant="outline"] {
+  --_mb-bg: var(--menu-btn-outline-bg-disabled);
+  --_mb-fg: var(--menu-btn-outline-fg-disabled);
+  --_mb-border-color: var(--menu-btn-outline-border-color-disabled);
+  opacity: var(--menu-btn-outline-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="brand"],
+.menu-btn[data-disabled][data-variant="brand"] {
+  --_mb-bg: var(--menu-btn-brand-bg-disabled);
+  --_mb-fg: var(--menu-btn-brand-fg-disabled);
+  --_mb-border-color: var(--menu-btn-brand-border-color-disabled);
+  opacity: var(--menu-btn-brand-opacity-disabled);
 }
 
 /* Loading — pulse animation */

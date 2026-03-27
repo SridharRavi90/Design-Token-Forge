@@ -173,6 +173,15 @@
   --_ts-filled-fg:      var(--toast-danger-filled-fg);
   --_ts-outline-border: var(--toast-danger-outline-border);
 }
+.toast[data-role="neutral"] {
+  --_ts-accent:         var(--toast-neutral-accent);
+  --_ts-icon-color:     var(--toast-neutral-icon-color);
+  --_ts-title-color:    var(--toast-neutral-title-color);
+  --_ts-soft-bg:        var(--toast-neutral-soft-bg);
+  --_ts-filled-bg:      var(--toast-neutral-filled-bg);
+  --_ts-filled-fg:      var(--toast-neutral-filled-fg);
+  --_ts-outline-border: var(--toast-neutral-outline-border);
+}
 
 /* ────────────────────────────────────────────────────────────────
    5.  VARIANT: SOFT (tinted role bg)

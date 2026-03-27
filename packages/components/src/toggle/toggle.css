@@ -310,6 +310,26 @@
   background-color: var(--_sw-thumb-bg-disabled);
 }
 
+/* Error — [data-error] or [aria-invalid] */
+.switch[data-error] .switch__track,
+.switch[aria-invalid="true"] .switch__track {
+  border-color: var(--danger-component-outline-default);
+}
+.switch[data-error]:hover .switch__track,
+.switch[aria-invalid="true"]:hover .switch__track {
+  border-color: var(--danger-component-outline-hover);
+}
+.switch[data-error][aria-checked="true"] .switch__track,
+.switch[aria-invalid="true"][aria-checked="true"] .switch__track {
+  background-color: var(--switch-track-bg-on-error);
+  border-color: var(--switch-track-border-color-on-error);
+}
+.switch[data-error][aria-checked="true"]:hover .switch__track,
+.switch[aria-invalid="true"][aria-checked="true"]:hover .switch__track {
+  background-color: var(--switch-track-bg-on-error-hover);
+  border-color: var(--switch-track-border-color-on-error-hover);
+}
+
 /* Loading — pulse on track */
 .switch[data-loading] {
   cursor: wait;

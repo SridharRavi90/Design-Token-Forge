@@ -100,6 +100,22 @@
   --switch-thumb-icon-size: 0.65em;
 
   /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — DANGER / ERROR  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* danger — canonical name */
+  --switch-track-bg-on-danger: var(--danger-component-bg-default);
+  --switch-track-bg-on-danger-hover: var(--danger-component-bg-hover);
+  --switch-track-border-color-on-danger: var(--danger-component-bg-default);
+  --switch-track-border-color-on-danger-hover: var(--danger-component-bg-hover);
+
+  /* error — backward-compatible alias */
+  --switch-track-bg-on-error: var(--switch-track-bg-on-danger);
+  --switch-track-bg-on-error-hover: var(--switch-track-bg-on-danger-hover);
+  --switch-track-border-color-on-error: var(--switch-track-border-color-on-danger);
+  --switch-track-border-color-on-error-hover: var(--switch-track-border-color-on-danger-hover);
+
+  /* ────────────────────────────────────────────────────────────
      🎨 SURFACE — OUTLINE VARIANT  (16 vars)
      ──────────────────────────────────────────────────────────── */
 

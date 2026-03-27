@@ -414,6 +414,169 @@
 }
 
 /* ════════════════════════════════════════════════════════════════
+   ROLE × VARIANT — 2-Axis API  (backward-compatible)
+   Usage: data-variant="filled" data-role="danger"
+   Structural variants: filled | outline | ghost | soft
+   Semantic roles:      primary | danger | success | warning | neutral | brand
+   Legacy single-value data-variant names continue to work unchanged.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── FILLED + role ──────────────────────────────────────────── */
+.btn[data-variant="filled"]:not([data-role]),
+.btn[data-variant="filled"][data-role="primary"] {
+  --_btn-bg: var(--btn-primary-bg);
+  --_btn-fg: var(--btn-primary-fg);
+  --_btn-border-color: var(--btn-primary-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="filled"]:not([data-role]):hover,
+.btn[data-variant="filled"][data-role="primary"]:hover {
+  --_btn-bg: var(--btn-primary-bg-hover);
+  --_btn-fg: var(--btn-primary-fg-hover);
+  --_btn-border-color: var(--btn-primary-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="filled"]:not([data-role]):active,
+.btn[data-variant="filled"][data-role="primary"]:active {
+  --_btn-bg: var(--btn-primary-bg-active);
+  --_btn-border-color: var(--btn-primary-border-color-active);
+  --_btn-shadow: var(--btn-shadow-active);
+}
+
+.btn[data-variant="filled"][data-role="danger"] {
+  --_btn-bg: var(--btn-danger-bg);
+  --_btn-fg: var(--btn-danger-fg);
+  --_btn-border-color: var(--btn-danger-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="filled"][data-role="danger"]:hover {
+  --_btn-bg: var(--btn-danger-bg-hover);
+  --_btn-fg: var(--btn-danger-fg-hover);
+  --_btn-border-color: var(--btn-danger-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="filled"][data-role="danger"]:active {
+  --_btn-bg: var(--btn-danger-bg-active);
+  --_btn-border-color: var(--btn-danger-border-color-active);
+  --_btn-shadow: var(--btn-shadow-active);
+}
+
+.btn[data-variant="filled"][data-role="success"] {
+  --_btn-bg: var(--btn-success-bg);
+  --_btn-fg: var(--btn-success-fg);
+  --_btn-border-color: var(--btn-success-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="filled"][data-role="success"]:hover {
+  --_btn-bg: var(--btn-success-bg-hover);
+  --_btn-fg: var(--btn-success-fg-hover);
+  --_btn-border-color: var(--btn-success-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="filled"][data-role="success"]:active {
+  --_btn-bg: var(--btn-success-bg-active);
+  --_btn-border-color: var(--btn-success-border-color-active);
+  --_btn-shadow: var(--btn-shadow-active);
+}
+
+.btn[data-variant="filled"][data-role="warning"] {
+  --_btn-bg: var(--btn-warning-bg);
+  --_btn-fg: var(--btn-warning-fg);
+  --_btn-border-color: var(--btn-warning-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="filled"][data-role="warning"]:hover {
+  --_btn-bg: var(--btn-warning-bg-hover);
+  --_btn-fg: var(--btn-warning-fg-hover);
+  --_btn-border-color: var(--btn-warning-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="filled"][data-role="warning"]:active {
+  --_btn-bg: var(--btn-warning-bg-active);
+  --_btn-border-color: var(--btn-warning-border-color-active);
+  --_btn-shadow: var(--btn-shadow-active);
+}
+
+.btn[data-variant="filled"][data-role="neutral"] {
+  --_btn-bg: var(--btn-neutral-bg);
+  --_btn-fg: var(--btn-neutral-fg);
+  --_btn-border-color: var(--btn-neutral-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="filled"][data-role="neutral"]:hover {
+  --_btn-bg: var(--btn-neutral-bg-hover);
+  --_btn-fg: var(--btn-neutral-fg-hover);
+  --_btn-border-color: var(--btn-neutral-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="filled"][data-role="neutral"]:active {
+  --_btn-bg: var(--btn-neutral-bg-active);
+  --_btn-border-color: var(--btn-neutral-border-color-active);
+  --_btn-shadow: var(--btn-shadow-active);
+}
+
+.btn[data-variant="filled"][data-role="brand"] {
+  --_btn-bg: var(--btn-brand-bg);
+  --_btn-fg: var(--btn-brand-fg);
+  --_btn-border-color: var(--btn-brand-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="filled"][data-role="brand"]:hover {
+  --_btn-bg: var(--btn-brand-bg-hover);
+  --_btn-fg: var(--btn-brand-fg-hover);
+  --_btn-border-color: var(--btn-brand-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="filled"][data-role="brand"]:active {
+  --_btn-bg: var(--btn-brand-bg-active);
+  --_btn-border-color: var(--btn-brand-border-color-active);
+  --_btn-shadow: var(--btn-shadow-active);
+}
+
+/* ── OUTLINE + role aliases ─────────────────────────────────── */
+/* data-variant="outline" already exists — alias "secondary" to outline */
+.btn[data-variant="outline"][data-role="primary"] {
+  --_btn-bg: var(--btn-secondary-bg);
+  --_btn-fg: var(--btn-secondary-fg);
+  --_btn-border-color: var(--btn-secondary-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="outline"][data-role="primary"]:hover {
+  --_btn-bg: var(--btn-secondary-bg-hover);
+  --_btn-fg: var(--btn-secondary-fg-hover);
+  --_btn-border-color: var(--btn-secondary-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="outline"][data-role="primary"]:active {
+  --_btn-bg: var(--btn-secondary-bg-active);
+  --_btn-border-color: var(--btn-secondary-border-color-active);
+  --_btn-shadow: var(--btn-shadow-active);
+}
+
+/* ── SOFT + role aliases ────────────────────────────────────── */
+/* data-variant="soft" aliases tertiary (tinted fill treatment) */
+.btn[data-variant="soft"],
+.btn[data-variant="soft"][data-role="primary"] {
+  --_btn-bg: var(--btn-tertiary-bg);
+  --_btn-fg: var(--btn-tertiary-fg);
+  --_btn-border-color: var(--btn-tertiary-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="soft"]:hover,
+.btn[data-variant="soft"][data-role="primary"]:hover {
+  --_btn-bg: var(--btn-tertiary-bg-hover);
+  --_btn-fg: var(--btn-tertiary-fg-hover);
+  --_btn-border-color: var(--btn-tertiary-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="soft"]:active,
+.btn[data-variant="soft"][data-role="primary"]:active {
+  --_btn-bg: var(--btn-tertiary-bg-active);
+  --_btn-border-color: var(--btn-tertiary-border-color-active);
+  --_btn-shadow: var(--btn-shadow-active);
+}
+
+/* ════════════════════════════════════════════════════════════════
    STATES
    ════════════════════════════════════════════════════════════════ */
 

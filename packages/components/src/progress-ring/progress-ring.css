@@ -188,6 +188,12 @@
   --_rg-track-opacity: 1;
 }
 
+/* Outline — low-opacity track ring, no extra stroke */
+.progress-ring[data-variant="outline"] {
+  --_rg-track: var(--_rg-fill);
+  --_rg-track-opacity: var(--ring-outline-track-opacity);
+}
+
 /* ════════════════════════════════════════════════════════════════
    5.  DISABLED STATE
    ════════════════════════════════════════════════════════════════ */

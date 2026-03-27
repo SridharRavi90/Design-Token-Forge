@@ -237,6 +237,78 @@
   --_ib-border-color: var(--icon-btn-outline-border-color-active);
 }
 
+/* ── TERTIARY (soft, tinted fill) ──────────────────────────── */
+.icon-btn[data-variant="tertiary"] {
+  --_ib-bg: var(--icon-btn-tertiary-bg);
+  --_ib-fg: var(--icon-btn-tertiary-fg);
+  --_ib-border-color: var(--icon-btn-tertiary-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="tertiary"]:hover {
+  --_ib-bg: var(--icon-btn-tertiary-bg-hover);
+  --_ib-fg: var(--icon-btn-tertiary-fg-hover);
+  --_ib-border-color: var(--icon-btn-tertiary-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="tertiary"]:active {
+  --_ib-bg: var(--icon-btn-tertiary-bg-active);
+  --_ib-border-color: var(--icon-btn-tertiary-border-color-active);
+}
+
+/* ── SUCCESS (filled, green) ───────────────────────────────── */
+.icon-btn[data-variant="success"] {
+  --_ib-bg: var(--icon-btn-success-bg);
+  --_ib-fg: var(--icon-btn-success-fg);
+  --_ib-border-color: var(--icon-btn-success-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="success"]:hover {
+  --_ib-bg: var(--icon-btn-success-bg-hover);
+  --_ib-fg: var(--icon-btn-success-fg-hover);
+  --_ib-border-color: var(--icon-btn-success-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="success"]:active {
+  --_ib-bg: var(--icon-btn-success-bg-active);
+  --_ib-border-color: var(--icon-btn-success-border-color-active);
+}
+
+/* ── WARNING (filled, amber) ───────────────────────────────── */
+.icon-btn[data-variant="warning"] {
+  --_ib-bg: var(--icon-btn-warning-bg);
+  --_ib-fg: var(--icon-btn-warning-fg);
+  --_ib-border-color: var(--icon-btn-warning-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="warning"]:hover {
+  --_ib-bg: var(--icon-btn-warning-bg-hover);
+  --_ib-fg: var(--icon-btn-warning-fg-hover);
+  --_ib-border-color: var(--icon-btn-warning-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="warning"]:active {
+  --_ib-bg: var(--icon-btn-warning-bg-active);
+  --_ib-border-color: var(--icon-btn-warning-border-color-active);
+}
+
+/* ── BRAND (filled, brand palette) ───────────────────────────── */
+.icon-btn[data-variant="brand"] {
+  --_ib-bg: var(--icon-btn-brand-bg);
+  --_ib-fg: var(--icon-btn-brand-fg);
+  --_ib-border-color: var(--icon-btn-brand-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="brand"]:hover {
+  --_ib-bg: var(--icon-btn-brand-bg-hover);
+  --_ib-fg: var(--icon-btn-brand-fg-hover);
+  --_ib-border-color: var(--icon-btn-brand-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="brand"]:active {
+  --_ib-bg: var(--icon-btn-brand-bg-active);
+  --_ib-border-color: var(--icon-btn-brand-border-color-active);
+}
+
 /* ════════════════════════════════════════════════════════════════
    STATES
    ════════════════════════════════════════════════════════════════ */
@@ -298,6 +370,34 @@
   --_ib-fg: var(--icon-btn-outline-fg-disabled);
   --_ib-border-color: var(--icon-btn-outline-border-color-disabled);
   opacity: var(--icon-btn-outline-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="tertiary"],
+.icon-btn[data-disabled][data-variant="tertiary"] {
+  --_ib-bg: var(--icon-btn-tertiary-bg-disabled);
+  --_ib-fg: var(--icon-btn-tertiary-fg-disabled);
+  --_ib-border-color: var(--icon-btn-tertiary-border-color-disabled);
+  opacity: var(--icon-btn-tertiary-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="success"],
+.icon-btn[data-disabled][data-variant="success"] {
+  --_ib-bg: var(--icon-btn-success-bg-disabled);
+  --_ib-fg: var(--icon-btn-success-fg-disabled);
+  --_ib-border-color: var(--icon-btn-success-border-color-disabled);
+  opacity: var(--icon-btn-success-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="warning"],
+.icon-btn[data-disabled][data-variant="warning"] {
+  --_ib-bg: var(--icon-btn-warning-bg-disabled);
+  --_ib-fg: var(--icon-btn-warning-fg-disabled);
+  --_ib-border-color: var(--icon-btn-warning-border-color-disabled);
+  opacity: var(--icon-btn-warning-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="brand"],
+.icon-btn[data-disabled][data-variant="brand"] {
+  --_ib-bg: var(--icon-btn-brand-bg-disabled);
+  --_ib-fg: var(--icon-btn-brand-fg-disabled);
+  --_ib-border-color: var(--icon-btn-brand-border-color-disabled);
+  opacity: var(--icon-btn-brand-opacity-disabled);
 }
 
 /* Loading state — pulse opacity */

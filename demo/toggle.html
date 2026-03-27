@@ -147,7 +147,7 @@
   <!-- 3. STATE MATRIX -->
   <section class="section" id="sec-states">
     <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
-    <p class="section-desc">Every interactive state: unchecked, checked, disabled-off, disabled-on, loading.</p>
+    <p class="section-desc">Every interactive state: unchecked, checked, disabled-off, disabled-on, error, loading.</p>
     <div class="section-body"><div id="stateMatrix" style="display:flex;flex-direction:column;gap:0"></div></div>
   </section>
 
@@ -413,6 +413,7 @@
     if(variant) b.dataset.variant=variant;
     if(o.disabled) b.disabled=true;
     if(o.loading) b.dataset.loading='';
+    if(o.error) b.dataset.error='';
     if(!o.noSync) b.classList.add('synced-sw');
 
     var track=document.createElement('span');track.className='switch__track';
@@ -463,6 +464,8 @@
       {label:'Checked',opts:{checked:true}},
       {label:'Disabled Off',opts:{checked:false,disabled:true}},
       {label:'Disabled On',opts:{checked:true,disabled:true}},
+      {label:'Error Off',opts:{checked:false,error:true}},
+      {label:'Error On',opts:{checked:true,error:true}},
       {label:'Loading',opts:{loading:true}}
     ];
     var variants=[{label:'Filled',variant:''},{label:'Outline',variant:'outline'}];

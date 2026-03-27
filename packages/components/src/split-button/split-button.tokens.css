@@ -155,14 +155,104 @@
   --split-btn-neutral-border-color-disabled: var(--surface-base-cm-outline);
   --split-btn-neutral-opacity-disabled: 0.5;
 
+  /* ── TERTIARY (soft, tinted fill) ──────────────────────── */
+  --split-btn-tertiary-bg: var(--primary-container-bg);
+  --split-btn-tertiary-bg-hover: var(--primary-container-hover);
+  --split-btn-tertiary-bg-active: var(--primary-container-pressed);
+  --split-btn-tertiary-bg-disabled: var(--primary-container-bg);
+  --split-btn-tertiary-fg: var(--primary-content-default);
+  --split-btn-tertiary-fg-hover: var(--primary-content-default);
+  --split-btn-tertiary-fg-disabled: var(--primary-content-default);
+  --split-btn-tertiary-border-color: transparent;
+  --split-btn-tertiary-border-color-hover: transparent;
+  --split-btn-tertiary-border-color-active: transparent;
+  --split-btn-tertiary-border-color-disabled: transparent;
+  --split-btn-tertiary-opacity-disabled: 0.5;
+
+  /* ── GHOST (transparent, neutral text) ──────────────────── */
+  --split-btn-ghost-bg: transparent;
+  --split-btn-ghost-bg-hover: var(--surface-base-hover);
+  --split-btn-ghost-bg-active: var(--surface-base-pressed);
+  --split-btn-ghost-bg-disabled: transparent;
+  --split-btn-ghost-fg: var(--surface-base-ct-default);
+  --split-btn-ghost-fg-hover: var(--surface-base-ct-default);
+  --split-btn-ghost-fg-disabled: var(--surface-base-ct-default);
+  --split-btn-ghost-border-color: transparent;
+  --split-btn-ghost-border-color-hover: transparent;
+  --split-btn-ghost-border-color-active: transparent;
+  --split-btn-ghost-border-color-disabled: transparent;
+  --split-btn-ghost-opacity-disabled: 0.5;
+
+  /* ── SUCCESS (filled, green) ───────────────────────────── */
+  --split-btn-success-bg: var(--success-component-bg-default);
+  --split-btn-success-bg-hover: var(--success-component-bg-hover);
+  --split-btn-success-bg-active: var(--success-component-bg-pressed);
+  --split-btn-success-bg-disabled: var(--success-component-bg-default);
+  --split-btn-success-fg: var(--success-on-component);
+  --split-btn-success-fg-hover: var(--success-on-component);
+  --split-btn-success-fg-disabled: var(--success-on-component);
+  --split-btn-success-border-color: var(--success-component-bg-default);
+  --split-btn-success-border-color-hover: var(--success-component-bg-hover);
+  --split-btn-success-border-color-active: var(--success-component-bg-pressed);
+  --split-btn-success-border-color-disabled: var(--success-component-bg-default);
+  --split-btn-success-opacity-disabled: 0.5;
+
+  /* ── WARNING (filled, amber) ───────────────────────────── */
+  --split-btn-warning-bg: var(--warning-component-bg-default);
+  --split-btn-warning-bg-hover: var(--warning-component-bg-hover);
+  --split-btn-warning-bg-active: var(--warning-component-bg-pressed);
+  --split-btn-warning-bg-disabled: var(--warning-component-bg-default);
+  --split-btn-warning-fg: var(--warning-on-component);
+  --split-btn-warning-fg-hover: var(--warning-on-component);
+  --split-btn-warning-fg-disabled: var(--warning-on-component);
+  --split-btn-warning-border-color: var(--warning-component-bg-default);
+  --split-btn-warning-border-color-hover: var(--warning-component-bg-hover);
+  --split-btn-warning-border-color-active: var(--warning-component-bg-pressed);
+  --split-btn-warning-border-color-disabled: var(--warning-component-bg-default);
+  --split-btn-warning-opacity-disabled: 0.5;
+
+  /* ── OUTLINE (outlined, surface-context border) ───────── */
+  --split-btn-outline-bg: transparent;
+  --split-btn-outline-bg-hover: var(--surface-base-hover);
+  --split-btn-outline-bg-active: var(--surface-base-pressed);
+  --split-btn-outline-bg-disabled: transparent;
+  --split-btn-outline-fg: var(--surface-base-ct-default);
+  --split-btn-outline-fg-hover: var(--surface-base-ct-strong);
+  --split-btn-outline-fg-disabled: var(--surface-base-ct-default);
+  --split-btn-outline-border-color: var(--surface-base-outline);
+  --split-btn-outline-border-color-hover: var(--surface-base-cm-outline-hover);
+  --split-btn-outline-border-color-active: var(--surface-base-cm-outline-pressed);
+  --split-btn-outline-border-color-disabled: var(--surface-base-outline);
+  --split-btn-outline-opacity-disabled: 0.5;
+
+  /* ── BRAND (filled, brand palette) ─────────────────────── */
+  --split-btn-brand-bg: var(--brand-component-bg-default);
+  --split-btn-brand-bg-hover: var(--brand-component-bg-hover);
+  --split-btn-brand-bg-active: var(--brand-component-bg-pressed);
+  --split-btn-brand-bg-disabled: var(--brand-component-bg-default);
+  --split-btn-brand-fg: var(--brand-on-component);
+  --split-btn-brand-fg-hover: var(--brand-on-component);
+  --split-btn-brand-fg-disabled: var(--brand-on-component);
+  --split-btn-brand-border-color: var(--brand-component-bg-default);
+  --split-btn-brand-border-color-hover: var(--brand-component-bg-hover);
+  --split-btn-brand-border-color-active: var(--brand-component-bg-pressed);
+  --split-btn-brand-border-color-disabled: var(--brand-component-bg-default);
+  --split-btn-brand-opacity-disabled: 0.5;
+
   /* ────────────────────────────────────────────────────────────
-     DIVIDER  (5 vars)
+     DIVIDER  (11 vars)
      ──────────────────────────────────────────────────────────── */
   --split-btn-divider-width: 1px;
   --split-btn-divider-color-primary: rgba(255, 255, 255, 0.3);
   --split-btn-divider-color-secondary: var(--primary-component-outline-default);
   --split-btn-divider-color-danger: rgba(255, 255, 255, 0.3);
   --split-btn-divider-color-neutral: var(--surface-base-cm-outline);
+  --split-btn-divider-color-tertiary: var(--primary-component-outline-default);
+  --split-btn-divider-color-ghost: var(--surface-base-cm-outline);
+  --split-btn-divider-color-success: rgba(255, 255, 255, 0.3);
+  --split-btn-divider-color-warning: rgba(255, 255, 255, 0.3);
+  --split-btn-divider-color-outline: var(--surface-base-outline);
+  --split-btn-divider-color-brand: rgba(255, 255, 255, 0.3);
 
   /* ────────────────────────────────────────────────────────────
      ✏️ TYPOGRAPHY  (15 vars)

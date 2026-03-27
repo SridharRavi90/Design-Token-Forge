@@ -109,6 +109,16 @@
   --alert-danger-link-color:  var(--danger-content-default);
   --alert-danger-link-hover:  var(--danger-content-strong);
 
+  /* neutral — surface-context (no semantic color) */
+  --alert-neutral-bg:          var(--surface-base-cn-bg);
+  --alert-neutral-fg:          var(--surface-base-ct-default);
+  --alert-neutral-accent:      var(--surface-base-cm-outline);
+  --alert-neutral-border:      var(--surface-base-cn-bg);
+  --alert-neutral-icon-color:  var(--surface-base-ct-subtle);
+  --alert-neutral-title-color: var(--surface-base-ct-strong);
+  --alert-neutral-link-color:  var(--surface-base-ct-default);
+  --alert-neutral-link-hover:  var(--surface-base-ct-strong);
+
   /* ── filled variant  (5 roles × 2 = 10 vars) ───── */
   --alert-primary-filled-bg:  var(--primary-component-bg-default);
   --alert-primary-filled-fg:  var(--primary-on-component);
@@ -120,6 +130,8 @@
   --alert-warning-filled-fg:  var(--warning-on-component);
   --alert-danger-filled-bg:   var(--danger-component-bg-default);
   --alert-danger-filled-fg:   var(--danger-on-component);
+  --alert-neutral-filled-bg:  var(--surface-base-cm-bg);
+  --alert-neutral-filled-fg:  var(--surface-base-ct-strong);
 
   /* ── outline variant border  (5 vars) ──────────── */
   --alert-primary-outline-border: var(--primary-component-bg-default);
@@ -127,6 +139,15 @@
   --alert-success-outline-border: var(--success-component-bg-default);
   --alert-warning-outline-border: var(--warning-component-bg-default);
   --alert-danger-outline-border:  var(--danger-component-bg-default);
+  --alert-neutral-outline-border: var(--surface-base-cm-outline);
+
+  /* ── soft variant bg  (6 vars) ────────────────── */
+  --alert-primary-soft-bg: var(--primary-container-bg);
+  --alert-info-soft-bg:    var(--alert-primary-soft-bg);
+  --alert-success-soft-bg: var(--success-container-bg);
+  --alert-warning-soft-bg: var(--warning-container-bg);
+  --alert-danger-soft-bg:  var(--danger-container-bg);
+  --alert-neutral-soft-bg: var(--surface-base-cn-bg);
 
   /* ────────────────────────────────────────────────────────────
      5 · TYPOGRAPHY  (4 vars)
