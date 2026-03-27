@@ -5,7 +5,11 @@
    ════════════════════════════════════════════════════════════════ */
 
 :root {
-
+  /* ── Color Utility Tokens ────────────────────────────────────── */
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-fixed-white: #FFFFFF;
+  --color-fixed-black: #000000;
   /* ── Border Radius ────────────────────────────────────────── */
   --radius-none: 0;
   --radius-xs: 3px;
@@ -77,4 +81,11 @@
   --opacity-90: 0.9;
   --opacity-95: 0.95;
   --opacity-100: 1;
+}
+
+/* ── Dark theme: flip theme-aware colors ─────────────────── */
+[data-theme="dark"] {
+  --color-white: #1B1B1B;
+  --color-black: #FFFFFF;
+  /* --color-fixed-white and --color-fixed-black stay unchanged */
 }
