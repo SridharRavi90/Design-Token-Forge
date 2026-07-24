@@ -5030,27 +5030,33 @@ async function generateComponentFromBlueprint(blueprint) {
             varComp.primaryAxisAlignItems = 'CENTER';
             varComp.layoutSizingHorizontal = 'HUG';
             varComp.layoutSizingVertical   = 'FIXED';
-            varComp.paddingLeft   = _lblTextPad;  /* same on both sides for visual balance */
-            varComp.paddingRight  = _lblTextPad;
+            /* Outer track padding: thumb-inset on the thumb side; label-text-pad on the
+               text side. itemSpacing (gap between thumb and text) also = label-text-pad
+               so the text has equal padding on both its left and right.
+               OFF: paddingLeft=inset, itemSpacing=textPad, text, paddingRight=textPad
+               ON:  paddingLeft=textPad, text, itemSpacing=textPad, paddingRight=inset */
+            varComp.paddingLeft   = _lblIsOn ? _lblTextPad : _lblThumbPad;
+            varComp.paddingRight  = _lblIsOn ? _lblThumbPad : _lblTextPad;
             varComp.paddingTop    = 0;
             varComp.paddingBottom = 0;
-            varComp.itemSpacing   = _lblGap;
+            varComp.itemSpacing   = _lblTextPad; /* = label-text-pad → equal space either side of text */
             /* Clip thumb shadow to the track boundary. Without this, the
                2-layer drop-shadow (blur=6px) visually overflows the track
                at mega/ultra where the thumb is large (36–44 px). */
             varComp.clipsContent  = true;
 
-            /* Bind paddings and gap to per-density comp-size variables.
-               Both sides use label-text-pad for visual balance. */
+            /* Bind paddings and gap to per-density comp-size variables. */
+            var _lblInsetVar   = compSizeVars['toggle/thumb-inset'];
             var _lblTxtPadVar  = compSizeVars['toggle/label-text-pad'];
-            var _lblGapVar     = compSizeVars['toggle/gap'];
             var _lblFSVar      = compSizeVars['toggle/track-label-font-size'];
-            if (_lblTxtPadVar) {
-              if (await tryBindVar(varComp, 'paddingLeft',  _lblTxtPadVar)) stats.bindings++;
-              if (await tryBindVar(varComp, 'paddingRight', _lblTxtPadVar)) stats.bindings++;
+            if (_lblInsetVar) {
+              if (await tryBindVar(varComp, _lblIsOn ? 'paddingRight' : 'paddingLeft', _lblInsetVar)) stats.bindings++;
             }
-            if (_lblGapVar) {
-              if (await tryBindVar(varComp, 'itemSpacing', _lblGapVar)) stats.bindings++;
+            if (_lblTxtPadVar) {
+              /* Text-side outer padding */
+              if (await tryBindVar(varComp, _lblIsOn ? 'paddingLeft' : 'paddingRight', _lblTxtPadVar)) stats.bindings++;
+              /* itemSpacing = label-text-pad → equal space on both sides of the label text */
+              if (await tryBindVar(varComp, 'itemSpacing', _lblTxtPadVar)) stats.bindings++;
             }
 
             /* Bind track height to comp-size variable */
