@@ -130,15 +130,16 @@ var REQUIRED_COMPSIZE_VARS = [
   { name: 'menu-button/font-size',      defaultVal: 14 },
   { name: 'menu-button/radius',         defaultVal: 6  },
   { name: 'menu-button/radius-rounded', defaultVal: 9999 },
-  /* Toggle — track-thumb layout.
-     base-mode values; token sync fills per-density values from toggle.tokens.css.
-     thumb-inset = (track-h - thumb-size) / 2 — same value used for both
-     Y-centering and X off-position.
-     thumb-x-on  = track-w - thumb-size - thumb-inset (right edge inset).
-     radius = 9999 (pill) — same for track and thumb.                    */
-  { name: 'toggle/track-w',        defaultVal: 40   },
-  { name: 'toggle/track-h',        defaultVal: 24   },
-  { name: 'toggle/thumb-size',     defaultVal: 20   },
+  /* Toggle — structural constants only.
+     track-w / track-h / thumb-size are INTENTIONALLY excluded here.
+     They are managed exclusively by the sync pipeline (server.js toggleProps
+     → buildComponentGroup) with per-density values. Including them in
+     REQUIRED_COMPSIZE_VARS would cause the generate step to overwrite all
+     per-density modes back to a single defaultVal on every run. Those three
+     variables must exist in Figma via the static deploy / "Update Variables"
+     — if they're missing, sizeBindings silently falls back to the literal
+     resize() dimensions (40×24 base), which is acceptable.
+     The constants below are NOT per-density — same value in every mode. */
   { name: 'toggle/thumb-inset',    defaultVal: 2    },
   { name: 'toggle/thumb-x-on',     defaultVal: 18   },
   { name: 'toggle/radius',         defaultVal: 9999 },
