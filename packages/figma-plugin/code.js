@@ -1462,15 +1462,14 @@ var TOGGLE_BLUEPRINT = {
         },
         /* ── OUTLINE — transparent + border off → semantic fill on ── */
         'Outline': {
-          /* strokeWeight: 1 — a single-pixel border is sufficient to define
-             the outline shape; heavier weights distort the track proportions. */
+          /* Resting Off states: 1px T2 outline — track shape with no semantic color.
+             Focus state bumps to 2px (same as Fill Off-Focus) — keyboard signal
+             via weight, not color. No T3 in any Off state: the toggle is off,
+             no semantic role has been engaged yet. */
           'Off':          { stroke: 'default/component/outline-default', strokeWeight: 1 },
           'Off-Hover':    { fill: 'default/component/bg-hover',
                             stroke: 'default/component/outline-hover', strokeWeight: 1 },
-          /* Off-Focus ring: T3 brand mode → universal blue indicator regardless
-             of which semantic mode the designer has chosen for the ON states. */
-          'Off-Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 1,
-                            t3Mode: 'brand' },
+          'Off-Focus':    { stroke: 'default/component/outline-default', strokeWeight: 2 },
           'Off-Disabled': { stroke: 'default/component/outline-default', strokeWeight: 1,
                             componentOpacity: 0.5 },
           'On':           { t3Mode: 'success', fill: { t3: 'component/bg-default' },
