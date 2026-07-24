@@ -143,9 +143,13 @@ var REQUIRED_COMPSIZE_VARS = [
   { name: 'toggle/thumb-x-on',     defaultVal: 18   },
   { name: 'toggle/radius',         defaultVal: 9999 },
   /* toggle/radius-square — corner radius for the square track variant.
-     8px on a 24px-tall track = 33% — visually balanced rounded-rect without
-     pill feel. Matches the reference design proportions. */
-  { name: 'toggle/radius-square',  defaultVal: 8    }
+     8px on a 24px-tall track = 33% — visually balanced rounded-rect.
+     toggle/thumb-radius-square is derived concentrically:
+       thumb-radius = track-radius − thumb-inset = 8 − 2 = 6px
+     This ensures the thumb corner curve visually nests inside the track corner,
+     matching the iOS/Material concentric-radius convention. */
+  { name: 'toggle/radius-square',       defaultVal: 8    },
+  { name: 'toggle/thumb-radius-square', defaultVal: 6    }
 ];
 log('code.js loaded — version ' + CODE_VERSION);
 
@@ -1399,8 +1403,8 @@ var TOGGLE_BLUEPRINT = {
   },
 
   /* comp-size variable paths.
-     Both track and thumb default to toggle/radius-square (8px) — the Rounded=False shape.
-     Rounded=True rebinds all corners to toggle/radius (9999) via radiusRoundedPath. */
+     Track uses toggle/radius-square (8px); thumb uses toggle/thumb-radius-square (6px = 8−inset).
+     Rounded=True rebinds both to toggle/radius (9999) via radiusRoundedPath / thumbRadiusPath. */
   sizeBindings: {
     root: {
       width:             'toggle/track-w',
@@ -1410,13 +1414,16 @@ var TOGGLE_BLUEPRINT = {
       bottomLeftRadius:  'toggle/radius-square',
       bottomRightRadius: 'toggle/radius-square'
     },
+    /* thumb uses toggle/thumb-radius-square (6px = track 8px − inset 2px).
+       Concentric radius: the thumb corner curve nests inside the track corner
+       — they share the same visual centre, not the same raw number. */
     thumb: {
       width:             'toggle/thumb-size',
       height:            'toggle/thumb-size',
-      topLeftRadius:     'toggle/radius-square',
-      topRightRadius:    'toggle/radius-square',
-      bottomLeftRadius:  'toggle/radius-square',
-      bottomRightRadius: 'toggle/radius-square'
+      topLeftRadius:     'toggle/thumb-radius-square',
+      topRightRadius:    'toggle/thumb-radius-square',
+      bottomLeftRadius:  'toggle/thumb-radius-square',
+      bottomRightRadius: 'toggle/thumb-radius-square'
     },
     thumbY: 'toggle/thumb-inset'
   },
@@ -1455,23 +1462,23 @@ var TOGGLE_BLUEPRINT = {
         },
         /* ── OUTLINE — transparent + border off → semantic fill on ── */
         'Outline': {
-          /* strokeWeight: 3 — matches the reference design's clearly-visible border.
-             2px was too subtle; 3px gives the track proper visual weight. */
-          'Off':          { stroke: 'default/component/outline-default', strokeWeight: 3 },
+          /* strokeWeight: 1 — a single-pixel border is sufficient to define
+             the outline shape; heavier weights distort the track proportions. */
+          'Off':          { stroke: 'default/component/outline-default', strokeWeight: 1 },
           'Off-Hover':    { fill: 'default/component/bg-hover',
-                            stroke: 'default/component/outline-hover', strokeWeight: 3 },
+                            stroke: 'default/component/outline-hover', strokeWeight: 1 },
           /* Off-Focus ring: T3 brand mode → universal blue indicator regardless
              of which semantic mode the designer has chosen for the ON states. */
-          'Off-Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 3,
+          'Off-Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 1,
                             t3Mode: 'brand' },
-          'Off-Disabled': { stroke: 'default/component/outline-default', strokeWeight: 3,
+          'Off-Disabled': { stroke: 'default/component/outline-default', strokeWeight: 1,
                             componentOpacity: 0.5 },
           'On':           { t3Mode: 'success', fill: { t3: 'component/bg-default' },
                             thumbXOverride: 'toggle/thumb-x-on' },
           'On-Hover':     { t3Mode: 'success', fill: { t3: 'component/bg-hover' },
                             thumbXOverride: 'toggle/thumb-x-on' },
           'On-Focus':     { t3Mode: 'success', fill: { t3: 'component/bg-default' },
-                            stroke: { t3: 'component/outline-default' }, strokeWeight: 3,
+                            stroke: { t3: 'component/outline-default' }, strokeWeight: 1,
                             thumbXOverride: 'toggle/thumb-x-on' },
           'On-Disabled':  { t3Mode: 'success', fill: { t3: 'component/bg-default' },
                             componentOpacity: 0.5, thumbXOverride: 'toggle/thumb-x-on' }
@@ -4325,9 +4332,10 @@ async function generateComponentFromBlueprint(blueprint) {
         }
       }
 
-      /* Per-master thumb radius override.
-         Default: sizeBindings.thumb bound toggle/radius (9999 = circle) for all masters.
-         'Switch Square': thumbRadiusPath = 'toggle/radius-square' (8px) → square thumb. */
+      /* Per-master thumb radius override (pill masters only).
+         Pill masters (thumbRadiusPath:'toggle/radius') rebind thumb corners to 9999.
+         Square masters have no thumbRadiusPath — their thumb corners are already
+         bound to toggle/thumb-radius-square (6px) via sizeBindings.thumb above. */
       if (masterCfg.thumbRadiusPath) {
         var ttThumbRadVar = compSizeVars[masterCfg.thumbRadiusPath];
         if (ttThumbRadVar) {
