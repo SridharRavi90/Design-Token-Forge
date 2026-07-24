@@ -17,6 +17,10 @@ log('code.js loaded — version ' + CODE_VERSION);
       url = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
       await figma.clientStorage.setAsync('dtf-server-url', url);
     }
+    if (url && url.toLowerCase().indexOf('sridhar-ravi-2917.github.io') !== -1) {
+      url = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
+      await figma.clientStorage.setAsync('dtf-server-url', url);
+    }
     if (!url) {
       url = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
       await figma.clientStorage.setAsync('dtf-server-url', url);

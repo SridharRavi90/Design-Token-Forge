@@ -205,6 +205,10 @@ function dtfStableStringify(value) {
       url = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
       await figma.clientStorage.setAsync('dtf-server-url', url);
     }
+    if (url && url.toLowerCase().indexOf('sridhar-ravi-2917.github.io') !== -1) {
+      url = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
+      await figma.clientStorage.setAsync('dtf-server-url', url);
+    }
     if (!url) {
       url = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
       await figma.clientStorage.setAsync('dtf-server-url', url);
@@ -1357,9 +1361,14 @@ var TOGGLE_BLUEPRINT = {
   radiusRoundedPath: 'toggle/radius', /* pill (9999) — used when masterCfg.isRounded */
   legacyOwners: ['Toggle'], /* old BP.name — ensures old Toggle/... sets are cleaned up */
   ledgerKey: 'toggle',      /* registry key the UI reads; must not change with BP.name */
-  description: 'Binary on/off switch. Type: Neutral/Brand/Outlined. Four separate sets: Square, Pill, Square+Labeled, Pill+Labeled.',
+  description: 'Binary on/off switch. Types: Fill, Outline. Four sets: Square, Pill, Square+Labeled, Pill+Labeled. ON state defaults to success green — switch T3 collection mode on any instance to brand, danger, warning, etc.',
 
-  /* FOUR masters → four clean component sets, each a 3-type × 8-state grid.
+  /* Grid layout override — toggle components are 40×24px (vs button 120×36px).
+     Default colSpacing=155 / rowSpacing=70 leave 115px / 46px gaps — way too sparse.
+     These values give proportionate 24px col-gap and 12px row-gap for toggle. */
+  gridLayout: { colSpacing: 64, rowSpacing: 36, componentW: 72, componentH: 28 },
+
+  /* FOUR masters → four clean component sets, each a 2-type × 8-state grid.
      isRounded:true  → pill track+thumb (toggle/radius = 9999).
      isLabeled:true  → HUG track with ON/OFF text label inside. */
   masters: {
@@ -1413,55 +1422,55 @@ var TOGGLE_BLUEPRINT = {
   },
 
   families: {
-    /* ONE family — Neutral/Brand/Outlined are types (rows in the component set).
-       OFF track: default/content/subtle (T2, #5E5E5E grey, 7:1 vs white) — no T3 needed.
-       ON track: success green (Neutral/Outlined) or brand blue (Brand). */
-    'Toggle': {
-      types:  ['Neutral', 'Brand', 'Outlined'],
+    /* ONE family — "Success" — two surface types (Fill, Outline).
+       This mirrors the button's Brand family: defaults to success green ON,
+       but designers can switch the T3 collection mode on any INSTANCE
+       (Design panel → variable collections → T3 Status Context Tokens)
+       to brand, danger, warning, info, or neutral — no extra component sets needed.
+
+       OFF track always uses T2 neutral tokens (project-agnostic grey).
+       ON track uses T3 success mode by default — switchable per instance. */
+    'Success': {
+      types:  ['Fill', 'Outline'],
       states: ['Off', 'Off-Hover', 'Off-Focus', 'Off-Disabled',
                'On',  'On-Hover',  'On-Focus',  'On-Disabled'],
       stateOverrides: {
-        /* ── NEUTRAL — grey off → success green on ─────────────────── */
-        'Neutral': {
+        /* ── FILL — solid grey track off → semantic fill on ────────── */
+        'Fill': {
           'Off':          { fill: 'default/component/bg-pressed' },
           'Off-Hover':    { fill: 'default/component/bg-pressed' },
+          /* Off-Focus ring: T2 outline (same neutral indicator as button Neutral family) */
           'Off-Focus':    { fill: 'default/component/bg-pressed',
                             stroke: 'default/component/outline-default', strokeWeight: 2 },
           'Off-Disabled': { fill: 'default/component/bg-pressed', componentOpacity: 0.5 },
-          'On':           { t3Mode: 'success', fill: { t3: 'component/bg-default' }, thumbXOverride: 'toggle/thumb-x-on' },
-          'On-Hover':     { t3Mode: 'success', fill: { t3: 'component/bg-hover' },  thumbXOverride: 'toggle/thumb-x-on' },
+          'On':           { t3Mode: 'success', fill: { t3: 'component/bg-default' },
+                            thumbXOverride: 'toggle/thumb-x-on' },
+          'On-Hover':     { t3Mode: 'success', fill: { t3: 'component/bg-hover' },
+                            thumbXOverride: 'toggle/thumb-x-on' },
           'On-Focus':     { t3Mode: 'success', fill: { t3: 'component/bg-default' },
-                            stroke: { t3: 'component/outline-default' }, strokeWeight: 2, thumbXOverride: 'toggle/thumb-x-on' },
+                            stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                            thumbXOverride: 'toggle/thumb-x-on' },
           'On-Disabled':  { t3Mode: 'success', fill: { t3: 'component/bg-default' },
                             componentOpacity: 0.5, thumbXOverride: 'toggle/thumb-x-on' }
         },
-        /* ── BRAND — grey off → brand blue on ──────────────────────── */
-        'Brand': {
-          'Off':          { fill: 'default/component/bg-pressed' },
-          'Off-Hover':    { fill: 'default/component/bg-pressed' },
-          'Off-Focus':    { fill: 'default/component/bg-pressed',
-                            stroke: 'default/component/outline-default', strokeWeight: 2 },
-          'Off-Disabled': { fill: 'default/component/bg-pressed', componentOpacity: 0.5 },
-          'On':           { t3Mode: 'brand',   fill: { t3: 'component/bg-default' }, thumbXOverride: 'toggle/thumb-x-on' },
-          'On-Hover':     { t3Mode: 'brand',   fill: { t3: 'component/bg-hover' },  thumbXOverride: 'toggle/thumb-x-on' },
-          'On-Focus':     { t3Mode: 'brand',   fill: { t3: 'component/bg-default' },
-                            stroke: { t3: 'component/outline-default' }, strokeWeight: 2, thumbXOverride: 'toggle/thumb-x-on' },
-          'On-Disabled':  { t3Mode: 'brand',   fill: { t3: 'component/bg-default' },
-                            componentOpacity: 0.5, thumbXOverride: 'toggle/thumb-x-on' }
-        },
-        /* ── OUTLINED — transparent + border off → success green on ── */
-        'Outlined': {
+        /* ── OUTLINE — transparent + border off → semantic fill on ── */
+        'Outline': {
           'Off':          { stroke: 'default/component/outline-default', strokeWeight: 2 },
           'Off-Hover':    { fill: 'default/component/bg-hover',
                             stroke: 'default/component/outline-hover', strokeWeight: 2 },
+          /* Off-Focus ring: T3 brand mode → universal blue indicator regardless
+             of which semantic mode the designer has chosen for the ON states. */
           'Off-Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                             t3Mode: 'brand' },
           'Off-Disabled': { stroke: 'default/component/outline-default', strokeWeight: 2,
                             componentOpacity: 0.5 },
-          'On':           { t3Mode: 'success', fill: { t3: 'component/bg-default' }, thumbXOverride: 'toggle/thumb-x-on' },
-          'On-Hover':     { t3Mode: 'success', fill: { t3: 'component/bg-hover' },  thumbXOverride: 'toggle/thumb-x-on' },
+          'On':           { t3Mode: 'success', fill: { t3: 'component/bg-default' },
+                            thumbXOverride: 'toggle/thumb-x-on' },
+          'On-Hover':     { t3Mode: 'success', fill: { t3: 'component/bg-hover' },
+                            thumbXOverride: 'toggle/thumb-x-on' },
           'On-Focus':     { t3Mode: 'success', fill: { t3: 'component/bg-default' },
-                            stroke: { t3: 'component/outline-default' }, strokeWeight: 2, thumbXOverride: 'toggle/thumb-x-on' },
+                            stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                            thumbXOverride: 'toggle/thumb-x-on' },
           'On-Disabled':  { t3Mode: 'success', fill: { t3: 'component/bg-default' },
                             componentOpacity: 0.5, thumbXOverride: 'toggle/thumb-x-on' }
         }
@@ -5608,8 +5617,12 @@ async function generateComponentFromBlueprint(blueprint) {
       var rowCount = famTypes.length;
       var padX = 20;
       var padY = 27;
-      var colSpacing = 155;
-      var rowSpacing = 70;
+      /* Per-blueprint grid constants — scaled to component proportions.
+         TOGGLE uses 64/36 (40×24 track); BUTTON uses defaults 155/70 (120×36). */
+      var colSpacing = (BP.gridLayout && BP.gridLayout.colSpacing) || 155;
+      var rowSpacing = (BP.gridLayout && BP.gridLayout.rowSpacing) || 70;
+      var _compW     = (BP.gridLayout && BP.gridLayout.componentW) || 120;
+      var _compH     = (BP.gridLayout && BP.gridLayout.componentH) || 32;
       var roundedBlockGap = 30; /* extra gap between False-block and True-block */
       var blockHeight = rowCount * rowSpacing;
       for (var gi = 0; gi < components.length; gi++) {
@@ -5625,11 +5638,11 @@ async function generateComponentFromBlueprint(blueprint) {
         entry.component.x = padX + stateIdx * colSpacing;
         entry.component.y = padY + typeIdx * rowSpacing + roundedOffset;
       }
-      var totalW = padX * 2 + (colCount - 1) * colSpacing + 120;
+      var totalW = padX * 2 + (colCount - 1) * colSpacing + _compW;
       /* Height: single block when skipRounded, doubled block otherwise. */
       var totalH = BP.skipRounded
-        ? padY + (rowCount - 1) * rowSpacing + 32 + padY
-        : padY + (rowCount - 1) * rowSpacing + 32 + (blockHeight + roundedBlockGap) + padY;
+        ? padY + (rowCount - 1) * rowSpacing + _compH + padY
+        : padY + (rowCount - 1) * rowSpacing + _compH + (blockHeight + roundedBlockGap) + padY;
       try { componentSet.resize(totalW, totalH); } catch (e) { /* auto-size */ }
 
       /* ── Row/column label constants ── */
@@ -5782,7 +5795,10 @@ async function generateComponentFromBlueprint(blueprint) {
       setHeadingCard.itemSpacing = 12;
       setHeadingCard.appendChild(createLabel(familyName + ' · ' + mName, 14, true, COLOR_HEADING));
       var slotLabel = (BP.masters[mName].slots && BP.masters[mName].slots.join(' + '))
-                   || (BP.masters[mName].buttonMaster ? 'action + chevron' : '');
+                   || (BP.masters[mName].buttonMaster ? 'action + chevron' : '')
+                   || (BP.kind === 'track-thumb'
+                       ? (masterCfg.isLabeled ? 'labeled track \u00b7 thumb' : 'track \u00b7 thumb')
+                       : '');
       var slotBadge = createBadge(slotLabel, COLOR_CM_BG, COLOR_DIMMED);
       setHeadingCard.appendChild(slotBadge);
       variantSec.section.appendChild(setHeadingCard);

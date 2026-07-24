@@ -461,10 +461,7 @@
   function storageSet(k,v) { try { localStorage.setItem(k,v); } catch(e) { _mem[k]=v; } }
 
   var DEFAULT_SERVER = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
-  var SERVER = storageGet('dtf-server-url') || (function() {
-    var u = storageGet('dtf-gh-username');
-    return u ? 'https://' + u + '.github.io/Design-Token-Forge' : DEFAULT_SERVER;
-  })();
+  var SERVER = storageGet('dtf-server-url') || DEFAULT_SERVER;
 
   serverUrlInput.value = SERVER;
 
@@ -1231,9 +1228,8 @@
       storageSet('dtf-gh-username', GH_USERNAME);
       storageSet('dtf-gh-pat', GH_PAT);
       ghPatInput.value = '';
-      /* Point to user's own Pages site (fork-based model) */
-      var userServer = 'https://' + user.login + '.github.io/Design-Token-Forge';
-      setServerUrl(userServer);
+      /* Use the single Zoho Pages URL (no per-user fork model) */
+      setServerUrl(DEFAULT_SERVER);
       projectsFetched = false;
       fetchProjects();
       showIdentityState();

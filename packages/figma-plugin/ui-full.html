@@ -3545,17 +3545,9 @@ function onUndoDetected(){
 /* Look up a project's owner from the most recent fetched list and
    return that owner's GitHub Pages base URL. Each project lives on
    the fork that owns it — pearl (owner: sridhar-ravi-2917) lives at
-   sridhar-ravi-2917.github.io regardless of who is signed in;
-   kanaa's own projects live at kanaa.github.io. Defaults to the
-   signed-in user when the project isn't in the list (newly-created)
-   and to the maintainer when no one is signed in. */
+   all projects are hosted on the single Zoho Pages URL. */
 function serverForProject(projectId){
-  var owner = '';
-  for (var i = 0; i < projectList.length; i++){
-    if (projectList[i].id === projectId){ owner = projectList[i].owner || ''; break; }
-  }
-  if (!owner) owner = GH_USERNAME || 'sridhar-ravi-2917';
-  return 'https://' + owner + '.github.io/Design-Token-Forge';
+  return DEFAULT_SERVER;
 }
 
 /* Switch SERVER to the active project's owner Pages and restart
