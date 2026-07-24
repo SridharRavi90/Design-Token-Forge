@@ -1110,6 +1110,8 @@ function buildCompSize(extrasCollection) {
       { propCSS: 'track-w',         propFigma: 'track-w' },
       { propCSS: 'track-h',         propFigma: 'track-h' },
       { propCSS: 'thumb-size',      propFigma: 'thumb-size' },
+      { propCSS: 'thumb-inset',     propFigma: 'thumb-inset' },
+      { propCSS: 'thumb-x-on',      propFigma: 'thumb-x-on' },
       { propCSS: 'gap',             propFigma: 'gap' },
       { propCSS: 'label-font-size', propFigma: 'label-font-size' },
     ];

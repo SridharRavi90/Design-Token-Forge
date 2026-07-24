@@ -189,6 +189,32 @@
   --switch-gap-mega: var(--spacing-14);
   --switch-gap-ultra: var(--spacing-16);
 
+  /* Per-density thumb inset — (track-h − thumb-size) / 2.
+     micro→base: 2px; medium→big: 3px; huge→ultra: 4px. */
+  --switch-thumb-inset-micro: 2;
+  --switch-thumb-inset-tiny: 2;
+  --switch-thumb-inset-small: 2;
+  --switch-thumb-inset-base: 2;
+  --switch-thumb-inset-medium: 3;
+  --switch-thumb-inset-large: 3;
+  --switch-thumb-inset-big: 3;
+  --switch-thumb-inset-huge: 4;
+  --switch-thumb-inset-mega: 4;
+  --switch-thumb-inset-ultra: 4;
+
+  /* Per-density ON-position — track-w − thumb-size − thumb-inset.
+     Determines where the thumb sits when toggled ON. */
+  --switch-thumb-x-on-micro: 14;
+  --switch-thumb-x-on-tiny: 16;
+  --switch-thumb-x-on-small: 18;
+  --switch-thumb-x-on-base: 18;
+  --switch-thumb-x-on-medium: 21;
+  --switch-thumb-x-on-large: 23;
+  --switch-thumb-x-on-big: 23;
+  --switch-thumb-x-on-huge: 28;
+  --switch-thumb-x-on-mega: 32;
+  --switch-thumb-x-on-ultra: 40;
+
   --switch-thumb-scale-pressed: 1.1;
   --switch-thumb-border-width: 0px;
 

@@ -130,18 +130,10 @@ var REQUIRED_COMPSIZE_VARS = [
   { name: 'menu-button/font-size',      defaultVal: 14 },
   { name: 'menu-button/radius',         defaultVal: 6  },
   { name: 'menu-button/radius-rounded', defaultVal: 9999 },
-  /* Toggle — structural constants only.
-     track-w / track-h / thumb-size are INTENTIONALLY excluded here.
-     They are managed exclusively by the sync pipeline (server.js toggleProps
-     → buildComponentGroup) with per-density values. Including them in
-     REQUIRED_COMPSIZE_VARS would cause the generate step to overwrite all
-     per-density modes back to a single defaultVal on every run. Those three
-     variables must exist in Figma via the static deploy / "Update Variables"
-     — if they're missing, sizeBindings silently falls back to the literal
-     resize() dimensions (40×24 base), which is acceptable.
-     The constants below are NOT per-density — same value in every mode. */
-  { name: 'toggle/thumb-inset',    defaultVal: 2    },
-  { name: 'toggle/thumb-x-on',     defaultVal: 18   },
+  /* Toggle — structural constants only (same value in every density mode).
+     track-w / track-h / thumb-size / thumb-inset / thumb-x-on are managed
+     exclusively by the sync pipeline (server.js toggleProps) with per-density
+     values derived from toggle.tokens.css. */
   { name: 'toggle/radius',         defaultVal: 9999 },
   /* toggle/radius-square — corner radius for the square track variant.
      8px on a 24px-tall track = 33% — visually balanced rounded-rect.
