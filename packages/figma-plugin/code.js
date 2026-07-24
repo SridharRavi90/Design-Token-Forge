@@ -142,10 +142,10 @@ var REQUIRED_COMPSIZE_VARS = [
   { name: 'toggle/thumb-inset',    defaultVal: 2    },
   { name: 'toggle/thumb-x-on',     defaultVal: 18   },
   { name: 'toggle/radius',         defaultVal: 9999 },
-  /* toggle/radius-square — modest corner radius for the "square" track variant.
-     Gives a rounded-rectangle shape (not fully pill). Token sync will keep this
-     constant across all density modes since the track shape doesn't grow with size. */
-  { name: 'toggle/radius-square',  defaultVal: 6    }
+  /* toggle/radius-square — corner radius for the square track variant.
+     8px on a 24px-tall track = 33% — visually balanced rounded-rect without
+     pill feel. Matches the reference design proportions. */
+  { name: 'toggle/radius-square',  defaultVal: 8    }
 ];
 log('code.js loaded — version ' + CODE_VERSION);
 
@@ -1336,7 +1336,7 @@ function _recordBoundVarId(id, name){
 
    Two Tier-1 master components (one per shape):
      Switch        — Pill track  (toggle/radius = 9999)
-     Switch Square — Square track (toggle/radius-square = 6px)
+     Switch Square — Square track (toggle/radius-square = 8px)
 
    Both masters use auto-layout HORIZONTAL HUG:
      [LabelOn (HUG)] [Thumb (FIXED layout-child)] [LabelOff (HUG)]
@@ -1364,9 +1364,9 @@ var TOGGLE_BLUEPRINT = {
   description: 'Binary on/off switch. Types: Fill, Outline. Four sets: Square, Pill, Square+Labeled, Pill+Labeled. ON state defaults to success green — switch T3 collection mode on any instance to brand, danger, warning, etc.',
 
   /* Grid layout override — toggle components are 40×24px (vs button 120×36px).
-     Default colSpacing=155 / rowSpacing=70 leave 115px / 46px gaps — way too sparse.
-     These values give proportionate 24px col-gap and 12px row-gap for toggle. */
-  gridLayout: { colSpacing: 64, rowSpacing: 36, componentW: 72, componentH: 28 },
+     colSpacing=88: "Off-Disabled" header label is ~77px at 11pt — needs 88px to
+     prevent overlap. rowSpacing=40: 24px component + 16px gap for readable rows. */
+  gridLayout: { colSpacing: 88, rowSpacing: 40, componentW: 72, componentH: 28 },
 
   /* FOUR masters → four clean component sets, each a 2-type × 8-state grid.
      isRounded:true  → pill track+thumb (toggle/radius = 9999).
@@ -1399,7 +1399,7 @@ var TOGGLE_BLUEPRINT = {
   },
 
   /* comp-size variable paths.
-     Both track and thumb default to toggle/radius-square (6px) — the Rounded=False shape.
+     Both track and thumb default to toggle/radius-square (8px) — the Rounded=False shape.
      Rounded=True rebinds all corners to toggle/radius (9999) via radiusRoundedPath. */
   sizeBindings: {
     root: {
@@ -1455,21 +1455,23 @@ var TOGGLE_BLUEPRINT = {
         },
         /* ── OUTLINE — transparent + border off → semantic fill on ── */
         'Outline': {
-          'Off':          { stroke: 'default/component/outline-default', strokeWeight: 2 },
+          /* strokeWeight: 3 — matches the reference design's clearly-visible border.
+             2px was too subtle; 3px gives the track proper visual weight. */
+          'Off':          { stroke: 'default/component/outline-default', strokeWeight: 3 },
           'Off-Hover':    { fill: 'default/component/bg-hover',
-                            stroke: 'default/component/outline-hover', strokeWeight: 2 },
+                            stroke: 'default/component/outline-hover', strokeWeight: 3 },
           /* Off-Focus ring: T3 brand mode → universal blue indicator regardless
              of which semantic mode the designer has chosen for the ON states. */
-          'Off-Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Off-Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 3,
                             t3Mode: 'brand' },
-          'Off-Disabled': { stroke: 'default/component/outline-default', strokeWeight: 2,
+          'Off-Disabled': { stroke: 'default/component/outline-default', strokeWeight: 3,
                             componentOpacity: 0.5 },
           'On':           { t3Mode: 'success', fill: { t3: 'component/bg-default' },
                             thumbXOverride: 'toggle/thumb-x-on' },
           'On-Hover':     { t3Mode: 'success', fill: { t3: 'component/bg-hover' },
                             thumbXOverride: 'toggle/thumb-x-on' },
           'On-Focus':     { t3Mode: 'success', fill: { t3: 'component/bg-default' },
-                            stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                            stroke: { t3: 'component/outline-default' }, strokeWeight: 3,
                             thumbXOverride: 'toggle/thumb-x-on' },
           'On-Disabled':  { t3Mode: 'success', fill: { t3: 'component/bg-default' },
                             componentOpacity: 0.5, thumbXOverride: 'toggle/thumb-x-on' }
@@ -4292,16 +4294,14 @@ async function generateComponentFromBlueprint(blueprint) {
       /* Fixed white fill (--color-fixed-white; immune to theme changes) */
       ttThumb.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }];
       ttThumb.strokes = [];
-      /* Drop shadow — matches --switch-thumb-shadow (shadow-sm) */
-      ttThumb.effects = [{
-        type: 'DROP_SHADOW',
-        color: { r: 0, g: 0, b: 0, a: 0.18 },
-        offset: { x: 0, y: 1 },
-        radius: 4,
-        spread: 0,
-        visible: true,
-        blendMode: 'NORMAL'
-      }];
+      /* Drop shadow — elevated thumb appearance matching reference design.
+         Two-layer shadow: soft ambient + tighter directional lift. */
+      ttThumb.effects = [
+        { type: 'DROP_SHADOW', color: { r: 0, g: 0, b: 0, a: 0.22 },
+          offset: { x: 0, y: 2 }, radius: 6, spread: 0, visible: true, blendMode: 'NORMAL' },
+        { type: 'DROP_SHADOW', color: { r: 0, g: 0, b: 0, a: 0.10 },
+          offset: { x: 0, y: 1 }, radius: 2, spread: 0, visible: true, blendMode: 'NORMAL' }
+      ];
 
       /* Bind thumb dimensions and radius (intrinsic props — can be set
          before appending since they don't depend on parent layout context) */
@@ -4314,7 +4314,7 @@ async function generateComponentFromBlueprint(blueprint) {
 
       /* Per-master root radius override — rebinds all 4 track corner vars.
          'Switch' (pill): rootRadiusPath = 'toggle/radius' (9999).
-         'Switch Square': no override, keeps toggle/radius-square (6px) from sizeBindings. */
+         'Switch Square': no override, keeps toggle/radius-square (8px) from sizeBindings. */
       if (masterCfg.rootRadiusPath) {
         var ttRootRadVar = compSizeVars[masterCfg.rootRadiusPath];
         if (ttRootRadVar) {
@@ -4327,7 +4327,7 @@ async function generateComponentFromBlueprint(blueprint) {
 
       /* Per-master thumb radius override.
          Default: sizeBindings.thumb bound toggle/radius (9999 = circle) for all masters.
-         'Switch Square': thumbRadiusPath = 'toggle/radius-square' (6px) → square thumb. */
+         'Switch Square': thumbRadiusPath = 'toggle/radius-square' (8px) → square thumb. */
       if (masterCfg.thumbRadiusPath) {
         var ttThumbRadVar = compSizeVars[masterCfg.thumbRadiusPath];
         if (ttThumbRadVar) {
@@ -4436,15 +4436,17 @@ async function generateComponentFromBlueprint(blueprint) {
       masterFrame.appendChild(_onM);
       _onM.x = _masterCursorX;
       _onM.y = 0;
-      var _onLbl = createLabel(masterName + ' [On]', 13, true, COLOR_HEADING);
+      /* [On] masters are internal positioning helpers — dim them in Tier 1
+         so they don't visually compete with the user-facing OFF masters. */
+      var _onLbl = createLabel(masterName + ' \u00b7 On pos.', 11, false, COLOR_DIMMED);
       masterSec.section.appendChild(_onLbl);
       _onLbl.x = masterSec.innerX + _masterCursorX;
       _onLbl.y = masterSec.innerY + mHeaderBar.height + 24;
-      tryBindFill(_onLbl, t2Vars['default/content/strong']);
-      var _onBdg = createBadge('track \u00b7 thumb [On]', COLOR_CM_BG, COLOR_DIMMED);
+      tryBindFill(_onLbl, t2Vars['default/content/subtle']);
+      var _onBdg = createBadge('internal', COLOR_CM_BG, COLOR_DIMMED);
       masterSec.section.appendChild(_onBdg);
       _onBdg.x = masterSec.innerX + _masterCursorX;
-      _onBdg.y = masterSec.innerY + mHeaderBar.height + 24 + 20;
+      _onBdg.y = masterSec.innerY + mHeaderBar.height + 24 + 18;
       tryBindFill(_onBdg, t2Vars['default/component/bg']);
       if (_onBdg.children.length > 0) tryBindFill(_onBdg.children[0], t2Vars['default/content/subtle']);
       var _onColW = Math.max(_onLbl.width, _onBdg.width, _onM.width);
