@@ -5732,58 +5732,124 @@ async function generateComponentFromBlueprint(blueprint) {
           }
         }
       } else {
+      /* ── General prototype reactions (button-family + track-thumb) ────────
+         Helper: produce a single Reaction object.
+         • DISSOLVE 0.15s for hover-speed transitions
+         • DISSOLVE 0.05s for press-speed transitions
+         • DISSOLVE 0.20s for toggle-click (toggle state change feels deliberate) */
+      function _makeRx(trigType, destId, dur) {
+        return {
+          trigger: { type: trigType },
+          actions: [{
+            type: 'NODE',
+            destinationId: destId,
+            navigation: 'CHANGE_TO',
+            transition: { type: 'DISSOLVE', duration: dur || 0.15,
+                          easing: { type: 'EASE_IN_AND_OUT' } }
+          }]
+        };
+      }
+
       for (var ri = 0; ri < famTypes.length; ri++) {
         var rType = famTypes[ri];
         for (var rri = 0; rri < roundedValues.length; rri++) {
           var rRounded = roundedValues[rri];
-          var defaultComp = null, hoverComp = null, pressedComp = null;
 
+          /* Build a state → component map for this (type, rounded) slice */
+          var _stMap = {};
           for (var rj = 0; rj < components.length; rj++) {
-            if (components[rj].type !== rType) continue;
+            if (components[rj].type    !== rType)    continue;
             if (components[rj].rounded !== rRounded) continue;
-            if (components[rj].state === 'Default') defaultComp = components[rj].component;
-            if (components[rj].state === 'Hover')   hoverComp = components[rj].component;
-            if (components[rj].state === 'Pressed') pressedComp = components[rj].component;
+            _stMap[components[rj].state] = components[rj].component;
           }
 
-          if (defaultComp) {
-            var reactions = [];
-            if (hoverComp) {
-              reactions.push({
-                trigger: { type: 'ON_HOVER' },
-                actions: [{
-                  type: 'NODE',
-                  destinationId: hoverComp.id,
-                  navigation: 'CHANGE_TO',
-                  transition: { type: 'DISSOLVE', duration: 0.15, easing: { type: 'EASE_IN_AND_OUT' } }
-                }]
-              });
-              stats.reactions++;
-            }
-            if (pressedComp) {
-              reactions.push({
-                trigger: { type: 'ON_PRESS' },
-                actions: [{
-                  type: 'NODE',
-                  destinationId: pressedComp.id,
-                  navigation: 'CHANGE_TO',
-                  transition: { type: 'DISSOLVE', duration: 0.05, easing: { type: 'EASE_IN_AND_OUT' } }
-                }]
-              });
-              stats.reactions++;
-            }
-            if (reactions.length > 0) {
-              try {
-                await defaultComp.setReactionsAsync(reactions);
-              } catch (re) {
-                log('Reaction wiring failed for ' + familyName + '/' + rType + '/Rounded=' + rRounded + ': ' + re.message);
-                stats.errors.push('Reactions ' + familyName + '/' + rType + ': ' + re.message);
+          /* ── Reaction map: stateName → [Reaction, …] ── */
+          var _rxMap = {};
+
+          if (BP.kind === 'track-thumb') {
+            /* STATEFUL toggle — MOUSE_ENTER/LEAVE for hover, ON_CLICK to toggle.
+               Why MOUSE_ENTER/LEAVE (not ON_HOVER):
+               ON_HOVER is a "while" trigger that auto-reverts when the pointer
+               leaves. That is fine for stateless buttons but breaks toggles —
+               an ON_HOVER-introduced Off-Hover state would revert to Off even
+               after the user has clicked to On-Hover, undoing the click.
+               MOUSE_ENTER fires once on entry (persists), MOUSE_LEAVE fires once
+               on exit (persists) → clean deterministic state machine.
+
+               State machine:
+                 Off        : ENTER→Off-Hover,  CLICK→On
+                 Off-Hover  : LEAVE→Off,         CLICK→On-Hover (or On)
+                 On         : ENTER→On-Hover,   CLICK→Off
+                 On-Hover   : LEAVE→On,          CLICK→Off-Hover (or Off)      */
+            var _offC   = _stMap['Off'];
+            var _offHC  = _stMap['Off-Hover'];
+            var _onC    = _stMap['On'];
+            var _onHC   = _stMap['On-Hover'];
+            if (_offC && _onC) {
+              _rxMap['Off'] = [];
+              if (_offHC) _rxMap['Off'].push(_makeRx('MOUSE_ENTER', _offHC.id, 0.1));
+              _rxMap['Off'].push(_makeRx('ON_CLICK', _onC.id, 0.2));
+
+              if (_offHC) {
+                var _offHClick = _onHC || _onC;
+                _rxMap['Off-Hover'] = [
+                  _makeRx('MOUSE_LEAVE', _offC.id, 0.1),
+                  _makeRx('ON_CLICK',    _offHClick.id, 0.2)
+                ];
               }
+
+              _rxMap['On'] = [];
+              if (_onHC) _rxMap['On'].push(_makeRx('MOUSE_ENTER', _onHC.id, 0.1));
+              _rxMap['On'].push(_makeRx('ON_CLICK', _offC.id, 0.2));
+
+              if (_onHC) {
+                var _onHClick = _offHC || _offC;
+                _rxMap['On-Hover'] = [
+                  _makeRx('MOUSE_LEAVE', _onC.id, 0.1),
+                  _makeRx('ON_CLICK',    _onHClick.id, 0.2)
+                ];
+              }
+            }
+          } else {
+            /* STATELESS button-family — ON_HOVER / ON_PRESS "while" triggers.
+               ON_HOVER auto-reverts to Default when the pointer leaves.
+               ON_PRESS auto-reverts when the pointer is released.
+
+               State machine:
+                 Default : HOVER→Hover,  PRESS→Pressed
+                 Hover   : PRESS→Pressed  (press while already hovering)         */
+            var _defC  = _stMap['Default'];
+            var _hovC  = _stMap['Hover'];
+            var _preC  = _stMap['Pressed'];
+            if (_defC) {
+              _rxMap['Default'] = [];
+              if (_hovC) _rxMap['Default'].push(_makeRx('ON_HOVER',  _hovC.id, 0.15));
+              if (_preC) _rxMap['Default'].push(_makeRx('ON_PRESS',  _preC.id, 0.05));
+            }
+            /* Hover → Pressed: pressing while already in the hover state */
+            if (_hovC && _preC) {
+              _rxMap['Hover'] = [ _makeRx('ON_PRESS', _preC.id, 0.05) ];
+            }
+          }
+
+          /* Apply the reactions map */
+          var _rxStates = Object.keys(_rxMap);
+          for (var rxi = 0; rxi < _rxStates.length; rxi++) {
+            var _rxSt   = _rxStates[rxi];
+            var _rxComp = _stMap[_rxSt];
+            var _rxList = _rxMap[_rxSt];
+            if (!_rxComp || !_rxList || _rxList.length === 0) continue;
+            try {
+              await _rxComp.setReactionsAsync(_rxList);
+              stats.reactions += _rxList.length;
+            } catch (re) {
+              log('Reaction wiring failed (' + familyName + '/' + rType + '/' + _rxSt + '): ' + re.message);
+              stats.errors.push('Reactions ' + familyName + '/' + rType + '/' + _rxSt + ': ' + re.message);
             }
           }
         }
       }
-      } /* end legacy/wrapper reactions branch */
+      } /* end general/wrapper reactions branch */
 
 
       allComponentSets.push(componentSet);
