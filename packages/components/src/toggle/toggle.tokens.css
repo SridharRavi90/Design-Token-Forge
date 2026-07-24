@@ -203,33 +203,35 @@
   --switch-thumb-inset-ultra: 4;
 
   /* Per-density track corner radius for the Square variant.
-     Target ≈ 25% of track-h so it reads as a rounded-rect, not a pill.
-     micro 16px→4px, tiny 18px→4px, small 20px→5px, base 24px→6px,
-     medium 26px→6px, large 28px→7px, big 32px→8px,
-     huge 36px→9px, mega 44px→11px, ultra 52px→13px. */
-  --switch-radius-square-micro: 4;
-  --switch-radius-square-tiny: 4;
-  --switch-radius-square-small: 5;
-  --switch-radius-square-base: 6;
-  --switch-radius-square-medium: 6;
-  --switch-radius-square-large: 7;
-  --switch-radius-square-big: 8;
-  --switch-radius-square-huge: 9;
-  --switch-radius-square-mega: 11;
-  --switch-radius-square-ultra: 13;
+     Absolute px values (not %-based) so the Square track always reads
+     as a rounded-rect and is clearly distinct from the Pill (9999).
+     Values are intentionally capped at 5px — always less than the
+     old constant 8px, so large densities are now MORE square too.
+     micro→base: 3px, medium→big: 4px, huge→ultra: 5px. */
+  --switch-radius-square-micro: 3;
+  --switch-radius-square-tiny: 3;
+  --switch-radius-square-small: 3;
+  --switch-radius-square-base: 3;
+  --switch-radius-square-medium: 4;
+  --switch-radius-square-large: 4;
+  --switch-radius-square-big: 4;
+  --switch-radius-square-huge: 5;
+  --switch-radius-square-mega: 5;
+  --switch-radius-square-ultra: 5;
 
-  /* Per-density thumb corner radius for Square variant = track-radius − thumb-inset.
-     Concentric: thumb arc centre aligns with track arc centre. */
-  --switch-thumb-radius-square-micro: 2;
-  --switch-thumb-radius-square-tiny: 2;
-  --switch-thumb-radius-square-small: 3;
-  --switch-thumb-radius-square-base: 4;
-  --switch-thumb-radius-square-medium: 3;
-  --switch-thumb-radius-square-large: 4;
-  --switch-thumb-radius-square-big: 5;
-  --switch-thumb-radius-square-huge: 5;
-  --switch-thumb-radius-square-mega: 7;
-  --switch-thumb-radius-square-ultra: 9;
+  /* Per-density thumb corner radius for Square variant.
+     1px for all sizes — essentially a square thumb that visually
+     nests inside the square track (clear rounded-rect vs circle contrast). */
+  --switch-thumb-radius-square-micro: 1;
+  --switch-thumb-radius-square-tiny: 1;
+  --switch-thumb-radius-square-small: 1;
+  --switch-thumb-radius-square-base: 1;
+  --switch-thumb-radius-square-medium: 1;
+  --switch-thumb-radius-square-large: 1;
+  --switch-thumb-radius-square-big: 1;
+  --switch-thumb-radius-square-huge: 1;
+  --switch-thumb-radius-square-mega: 1;
+  --switch-thumb-radius-square-ultra: 1;
 
   /* Per-density text-side padding for labeled track variants.
      Thumb side uses thumb-inset; text side needs slightly more breathing room. */

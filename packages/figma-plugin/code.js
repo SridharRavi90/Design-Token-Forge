@@ -5011,7 +5011,10 @@ async function generateComponentFromBlueprint(blueprint) {
             varComp.paddingTop    = 0;
             varComp.paddingBottom = 0;
             varComp.itemSpacing   = _lblGap;
-            varComp.clipsContent  = false;
+            /* Clip thumb shadow to the track boundary. Without this, the
+               2-layer drop-shadow (blur=6px) visually overflows the track
+               at mega/ultra where the thumb is large (36–44 px). */
+            varComp.clipsContent  = true;
 
             /* Bind paddings and gap to per-density comp-size variables.
                thumb-inset drives the thumb-side pad; label-text-pad drives text-side.
