@@ -4257,12 +4257,11 @@ async function generateComponentFromBlueprint(blueprint) {
 
     /* ── Track-Thumb branch (kind: 'track-thumb', e.g. Toggle) ──────────────
        Root frame IS the track: fixed-size pill, layoutMode=NONE, clips content.
-       Both OFF and ON masters use HORIZONTAL auto-layout so the thumb is
-       vertically centred by the layout engine (counterAxisAlignItems=CENTER).
-       OFF master: paddingLeft = thumb-inset (thumb at left).
-       ON  master: paddingRight = thumb-inset (thumb at right via MAX alignment).
-       sizeBindings.root  → track frame dimensions + radius
-       sizeBindings.thumb → thumb dimensions + radius */
+       Thumb is an absolutely-positioned circle child.
+       sizeBindings.root   → track frame dimensions + radius
+       sizeBindings.thumb  → thumb dimensions + radius
+       sizeBindings.thumbY → Y centering offset (comp-size var)
+       masterCfg.thumbXVar → X off-position offset (comp-size var) */
     if (BP.kind === 'track-thumb') {
       /* isLabeled masters don't need a physical master component — labeled
          variants are built directly in the variant loop (no instance of a
@@ -4279,52 +4278,24 @@ async function generateComponentFromBlueprint(blueprint) {
       /* Default dimensions (base mode values; variables override at render) */
       var ttW = 40, ttH = 24;
       ttMaster.resize(ttW, ttH);
-      /* HORIZONTAL auto-layout — mirrors the ON master so both masters use the same
-         alignment model. counterAxisAlignItems='CENTER' vertically centres the thumb
-         automatically; no y variable binding is needed. paddingLeft = thumb-inset
-         positions the thumb from the left edge (ON master uses paddingRight instead). */
-      ttMaster.layoutMode = 'HORIZONTAL';
-      ttMaster.primaryAxisAlignItems = 'MIN';    /* thumb at left edge */
-      ttMaster.counterAxisAlignItems = 'CENTER'; /* vertically centred — no y binding needed */
-      ttMaster.layoutSizingHorizontal = 'FIXED'; /* track-w from variable */
-      ttMaster.layoutSizingVertical   = 'FIXED'; /* track-h from variable */
-      ttMaster.clipsContent = true;
-      ttMaster.fills   = [];
+      ttMaster.layoutMode = 'NONE';       /* absolute positioning for thumb */
+      ttMaster.clipsContent = true;       /* thumb stays within track bounds */
+      ttMaster.fills = [];                /* fill comes from variant override */
       ttMaster.strokes = [];
-      ttMaster.paddingLeft   = 2; /* literal fallback; bound to toggle/thumb-inset below */
-      ttMaster.paddingTop    = 0;
-      ttMaster.paddingBottom = 0;
-      ttMaster.paddingRight  = 0;
-      ttMaster.itemSpacing   = 0;
 
-      /* Bind track width + height only — individual corner radius keys silently fail
-         on HORIZONTAL auto-layout components (same as the ON master). Track cornerRadius
-         uses a uniform binding below. */
+      /* Bind track frame dimensions and radius to comp-size variables */
       var ttRootBinds = BP.sizeBindings.root;
       var ttRootKeys = Object.keys(ttRootBinds);
-      var _offRootCRKeys = { topLeftRadius:1, topRightRadius:1, bottomLeftRadius:1, bottomRightRadius:1 };
       for (var ttrk = 0; ttrk < ttRootKeys.length; ttrk++) {
-        var _ttRKey = ttRootKeys[ttrk];
-        if (_offRootCRKeys[_ttRKey]) continue;
-        var ttrv = compSizeVars[ttRootBinds[_ttRKey]];
-        if (ttrv) { await tryBindVar(ttMaster, _ttRKey, ttrv); stats.bindings++; }
+        var ttrv = compSizeVars[ttRootBinds[ttRootKeys[ttrk]]];
+        if (ttrv) { await tryBindVar(ttMaster, ttRootKeys[ttrk], ttrv); stats.bindings++; }
       }
-      /* Track cornerRadius (uniform) — Pill: toggle/radius (9999). Square: toggle/radius-square. */
-      var _offTrackCRV = masterCfg.rootRadiusPath
-          ? compSizeVars[masterCfg.rootRadiusPath]
-          : compSizeVars[ttRootBinds['topLeftRadius']];
-      if (_offTrackCRV) { await tryBindVar(ttMaster, 'cornerRadius', _offTrackCRV); stats.bindings++; }
-      /* paddingLeft = thumb-inset — horizontal position from left edge. */
-      var _offInsetVar = compSizeVars['toggle/thumb-inset'];
-      if (_offInsetVar) { await tryBindVar(ttMaster, 'paddingLeft', _offInsetVar); stats.bindings++; }
 
-      /* Thumb — FIXED-size child in HORIZONTAL auto-layout */
+      /* Thumb — absolutely positioned circle */
       var ttThumb = figma.createFrame();
       ttThumb.name = 'Thumb';
       ttThumb.resize(20, 20); /* default base; variables override */
       ttThumb.layoutMode = 'NONE';
-      ttThumb.layoutSizingHorizontal = 'FIXED'; /* fixed child in auto-layout parent */
-      ttThumb.layoutSizingVertical   = 'FIXED';
       ttThumb.cornerRadius = 9999;
       /* Fixed white fill (--color-fixed-white; immune to theme changes) */
       ttThumb.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }];
@@ -4338,22 +4309,44 @@ async function generateComponentFromBlueprint(blueprint) {
           offset: { x: 0, y: 1 }, radius: 2, spread: 0, visible: true, blendMode: 'NORMAL' }
       ];
 
-      /* Bind thumb width + height only — skip individual corner radius keys. */
+      /* Bind thumb width + height only — skip individual corner radius keys.
+         CORNER_RADIUS-scoped bindings on the thumb silently block x/y binding
+         (same mechanism as the ON master track issue). Bind position first,
+         cornerRadius last. */
       var ttThumbBinds = BP.sizeBindings.thumb;
       var ttThumbKeys = Object.keys(ttThumbBinds);
       var _ttCRKeys = { topLeftRadius:1, topRightRadius:1, bottomLeftRadius:1, bottomRightRadius:1 };
       for (var tthk = 0; tthk < ttThumbKeys.length; tthk++) {
         var _tthKey = ttThumbKeys[tthk];
-        if (_ttCRKeys[_tthKey]) continue;
+        if (_ttCRKeys[_tthKey]) continue; /* radius bound uniformly after x/y below */
         var tthv = compSizeVars[ttThumbBinds[_tthKey]];
         if (tthv) { await tryBindVar(ttThumb, _tthKey, tthv); stats.bindings++; }
       }
 
-      /* Append thumb — no x/y binding needed; layout engine + paddingLeft + CENTER
-         alignment position the thumb correctly. Bind cornerRadius last. */
-      ttMaster.appendChild(ttThumb);
+      /* Track corner radius — on the track frame, not the thumb. */
+      if (masterCfg.rootRadiusPath) {
+        var ttRootRadVar = compSizeVars[masterCfg.rootRadiusPath];
+        if (ttRootRadVar) {
+          var ttRRKeys = ['topLeftRadius','topRightRadius','bottomLeftRadius','bottomRightRadius'];
+          for (var trrk = 0; trrk < ttRRKeys.length; trrk++) {
+            if (await tryBindVar(ttMaster, ttRRKeys[trrk], ttRootRadVar)) stats.bindings++;
+          }
+        }
+      }
 
-      /* Thumb cornerRadius (uniform) — Square: toggle/thumb-radius-square. Pill: toggle/radius (9999). */
+      /* Append thumb and bind position BEFORE cornerRadius.
+         Binding order is critical: x/y fail when the same frame already has
+         CORNER_RADIUS-scoped variable bindings. Set position first, radius last. */
+      ttMaster.appendChild(ttThumb);
+      ttThumb.x = 2; /* literal fallback — overridden by variable binding below */
+      ttThumb.y = 2;
+      var ttThumbXVar = masterCfg.thumbXVar && compSizeVars[masterCfg.thumbXVar];
+      var ttThumbYVar = BP.sizeBindings.thumbY && compSizeVars[BP.sizeBindings.thumbY];
+      if (ttThumbXVar) { await tryBindVar(ttThumb, 'x', ttThumbXVar); stats.bindings++; }
+      if (ttThumbYVar) { await tryBindVar(ttThumb, 'y', ttThumbYVar); stats.bindings++; }
+
+      /* Thumb cornerRadius (uniform) — bound last so x/y bindings are uncontested.
+         Square: toggle/thumb-radius-square. Pill: toggle/radius (9999). */
       var _ttThCRV = masterCfg.thumbRadiusPath
           ? compSizeVars[masterCfg.thumbRadiusPath]
           : compSizeVars[ttThumbBinds['topLeftRadius']];
@@ -5037,8 +5030,8 @@ async function generateComponentFromBlueprint(blueprint) {
             varComp.primaryAxisAlignItems = 'CENTER';
             varComp.layoutSizingHorizontal = 'HUG';
             varComp.layoutSizingVertical   = 'FIXED';
-            varComp.paddingLeft   = _lblIsOn ? _lblTextPad  : _lblThumbPad;
-            varComp.paddingRight  = _lblIsOn ? _lblThumbPad : _lblTextPad;
+            varComp.paddingLeft   = _lblTextPad;  /* same on both sides for visual balance */
+            varComp.paddingRight  = _lblTextPad;
             varComp.paddingTop    = 0;
             varComp.paddingBottom = 0;
             varComp.itemSpacing   = _lblGap;
@@ -5048,17 +5041,13 @@ async function generateComponentFromBlueprint(blueprint) {
             varComp.clipsContent  = true;
 
             /* Bind paddings and gap to per-density comp-size variables.
-               thumb-inset drives the thumb-side pad; label-text-pad drives text-side.
-               OFF: left=inset, right=textPad. ON: left=textPad, right=inset. */
-            var _lblInsetVar   = compSizeVars['toggle/thumb-inset'];
+               Both sides use label-text-pad for visual balance. */
             var _lblTxtPadVar  = compSizeVars['toggle/label-text-pad'];
             var _lblGapVar     = compSizeVars['toggle/gap'];
             var _lblFSVar      = compSizeVars['toggle/track-label-font-size'];
-            if (_lblInsetVar) {
-              if (await tryBindVar(varComp, _lblIsOn ? 'paddingRight' : 'paddingLeft', _lblInsetVar)) stats.bindings++;
-            }
             if (_lblTxtPadVar) {
-              if (await tryBindVar(varComp, _lblIsOn ? 'paddingLeft' : 'paddingRight', _lblTxtPadVar)) stats.bindings++;
+              if (await tryBindVar(varComp, 'paddingLeft',  _lblTxtPadVar)) stats.bindings++;
+              if (await tryBindVar(varComp, 'paddingRight', _lblTxtPadVar)) stats.bindings++;
             }
             if (_lblGapVar) {
               if (await tryBindVar(varComp, 'itemSpacing', _lblGapVar)) stats.bindings++;
