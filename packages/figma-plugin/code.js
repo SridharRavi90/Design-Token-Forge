@@ -130,19 +130,12 @@ var REQUIRED_COMPSIZE_VARS = [
   { name: 'menu-button/font-size',      defaultVal: 14 },
   { name: 'menu-button/radius',         defaultVal: 6  },
   { name: 'menu-button/radius-rounded', defaultVal: 9999 },
-  /* Toggle — structural constants only (same value in every density mode).
-     track-w / track-h / thumb-size / thumb-inset / thumb-x-on are managed
-     exclusively by the sync pipeline (server.js toggleProps) with per-density
-     values derived from toggle.tokens.css. */
-  { name: 'toggle/radius',         defaultVal: 9999 },
-  /* toggle/radius-square — corner radius for the square track variant.
-     8px on a 24px-tall track = 33% — visually balanced rounded-rect.
-     toggle/thumb-radius-square is derived concentrically:
-       thumb-radius = track-radius − thumb-inset = 8 − 2 = 6px
-     This ensures the thumb corner curve visually nests inside the track corner,
-     matching the iOS/Material concentric-radius convention. */
-  { name: 'toggle/radius-square',       defaultVal: 8    },
-  { name: 'toggle/thumb-radius-square', defaultVal: 6    }
+  /* Toggle — only the pill radius is a constant (9999 = full-round, same in every mode).
+     All other toggle size vars (track-w, track-h, thumb-size, thumb-inset, thumb-x-on,
+     radius-square, thumb-radius-square, gap, label-font-size, label-text-pad) are
+     per-density and managed exclusively by the sync pipeline → toggleProps in server.js.
+     Including them here would overwrite the per-density values with a uniform defaultVal. */
+  { name: 'toggle/radius',  defaultVal: 9999 }
 ];
 log('code.js loaded — version ' + CODE_VERSION);
 
@@ -4998,14 +4991,14 @@ async function generateComponentFromBlueprint(blueprint) {
              Width HUGs text + thumb (wider than fixed-width Default toggle).    */
           if (BP.kind === 'track-thumb' && (masterCfg.isLabeled || isLabeledIter)) {
             var _lblIsOn  = (stateName.indexOf('On') === 0);
-            /* Thumb-side inset = (track-h - thumb-size)/2 = (24-20)/2 = 2px.
-               Matches the Default toggle OFF position so the thumb circle sits
-               in the same position relative to the pill arc in both variants.
-               Text side gets 4px for breathing room. */
-            var _lblThumbPad = 2; /* inset side (thumb nestles against pill end) */
-            var _lblTextPad  = 4; /* text side (more breathing room for label)  */
-            var _lblGap   = 4; /* px gap between thumb and text */
-            var _lblFS    = 9; /* base font size (px) */
+            /* Padding + gap: driven by comp-size variables for per-density correctness.
+               Literal fallbacks used until bindings are applied below.
+               OFF: thumb on LEFT → left=thumbInset, right=labelTextPad
+               ON:  thumb on RIGHT → left=labelTextPad, right=thumbInset */
+            var _lblThumbPad = 2;  /* literal fallback — overridden by toggle/thumb-inset binding */
+            var _lblTextPad  = 6;  /* literal fallback — overridden by toggle/label-text-pad binding */
+            var _lblGap      = 6;  /* literal fallback — overridden by toggle/gap binding */
+            var _lblFS       = 9;  /* base font size (px) */
 
             /* Reconfigure varComp as the track frame */
             varComp.layoutMode = 'HORIZONTAL';
@@ -5013,14 +5006,28 @@ async function generateComponentFromBlueprint(blueprint) {
             varComp.primaryAxisAlignItems = 'CENTER';
             varComp.layoutSizingHorizontal = 'HUG';
             varComp.layoutSizingVertical   = 'FIXED';
-            /* OFF: thumb on LEFT → left=thumbPad, right=textPad
-               ON:  thumb on RIGHT → left=textPad, right=thumbPad */
             varComp.paddingLeft   = _lblIsOn ? _lblTextPad  : _lblThumbPad;
             varComp.paddingRight  = _lblIsOn ? _lblThumbPad : _lblTextPad;
             varComp.paddingTop    = 0;
             varComp.paddingBottom = 0;
             varComp.itemSpacing   = _lblGap;
             varComp.clipsContent  = false;
+
+            /* Bind paddings and gap to per-density comp-size variables.
+               thumb-inset drives the thumb-side pad; label-text-pad drives text-side.
+               OFF: left=inset, right=textPad. ON: left=textPad, right=inset. */
+            var _lblInsetVar   = compSizeVars['toggle/thumb-inset'];
+            var _lblTxtPadVar  = compSizeVars['toggle/label-text-pad'];
+            var _lblGapVar     = compSizeVars['toggle/gap'];
+            if (_lblInsetVar) {
+              if (await tryBindVar(varComp, _lblIsOn ? 'paddingRight' : 'paddingLeft', _lblInsetVar)) stats.bindings++;
+            }
+            if (_lblTxtPadVar) {
+              if (await tryBindVar(varComp, _lblIsOn ? 'paddingLeft' : 'paddingRight', _lblTxtPadVar)) stats.bindings++;
+            }
+            if (_lblGapVar) {
+              if (await tryBindVar(varComp, 'itemSpacing', _lblGapVar)) stats.bindings++;
+            }
 
             /* Bind track height to comp-size variable */
             var _lblHVar = compSizeVars['toggle/track-h'];
@@ -5090,16 +5097,19 @@ async function generateComponentFromBlueprint(blueprint) {
             _lbThumb.fills   = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }];
             _lbThumb.strokes = [];
             _lbThumb.cornerRadius = 9999;
-            _lbThumb.effects = [{ type: 'DROP_SHADOW', color: { r:0,g:0,b:0,a:0.18 },
-              offset: { x:0, y:1 }, radius: 4, spread: 0, visible: true, blendMode: 'NORMAL' }];
+            /* Two-layer shadow — matches master thumb (elevated appearance). */
+            _lbThumb.effects = [
+              { type: 'DROP_SHADOW', color: { r:0,g:0,b:0,a:0.22 }, offset:{x:0,y:2}, radius:6, spread:0, visible:true, blendMode:'NORMAL' },
+              { type: 'DROP_SHADOW', color: { r:0,g:0,b:0,a:0.10 }, offset:{x:0,y:1}, radius:2, spread:0, visible:true, blendMode:'NORMAL' }
+            ];
             var _lbThSVar = compSizeVars['toggle/thumb-size'];
             if (_lbThSVar) {
               await tryBindVar(_lbThumb, 'width',  _lbThSVar);
               await tryBindVar(_lbThumb, 'height', _lbThSVar);
               stats.bindings += 2;
             }
-            /* Thumb radius — circle for Switch, square for Switch Square */
-            var _lbThRadVar = compSizeVars[isRounded ? (BP.radiusRoundedPath || 'toggle/radius') : 'toggle/radius-square'];
+            /* Thumb radius — circle for Pill (toggle/radius=9999), concentric square for Square (toggle/thumb-radius-square). */
+            var _lbThRadVar = compSizeVars[isRounded ? (BP.radiusRoundedPath || 'toggle/radius') : 'toggle/thumb-radius-square'];
             if (_lbThRadVar) {
               var _lbtrKeys = ['topLeftRadius','topRightRadius','bottomLeftRadius','bottomRightRadius'];
               for (var _lbt = 0; _lbt < _lbtrKeys.length; _lbt++) {

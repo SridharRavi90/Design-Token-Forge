@@ -1107,13 +1107,16 @@ function buildCompSize(extrasCollection) {
   if (fs.existsSync(toggleFile)) {
     const toggleTokens = parseComponentTokens(toggleFile);
     const toggleProps = [
-      { propCSS: 'track-w',         propFigma: 'track-w' },
-      { propCSS: 'track-h',         propFigma: 'track-h' },
-      { propCSS: 'thumb-size',      propFigma: 'thumb-size' },
-      { propCSS: 'thumb-inset',     propFigma: 'thumb-inset' },
-      { propCSS: 'thumb-x-on',      propFigma: 'thumb-x-on' },
-      { propCSS: 'gap',             propFigma: 'gap' },
-      { propCSS: 'label-font-size', propFigma: 'label-font-size' },
+      { propCSS: 'track-w',            propFigma: 'track-w' },
+      { propCSS: 'track-h',            propFigma: 'track-h' },
+      { propCSS: 'thumb-size',         propFigma: 'thumb-size' },
+      { propCSS: 'thumb-inset',        propFigma: 'thumb-inset' },
+      { propCSS: 'thumb-x-on',         propFigma: 'thumb-x-on' },
+      { propCSS: 'radius-square',      propFigma: 'radius-square' },
+      { propCSS: 'thumb-radius-square', propFigma: 'thumb-radius-square' },
+      { propCSS: 'gap',                propFigma: 'gap' },
+      { propCSS: 'label-font-size',    propFigma: 'label-font-size' },
+      { propCSS: 'label-text-pad',     propFigma: 'label-text-pad' },
     ];
     variables.push(...buildComponentGroup('switch', 'toggle', toggleTokens, extrasVarSet, toggleProps));
   }
