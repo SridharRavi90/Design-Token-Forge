@@ -4367,22 +4367,33 @@ async function generateComponentFromBlueprint(blueprint) {
       masterComponents[masterName] = ttMaster;
       log('Created track-thumb master: ' + masterName + ' (thumbX=' + masterCfg.thumbXVar + ')');
 
-      /* ── ON master — thumb pre-positioned at toggle/thumb-x-on (right side) ──
-         Figma cannot override a variable-bound x on an instance child, so any
-         attempt to move the thumb right on an OFF-master instance silently fails.
-         The correct approach is a second master where the Thumb.x variable is
-         already bound to toggle/thumb-x-on (= 18 in base). ON-state variants
-         use instances of this master; OFF-state variants use the OFF master.  */
+      /* ── ON master — HORIZONTAL auto-layout, thumb right-aligned ─────────────
+         Binding 'x' via setBoundVariable on a component child is unreliable in
+         Figma: it silently fails for some variable types (e.g. FLOAT variables
+         with CORNER_RADIUS scope on neighbouring properties). The fix: use
+         HORIZONTAL auto-layout with primaryAxisAlignItems='MAX' so the thumb is
+         pushed to the right edge by the layout engine itself. paddingRight is
+         bound to toggle/thumb-inset (a GAP-scoped variable — a safe binding).
+         thumb.x never needs to be set or bound; the layout computes it.          */
       var _onM = figma.createComponent();
       _onM.name = 'mc / ' + masterName + ' [On]';
       stampOwner(_onM);
       _onM.description = ttMaster.description;
       _onM.resize(ttW, ttH);
-      _onM.layoutMode = 'NONE';
+      _onM.layoutMode = 'HORIZONTAL';
+      _onM.primaryAxisAlignItems = 'MAX';    /* push thumb to right edge */
+      _onM.counterAxisAlignItems = 'CENTER'; /* vertically centred */
+      _onM.layoutSizingHorizontal = 'FIXED'; /* track-w from variable */
+      _onM.layoutSizingVertical   = 'FIXED'; /* track-h from variable */
       _onM.clipsContent = true;
       _onM.fills = [];
       _onM.strokes = [];
-      /* Bind same root dimensions + radius as OFF master */
+      _onM.paddingLeft   = 0;
+      _onM.paddingTop    = 0;
+      _onM.paddingBottom = 0;
+      _onM.paddingRight  = 2; /* literal fallback; bound below */
+      _onM.itemSpacing   = 0;
+      /* Bind track width, height, corner radii */
       for (var _onrk = 0; _onrk < ttRootKeys.length; _onrk++) {
         var _onrv = compSizeVars[ttRootBinds[ttRootKeys[_onrk]]];
         if (_onrv) { await tryBindVar(_onM, ttRootKeys[_onrk], _onrv); stats.bindings++; }
@@ -4396,11 +4407,18 @@ async function generateComponentFromBlueprint(blueprint) {
           }
         }
       }
-      /* ON thumb — identical to OFF thumb except x binds to toggle/thumb-x-on */
+      /* Bind right-side inset to toggle/thumb-inset. Auto-layout positions the
+         thumb at (track-w − thumb-size − paddingRight) without any x binding. */
+      var _onInsetVar = compSizeVars['toggle/thumb-inset'];
+      if (_onInsetVar) { await tryBindVar(_onM, 'paddingRight', _onInsetVar); stats.bindings++; }
+
+      /* ON thumb — same size/radius as OFF thumb; position driven by layout */
       var _onTh = figma.createFrame();
       _onTh.name = 'Thumb';
       _onTh.resize(20, 20);
       _onTh.layoutMode = 'NONE';
+      _onTh.layoutSizingHorizontal = 'FIXED'; /* fixed child in auto-layout */
+      _onTh.layoutSizingVertical   = 'FIXED';
       _onTh.cornerRadius = 9999;
       _onTh.fills  = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }];
       _onTh.strokes = [];
@@ -4419,11 +4437,8 @@ async function generateComponentFromBlueprint(blueprint) {
         }
       }
       _onM.appendChild(_onTh);
-      _onTh.x = 18; /* literal fallback = track-w(40)−thumb-size(20)−inset(2) */
-      _onTh.y = 2;
-      var _onThXVar = compSizeVars['toggle/thumb-x-on'];
-      if (_onThXVar) { await tryBindVar(_onTh, 'x', _onThXVar); stats.bindings++; }
-      if (ttThumbYVar) { await tryBindVar(_onTh, 'y', ttThumbYVar); stats.bindings++; }
+      /* No x or y binding needed — layout engine positions the thumb correctly
+         at every comp-size mode via MAX-alignment + paddingRight=thumb-inset.  */
 
       /* Place ON master in the master-section display */
       masterFrame.appendChild(_onM);
