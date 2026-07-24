@@ -5022,6 +5022,7 @@ async function generateComponentFromBlueprint(blueprint) {
             var _lblInsetVar   = compSizeVars['toggle/thumb-inset'];
             var _lblTxtPadVar  = compSizeVars['toggle/label-text-pad'];
             var _lblGapVar     = compSizeVars['toggle/gap'];
+            var _lblFSVar      = compSizeVars['toggle/track-label-font-size'];
             if (_lblInsetVar) {
               if (await tryBindVar(varComp, _lblIsOn ? 'paddingRight' : 'paddingLeft', _lblInsetVar)) stats.bindings++;
             }
@@ -5074,6 +5075,7 @@ async function generateComponentFromBlueprint(blueprint) {
             _lbOn.fontSize = _lblFS;
             _lbOn.textAutoResize = 'WIDTH_AND_HEIGHT';
             _lbOn.visible = _lblIsOn;
+            if (_lblFSVar) { if (await tryBindVar(_lbOn, 'fontSize', _lblFSVar)) stats.bindings++; }
             /* Label text color:
                - T3 semantic fill (success/brand ON states): T3 oncomponent-content/default
                  (resolves to white in T3 mode locked on varComp → white-on-colour).
@@ -5131,6 +5133,7 @@ async function generateComponentFromBlueprint(blueprint) {
             _lbOff.fontSize = _lblFS;
             _lbOff.textAutoResize = 'WIDTH_AND_HEIGHT';
             _lbOff.visible = !_lblIsOn;
+            if (_lblFSVar) { if (await tryBindVar(_lbOff, 'fontSize', _lblFSVar)) stats.bindings++; }
             /* Same rule as LabelOn: T3 mode = white on colour; no T3 mode = dark body text. */
             var _lbOffFv = _useOnComponent
               ? (t3Vars['oncomponent-content/default'] || t2Vars['default/content/inverse'])

@@ -246,6 +246,21 @@
   --switch-label-text-pad-mega: 12;
   --switch-label-text-pad-ultra: 14;
 
+  /* Per-density font size for the ON/OFF text drawn INSIDE the labeled track.
+     Separate from label-font-size (which sizes the external label beside the track).
+     Values are ~35–45% of track-h so the text reads clearly without crowding the thumb.
+     8px minimum keeps micro legible; 18px caps ultra so it doesn’t outsize the thumb. */
+  --switch-track-label-font-size-micro: 8;
+  --switch-track-label-font-size-tiny: 9;
+  --switch-track-label-font-size-small: 9;
+  --switch-track-label-font-size-base: 10;
+  --switch-track-label-font-size-medium: 10;
+  --switch-track-label-font-size-large: 11;
+  --switch-track-label-font-size-big: 12;
+  --switch-track-label-font-size-huge: 13;
+  --switch-track-label-font-size-mega: 15;
+  --switch-track-label-font-size-ultra: 18;
+
   /* Per-density ON-position — track-w − thumb-size − thumb-inset.
      Determines where the thumb sits when toggled ON. */
   --switch-thumb-x-on-micro: 14;

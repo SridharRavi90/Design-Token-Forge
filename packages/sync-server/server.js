@@ -1117,6 +1117,7 @@ function buildCompSize(extrasCollection) {
       { propCSS: 'gap',                propFigma: 'gap' },
       { propCSS: 'label-font-size',    propFigma: 'label-font-size' },
       { propCSS: 'label-text-pad',     propFigma: 'label-text-pad' },
+      { propCSS: 'track-label-font-size', propFigma: 'track-label-font-size' },
     ];
     variables.push(...buildComponentGroup('switch', 'toggle', toggleTokens, extrasVarSet, toggleProps));
   }
