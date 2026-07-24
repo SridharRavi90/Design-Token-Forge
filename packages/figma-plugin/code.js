@@ -4295,18 +4295,21 @@ async function generateComponentFromBlueprint(blueprint) {
           offset: { x: 0, y: 1 }, radius: 2, spread: 0, visible: true, blendMode: 'NORMAL' }
       ];
 
-      /* Bind thumb dimensions and radius (intrinsic props — can be set
-         before appending since they don't depend on parent layout context) */
+      /* Bind thumb width + height only — skip individual corner radius keys.
+         CORNER_RADIUS-scoped bindings on the thumb silently block x/y binding
+         (same mechanism as the ON master track issue). Bind position first,
+         cornerRadius last. */
       var ttThumbBinds = BP.sizeBindings.thumb;
       var ttThumbKeys = Object.keys(ttThumbBinds);
+      var _ttCRKeys = { topLeftRadius:1, topRightRadius:1, bottomLeftRadius:1, bottomRightRadius:1 };
       for (var tthk = 0; tthk < ttThumbKeys.length; tthk++) {
-        var tthv = compSizeVars[ttThumbBinds[ttThumbKeys[tthk]]];
-        if (tthv) { await tryBindVar(ttThumb, ttThumbKeys[tthk], tthv); stats.bindings++; }
+        var _tthKey = ttThumbKeys[tthk];
+        if (_ttCRKeys[_tthKey]) continue; /* radius bound uniformly after x/y below */
+        var tthv = compSizeVars[ttThumbBinds[_tthKey]];
+        if (tthv) { await tryBindVar(ttThumb, _tthKey, tthv); stats.bindings++; }
       }
 
-      /* Per-master root radius override — rebinds all 4 track corner vars.
-         'Switch' (pill): rootRadiusPath = 'toggle/radius' (9999).
-         'Switch Square': no override, keeps toggle/radius-square (8px) from sizeBindings. */
+      /* Track corner radius — on the track frame, not the thumb. */
       if (masterCfg.rootRadiusPath) {
         var ttRootRadVar = compSizeVars[masterCfg.rootRadiusPath];
         if (ttRootRadVar) {
@@ -4317,32 +4320,23 @@ async function generateComponentFromBlueprint(blueprint) {
         }
       }
 
-      /* Per-master thumb radius override (pill masters only).
-         Pill masters (thumbRadiusPath:'toggle/radius') rebind thumb corners to 9999.
-         Square masters have no thumbRadiusPath — their thumb corners are already
-         bound to toggle/thumb-radius-square (6px) via sizeBindings.thumb above. */
-      if (masterCfg.thumbRadiusPath) {
-        var ttThumbRadVar = compSizeVars[masterCfg.thumbRadiusPath];
-        if (ttThumbRadVar) {
-          var ttTRKeys = ['topLeftRadius','topRightRadius','bottomLeftRadius','bottomRightRadius'];
-          for (var ttrk = 0; ttrk < ttTRKeys.length; ttrk++) {
-            if (await tryBindVar(ttThumb, ttTRKeys[ttrk], ttThumbRadVar)) stats.bindings++;
-          }
-        }
-      }
-
-      /* Append thumb and bind OFF-state position */
+      /* Append thumb and bind position BEFORE cornerRadius.
+         Binding order is critical: x/y fail when the same frame already has
+         CORNER_RADIUS-scoped variable bindings. Set position first, radius last. */
       ttMaster.appendChild(ttThumb);
-      /* Set literal OFF-position so the thumb renders correctly even when
-         variable binding for x/y does not apply in this plugin context.
-         Defaults match REQUIRED_COMPSIZE_VARS: thumb-inset=2 → x=2 (off),
-         (track-h 24 − thumb-size 20) / 2 = 2 → y=2 (centred). */
-      ttThumb.x = 2;
+      ttThumb.x = 2; /* literal fallback — overridden by variable binding below */
       ttThumb.y = 2;
       var ttThumbXVar = masterCfg.thumbXVar && compSizeVars[masterCfg.thumbXVar];
       var ttThumbYVar = BP.sizeBindings.thumbY && compSizeVars[BP.sizeBindings.thumbY];
       if (ttThumbXVar) { await tryBindVar(ttThumb, 'x', ttThumbXVar); stats.bindings++; }
       if (ttThumbYVar) { await tryBindVar(ttThumb, 'y', ttThumbYVar); stats.bindings++; }
+
+      /* Thumb cornerRadius (uniform) — bound last so x/y bindings are uncontested.
+         Square: toggle/thumb-radius-square. Pill: toggle/radius (9999). */
+      var _ttThCRV = masterCfg.thumbRadiusPath
+          ? compSizeVars[masterCfg.thumbRadiusPath]
+          : compSizeVars[ttThumbBinds['topLeftRadius']];
+      if (_ttThCRV) { await tryBindVar(ttThumb, 'cornerRadius', _ttThCRV); stats.bindings++; }
 
       /* Place into master frame section */
       masterFrame.appendChild(ttMaster);
@@ -4425,22 +4419,21 @@ async function generateComponentFromBlueprint(blueprint) {
       _onTh.fills  = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }];
       _onTh.strokes = [];
       _onTh.effects = ttThumb.effects.slice();
+      /* ON thumb — bind width/height only (skip individual corner keys, same
+         cornerRadius-last strategy as OFF master thumb). x/y not needed here —
+         HORIZONTAL auto-layout positions the thumb via MAX-alignment + paddingRight. */
       for (var _onthk = 0; _onthk < ttThumbKeys.length; _onthk++) {
-        var _onthv = compSizeVars[ttThumbBinds[ttThumbKeys[_onthk]]];
-        if (_onthv) { await tryBindVar(_onTh, ttThumbKeys[_onthk], _onthv); stats.bindings++; }
+        var _onThKey = ttThumbKeys[_onthk];
+        if (_ttCRKeys[_onThKey]) continue;
+        var _onthv = compSizeVars[ttThumbBinds[_onThKey]];
+        if (_onthv) { await tryBindVar(_onTh, _onThKey, _onthv); stats.bindings++; }
       }
-      if (masterCfg.thumbRadiusPath) {
-        var _onTRV = compSizeVars[masterCfg.thumbRadiusPath];
-        if (_onTRV) {
-          var _onTRK = ['topLeftRadius','topRightRadius','bottomLeftRadius','bottomRightRadius'];
-          for (var _ontrk = 0; _ontrk < _onTRK.length; _ontrk++) {
-            if (await tryBindVar(_onTh, _onTRK[_ontrk], _onTRV)) stats.bindings++;
-          }
-        }
-      }
+      /* Thumb cornerRadius — Square: toggle/thumb-radius-square. Pill: toggle/radius (9999). */
+      var _onThCRV = masterCfg.thumbRadiusPath
+          ? compSizeVars[masterCfg.thumbRadiusPath]
+          : compSizeVars[ttThumbBinds['topLeftRadius']];
+      if (_onThCRV) { await tryBindVar(_onTh, 'cornerRadius', _onThCRV); stats.bindings++; }
       _onM.appendChild(_onTh);
-      /* No x or y binding needed — layout engine positions the thumb correctly
-         at every comp-size mode via MAX-alignment + paddingRight=thumb-inset.  */
 
       /* Place ON master in the master-section display */
       masterFrame.appendChild(_onM);
