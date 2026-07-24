@@ -4393,20 +4393,22 @@ async function generateComponentFromBlueprint(blueprint) {
       _onM.paddingBottom = 0;
       _onM.paddingRight  = 2; /* literal fallback; bound below */
       _onM.itemSpacing   = 0;
-      /* Bind track width, height, corner radii */
+      /* Bind track width and height only (skip individual radius keys —
+         topLeftRadius/topRightRadius/etc. can silently fail on HORIZONTAL
+         auto-layout components; cornerRadius uniform binding used below). */
       for (var _onrk = 0; _onrk < ttRootKeys.length; _onrk++) {
-        var _onrv = compSizeVars[ttRootBinds[ttRootKeys[_onrk]]];
-        if (_onrv) { await tryBindVar(_onM, ttRootKeys[_onrk], _onrv); stats.bindings++; }
+        var _onrKey = ttRootKeys[_onrk];
+        if (_onrKey === 'topLeftRadius' || _onrKey === 'topRightRadius' ||
+            _onrKey === 'bottomLeftRadius' || _onrKey === 'bottomRightRadius') continue;
+        var _onrv = compSizeVars[ttRootBinds[_onrKey]];
+        if (_onrv) { await tryBindVar(_onM, _onrKey, _onrv); stats.bindings++; }
       }
-      if (masterCfg.rootRadiusPath) {
-        var _onRRV = compSizeVars[masterCfg.rootRadiusPath];
-        if (_onRRV) {
-          var _onRRK = ['topLeftRadius','topRightRadius','bottomLeftRadius','bottomRightRadius'];
-          for (var _onrrk = 0; _onrrk < _onRRK.length; _onrrk++) {
-            if (await tryBindVar(_onM, _onRRK[_onrrk], _onRRV)) stats.bindings++;
-          }
-        }
-      }
+      /* Bind corner radius uniformly — more reliable than individual corners on
+         auto-layout. Square: toggle/radius-square. Pill: toggle/radius (9999). */
+      var _onCRV = masterCfg.rootRadiusPath
+          ? compSizeVars[masterCfg.rootRadiusPath]
+          : compSizeVars[ttRootBinds['topLeftRadius']]; /* e.g. toggle/radius-square */
+      if (_onCRV) { await tryBindVar(_onM, 'cornerRadius', _onCRV); stats.bindings++; }
       /* Bind right-side inset to toggle/thumb-inset. Auto-layout positions the
          thumb at (track-w − thumb-size − paddingRight) without any x binding. */
       var _onInsetVar = compSizeVars['toggle/thumb-inset'];
