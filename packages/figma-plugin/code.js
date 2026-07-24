@@ -130,12 +130,18 @@ var REQUIRED_COMPSIZE_VARS = [
   { name: 'menu-button/font-size',      defaultVal: 14 },
   { name: 'menu-button/radius',         defaultVal: 6  },
   { name: 'menu-button/radius-rounded', defaultVal: 9999 },
-  /* Toggle — only the pill radius is a constant (9999 = full-round, same in every mode).
-     All other toggle size vars (track-w, track-h, thumb-size, thumb-inset, thumb-x-on,
-     radius-square, thumb-radius-square, gap, label-font-size, label-text-pad) are
-     per-density and managed exclusively by the sync pipeline → toggleProps in server.js.
-     Including them here would overwrite the per-density values with a uniform defaultVal. */
-  { name: 'toggle/radius',  defaultVal: 9999 }
+  /* Toggle — pill radius is a constant (9999). Other toggle vars are per-density and
+     managed by the sync pipeline. They use createOnly:true so Generate auto-heals
+     (creates with base-mode fallback) when Update Variables hasn't been run yet, but
+     does NOT overwrite values that the sync server already set per-density. */
+  { name: 'toggle/radius',               defaultVal: 9999 },
+  { name: 'toggle/track-w',              defaultVal: 40,   createOnly: true },
+  { name: 'toggle/track-h',              defaultVal: 24,   createOnly: true },
+  { name: 'toggle/thumb-size',           defaultVal: 20,   createOnly: true },
+  { name: 'toggle/thumb-inset',          defaultVal: 2,    createOnly: true },
+  { name: 'toggle/thumb-x-on',          defaultVal: 18,   createOnly: true },
+  { name: 'toggle/radius-square',        defaultVal: 5,    createOnly: true },
+  { name: 'toggle/thumb-radius-square',  defaultVal: 3,    createOnly: true }
 ];
 log('code.js loaded — version ' + CODE_VERSION);
 
@@ -2531,8 +2537,9 @@ async function generateComponentFromBlueprint(blueprint) {
        — visibly square pills at non-base sizes. */
     var csAllModeIds = csCol.modes.map(function(m) { return m.modeId; });
     for (var rvi = 0; rvi < requiredVars.length; rvi++) {
-      var reqName = requiredVars[rvi].name;
-      var reqVal  = requiredVars[rvi].defaultVal;
+      var reqName    = requiredVars[rvi].name;
+      var reqVal     = requiredVars[rvi].defaultVal;
+      var createOnly = !!requiredVars[rvi].createOnly; /* if true: create only, never overwrite */
       /* Build both 2-segment and 3-segment forms of the name so
          blueprint lookups using either convention find the variable.
          For 'button/*' vars the 3-segment form inserts '/default/'.
@@ -2543,6 +2550,13 @@ async function generateComponentFromBlueprint(blueprint) {
         : reqName;                                   /* already 3-segment or more */
       var existing = compSizeVars[reqName] || compSizeVars[longName];
       if (existing) {
+        /* createOnly entries must never overwrite: the sync server already
+           wrote per-density values. Just ensure both name forms are in the map. */
+        if (createOnly) {
+          if (!compSizeVars[reqName])  compSizeVars[reqName]  = existing;
+          if (!compSizeVars[longName]) compSizeVars[longName] = existing;
+          continue;
+        }
         /* Ensure both short and long forms are in the map so the master
            creation loop can find the variable regardless of which form
            it uses in sizeBindings / iconBtnSizeBindings. */
