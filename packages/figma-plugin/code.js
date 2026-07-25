@@ -4927,6 +4927,16 @@ async function generateComponentFromBlueprint(blueprint) {
   var _unifiedVarMap = {};
   if (BP.unified && SAFE_REBUILD) {
     var _uPreSet = reuseSetByName[BP.name];
+    /* Semantic-ID fallback: if BP.name changed or section was renamed,
+       find via dtf-set-id and align reuseSetByName so _uReuseTarget works. */
+    if (!_uPreSet && reuseSetBySemanticId) {
+      var _uPreSem = reuseSetBySemanticId['dtf::' + BP.name];
+      if (_uPreSem && !_uPreSem.removed) {
+        _uPreSet = _uPreSem;
+        reuseSetByName[BP.name] = _uPreSem;
+        log('SAFE_REBUILD: aligned unified "' + BP.name + '" via semantic ID');
+      }
+    }
     if (_uPreSet && !_uPreSet.removed) {
       var _uKids = _uPreSet.children || [];
       for (var _uki = 0; _uki < _uKids.length; _uki++) {
@@ -4988,6 +4998,20 @@ async function generateComponentFromBlueprint(blueprint) {
       var _existingVarMap = BP.unified ? _unifiedVarMap : {};
       if (!BP.unified && SAFE_REBUILD) {
         var _preReuseSet = reuseSetByName[setDisplayName];
+        /* Semantic-ID fallback: if setDisplayName changed (singleFamily toggle,
+           section rename), find via dtf-set-id and align reuseSetByName so
+           the reuseTarget lookup and STEP-1 prune work correctly.
+           Without this alignment, _existingVarMap stays empty → STEP 1 prunes
+           nothing → STEP 2 appends new variants on top of old ones → doubles. */
+        if (!_preReuseSet && reuseSetBySemanticId) {
+          var _preSemId = 'dtf::' + BP.name + '::' + mName;
+          var _preSemSet = reuseSetBySemanticId[_preSemId];
+          if (_preSemSet && !_preSemSet.removed) {
+            _preReuseSet = _preSemSet;
+            reuseSetByName[setDisplayName] = _preSemSet;
+            log('SAFE_REBUILD: aligned "' + setDisplayName + '" via semantic ID');
+          }
+        }
         if (_preReuseSet && !_preReuseSet.removed) {
           var _preKids = _preReuseSet.children || [];
           for (var _pki = 0; _pki < _preKids.length; _pki++) {
