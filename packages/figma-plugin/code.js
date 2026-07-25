@@ -1368,7 +1368,7 @@ var TOGGLE_BLUEPRINT = {
   /* Grid layout override — toggle components are 40×24px (vs button 120×36px).
      colSpacing=88: "Off-Disabled" header label is ~77px at 11pt — needs 88px to
      prevent overlap. rowSpacing=40: 24px component + 16px gap for readable rows. */
-  gridLayout: { colSpacing: 88, rowSpacing: 40, componentW: 72, componentH: 28 },
+  gridLayout: { colSpacing: 104, rowSpacing: 52, componentW: 72, componentH: 28 },
 
   /* FOUR masters build the 64-variant unified set.
      pill:true  → Pill=On  → pill track+thumb (toggle/radius = 9999).
@@ -5005,7 +5005,7 @@ async function generateComponentFromBlueprint(blueprint) {
           if (BP.unified) {
             var _pillVal  = (masterCfg && masterCfg.pill)  ? 'On' : 'Off';
             var _labelVal = (masterCfg && masterCfg.label) ? 'On' : 'Off';
-            _variantName = 'Pill=' + _pillVal + ', Label=' + _labelVal + ', Type=' + typeName + ', State=' + stateName;
+            _variantName = 'State=' + stateName + ', Type=' + typeName + ', Pill=' + _pillVal + ', Label=' + _labelVal;
           } else {
             var _labeledSuffix = BP.labeledAxis ? (', Label=' + (isLabeledIter ? 'On' : 'Off')) : '';
             _variantName = BP.skipRounded
@@ -6080,8 +6080,8 @@ async function generateComponentFromBlueprint(blueprint) {
   /* ── Unified component set (e.g. Switch with Pill + Label boolean axes) ──
      After all 4 master iterations have accumulated variants into _unifiedComps,
      create ONE component set named BP.name ("Switch"). Variant names encode all
-     axes: "Pill=Off, Label=Off, Type=Fill, State=Off" — Figma automatically
-     renders Pill= and Label= as boolean toggles in the Design panel. */
+     axes: "State=Off, Type=Fill, Pill=Off, Label=Off" — Figma renders
+     Pill= and Label= as boolean toggles; State= as the first (topmost) dropdown. */
   if (BP.unified && _unifiedComps && _unifiedComps.length > 0) {
     figma.ui.postMessage({ type: 'gen-progress', text: 'Combining unified ' + BP.name + '…' });
 
@@ -6198,9 +6198,9 @@ async function generateComponentFromBlueprint(blueprint) {
       }
     }
     var _uRowsPerPill = _uLabelVals.length * _uFamTypes.length; /* e.g. 4 */
-    var _uPillGap     = 20;   /* gap between Square and Pill groups */
-    var _uPadX        = 20;
-    var _uPadY        = 27;
+    var _uPillGap     = 40;   /* gap between Square and Pill groups */
+    var _uPadX        = 24;
+    var _uPadY        = 36;
 
     /* Position each variant inside the component set. */
     for (var _ugi = 0; _ugi < _unifiedComps.length; _ugi++) {
@@ -6209,7 +6209,7 @@ async function generateComponentFromBlueprint(blueprint) {
       var _uPillM  = _uVName.match(/Pill=(\w+)/);
       var _uLblM   = _uVName.match(/Label=(\w+)/);
       var _uTypeM  = _uVName.match(/Type=(\w+)/);
-      var _uStateM = _uVName.match(/State=(.+)$/);
+      var _uStateM = _uVName.match(/State=([^,]+)/);
       if (!_uPillM || !_uLblM || !_uTypeM || !_uStateM) continue;
       var _uRowKey  = 'Pill=' + _uPillM[1] + ',Label=' + _uLblM[1] + ',Type=' + _uTypeM[1];
       var _uRowIdx  = _uRowKeys.indexOf(_uRowKey);
@@ -6249,7 +6249,7 @@ async function generateComponentFromBlueprint(blueprint) {
     _uHeadCard.appendChild(createLabel(
       (_uFamFamilies[0] || 'Success') + ' \u00b7 ' + BP.name,
       14, true, COLOR_HEADING));
-    var _uSlotBadge = createBadge('Pill \u00b7 Label \u00b7 Type \u00b7 State', COLOR_CM_BG, COLOR_DIMMED);
+    var _uSlotBadge = createBadge('State \u00b7 Type \u00b7 Pill \u00b7 Label', COLOR_CM_BG, COLOR_DIMMED);
     _uHeadCard.appendChild(_uSlotBadge);
     variantSec.section.appendChild(_uHeadCard);
     _uHeadCard.x = variantSec.innerX;
