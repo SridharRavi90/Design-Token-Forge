@@ -161,9 +161,9 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (8 vars)
      ──────────────────────────────────────────────────────────── */
-  --checkbox-focus-outline-width: 2px;
+  --checkbox-focus-outline-width: var(--focus-outline-width);
   --checkbox-focus-outline-color: var(--brand-component-outline-default);
-  --checkbox-focus-outline-offset: 2px;
+  --checkbox-focus-outline-offset: var(--focus-outline-offset);
   --checkbox-min-tap-target: 44px;
   --checkbox-required-indicator: '*';
   --checkbox-required-color: var(--danger-content-default);

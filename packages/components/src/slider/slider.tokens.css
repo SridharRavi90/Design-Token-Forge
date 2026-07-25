@@ -263,9 +263,9 @@
      ♿ ACCESSIBILITY  (9 vars)
      ──────────────────────────────────────────────────────────── */
 
-  --slider-focus-outline-width: 2px;
+  --slider-focus-outline-width: var(--focus-outline-width);
   --slider-focus-outline-color: var(--brand-component-outline-default);
-  --slider-focus-outline-offset: 2px;
+  --slider-focus-outline-offset: var(--focus-outline-offset);
   --slider-min-tap-target: 44px;
   --slider-label-color: var(--surface-base-ct-default);
   --slider-label-color-disabled: var(--surface-base-ct-subtle);

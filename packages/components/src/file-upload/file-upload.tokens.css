@@ -233,8 +233,8 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (4 vars)
      ──────────────────────────────────────────────────────────── */
-  --file-upload-focus-outline-width: 2px;
+  --file-upload-focus-outline-width: var(--focus-outline-width);
   --file-upload-focus-outline-color: var(--brand-component-outline-default);
-  --file-upload-focus-outline-offset: 2px;
+  --file-upload-focus-outline-offset: var(--focus-outline-offset);
   --file-upload-min-tap-target: 44px;
 }

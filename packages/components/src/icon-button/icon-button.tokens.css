@@ -234,9 +234,9 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (5 vars)
      ──────────────────────────────────────────────────────────── */
-  --icon-btn-focus-outline-width: 2px;
+  --icon-btn-focus-outline-width: var(--focus-outline-width);
   --icon-btn-focus-outline-color: var(--brand-component-outline-default);
-  --icon-btn-focus-outline-offset: 2px;
+  --icon-btn-focus-outline-offset: var(--focus-outline-offset);
   --icon-btn-min-tap-target: 44px;
   --icon-btn-radius-rounded: var(--radius-full);
 }

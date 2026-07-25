@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════
    Design Token Forge — DTF Global Extras
    Radius (10) + Shadows (8) + Motion (13) + Z-Index (10) +
-   Opacity (16) = 57 tokens
+   Opacity (16) + Focus (3) = 60 tokens
    ════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -81,6 +81,11 @@
   --opacity-90: 0.9;
   --opacity-95: 0.95;
   --opacity-100: 1;
+
+  /* ── Focus Ring ───────────────────────────────────────────── */
+  --focus-outline-width:  2px;
+  --focus-outline-offset: 4px;
+  --focus-outline-style:  solid;
 }
 
 /* ── Dark theme: flip theme-aware colors ─────────────────── */

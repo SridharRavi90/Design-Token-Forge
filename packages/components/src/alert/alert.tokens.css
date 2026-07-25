@@ -205,9 +205,9 @@
   /* ────────────────────────────────────────────────────────────
      9 · ACCESSIBILITY  (2 vars)
      ──────────────────────────────────────────────────────────── */
-  --alert-focus-outline-width: 2px;
+  --alert-focus-outline-width: var(--focus-outline-width);
   --alert-focus-outline-color: var(--brand-component-outline-default);
-  --alert-focus-outline-offset: 2px;
+  --alert-focus-outline-offset: var(--focus-outline-offset);
 
   /* ────────────────────────────────────────────────────────────
      10 · SHADOW  (1 var)

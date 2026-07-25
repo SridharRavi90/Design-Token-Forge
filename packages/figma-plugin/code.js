@@ -1604,7 +1604,7 @@ var BUTTON_BLUEPRINT = {
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'component/bg-pressed' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
-          'Focus':    { fill: 'default/component/bg-default', stroke: { t3: 'component/outline-default' }, strokeWeight: 2 },
+          'Focus':    { fill: 'default/component/bg-default', focusRing: true },
           'Disabled': { fill: 'default/component/bg-default', componentOpacity: 0.3 }
         },
         'Outlined': {
@@ -1614,7 +1614,7 @@ var BUTTON_BLUEPRINT = {
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
-          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 },
+          'Focus':    { stroke: 'default/component/outline-default', strokeWeight: 1, focusRing: true },
           'Disabled': { stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 }
         },
         'Ghost': {
@@ -1626,7 +1626,7 @@ var BUTTON_BLUEPRINT = {
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
-          'Focus':    { t3Mode: 'brand', stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Focus':    { t3Mode: 'brand', focusRing: true,
                         text: 'default/content/default', icon: 'default/content/default' },
           'Disabled': { componentOpacity: 0.3, text: 'default/content/default', icon: 'default/content/default' }
         },
@@ -1638,7 +1638,7 @@ var BUTTON_BLUEPRINT = {
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'component/bg-pressed' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
-          'Focus':    { fill: 'default/component/bg-default', stroke: { t3: 'component/outline-default' }, strokeWeight: 2 },
+          'Focus':    { fill: 'default/component/bg-default', stroke: 'default/component/outline-default', strokeWeight: 1, focusRing: true },
           'Disabled': { fill: 'default/component/bg-default', stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 }
         }
       }
@@ -1666,7 +1666,7 @@ var BUTTON_BLUEPRINT = {
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Selected': { fill: { t3: 'component/bg-pressed' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
-          'Focus':    { fill: { t3: 'component/bg-default' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Focus':    { fill: { t3: 'component/bg-default' }, focusRing: true,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Disabled': { fill: { t3: 'component/bg-default' }, componentOpacity: 0.3,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } }
@@ -1680,7 +1680,7 @@ var BUTTON_BLUEPRINT = {
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Selected': { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
-          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, focusRing: true,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Disabled': { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } }
@@ -1694,7 +1694,7 @@ var BUTTON_BLUEPRINT = {
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Selected': { fill: { t3: 'container/hover' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
-          'Focus':    { fill: { t3: 'container/bg' }, stroke: { t3: 'container/outline' }, strokeWeight: 2,
+          'Focus':    { fill: { t3: 'container/bg' }, focusRing: true,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Disabled': { fill: { t3: 'container/bg' }, componentOpacity: 0.3,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } }
@@ -1707,7 +1707,7 @@ var BUTTON_BLUEPRINT = {
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Selected': { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
-          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Focus':    { focusRing: true,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Disabled': { componentOpacity: 0.3,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } }
@@ -1854,7 +1854,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
                       fill: { t3: 'component/bg-pressed' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
           focus:    { fill: 'default/component/bg-default',
-                      wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
+                      wrapper: { focusRing: true } },
           disabled: { fill: 'default/component/bg-default',
                       wrapper: { componentOpacity: 0.3 } }
         },
@@ -1865,7 +1865,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
           selected: { t3Mode: 'brand',
                       fill: { t3: 'container/bg' }, text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
-          focus:    { wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
+          focus:    { wrapper: { focusRing: true } },
           disabled: { wrapper: { stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 } },
           wrapperBase: { stroke: 'default/component/outline-default', strokeWeight: 1 }
         },
@@ -1876,7 +1876,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
           selected: { t3Mode: 'brand',
                       fill: { t3: 'container/bg' }, text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
-          focus:    { wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
+          focus:    { wrapper: { focusRing: true } },
           disabled: { wrapper: { componentOpacity: 0.3 } }
         },
         'Fill & Outline': {
@@ -1891,7 +1891,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
                       fill: { t3: 'component/bg-pressed' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
           focus:    { fill: 'default/component/bg-default',
-                      wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
+                      wrapper: { focusRing: true } },
           disabled: { fill: 'default/component/bg-default',
                       wrapper: { stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 } },
           wrapperBase: { stroke: 'default/component/outline-default', strokeWeight: 1 }
@@ -1911,7 +1911,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
           selected: { fill: { t3: 'component/bg-pressed' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
           focus:    { fill: { t3: 'component/bg-default' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' },
-                      wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
+                      wrapper: { focusRing: true } },
           disabled: { fill: { t3: 'component/bg-default' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' },
                       wrapper: { componentOpacity: 0.3 } }
         },
@@ -1924,7 +1924,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
           selected: { text: { t3: 'content/default' }, icon: { t3: 'content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
           focus:    { text: { t3: 'content/default' }, icon: { t3: 'content/default' },
-                      wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
+                      wrapper: { focusRing: true } },
           disabled: { text: { t3: 'content/default' }, icon: { t3: 'content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3 } },
           wrapperBase: { stroke: { t3: 'component/outline-default' }, strokeWeight: 1 }
@@ -1937,7 +1937,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
           selected: { fill: { t3: 'container/bg' }, text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
           focus:    { fill: { t3: 'container/bg' },     text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' },
-                      wrapper: { stroke: { t3: 'container/outline' }, strokeWeight: 2 } },
+                      wrapper: { focusRing: true } },
           disabled: { fill: { t3: 'container/bg' },     text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' },
                       wrapper: { componentOpacity: 0.3 } }
         },
@@ -1949,7 +1949,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
           selected: { text: { t3: 'content/default' }, icon: { t3: 'content/default' },
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
           focus:    { text: { t3: 'content/default' }, icon: { t3: 'content/default' },
-                      wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 } },
+                      wrapper: { focusRing: true } },
           disabled: { text: { t3: 'content/default' }, icon: { t3: 'content/default' },
                       wrapper: { componentOpacity: 0.3 } }
         }
@@ -2062,7 +2062,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'component/bg-pressed' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
-          'Focus':    { fill: 'default/component/bg-default', stroke: { t3: 'component/outline-default' }, strokeWeight: 2 },
+          'Focus':    { fill: 'default/component/bg-default', focusRing: true },
           'Disabled': { fill: 'default/component/bg-default', componentOpacity: 0.3 }
         },
         'Outlined': {
@@ -2072,7 +2072,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
-          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2 },
+          'Focus':    { stroke: 'default/component/outline-default', strokeWeight: 1, focusRing: true },
           'Disabled': { stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 }
         },
         'Ghost': {
@@ -2084,7 +2084,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
-          'Focus':    { t3Mode: 'brand', stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Focus':    { t3Mode: 'brand', focusRing: true,
                         text: 'default/content/default', icon: 'default/content/default' },
           'Disabled': { componentOpacity: 0.3, text: 'default/content/default', icon: 'default/content/default' }
         },
@@ -2095,7 +2095,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'component/bg-pressed' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
-          'Focus':    { fill: 'default/component/bg-default', stroke: { t3: 'component/outline-default' }, strokeWeight: 2 },
+          'Focus':    { fill: 'default/component/bg-default', stroke: 'default/component/outline-default', strokeWeight: 1, focusRing: true },
           'Disabled': { fill: 'default/component/bg-default', stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 }
         }
       }
@@ -2115,7 +2115,7 @@ var MENU_BUTTON_BLUEPRINT = {
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Selected': { fill: { t3: 'component/bg-pressed' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
-          'Focus':    { fill: { t3: 'component/bg-default' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Focus':    { fill: { t3: 'component/bg-default' }, focusRing: true,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Disabled': { fill: { t3: 'component/bg-default' }, componentOpacity: 0.3,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } }
@@ -2129,7 +2129,7 @@ var MENU_BUTTON_BLUEPRINT = {
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Selected': { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
-          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, focusRing: true,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Disabled': { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } }
@@ -2143,7 +2143,7 @@ var MENU_BUTTON_BLUEPRINT = {
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Selected': { fill: { t3: 'container/hover' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
-          'Focus':    { fill: { t3: 'container/bg' }, stroke: { t3: 'container/outline' }, strokeWeight: 2,
+          'Focus':    { fill: { t3: 'container/bg' }, focusRing: true,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Disabled': { fill: { t3: 'container/bg' }, componentOpacity: 0.3,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } }
@@ -2156,7 +2156,7 @@ var MENU_BUTTON_BLUEPRINT = {
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Selected': { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
-          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+          'Focus':    { focusRing: true,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Disabled': { componentOpacity: 0.3,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } }
@@ -2221,6 +2221,7 @@ function expandTypeSpecsToZoneOverrides(typeSpecs, stateNames) {
         if (sw.strokeWeight     !== undefined) w.strokeWeight     = sw.strokeWeight;
         if (sw.componentOpacity !== undefined) w.componentOpacity = sw.componentOpacity;
         if (sw.fill             !== undefined) w.fill             = sw.fill;
+        if (sw.focusRing        !== undefined) w.focusRing        = sw.focusRing;
       }
       return w;
     }
@@ -2292,6 +2293,82 @@ async function generateComponentFromBlueprint(blueprint) {
   var t3Vars = await buildCollectionVarMap('T3 Status Context Tokens');
   /* T1 is needed for T3 alias repair — loaded once, used in the repair block */
   var _t1VarsForRepair = await buildCollectionVarMap('T1 Color Tokens');
+
+  /* ── Step 2c: Focus Ring master components ──────────────────────────────
+     Two shared overlay components used by every Focus state variant across
+     all button-family blueprints. Shape=Default binds cornerRadius to
+     the comp-size focus/ring-radius variable (button/radius + 4px per mode).
+     Shape=Pill uses cornerRadius=9999. Both bind strokeWeight to
+     primitives-numbers/focus/ring-width and stroke color to
+     T1/focus/ring-color. Found by name on the current page; created once
+     if absent, then properties are updated in-place to stay in sync. */
+  var _focusRingOffset = 4; /* px — matches focus/ring-offset variable value */
+  var _focusRingMasterDefault = null;
+  var _focusRingMasterPill    = null;
+
+  var _frPrimNums  = null;
+  var _frWidthVar  = null;
+  var _frRadiusVar = compSizeVars['focus/ring-radius'] || null;
+  var _frColorVar  = (_t1VarsForRepair && _t1VarsForRepair['focus/ring-color']) || null;
+
+  async function _ensureFRMaster(mcName, isPill) {
+    var _frMc = figma.currentPage.findOne(function(n) {
+      return n.type === 'COMPONENT' && n.name === mcName;
+    });
+    if (!_frMc) {
+      var _frSec = figma.currentPage.findOne(function(n) {
+        return n.type === 'SECTION' && n.name === 'Masters / Focus Ring';
+      });
+      if (!_frSec) {
+        _frSec = figma.createSection();
+        _frSec.name = 'Masters / Focus Ring';
+        _frSec.x = -1400;
+        _frSec.y = 200;
+      }
+      _frMc = figma.createComponent();
+      _frMc.name = mcName;
+      _frMc.resize(100, 36);
+      _frMc.description = 'Focus ring overlay placed on Focus state variants. ' +
+                          'StrokeWeight and cornerRadius are variable-bound; ' +
+                          'instances are sized+positioned by the component generator.';
+      _frSec.appendChild(_frMc);
+      log('Created Focus Ring master: ' + mcName);
+    }
+    /* Update properties in-place (preserves existing instance references) */
+    _frMc.fills      = [];
+    _frMc.strokeAlign = 'OUTSIDE';
+    if (!_frPrimNums) {
+      try { _frPrimNums = await buildCollectionVarMap('primitives-numbers'); } catch (e) { _frPrimNums = {}; }
+      _frWidthVar = (_frPrimNums && _frPrimNums['focus/ring-width']) || null;
+    }
+    if (_frWidthVar) {
+      try { _frMc.setBoundVariable('strokeWeight', _frWidthVar); } catch (e) { _frMc.strokeWeight = 2; }
+    } else {
+      _frMc.strokeWeight = 2;
+    }
+    if (_frColorVar) {
+      setPaintBoundToVariable(_frMc, 'strokes', _frColorVar);
+    } else {
+      _frMc.strokes = [{ type: 'SOLID', color: { r: 0.22, g: 0.37, b: 0.98 }, opacity: 1 }];
+    }
+    if (isPill) {
+      _frMc.cornerRadius = 9999;
+    } else if (_frRadiusVar) {
+      try {
+        _frMc.setBoundVariable('topLeftRadius',     _frRadiusVar);
+        _frMc.setBoundVariable('topRightRadius',    _frRadiusVar);
+        _frMc.setBoundVariable('bottomLeftRadius',  _frRadiusVar);
+        _frMc.setBoundVariable('bottomRightRadius', _frRadiusVar);
+      } catch (e) { _frMc.cornerRadius = 10; }
+    } else {
+      _frMc.cornerRadius = 10;
+    }
+    return _frMc;
+  }
+
+  _focusRingMasterDefault = await _ensureFRMaster('mc / Focus Ring / Default', false);
+  _focusRingMasterPill    = await _ensureFRMaster('mc / Focus Ring / Pill',    true);
+  log('Focus Ring masters ready: Default=' + !!_focusRingMasterDefault + ' Pill=' + !!_focusRingMasterPill);
 
   /* ── Step 2a: Normalize legacy T2 variable names ────────────
      Older project files have T2 vars named `default/component/bg` and
@@ -5484,13 +5561,45 @@ async function generateComponentFromBlueprint(blueprint) {
               try { instance.fills = []; } catch (e) {}
             }
 
-            /* Wrapper-level stroke (focus ring, outlined types, selected ring)
+            /* Wrapper-level stroke (selected ring, outlined types) or Focus Ring overlay
                → on the instance. Uses OUTSIDE alignment so the ring stays
                visible regardless of inner zone fills. INSIDE alignment was
                masked by the action+trigger zone fills (Selected applies a
                container/bg fill that covers the wrapper bounds), making
-               the selected ring invisible on Filled / Ghost / Fill&Outline. */
-            if (wrapOv.stroke) {
+               the selected ring invisible on Filled / Ghost / Fill&Outline.
+               Focus states use a Focus Ring master instance overlay instead
+               of a direct stroke (4px gap + variable-bound ring width). */
+            if (wrapOv.focusRing) {
+              /* Apply the border stroke first when present (e.g. Outlined Focus keeps
+                 a 1px gray border while also showing the external ring overlay). */
+              if (wrapOv.stroke) {
+                var wrapStrokeVar = resolveColorSpec(wrapOv.stroke, t2Vars, t3Vars);
+                if (wrapStrokeVar) {
+                  setPaintBoundToVariable(instance, 'strokes', wrapStrokeVar);
+                  instance.strokeWeight = wrapOv.strokeWeight || 1;
+                  instance.strokeAlign = 'OUTSIDE';
+                  stats.bindings++;
+                }
+              } else {
+                try { instance.strokes = []; } catch (e) {}
+              }
+              /* Add Focus Ring overlay as an ABSOLUTE STRETCH child of varComp */
+              var _frMW = isRounded ? _focusRingMasterPill : _focusRingMasterDefault;
+              if (_frMW) {
+                var _frotW  = _focusRingOffset;
+                var _frInstW = _frMW.createInstance();
+                var _frWW = Math.max(varComp.width,  10) + 2 * _frotW;
+                var _frHW = Math.max(varComp.height, 10) + 2 * _frotW;
+                _frInstW.resize(_frWW, _frHW);
+                _frInstW.x = -_frotW;
+                _frInstW.y = -_frotW;
+                try { _frInstW.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
+                _frInstW.constraints = { horizontal: 'STRETCH', vertical: 'STRETCH' };
+                varComp.insertChild(0, _frInstW);
+                varComp.clipsContent = false;
+                stats.bindings++;
+              }
+            } else if (wrapOv.stroke) {
               var wrapStrokeVar = resolveColorSpec(wrapOv.stroke, t2Vars, t3Vars);
               if (wrapStrokeVar) {
                 setPaintBoundToVariable(instance, 'strokes', wrapStrokeVar);
@@ -5704,8 +5813,42 @@ async function generateComponentFromBlueprint(blueprint) {
             instance.fills = [];
           }
 
-          /* Stroke override */
-          if (overrides.stroke) {
+          /* Stroke override / Focus Ring overlay */
+          if (overrides.focusRing) {
+            /* Apply border stroke when present (e.g. Outlined Focus keeps 1px gray
+               border on the mc instance while the external ring provides focus cue). */
+            if (overrides.stroke) {
+              var strokeVar = resolveColorSpec(overrides.stroke, t2Vars, t3Vars);
+              if (strokeVar) {
+                setPaintBoundToVariable(instance, 'strokes', strokeVar);
+                instance.strokeWeight = overrides.strokeWeight || 1;
+                instance.strokeAlign = 'INSIDE';
+                try { instance.dashPattern = overrides.strokeDash || []; } catch (_dp) {}
+                stats.bindings++;
+              }
+            } else {
+              instance.strokes = [];
+            }
+            /* Inject Focus Ring master instance as ABSOLUTE STRETCH overlay in varComp.
+               Positioned at (-offset, -offset) with STRETCH constraints so it auto-resizes
+               with the button across all 10 comp-size modes. strokeAlign=OUTSIDE on the
+               master means the 2px ring appears exactly 4px away from the button boundary. */
+            var _frMB = isRounded ? _focusRingMasterPill : _focusRingMasterDefault;
+            if (_frMB) {
+              var _frotB  = _focusRingOffset;
+              var _frInstB = _frMB.createInstance();
+              var _frWB = Math.max(varComp.width,  10) + 2 * _frotB;
+              var _frHB = Math.max(varComp.height, 10) + 2 * _frotB;
+              _frInstB.resize(_frWB, _frHB);
+              _frInstB.x = -_frotB;
+              _frInstB.y = -_frotB;
+              try { _frInstB.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
+              _frInstB.constraints = { horizontal: 'STRETCH', vertical: 'STRETCH' };
+              varComp.insertChild(0, _frInstB);
+              varComp.clipsContent = false;
+              stats.bindings++;
+            }
+          } else if (overrides.stroke) {
             var strokeVar = resolveColorSpec(overrides.stroke, t2Vars, t3Vars);
             if (strokeVar) {
               setPaintBoundToVariable(instance, 'strokes', strokeVar);

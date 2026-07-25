@@ -209,7 +209,7 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (3 vars)
      ──────────────────────────────────────────────────────────── */
-  --progress-focus-outline-width: 2px;
+  --progress-focus-outline-width: var(--focus-outline-width);
   --progress-focus-outline-color: var(--brand-component-outline-default);
-  --progress-focus-outline-offset: 2px;
+  --progress-focus-outline-offset: var(--focus-outline-offset);
 }

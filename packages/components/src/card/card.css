@@ -197,8 +197,8 @@
 }
 
 .card__overlay-link:focus-visible {
-  outline: var(--card-focus-ring-width) solid var(--card-focus-ring-color);
-  outline-offset: var(--card-focus-ring-offset);
+  outline: var(--card-focus-outline-width) solid var(--card-focus-outline-color);
+  outline-offset: var(--card-focus-outline-offset);
   opacity: 1;
 }
 
@@ -292,8 +292,8 @@ button.card:active,
 a.card:focus-visible,
 button.card:focus-visible,
 .card[data-interactive]:focus-visible {
-  outline: var(--card-focus-ring-width) solid var(--card-focus-ring-color);
-  outline-offset: var(--card-focus-ring-offset);
+  outline: var(--card-focus-outline-width) solid var(--card-focus-outline-color);
+  outline-offset: var(--card-focus-outline-offset);
 }
 
 /* ══════════════════════════════════════════════════════════════

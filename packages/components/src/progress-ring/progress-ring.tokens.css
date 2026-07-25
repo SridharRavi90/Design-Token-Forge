@@ -173,7 +173,7 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (3 vars)
      ──────────────────────────────────────────────────────────── */
-  --ring-focus-outline-width: 2px;
+  --ring-focus-outline-width: var(--focus-outline-width);
   --ring-focus-outline-color: var(--brand-component-outline-default);
-  --ring-focus-outline-offset: 2px;
+  --ring-focus-outline-offset: var(--focus-outline-offset);
 }

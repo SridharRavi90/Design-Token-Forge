@@ -211,7 +211,7 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (3 vars)
      ──────────────────────────────────────────────────────────── */
-  --badge-focus-outline-width: 2px;
+  --badge-focus-outline-width: var(--focus-outline-width);
   --badge-focus-outline-color: var(--brand-component-outline-default);
-  --badge-focus-outline-offset: 2px;
+  --badge-focus-outline-offset: var(--focus-outline-offset);
 }

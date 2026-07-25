@@ -386,8 +386,8 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (4 vars)
      ──────────────────────────────────────────────────────────── */
-  --btn-focus-outline-width: 2px;
+  --btn-focus-outline-width: var(--focus-outline-width);
   --btn-focus-outline-color: var(--brand-component-outline-default);
-  --btn-focus-outline-offset: 2px;
+  --btn-focus-outline-offset: var(--focus-outline-offset);
   --btn-min-tap-target: 0px; /* Sizes are intentional — use pseudo-element for a11y tap area if needed */
 }

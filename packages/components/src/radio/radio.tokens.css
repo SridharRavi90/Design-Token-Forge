@@ -173,9 +173,9 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (8 vars)
      ──────────────────────────────────────────────────────────── */
-  --radio-focus-outline-width: 2px;
+  --radio-focus-outline-width: var(--focus-outline-width);
   --radio-focus-outline-color: var(--brand-component-outline-default);
-  --radio-focus-outline-offset: 2px;
+  --radio-focus-outline-offset: var(--focus-outline-offset);
   --radio-min-tap-target: 44px;
   --radio-required-indicator: '*';
   --radio-required-color: var(--danger-content-default);

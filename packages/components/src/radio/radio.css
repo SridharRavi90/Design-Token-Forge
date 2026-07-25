@@ -46,8 +46,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 .radio__circle {
-  display: grid;
-  place-items: center;
+  position: relative;
   flex-shrink: 0;
   box-sizing: border-box;
 
@@ -75,13 +74,16 @@
 
 .radio__dot {
   display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: var(--_rd-dot-size);
   height: var(--_rd-dot-size);
   border-radius: 50%;
   background-color: var(--_rd-dot-color);
 
   opacity: 0;
-  transform: scale(0);
+  transform: translate(-50%, -50%) scale(0);
   transition-property: opacity, transform;
   transition-duration: var(--radio-dot-transition-duration);
   transition-timing-function: var(--radio-dot-transition-easing);
@@ -205,7 +207,7 @@
 
 .radio__control:checked + .radio__circle .radio__dot {
   opacity: 1;
-  transform: scale(1);
+  transform: translate(-50%, -50%) scale(1);
 }
 
 /* ════════════════════════════════════════════════════════════════

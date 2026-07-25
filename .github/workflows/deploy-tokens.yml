@@ -1,4 +1,4 @@
-name: Deploy Tokens to GitHub Pages
+name: Deploy to Zoho Pages
 
 on:
   push:
@@ -11,11 +11,6 @@ on:
       - 'demo/**'
       - 'projects/**'
   workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -47,23 +42,22 @@ jobs:
         # determinism between the two build invocations.
         run: node scripts/audit-token-drift.cjs
 
+      - name: Copy demo pages
+        run: |
+          cp -r demo dist/demo
+
       - name: Copy plugin UI to root
         run: |
           mkdir -p dist/plugin
           cp demo/plugin/ui.html dist/plugin/ui.html
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to Zoho Pages (push to pages branch)
+        run: |
+          cd dist
+          git init -q
+          git checkout -q -b pages
+          git add -A
+          git -c user.name="Deploy Bot" -c user.email="deploy@dtf" \
+              commit -q -m "Deploy $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          git remote add origin "${{ github.server_url }}/${{ github.repository }}.git" || true
+          git push --force origin pages

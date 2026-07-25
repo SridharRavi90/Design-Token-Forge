@@ -190,7 +190,7 @@
   /* ────────────────────────────────────────────────────────────
      9 · ACCESSIBILITY  (2 vars)
      ──────────────────────────────────────────────────────────── */
-  --toast-focus-outline-width: 2px;
+  --toast-focus-outline-width: var(--focus-outline-width);
   --toast-focus-outline-color: var(--brand-component-outline-default);
-  --toast-focus-outline-offset: 2px;
+  --toast-focus-outline-offset: var(--focus-outline-offset);
 }

@@ -218,8 +218,8 @@
 
   /* Focus ring */
   --datepicker-focus-outline-color: var(--brand-component-outline-default);
-  --datepicker-focus-outline-width: 2px;
-  --datepicker-focus-outline-offset: 2px;
+  --datepicker-focus-outline-width: var(--focus-outline-width);
+  --datepicker-focus-outline-offset: var(--focus-outline-offset);
 
   /* ────────────────────────────────────────────────────────────
      ✏️ TYPOGRAPHY  (19 vars)

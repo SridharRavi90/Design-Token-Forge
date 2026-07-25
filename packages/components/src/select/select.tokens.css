@@ -218,9 +218,9 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (6 vars)
      ──────────────────────────────────────────────────────────── */
-  --select-focus-outline-width: 2px;
+  --select-focus-outline-width: var(--focus-outline-width);
   --select-focus-outline-color: var(--brand-component-outline-default);
-  --select-focus-outline-offset: 2px;
+  --select-focus-outline-offset: var(--focus-outline-offset);
   --select-min-tap-target: 44px;
   --select-required-indicator: '*';
   --select-required-color: var(--danger-content-default);

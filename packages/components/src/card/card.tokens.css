@@ -122,9 +122,9 @@
   --card-header-border-color:  var(--surface-base-separator);
   --card-footer-border-color:  var(--surface-base-separator);
 
-  --card-selected-ring-color:  var(--focus-ring-color);
+  --card-selected-ring-color:  var(--brand-component-outline-default);
   --card-selected-ring-width:  2px;
-  --card-selected-bg:          color-mix(in srgb, var(--focus-ring-color) 5%, transparent);
+  --card-selected-bg:          color-mix(in srgb, var(--brand-component-outline-default) 5%, transparent);
 
   /* ────────────────────────────────────────────────────────────
      🔤 TYPOGRAPHY  (16 vars)
@@ -167,7 +167,7 @@
      ♿ A11Y  (3 vars)
      ──────────────────────────────────────────────────────────── */
 
-  --card-focus-ring-width:   2px;
-  --card-focus-ring-offset:  2px;
-  --card-focus-ring-color:   var(--focus-ring-color);
+  --card-focus-outline-width:   var(--focus-outline-width);
+  --card-focus-outline-offset:  var(--focus-outline-offset);
+  --card-focus-outline-color:   var(--brand-component-outline-default);
 }

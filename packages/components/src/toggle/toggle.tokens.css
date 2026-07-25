@@ -299,9 +299,9 @@
   /* ────────────────────────────────────────────────────────────
      ♿ ACCESSIBILITY  (8 vars) ─ 128 total
      ──────────────────────────────────────────────────────────── */
-  --switch-focus-outline-width: 2px;
+  --switch-focus-outline-width: var(--focus-outline-width);
   --switch-focus-outline-color: var(--brand-component-outline-default);
-  --switch-focus-outline-offset: 2px;
+  --switch-focus-outline-offset: var(--focus-outline-offset);
   --switch-min-tap-target: 44px;
   --switch-required-indicator: '*';
   --switch-required-color: var(--danger-content-default);
