@@ -5156,7 +5156,9 @@ async function generateComponentFromBlueprint(blueprint) {
             catch (e) { log('T3 mode lock failed (' + familyName + '/' + stateName + '): ' + e.message); }
           }
 
-          /* Disabled opacity lives on the COMPONENT (not the instance) */
+          /* Reset opacity first so a reused varComp never carries stale
+             opacity from a prior Disabled run; then apply any override. */
+          varComp.opacity = 1;
           if (overrides.componentOpacity !== undefined) {
             varComp.opacity = overrides.componentOpacity;
           }
