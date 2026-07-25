@@ -1618,14 +1618,7 @@ var BUTTON_BLUEPRINT = {
           'Disabled': { stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 }
         },
         'Ghost': {
-          /* Dashed 1px outline on Default so the button shape is visible in the
-             component-set overview even though the background is transparent.
-             Hover/Pressed carry solidFill fallbacks (in addition to T2 vars)
-             so they always show a contrasting fill at any zoom level.
-             Focus locks T3 brand mode so the 2px focus ring renders as the
-             brand accent colour — the same as every other button type. */
-          'Default':  { stroke: 'default/component/outline-default', strokeWeight: 1, strokeDash: [4, 4],
-                        text: 'default/content/default', icon: 'default/content/default' },
+          'Default':  { text: 'default/content/default', icon: 'default/content/default' },
           'Hover':    { fill: 'default/component/bg-hover',   fillFallback: { r: 0.91, g: 0.91, b: 0.91 },
                         text: 'default/content/default', icon: 'default/content/default' },
           'Pressed':  { fill: 'default/component/bg-pressed', fillFallback: { r: 0.85, g: 0.85, b: 0.85 },
@@ -1658,11 +1651,10 @@ var BUTTON_BLUEPRINT = {
          Secondary = brand outline, brand text                     (Confirm / next-tier action)
          Tertiary  = tonal brand container fill, brand text         (Quiet emphasis)
          Ghost     = no chrome, brand text                          (Inline / minimal)
-       Selected state intentionally omitted — toggle/selection isn't a brand-button concept.
        ────────────────────────────────────────────────────────── */
     'Brand': {
       types:  ['Primary', 'Secondary', 'Tertiary', 'Ghost'],
-      states: ['Default', 'Hover', 'Pressed', 'Focus', 'Disabled'],
+      states: ['Default', 'Hover', 'Pressed', 'Selected', 'Focus', 'Disabled'],
       t3Mode: 'brand',
       stateOverrides: {
         'Primary': {
@@ -1671,6 +1663,8 @@ var BUTTON_BLUEPRINT = {
           'Hover':    { fill: { t3: 'component/bg-hover' },
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Pressed':  { fill: { t3: 'component/bg-pressed' },
+                        text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
+          'Selected': { fill: { t3: 'component/bg-pressed' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Focus':    { fill: { t3: 'component/bg-default' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
@@ -1684,6 +1678,8 @@ var BUTTON_BLUEPRINT = {
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Pressed':  { fill: { t3: 'container/hover' }, stroke: { t3: 'component/outline-pressed' }, strokeWeight: 1,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
+          'Selected': { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                        text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Disabled': { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3,
@@ -1696,6 +1692,8 @@ var BUTTON_BLUEPRINT = {
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Pressed':  { fill: { t3: 'container/pressed' },
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
+          'Selected': { fill: { t3: 'container/hover' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                        text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Focus':    { fill: { t3: 'container/bg' }, stroke: { t3: 'container/outline' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Disabled': { fill: { t3: 'container/bg' }, componentOpacity: 0.3,
@@ -1706,6 +1704,8 @@ var BUTTON_BLUEPRINT = {
           'Hover':    { fill: { t3: 'container/bg' },
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Pressed':  { fill: { t3: 'container/hover' },
+                        text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
+          'Selected': { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
@@ -2076,8 +2076,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Disabled': { stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 }
         },
         'Ghost': {
-          'Default':  { stroke: 'default/component/outline-default', strokeWeight: 1, strokeDash: [4, 4],
-                        text: 'default/content/default', icon: 'default/content/default' },
+          'Default':  { text: 'default/content/default', icon: 'default/content/default' },
           'Hover':    { fill: 'default/component/bg-hover',   fillFallback: { r: 0.91, g: 0.91, b: 0.91 },
                         text: 'default/content/default', icon: 'default/content/default' },
           'Pressed':  { fill: 'default/component/bg-pressed', fillFallback: { r: 0.85, g: 0.85, b: 0.85 },
@@ -2104,7 +2103,7 @@ var MENU_BUTTON_BLUEPRINT = {
 
     'Brand': {
       types:  ['Primary', 'Secondary', 'Tertiary', 'Ghost'],
-      states: ['Default', 'Hover', 'Pressed', 'Focus', 'Disabled'],
+      states: ['Default', 'Hover', 'Pressed', 'Selected', 'Focus', 'Disabled'],
       t3Mode: 'brand',
       stateOverrides: {
         'Primary': {
@@ -2113,6 +2112,8 @@ var MENU_BUTTON_BLUEPRINT = {
           'Hover':    { fill: { t3: 'component/bg-hover' },
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Pressed':  { fill: { t3: 'component/bg-pressed' },
+                        text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
+          'Selected': { fill: { t3: 'component/bg-pressed' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Focus':    { fill: { t3: 'component/bg-default' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
@@ -2126,6 +2127,8 @@ var MENU_BUTTON_BLUEPRINT = {
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Pressed':  { fill: { t3: 'container/hover' }, stroke: { t3: 'component/outline-pressed' }, strokeWeight: 1,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
+          'Selected': { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                        text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Disabled': { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3,
@@ -2138,6 +2141,8 @@ var MENU_BUTTON_BLUEPRINT = {
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Pressed':  { fill: { t3: 'container/pressed' },
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
+          'Selected': { fill: { t3: 'container/hover' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                        text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Focus':    { fill: { t3: 'container/bg' }, stroke: { t3: 'container/outline' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Disabled': { fill: { t3: 'container/bg' }, componentOpacity: 0.3,
@@ -2148,6 +2153,8 @@ var MENU_BUTTON_BLUEPRINT = {
           'Hover':    { fill: { t3: 'container/bg' },
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Pressed':  { fill: { t3: 'container/hover' },
+                        text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
+          'Selected': { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
