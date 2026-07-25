@@ -1618,13 +1618,23 @@ var BUTTON_BLUEPRINT = {
           'Disabled': { stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 }
         },
         'Ghost': {
-          'Default':  { text: 'default/content/default', icon: 'default/content/default' },
-          'Hover':    { fill: 'default/component/bg-hover',   text: 'default/content/default', icon: 'default/content/default' },
-          'Pressed':  { fill: 'default/component/bg-pressed', text: 'default/content/default', icon: 'default/content/default' },
+          /* Dashed 1px outline on Default so the button shape is visible in the
+             component-set overview even though the background is transparent.
+             Hover/Pressed carry solidFill fallbacks (in addition to T2 vars)
+             so they always show a contrasting fill at any zoom level.
+             Focus locks T3 brand mode so the 2px focus ring renders as the
+             brand accent colour — the same as every other button type. */
+          'Default':  { stroke: 'default/component/outline-default', strokeWeight: 1, strokeDash: [4, 4],
+                        text: 'default/content/default', icon: 'default/content/default' },
+          'Hover':    { fill: 'default/component/bg-hover',   fillFallback: { r: 0.91, g: 0.91, b: 0.91 },
+                        text: 'default/content/default', icon: 'default/content/default' },
+          'Pressed':  { fill: 'default/component/bg-pressed', fillFallback: { r: 0.85, g: 0.85, b: 0.85 },
+                        text: 'default/content/default', icon: 'default/content/default' },
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
-          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2, text: 'default/content/default', icon: 'default/content/default' },
+          'Focus':    { t3Mode: 'brand', stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                        text: 'default/content/default', icon: 'default/content/default' },
           'Disabled': { componentOpacity: 0.3, text: 'default/content/default', icon: 'default/content/default' }
         },
         'Fill & Outline': {
@@ -2066,13 +2076,17 @@ var MENU_BUTTON_BLUEPRINT = {
           'Disabled': { stroke: 'default/component/outline-default', strokeWeight: 1, componentOpacity: 0.3 }
         },
         'Ghost': {
-          'Default':  { text: 'default/content/default', icon: 'default/content/default' },
-          'Hover':    { fill: 'default/component/bg-hover',   text: 'default/content/default', icon: 'default/content/default' },
-          'Pressed':  { fill: 'default/component/bg-pressed', text: 'default/content/default', icon: 'default/content/default' },
+          'Default':  { stroke: 'default/component/outline-default', strokeWeight: 1, strokeDash: [4, 4],
+                        text: 'default/content/default', icon: 'default/content/default' },
+          'Hover':    { fill: 'default/component/bg-hover',   fillFallback: { r: 0.91, g: 0.91, b: 0.91 },
+                        text: 'default/content/default', icon: 'default/content/default' },
+          'Pressed':  { fill: 'default/component/bg-pressed', fillFallback: { r: 0.85, g: 0.85, b: 0.85 },
+                        text: 'default/content/default', icon: 'default/content/default' },
           'Selected': { t3Mode: 'brand',
                         fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
-          'Focus':    { stroke: { t3: 'component/outline-default' }, strokeWeight: 2, text: 'default/content/default', icon: 'default/content/default' },
+          'Focus':    { t3Mode: 'brand', stroke: { t3: 'component/outline-default' }, strokeWeight: 2,
+                        text: 'default/content/default', icon: 'default/content/default' },
           'Disabled': { componentOpacity: 0.3, text: 'default/content/default', icon: 'default/content/default' }
         },
         'Fill & Outline': {
@@ -4963,6 +4977,19 @@ async function generateComponentFromBlueprint(blueprint) {
     var masterCfg = BP.masters[mName]; /* re-read per master — builder loop used a separate iterator */
     var masterComp = masterComponents[mName];
 
+    /* singleFamily: ALL families share one component array + one _existingVarMap
+       per master.  We accumulate across families and run combineAsVariants ONCE.
+       Without this, the second family's SAFE_REBUILD prune removes the first
+       family's Neutral-only types (Filled/Outlined/Fill&Outline/Ghost-Selected).
+       _sfComponentsMap deduplicates shared type names (e.g. Ghost) — first family wins.
+       _sfAllTypes/_sfAllStates union all families so the grid layout covers every row/col. */
+    var _sfComponents     = BP.singleFamily ? [] : null;
+    var _sfComponentsMap  = BP.singleFamily ? {} : null; /* name → true; first-family-wins dedup */
+    var _sfAllTypes       = BP.singleFamily ? [] : null; /* merged type list for grid layout */
+    var _sfAllStates      = BP.singleFamily ? [] : null; /* merged state list for grid layout */
+    var _sfVarMap         = null; /* built once from pre-existing set, shared across families */
+    var _sfVarMapBuilt    = false;
+
     /* Iterate FAMILIES (Neutral, Brand, …) — each produces its own component set. */
     var familyNames = Object.keys(BP.families);
     for (var famI = 0; famI < familyNames.length; famI++) {
@@ -4985,13 +5012,27 @@ async function generateComponentFromBlueprint(blueprint) {
         famOverrides = family.stateOverrides;
       }
 
+      /* singleFamily: accumulate merged types/states for grid layout. */
+      if (BP.singleFamily) {
+        for (var _sfti = 0; _sfti < famTypes.length; _sfti++) {
+          if (_sfAllTypes.indexOf(famTypes[_sfti]) === -1) _sfAllTypes.push(famTypes[_sfti]);
+        }
+        for (var _sfsi = 0; _sfsi < famStates.length; _sfsi++) {
+          if (_sfAllStates.indexOf(famStates[_sfsi]) === -1) _sfAllStates.push(famStates[_sfsi]);
+        }
+      }
+
       var setDisplayName = BP.unified
         ? BP.name
         : (BP.singleFamily ? mName : (BP.name + ' / ' + familyName + ' / ' + mName));
 
       /* Unified blueprints: all masters share a single components array and a
          single pre-built _existingVarMap (populated from the "Switch" set above).
-         Non-unified: per-iteration fresh array + fresh SAFE_REBUILD lookup. */
+         singleFamily: all families of a master share a single components array
+         and a single pre-built _existingVarMap (built on first family, reused for
+         subsequent ones so the second family's prune doesn't remove the first
+         family's unique types).
+         Non-unified / non-singleFamily: per-iteration fresh array + fresh lookup. */
       var components = BP.unified ? _unifiedComps : []; /* { component, type, state, rounded } */
 
       /* SAFE_REBUILD variant reuse map — keyed by variant name.
@@ -5000,8 +5041,8 @@ async function generateComponentFromBlueprint(blueprint) {
          Preserving individual variant node IDs keeps placed instances from
          showing "Missing variant" (instances track mainComponent by ID, not
          just by the set's library key). */
-      var _existingVarMap = BP.unified ? _unifiedVarMap : {};
-      if (!BP.unified && SAFE_REBUILD) {
+      var _existingVarMap = BP.unified ? _unifiedVarMap : ((_sfVarMap && _sfVarMapBuilt) ? _sfVarMap : {});
+      if (!BP.unified && SAFE_REBUILD && !(_sfVarMapBuilt && BP.singleFamily)) {
         var _preReuseSet = reuseSetByName[setDisplayName];
         /* Semantic-ID fallback: if setDisplayName changed (singleFamily toggle,
            section rename), find via dtf-set-id and align reuseSetByName so
@@ -5033,6 +5074,12 @@ async function generateComponentFromBlueprint(blueprint) {
             }
           }
           log('SAFE_REBUILD variant map: ' + Object.keys(_existingVarMap).length + ' existing variants for "' + setDisplayName + '"');
+        }
+        /* singleFamily: store the map so subsequent family iterations reuse it
+           (avoiding a second prune pass that would remove the first family's types). */
+        if (BP.singleFamily && !_sfVarMapBuilt) {
+          _sfVarMap = _existingVarMap;
+          _sfVarMapBuilt = true;
         }
       }
 
@@ -5617,6 +5664,10 @@ async function generateComponentFromBlueprint(blueprint) {
               setPaintBoundToVariable(instance, 'strokes', strokeVar);
               instance.strokeWeight = overrides.strokeWeight || 1;
               instance.strokeAlign = 'INSIDE';
+              /* Dash pattern — Ghost Default uses [4,4] for a dashed outline
+                 that makes the button boundary visible on a white canvas.
+                 Solid strokes omit this key so dashPattern resets to []. */
+              try { instance.dashPattern = overrides.strokeDash || []; } catch (_dp) {}
               stats.bindings++;
             }
           } else {
@@ -5679,8 +5730,21 @@ async function generateComponentFromBlueprint(blueprint) {
           }
           } /* end legacy/wrapper branch */
 
-
-          components.push({ component: varComp, type: typeName, state: stateName, rounded: isRounded });
+          var _compRecord = { component: varComp, type: typeName, state: stateName, rounded: isRounded };
+          components.push(_compRecord);
+          /* singleFamily: accumulate into the master-level shared array with dedup.
+             First-family-wins: if another family already added a variant with this
+             name (e.g. both Neutral and Brand define "Ghost"), keep the first
+             (Neutral's visible overrides) and skip the duplicate (Brand's). */
+          if (BP.singleFamily) {
+            if (!_sfComponentsMap[_variantName]) {
+              _sfComponentsMap[_variantName] = true;
+              _sfComponents.push(_compRecord);
+            } else {
+              /* Duplicate for singleFamily — remove the extra component and skip. */
+              try { varComp.remove(); } catch (_sfDupe) {}
+            }
+          }
           stats.components++;
         }
       }
@@ -5689,15 +5753,20 @@ async function generateComponentFromBlueprint(blueprint) {
 
       /* Unified blueprints: component accumulation is done above; skip the
          per-family combineAsVariants — the unified set is created after all
-         master iterations complete (see "Unified component set" block below). */
-      if (!BP.unified) {
+         master iterations complete (see "Unified component set" block below).
+         singleFamily: same principle — skip combining until the LAST family so
+         all families' variants accumulate before the single prune+append pass. */
+      if (!BP.unified && !(BP.singleFamily && famI < familyNames.length - 1)) {
+
+      /* For singleFamily last-family pass: use all accumulated components. */
+      var _combineSource = (BP.singleFamily && _sfComponents) ? _sfComponents : components;
 
       /* ── Combine into ComponentSet ── */
       figma.ui.postMessage({ type: 'gen-progress', text: 'Combining ' + setDisplayName + '…' });
 
       var allComps = [];
-      for (var ai = 0; ai < components.length; ai++) {
-        allComps.push(components[ai].component);
+      for (var ai = 0; ai < _combineSource.length; ai++) {
+        allComps.push(_combineSource[ai].component);
       }
 
       var componentSet;
@@ -5820,9 +5889,13 @@ async function generateComponentFromBlueprint(blueprint) {
 
       /* Grid layout: types as rows, states as columns. Rounded=False set
          occupies the top half; Rounded=True set is stacked below with a
-         small gap so the variant set is browsable at a glance. */
-      var colCount = famStates.length;
-      var rowCount = famTypes.length;
+         small gap so the variant set is browsable at a glance.
+         singleFamily: use merged types/states so all families' entries are
+         positioned within the grid (not pushed to negative y). */
+      var _gridTypes  = (BP.singleFamily && _sfAllTypes)  ? _sfAllTypes  : famTypes;
+      var _gridStates = (BP.singleFamily && _sfAllStates) ? _sfAllStates : famStates;
+      var colCount = _gridStates.length;
+      var rowCount = _gridTypes.length;
       var padX = 20;
       var padY = 27;
       /* Per-blueprint grid constants — scaled to component proportions.
@@ -5833,10 +5906,10 @@ async function generateComponentFromBlueprint(blueprint) {
       var _compH     = (BP.gridLayout && BP.gridLayout.componentH) || 32;
       var roundedBlockGap = 30; /* extra gap between False-block and True-block */
       var blockHeight = rowCount * rowSpacing;
-      for (var gi = 0; gi < components.length; gi++) {
-        var entry = components[gi];
-        var typeIdx = famTypes.indexOf(entry.type);
-        var stateIdx = famStates.indexOf(entry.state);
+      for (var gi = 0; gi < _combineSource.length; gi++) {
+        var entry = _combineSource[gi];
+        var typeIdx  = _gridTypes.indexOf(entry.type);
+        var stateIdx = _gridStates.indexOf(entry.state);
         /* When skipRounded:true, every master owns its OWN separate ComponentSet
            (one set per master, not one set per family). All entries in this set
            share the same shape, so there is no "Rounded block" to stack below.
