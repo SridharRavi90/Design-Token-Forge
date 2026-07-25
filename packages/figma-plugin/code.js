@@ -2817,7 +2817,23 @@ async function generateComponentFromBlueprint(blueprint) {
       for (var _ssi = 0; _ssi < _semSets.length; _ssi++) {
         try {
           var _sid = _semSets[_ssi].getPluginData('dtf-set-id');
-          if (_sid && !_semSets[_ssi].removed) reuseSetBySemanticId[_sid] = _semSets[_ssi];
+          if (!_sid || _semSets[_ssi].removed) continue;
+          var _semCurr = reuseSetBySemanticId[_sid];
+          if (!_semCurr || _semCurr.removed) {
+            reuseSetBySemanticId[_sid] = _semSets[_ssi];
+          } else {
+            /* Conflict: two sets share the same semId (common during singleFamily
+               migration where old per-family sets and the new merged set all carry
+               'dtf::BP::mName'). Prefer the set whose parent is a SECTION over a
+               page-root orphan — section-contained = active/current;
+               page-root = rescued-in-progress or leftover orphan.
+               If both are sections or both are page-root, keep first (stable). */
+            var _candInSection = (_semSets[_ssi].parent && _semSets[_ssi].parent.type === 'SECTION');
+            var _currInSection = (_semCurr.parent && _semCurr.parent.type === 'SECTION');
+            if (_candInSection && !_currInSection) {
+              reuseSetBySemanticId[_sid] = _semSets[_ssi];
+            }
+          }
         } catch(e) {}
       }
       log('SAFE_REBUILD semantic IDs: ' + Object.keys(reuseSetBySemanticId).length);
