@@ -1647,17 +1647,17 @@ var BUTTON_BLUEPRINT = {
     /* ── BRAND FAMILY ──────────────────────────────────────────
        4 semantic variants, all bound to T3 collection's 'brand' mode.
        Maps to real-world button hierarchies:
-         Primary   = high-emphasis, brand-filled, white text       (Call-to-Action)
-         Secondary = brand outline, brand text                     (Confirm / next-tier action)
-         Tertiary  = tonal brand container fill, brand text         (Quiet emphasis)
-         Ghost     = no chrome, brand text                          (Inline / minimal)
+         Filled   = high-emphasis, solid brand fill, white text    (Call-to-Action)
+         Outlined = brand border + brand text, no fill at rest   (Confirm / next-tier action)
+         Tonal    = container/brand tonal fill, brand text        (Quiet emphasis)
+         Ghost    = no chrome, brand text                         (Inline / minimal)
        ────────────────────────────────────────────────────────── */
     'Brand': {
-      types:  ['Brand Primary', 'Brand Secondary', 'Brand Tertiary', 'Ghost'],
+      types:  ['Brand Filled', 'Brand Outlined', 'Brand Tonal', 'Ghost'],
       states: ['Default', 'Hover', 'Pressed', 'Selected', 'Focus', 'Disabled'],
       t3Mode: 'brand',
       stateOverrides: {
-        'Brand Primary': {
+        'Brand Filled': {
           'Default':  { fill: { t3: 'component/bg-default' },
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Hover':    { fill: { t3: 'component/bg-hover' },
@@ -1671,7 +1671,7 @@ var BUTTON_BLUEPRINT = {
           'Disabled': { fill: { t3: 'component/bg-default' }, componentOpacity: 0.3,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } }
         },
-        'Brand Secondary': {
+        'Brand Outlined': {
           'Default':  { stroke: { t3: 'component/outline-default' }, strokeWeight: 1,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Hover':    { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-hover' }, strokeWeight: 1,
@@ -1685,7 +1685,7 @@ var BUTTON_BLUEPRINT = {
           'Disabled': { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } }
         },
-        'Brand Tertiary': {
+        'Brand Tonal': {
           'Default':  { fill: { t3: 'container/bg' },
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Hover':    { fill: { t3: 'container/hover' },
@@ -1900,10 +1900,10 @@ var SPLIT_BUTTON_BLUEPRINT = {
     },
 
     'Brand': {
-      types: ['Brand Primary', 'Brand Secondary', 'Brand Tertiary', 'Ghost'],
+      types: ['Brand Filled', 'Brand Outlined', 'Brand Tonal', 'Ghost'],
       t3Mode: 'brand',
       typeSpecs: {
-        'Brand Primary': {
+        'Brand Filled': {
           rest:     { fill: { t3: 'component/bg-default' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           hover:    { fill: { t3: 'component/bg-hover' },   text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           pressed:  { fill: { t3: 'component/bg-pressed' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
@@ -1915,7 +1915,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
           disabled: { fill: { t3: 'component/bg-default' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' },
                       wrapper: { componentOpacity: 0.3 } }
         },
-        'Brand Secondary': {
+        'Brand Outlined': {
           rest:     { text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           hover:    { fill: { t3: 'container/bg' },    text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           pressed:  { fill: { t3: 'container/hover' }, text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
@@ -1929,7 +1929,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3 } },
           wrapperBase: { stroke: { t3: 'component/outline-default' }, strokeWeight: 1 }
         },
-        'Brand Tertiary': {
+        'Brand Tonal': {
           rest:     { fill: { t3: 'container/bg' },     text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           hover:    { fill: { t3: 'container/hover' },  text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           pressed:  { fill: { t3: 'container/pressed' }, text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
@@ -2102,11 +2102,11 @@ var MENU_BUTTON_BLUEPRINT = {
     },
 
     'Brand': {
-      types:  ['Brand Primary', 'Brand Secondary', 'Brand Tertiary', 'Ghost'],
+      types:  ['Brand Filled', 'Brand Outlined', 'Brand Tonal', 'Ghost'],
       states: ['Default', 'Hover', 'Pressed', 'Selected', 'Focus', 'Disabled'],
       t3Mode: 'brand',
       stateOverrides: {
-        'Brand Primary': {
+        'Brand Filled': {
           'Default':  { fill: { t3: 'component/bg-default' },
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Hover':    { fill: { t3: 'component/bg-hover' },
@@ -2120,7 +2120,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Disabled': { fill: { t3: 'component/bg-default' }, componentOpacity: 0.3,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } }
         },
-        'Brand Secondary': {
+        'Brand Outlined': {
           'Default':  { stroke: { t3: 'component/outline-default' }, strokeWeight: 1,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Hover':    { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-hover' }, strokeWeight: 1,
@@ -2134,7 +2134,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Disabled': { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } }
         },
-        'Brand Tertiary': {
+        'Brand Tonal': {
           'Default':  { fill: { t3: 'container/bg' },
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Hover':    { fill: { t3: 'container/hover' },
@@ -5868,7 +5868,7 @@ async function generateComponentFromBlueprint(blueprint) {
           /* 0% overlap in the REMAINING stale map. But if singleFamily is in use,
              some families (e.g. Neutral) may have already consumed their entries,
              leaving only the other family's stale entries (e.g. old "Type=Primary"
-             after renaming to "Type=Brand Primary"). In that case reused variants
+             after renaming to "Type=Brand Filled"). In that case reused variants
              are already sitting inside reuseTarget — removing it would destroy them.
              Only fire the guard when NO component is already inside reuseTarget
              (i.e., nothing was reused in-place, so the set is truly empty after STEP 1). */
