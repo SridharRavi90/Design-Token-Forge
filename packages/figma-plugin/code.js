@@ -5865,11 +5865,28 @@ async function generateComponentFromBlueprint(blueprint) {
           if (_newNameSet[_oldKeys[_oki]]) _matchCount++;
         }
         if (_oldKeys.length > 0 && _matchCount === 0) {
-          /* 0% overlap — full schema change (e.g. Rounded→Square rename).
-             Remove the stale set entirely so combineAsVariants creates fresh. */
-          log('SAFE_REBUILD full-schema-change: 0/' + _oldKeys.length + ' variants match — forcing fresh set for "' + setDisplayName + '"');
-          try { reuseTarget.remove(); } catch (_rre) { /* ignore if already gone */ }
-          reuseTarget = null;
+          /* 0% overlap in the REMAINING stale map. But if singleFamily is in use,
+             some families (e.g. Neutral) may have already consumed their entries,
+             leaving only the other family's stale entries (e.g. old "Type=Primary"
+             after renaming to "Type=Brand Primary"). In that case reused variants
+             are already sitting inside reuseTarget — removing it would destroy them.
+             Only fire the guard when NO component is already inside reuseTarget
+             (i.e., nothing was reused in-place, so the set is truly empty after STEP 1). */
+          var _anyKeptInSet = false;
+          for (var _nki = 0; _nki < allComps.length && !_anyKeptInSet; _nki++) {
+            if (allComps[_nki].parent && allComps[_nki].parent.id === reuseTarget.id) {
+              _anyKeptInSet = true;
+            }
+          }
+          if (!_anyKeptInSet) {
+            /* Truly 0% overlap and nothing reused — full schema change.
+               Remove the stale set entirely so combineAsVariants creates fresh. */
+            log('SAFE_REBUILD full-schema-change: 0/' + _oldKeys.length + ' variants match — forcing fresh set for "' + setDisplayName + '"');
+            try { reuseTarget.remove(); } catch (_rre) { /* ignore if already gone */ }
+            reuseTarget = null;
+          } else {
+            log('SAFE_REBUILD: 0-overlap guard skipped — ' + _oldKeys.length + ' stale entries are from a sibling family rename; reused variants already in set.');
+          }
         }
       }
 
