@@ -2950,10 +2950,15 @@ async function generateComponentFromBlueprint(blueprint) {
               if (n.type !== 'COMPONENT_SET') return false;
               /* Primary: name-based rescue */
               if (reuseSetByName[n.name] !== undefined && reuseSetByName[n.name].id === n.id) return true;
-              /* Fallback: semantic-ID rescue — survives singleFamily/naming changes */
+              /* Fallback: semantic-ID rescue — survives singleFamily/naming changes.
+                 ID check is MANDATORY: when two old per-family sets share the same
+                 semId (singleFamily migration), only rescue the EXACT registered one.
+                 Rescuing both causes permanent orphan accumulation on page root. */
               try {
                 var _rSemId = n.getPluginData('dtf-set-id');
-                return !!(_rSemId && reuseSetBySemanticId[_rSemId] && !reuseSetBySemanticId[_rSemId].removed);
+                return !!(_rSemId && reuseSetBySemanticId[_rSemId] &&
+                          reuseSetBySemanticId[_rSemId].id === n.id &&
+                          !reuseSetBySemanticId[_rSemId].removed);
               } catch(_rse) { return false; }
             });
             for (var _ri = 0; _ri < _rescueSets.length; _ri++) {
@@ -2976,9 +2981,28 @@ async function generateComponentFromBlueprint(blueprint) {
     if (child.type === 'COMPONENT_SET' && ownedByThisBP(child)) {
       /* M4 — skip removal of any set we plan to reuse. Its old children
          will be pruned later, after the new variants have been appended,
-         so the SET's node.id and library key survive. */
-      if (SAFE_REBUILD && reuseSetByName[child.name] && reuseSetByName[child.name].id === child.id) {
-        continue;
+         so the SET's node.id and library key survive.
+         singleFamily: use semId+ID match instead of name match — old per-family
+         sets carry the same semId as the reuseTarget but have DIFFERENT names
+         (e.g. 'Button / Neutral / Icon + Text' vs 'Icon + Text'). Name-based
+         check would skip them even though they'll never be reused, causing
+         orphan accumulation. Only the EXACT registered set (ID match) is kept. */
+      if (SAFE_REBUILD) {
+        if (BP.singleFamily) {
+          var _sfChildSemId = '';
+          try { _sfChildSemId = child.getPluginData('dtf-set-id'); } catch(_sfcse) {}
+          if (_sfChildSemId && reuseSetBySemanticId[_sfChildSemId] &&
+              reuseSetBySemanticId[_sfChildSemId].id === child.id &&
+              !reuseSetBySemanticId[_sfChildSemId].removed) {
+            continue; /* exact reuseTarget for this master — keep */
+          }
+          /* Not the registered reuseTarget: orphaned per-family set — remove. */
+          try { child.remove(); } catch(_sfOre) {} continue;
+        }
+        /* Non-singleFamily: existing name-based check. */
+        if (reuseSetByName[child.name] && reuseSetByName[child.name].id === child.id) {
+          continue;
+        }
       }
       child.remove(); continue;
     }
