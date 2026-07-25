@@ -2791,6 +2791,25 @@ async function generateComponentFromBlueprint(blueprint) {
     log('SAFE_REBUILD reusable sets: ' + Object.keys(reuseSetByName).length);
   }
 
+  /* Build a secondary lookup keyed by dtf-set-id plugin data (stable
+     master-level identity). This survives ANY setDisplayName / singleFamily /
+     section-rename change — the semantic ID is stamped once and persists
+     on the node even after renames. Falls back gracefully when sets have
+     no stamp (first generate with new code simply adds the stamp). */
+  var reuseSetBySemanticId = {};
+  if (SAFE_REBUILD) {
+    try {
+      var _semSets = page.findAllWithCriteria({ types: ['COMPONENT_SET'] }) || [];
+      for (var _ssi = 0; _ssi < _semSets.length; _ssi++) {
+        try {
+          var _sid = _semSets[_ssi].getPluginData('dtf-set-id');
+          if (_sid && !_semSets[_ssi].removed) reuseSetBySemanticId[_sid] = _semSets[_ssi];
+        } catch(e) {}
+      }
+      log('SAFE_REBUILD semantic IDs: ' + Object.keys(reuseSetBySemanticId).length);
+    } catch(_siE) {}
+  }
+
   /* W3 — emit a single warn line per Build summarising what's about
      to be invalidated. Free telemetry for the milestone-2 read path. */
   if (priorSnapshot.componentSets.length > 0) {
@@ -2914,9 +2933,14 @@ async function generateComponentFromBlueprint(blueprint) {
         if (SAFE_REBUILD && child.findAll) {
           try {
             var _rescueSets = child.findAll(function(n) {
-              return n.type === 'COMPONENT_SET' &&
-                     reuseSetByName[n.name] !== undefined &&
-                     reuseSetByName[n.name].id === n.id;
+              if (n.type !== 'COMPONENT_SET') return false;
+              /* Primary: name-based rescue */
+              if (reuseSetByName[n.name] !== undefined && reuseSetByName[n.name].id === n.id) return true;
+              /* Fallback: semantic-ID rescue — survives singleFamily/naming changes */
+              try {
+                var _rSemId = n.getPluginData('dtf-set-id');
+                return !!(_rSemId && reuseSetBySemanticId[_rSemId] && !reuseSetBySemanticId[_rSemId].removed);
+              } catch(_rse) { return false; }
             });
             for (var _ri = 0; _ri < _rescueSets.length; _ri++) {
               page.appendChild(_rescueSets[_ri]);
@@ -5617,7 +5641,8 @@ async function generateComponentFromBlueprint(blueprint) {
 
       var componentSet;
       var reusedExistingSet = false;
-      var reuseTarget = (SAFE_REBUILD && reuseSetByName[setDisplayName]) || null;
+      var _semIdKey = 'dtf::' + BP.name + '::' + mName;
+      var reuseTarget = (SAFE_REBUILD && (reuseSetByName[setDisplayName] || reuseSetBySemanticId[_semIdKey])) || null;
 
       /* Schema-change guard: if the existing set has a "Rounded=" variant property
          but the new blueprint has skipRounded:true, the schemas are incompatible.
@@ -5729,6 +5754,7 @@ async function generateComponentFromBlueprint(blueprint) {
 
       componentSet.name = setDisplayName;
       stampOwner(componentSet);
+      try { componentSet.setPluginData('dtf-set-id', 'dtf::' + BP.name + '::' + mName); } catch(_csidE) {}
       componentSet.description = (BP.description || '') + ' Family: ' + familyName + '.';
 
       /* Grid layout: types as rows, states as columns. Rounded=False set
@@ -6108,7 +6134,8 @@ async function generateComponentFromBlueprint(blueprint) {
     }
 
     var _uComponentSet;
-    var _uReuseTarget = (SAFE_REBUILD && reuseSetByName[BP.name]) || null;
+    var _uSemIdKey = 'dtf::' + BP.name;
+    var _uReuseTarget = (SAFE_REBUILD && (reuseSetByName[BP.name] || reuseSetBySemanticId[_uSemIdKey])) || null;
 
     /* Schema-change guard: if 0 old variants match the new spec, force fresh.
        Both old keys and new names are normalised to canonical sorted form so
@@ -6166,6 +6193,7 @@ async function generateComponentFromBlueprint(blueprint) {
 
     _uComponentSet.name = BP.name;
     stampOwner(_uComponentSet);
+    try { _uComponentSet.setPluginData('dtf-set-id', 'dtf::' + BP.name); } catch(_uSidE) {}
     _uComponentSet.description = BP.description || '';
 
     /* ── Expose LabelOn / LabelOff as component text properties ───────────
