@@ -6105,26 +6105,23 @@ async function generateComponentFromBlueprint(blueprint) {
         if (_uNewNameSet[_uOldKeys[_uoki]]) _uMatchCount++;
       }
       if (_uOldKeys.length > 0 && _uMatchCount === 0) {
-        log('SAFE_REBUILD unified: 0/' + _uOldKeys.length + ' match — fresh set for "' + BP.name + '"');
+        log('SAFE_REBUILD unified: 0/' + _uOldKeys.length + ' match \u2014 fresh set for "' + BP.name + '"');
         try { _uReuseTarget.remove(); } catch (_ure) {}
         _uReuseTarget = null;
       }
     }
 
     if (_uReuseTarget && !_uReuseTarget.removed) {
-      /* SAFE_REBUILD: reuse existing ComponentSet, preserving its ID.
-         STEP 1: prune stale variants (unconsumed _unifiedVarMap entries). */
       try {
+        /* STEP 1: prune stale variants (unconsumed _unifiedVarMap entries). */
         var _uStaleKeys = Object.keys(_unifiedVarMap);
         for (var _usk = 0; _usk < _uStaleKeys.length; _usk++) {
           var _uStale = _unifiedVarMap[_uStaleKeys[_usk]];
-          if (_uStale && !_uStale.removed) {
-            try { _uStale.remove(); } catch (_use) {}
-          }
+          if (_uStale && !_uStale.removed) { try { _uStale.remove(); } catch (_use) {} }
         }
         /* Guard: Figma auto-deletes an empty ComponentSet. */
         if (_uReuseTarget.removed) {
-          log('SAFE_REBUILD unified: auto-deleted after prune — falling back to combineAsVariants');
+          log('SAFE_REBUILD unified: auto-deleted after prune \u2014 falling back to combineAsVariants');
           _uComponentSet = figma.combineAsVariants(_uAllComps, page);
         } else {
           /* STEP 2: append only truly new variants (not reused in-place). */
@@ -6148,66 +6145,192 @@ async function generateComponentFromBlueprint(blueprint) {
     stampOwner(_uComponentSet);
     _uComponentSet.description = BP.description || '';
 
-    /* Grid layout: rows = Pill × Label × Type (8 combos), cols = 8 states.
-       Position each variant using its index across masters (pill, label, type, state). */
-    var _uColSpacing = (BP.gridLayout && BP.gridLayout.colSpacing) || 155;
-    var _uRowSpacing = (BP.gridLayout && BP.gridLayout.rowSpacing) || 70;
-    var _uCompW     = (BP.gridLayout && BP.gridLayout.componentW) || 120;
-    var _uCompH     = (BP.gridLayout && BP.gridLayout.componentH) || 32;
-    var _uFamStates = [];
-    var _uFamTypes  = [];
-    /* Collect ordered states + types from the single family */
-    var _uFamKeys = Object.keys(BP.families || {});
-    if (_uFamKeys.length > 0) {
-      var _uFam = BP.families[_uFamKeys[0]];
+    /* ── Expose LabelOn / LabelOff as component text properties ───────────
+       Designers can edit the "ON"/"OFF" text directly in the Design panel
+       (useful for localization or alternate labels like "Yes"/"No").
+       addComponentProperty is called ONCE (on the first labeled variant)
+       — it propagates to the entire component set. Subsequent labeled
+       variants just reference the already-registered key. */
+    var _uLblOnKey  = null;
+    var _uLblOffKey = null;
+    for (var _upi2 = 0; _upi2 < _uAllComps.length; _upi2++) {
+      var _uPComp   = _uAllComps[_upi2];
+      var _uTxtOn   = _uPComp.findOne(function(n) { return n.type === 'TEXT' && n.name === 'LabelOn'; });
+      var _uTxtOff  = _uPComp.findOne(function(n) { return n.type === 'TEXT' && n.name === 'LabelOff'; });
+      if (!_uTxtOn && !_uTxtOff) continue; /* skip Label=Off variants */
+      if (!_uLblOnKey && _uTxtOn) {
+        try { _uLblOnKey  = _uPComp.addComponentProperty('LabelOn',  'TEXT', 'ON');  } catch (_upe) {}
+      }
+      if (!_uLblOffKey && _uTxtOff) {
+        try { _uLblOffKey = _uPComp.addComponentProperty('LabelOff', 'TEXT', 'OFF'); } catch (_upe) {}
+      }
+      if (_uLblOnKey  && _uTxtOn)  {
+        try { _uTxtOn.componentPropertyReferences  = { characters: _uLblOnKey };  } catch (_ube) {}
+      }
+      if (_uLblOffKey && _uTxtOff) {
+        try { _uTxtOff.componentPropertyReferences = { characters: _uLblOffKey }; } catch (_ube) {}
+      }
+    }
+
+    /* ── Grid layout constants (shared with presentation code below) ──── */
+    var _uColSpacing  = (BP.gridLayout && BP.gridLayout.colSpacing) || 88;
+    var _uRowSpacing  = (BP.gridLayout && BP.gridLayout.rowSpacing) || 40;
+    var _uCompW       = (BP.gridLayout && BP.gridLayout.componentW) || 72;
+    var _uCompH       = (BP.gridLayout && BP.gridLayout.componentH) || 28;
+    var _uFamStates   = [];
+    var _uFamTypes    = [];
+    var _uFamFamilies = Object.keys(BP.families || {});
+    if (_uFamFamilies.length > 0) {
+      var _uFam = BP.families[_uFamFamilies[0]];
       _uFamStates = _uFam.states || [];
       _uFamTypes  = _uFam.types  || [];
     }
-    /* Build row key → row index: "Pill=Off,Label=Off,Type=Fill" → 0 etc. */
-    var _uRowKeys = [];
-    var _uPillVals  = ['Off', 'On'];
-    var _uLabelVals = ['Off', 'On'];
-    for (var _upi = 0; _upi < _uPillVals.length; _upi++) {
-      for (var _uli = 0; _uli < _uLabelVals.length; _uli++) {
-        for (var _uti2 = 0; _uti2 < _uFamTypes.length; _uti2++) {
-          _uRowKeys.push('Pill=' + _uPillVals[_upi] + ',Label=' + _uLabelVals[_uli] + ',Type=' + _uFamTypes[_uti2]);
+    /* Row ordering: Pill=Off first (Square group), then Pill=On (Pill group).
+       Within each Pill group: Label=Off rows first, then Label=On rows. */
+    var _uPillVals    = ['Off', 'On'];
+    var _uLabelVals   = ['Off', 'On'];
+    var _uRowKeys     = [];
+    for (var _upvi = 0; _upvi < _uPillVals.length; _upvi++) {
+      for (var _ulvi = 0; _ulvi < _uLabelVals.length; _ulvi++) {
+        for (var _utvi = 0; _utvi < _uFamTypes.length; _utvi++) {
+          _uRowKeys.push('Pill=' + _uPillVals[_upvi] + ',Label=' + _uLabelVals[_ulvi] + ',Type=' + _uFamTypes[_utvi]);
         }
       }
     }
-    var _uPadX = 20;
-    var _uPadY = 27;
-    var _uPillGroupGap = 16;
+    var _uRowsPerPill = _uLabelVals.length * _uFamTypes.length; /* e.g. 4 */
+    var _uPillGap     = 20;   /* gap between Square and Pill groups */
+    var _uPadX        = 20;
+    var _uPadY        = 27;
+
+    /* Position each variant inside the component set. */
     for (var _ugi = 0; _ugi < _unifiedComps.length; _ugi++) {
-      var _uEntry = _unifiedComps[_ugi];
-      /* Parse variant name: "Pill=X, Label=Y, Type=Z, State=S" */
-      var _uVName = _uEntry.component.name;
+      var _uEntry  = _unifiedComps[_ugi];
+      var _uVName  = _uEntry.component.name;
       var _uPillM  = _uVName.match(/Pill=(\w+)/);
-      var _uLabelM = _uVName.match(/Label=(\w+)/);
+      var _uLblM   = _uVName.match(/Label=(\w+)/);
       var _uTypeM  = _uVName.match(/Type=(\w+)/);
       var _uStateM = _uVName.match(/State=(.+)$/);
-      if (!_uPillM || !_uLabelM || !_uTypeM || !_uStateM) continue;
-      var _uRowKey = 'Pill=' + _uPillM[1] + ',Label=' + _uLabelM[1] + ',Type=' + _uTypeM[1];
-      var _uRowIdx = _uRowKeys.indexOf(_uRowKey);
-      var _uColIdx = _uFamStates.indexOf(_uStateM[1]);
+      if (!_uPillM || !_uLblM || !_uTypeM || !_uStateM) continue;
+      var _uRowKey  = 'Pill=' + _uPillM[1] + ',Label=' + _uLblM[1] + ',Type=' + _uTypeM[1];
+      var _uRowIdx  = _uRowKeys.indexOf(_uRowKey);
+      var _uColIdx  = _uFamStates.indexOf(_uStateM[1]);
       if (_uRowIdx < 0 || _uColIdx < 0) continue;
-      /* Extra gap between Pill=Off group and Pill=On group */
-      var _uPillGroupOffset = (_uPillM[1] === 'On') ? (_uPillVals.length * _uLabelVals.length * _uFamTypes.length * _uRowSpacing + _uPillGroupGap) : 0;
+      /* pilGroup=0 → Square; pillGroup=1 → Pill. Each group adds
+         (rowsPerPill*rowSpacing + gap) to the y offset. */
+      var _uPillGroup = Math.floor(_uRowIdx / _uRowsPerPill);
       _uEntry.component.x = _uPadX + _uColIdx * _uColSpacing;
-      _uEntry.component.y = _uPadY + (_uRowIdx % (_uLabelVals.length * _uFamTypes.length)) * _uRowSpacing
-                            + (Math.floor(_uRowIdx / (_uLabelVals.length * _uFamTypes.length)) * (_uLabelVals.length * _uFamTypes.length * _uRowSpacing + _uPillGroupGap));
+      _uEntry.component.y = _uPadY
+        + (_uRowIdx % _uRowsPerPill) * _uRowSpacing
+        + _uPillGroup * (_uRowsPerPill * _uRowSpacing + _uPillGap);
     }
+
+    /* Component set total dimensions.
+       Height formula derived from last row y + compH + bottom pad:
+         last row y = padY + (rowsPerPill-1)*rowSpacing + 1*(rowsPerPill*rowSpacing+gap)
+                    = padY + (2*rowsPerPill-1)*rowSpacing + gap
+         totalH = last row y + compH + padY */
     var _uTotalCols = _uFamStates.length;
-    var _uTotalRows = _uRowKeys.length;
-    var _uTotalW = _uPadX * 2 + (_uTotalCols - 1) * _uColSpacing + _uCompW;
-    var _uTotalH = _uPadY + (_uTotalRows - 1) * _uRowSpacing + _uCompH + _uPadY + _uPillGroupGap;
+    var _uTotalW    = _uPadX * 2 + (_uTotalCols - 1) * _uColSpacing + _uCompW;
+    var _uTotalH    = _uPadY + (2 * _uRowsPerPill - 1) * _uRowSpacing + _uPillGap + _uCompH + _uPadY;
     try { _uComponentSet.resize(_uTotalW, _uTotalH); } catch (e) {}
 
-    /* Place in variantSec */
-    var _uCsX = variantSec.innerX + 100; /* ROW_LABEL_WIDTH offset */
+    /* ── Presentation: sub-heading card ─────────────────────────────── */
+    var _uHeadCard = createCard({
+      name: 'heading-unified-' + BP.name,
+      fill: COLOR_HEADER_BG,
+      radius: 10,
+      padX: 20,
+      padY: 12,
+      gap: 0,
+      direction: 'HORIZONTAL'
+    });
+    _uHeadCard.counterAxisAlignItems = 'CENTER';
+    _uHeadCard.itemSpacing = 12;
+    _uHeadCard.appendChild(createLabel(
+      (_uFamFamilies[0] || 'Success') + ' \u00b7 ' + BP.name,
+      14, true, COLOR_HEADING));
+    var _uSlotBadge = createBadge('Pill \u00b7 Label \u00b7 Type \u00b7 State', COLOR_CM_BG, COLOR_DIMMED);
+    _uHeadCard.appendChild(_uSlotBadge);
+    variantSec.section.appendChild(_uHeadCard);
+    _uHeadCard.x = variantSec.innerX;
+    _uHeadCard.y = varSecContentY;
+    varSecContentY += _uHeadCard.height + 20;
+    if (t2Col && brightModeId) {
+      try {
+        _uHeadCard.setExplicitVariableModeForCollection(t2Col, brightModeId);
+        tryBindFill(_uHeadCard, t2Vars['default/surfaces/strong']);
+        if (_uHeadCard.children.length > 0) tryBindFill(_uHeadCard.children[0], t2Vars['default/content/strong']);
+        tryBindFill(_uSlotBadge, t2Vars['default/component/bg-default']);
+        if (_uSlotBadge.children.length > 0) tryBindFill(_uSlotBadge.children[0], t2Vars['default/content/subtle']);
+      } catch (e) {}
+    }
+
+    /* ── Presentation: column header bar (state names) ──────────────── */
+    var _uColHdr = figma.createFrame();
+    _uColHdr.name = 'col-headers-unified';
+    _uColHdr.resize(_uTotalW, 34);
+    _uColHdr.cornerRadius = 8;
+    _uColHdr.fills = [{ type: 'SOLID', color: COLOR_HEADER_BG }];
+    _uColHdr.clipsContent = false;
+    for (var _uci = 0; _uci < _uFamStates.length; _uci++) {
+      var _uColLabel = createLabel(_uFamStates[_uci], 11, true, COLOR_DIMMED);
+      _uColHdr.appendChild(_uColLabel);
+      _uColLabel.x = _uPadX + _uci * _uColSpacing;
+      _uColLabel.y = 10;
+      tryBindFill(_uColLabel, t2Vars['default/content/subtle']);
+    }
+    var _uRowLabelW = 120;
+    var _uCsX = variantSec.innerX + _uRowLabelW;
+    variantSec.section.appendChild(_uColHdr);
+    _uColHdr.x = _uCsX;
+    _uColHdr.y = varSecContentY;
+    tryBindFill(_uColHdr, t2Vars['default/surfaces/strong']);
+    var _uCsY = varSecContentY + 34; /* component set top = below col header */
+
+    /* ── Presentation: row group sub-headers (Square / Pill) ─────────── */
+    var _uSqHdr = createLabel('Square', 10, true, COLOR_DIMMED);
+    variantSec.section.appendChild(_uSqHdr);
+    _uSqHdr.x = variantSec.innerX + 4;
+    _uSqHdr.y = _uCsY + 6;
+    tryBindFill(_uSqHdr, t2Vars['default/content/subtle']);
+
+    var _uPillHdr = createLabel('Pill', 10, true, COLOR_DIMMED);
+    variantSec.section.appendChild(_uPillHdr);
+    _uPillHdr.x = variantSec.innerX + 4;
+    /* Pill group starts after Square group + gap */
+    _uPillHdr.y = _uCsY + _uRowsPerPill * _uRowSpacing + _uPillGap + 6;
+    tryBindFill(_uPillHdr, t2Vars['default/content/subtle']);
+
+    /* ── Presentation: row labels ─────────────────────────────────────── */
+    /* 4 row labels per Pill group: Fill, Outline, Fill+label, Outline+label */
+    var _uRowLabelTexts = [];
+    for (var _urtk = 0; _urtk < _uLabelVals.length; _urtk++) {
+      for (var _uttk = 0; _uttk < _uFamTypes.length; _uttk++) {
+        _uRowLabelTexts.push(_uFamTypes[_uttk] + (_uLabelVals[_urtk] === 'On' ? ' \u00b7 label' : ''));
+      }
+    }
+    for (var _urli = 0; _urli < _uRowsPerPill; _urli++) {
+      var _uRLText = _uRowLabelTexts[_urli] || _uFamTypes[_urli % _uFamTypes.length];
+      /* Square group */
+      var _uRL = createLabel(_uRLText, 11, false, COLOR_BODY);
+      variantSec.section.appendChild(_uRL);
+      _uRL.x = variantSec.innerX + 4;
+      _uRL.y = _uCsY + _uPadY + _urli * _uRowSpacing + 8;
+      tryBindFill(_uRL, t2Vars['default/content/default']);
+      /* Pill group */
+      var _uRLPill = createLabel(_uRLText, 11, false, COLOR_BODY);
+      variantSec.section.appendChild(_uRLPill);
+      _uRLPill.x = variantSec.innerX + 4;
+      _uRLPill.y = _uCsY + _uPadY + _urli * _uRowSpacing + 8
+                   + _uRowsPerPill * _uRowSpacing + _uPillGap;
+      tryBindFill(_uRLPill, t2Vars['default/content/default']);
+    }
+
+    /* ── Place the component set ─────────────────────────────────────── */
     _uComponentSet.x = _uCsX;
-    _uComponentSet.y = varSecContentY;
+    _uComponentSet.y = _uCsY;
     variantSec.section.appendChild(_uComponentSet);
-    varSecContentY += _uTotalH + 40;
+    varSecContentY = _uCsY + _uTotalH + 40;
 
     allComponentSets.push(_uComponentSet);
     log('Created unified component set: "' + BP.name + '" (' + _uAllComps.length + ' variants)');
