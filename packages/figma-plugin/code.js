@@ -5100,9 +5100,30 @@ async function generateComponentFromBlueprint(blueprint) {
           if (_reuseVarComp && !_reuseVarComp.removed) {
             varComp = _reuseVarComp;
             delete _existingVarMap[_vLookupKey]; /* mark consumed */
-            var _rvKids = varComp.children ? varComp.children.slice() : [];
-            for (var _rvk = 0; _rvk < _rvKids.length; _rvk++) {
-              try { _rvKids[_rvk].remove(); } catch (e) {}
+            /* Drain all children before re-adding a fresh instance.
+               Ghost instances (mainComponent deleted) resist simple .remove()
+               — unlock first, then fall back to page.appendChild() to eject
+               the node out of varComp before deleting it from the page. */
+            var _drainLimit = 200;
+            while (varComp.children && varComp.children.length > 0 && _drainLimit-- > 0) {
+              var _kn = varComp.children[0];
+              if (!_kn) break;
+              try { if (_kn.locked) _kn.locked = false; } catch (_le) {}
+              var _knRemoved = false;
+              try { _kn.remove(); _knRemoved = true; } catch (_re) {}
+              if (!_knRemoved) {
+                /* Eject to page root so varComp is clear, then delete. */
+                var _ejected = false;
+                try { page.appendChild(_kn); _ejected = true; } catch (_ee) {}
+                try { _kn.remove(); } catch (_re2) {}
+                if (!_ejected) {
+                  log('SAFE_REBUILD: child eject failed on "' + _variantName + '" — ' + (_kn.type || '?'));
+                  break; /* give up on this node to avoid infinite loop */
+                }
+              }
+            }
+            if (varComp.children && varComp.children.length > 0) {
+              log('SAFE_REBUILD: ' + varComp.children.length + ' children NOT cleared from "' + _variantName + '"');
             }
           } else {
             /* Create variant component — thin wrapper, NO padding or layout. */
