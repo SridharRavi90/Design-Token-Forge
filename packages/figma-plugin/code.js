@@ -4938,14 +4938,19 @@ async function generateComponentFromBlueprint(blueprint) {
       }
     }
     if (_uPreSet && !_uPreSet.removed) {
-      var _uKids = _uPreSet.children || [];
+      /* Snapshot children — iterating live array while removing breaks indices. */
+      var _uKids = Array.prototype.slice.call(_uPreSet.children || []);
       for (var _uki = 0; _uki < _uKids.length; _uki++) {
         var _uk = _uKids[_uki];
-        if (_uk && _uk.type === 'COMPONENT') {
-          /* Key by CANONICAL sorted axes so axis reordering never breaks
-             the name-match lookup (e.g. "Pill=Off,State=Off,Type=Fill"
-             and "State=Off,Type=Fill,Pill=Off" → same canonical key). */
-          var _ukCK = _uk.name.split(/,\s*/).sort().join('|');
+        if (!_uk || _uk.type !== 'COMPONENT') continue;
+        /* Key by CANONICAL sorted axes so axis reordering never breaks
+           the name-match lookup (e.g. "Pill=Off,State=Off,Type=Fill"
+           and "State=Off,Type=Fill,Pill=Off" → same canonical key). */
+        var _ukCK = _uk.name.split(/,\s*/).sort().join('|');
+        if (_unifiedVarMap[_ukCK]) {
+          /* Duplicate canonical key — remove the extra copy now. */
+          try { _uk.remove(); } catch (_udupe) { /* already gone */ }
+        } else {
           _unifiedVarMap[_ukCK] = _uk;
         }
       }
@@ -5013,10 +5018,19 @@ async function generateComponentFromBlueprint(blueprint) {
           }
         }
         if (_preReuseSet && !_preReuseSet.removed) {
-          var _preKids = _preReuseSet.children || [];
+          /* Snapshot children first — iterating a live array while removing
+             children from it would shift indices and skip entries. */
+          var _preKids = Array.prototype.slice.call(_preReuseSet.children || []);
           for (var _pki = 0; _pki < _preKids.length; _pki++) {
             var _pk = _preKids[_pki];
-            if (_pk && _pk.type === 'COMPONENT') _existingVarMap[_pk.name] = _pk;
+            if (!_pk || _pk.type !== 'COMPONENT') continue;
+            if (_existingVarMap[_pk.name]) {
+              /* Duplicate variant name — left behind by a previous doubling bug.
+                 Remove the extra copy now so it can never be appended again. */
+              try { _pk.remove(); } catch (_dupe) { /* already gone */ }
+            } else {
+              _existingVarMap[_pk.name] = _pk;
+            }
           }
           log('SAFE_REBUILD variant map: ' + Object.keys(_existingVarMap).length + ' existing variants for "' + setDisplayName + '"');
         }
