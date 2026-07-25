@@ -1351,29 +1351,38 @@ function _recordBoundVarId(id, name){
 var TOGGLE_BLUEPRINT = {
   name: 'Switch',
   kind: 'track-thumb',
-  skipRounded: true,        /* shape is per-master (not a variant axis) */
-  labeledAxis:  false,      /* labeling is per-master (not a variant axis) */
-  singleFamily: true,       /* display name = master name only */
+  unified: true,            /* collapse 4 masters into ONE "Switch" component set with
+                               Pill=On|Off + Label=On|Off boolean variant axes */
+  skipRounded: true,        /* shape is per-master (not a Rounded= variant axis) */
+  labeledAxis:  false,      /* labeling is per-master (not a Label= variant axis in old sense) */
+  singleFamily: true,       /* display name = master name only (unused when unified:true) */
   radiusRoundedPath: 'toggle/radius', /* pill (9999) — used when masterCfg.isRounded */
   legacyOwners: ['Toggle'], /* old BP.name — ensures old Toggle/... sets are cleaned up */
+  legacySectionNames: [     /* old section names to clean up on next generate */
+    'Switch \u2014 Tier 1 / Masters',
+    'Switch \u2014 Tier 2 / Variants'
+  ],
   ledgerKey: 'toggle',      /* registry key the UI reads; must not change with BP.name */
-  description: 'Binary on/off switch. Types: Fill, Outline. Four sets: Square, Pill, Square+Labeled, Pill+Labeled. ON state defaults to success green — switch T3 collection mode on any instance to brand, danger, warning, etc.',
+  description: 'Binary on/off switch. Pill=On/Off (shape), Label=On/Off (track label). Types: Fill, Outline. ON state defaults to success green — switch T3 collection mode on any instance to brand, danger, warning, etc.',
 
   /* Grid layout override — toggle components are 40×24px (vs button 120×36px).
      colSpacing=88: "Off-Disabled" header label is ~77px at 11pt — needs 88px to
      prevent overlap. rowSpacing=40: 24px component + 16px gap for readable rows. */
   gridLayout: { colSpacing: 88, rowSpacing: 40, componentW: 72, componentH: 28 },
 
-  /* FOUR masters → four clean component sets, each a 2-type × 8-state grid.
-     isRounded:true  → pill track+thumb (toggle/radius = 9999).
-     isLabeled:true  → HUG track with ON/OFF text label inside. */
+  /* FOUR masters build the 64-variant unified set.
+     pill:true  → Pill=On  → pill track+thumb (toggle/radius = 9999).
+     label:true → Label=On → HUG track with ON/OFF text label inside.
+     Each master contributes 2-type × 8-state = 16 variants to the shared set. */
   masters: {
     'Switch': {
+      pill: false, label: false,
       thumbXVar: 'toggle/thumb-inset',
       isRounded: false,
       isLabeled: false
     },
     'Switch / Pill': {
+      pill: true, label: false,
       thumbXVar:      'toggle/thumb-inset',
       isRounded:      true,
       isLabeled:      false,
@@ -1381,11 +1390,13 @@ var TOGGLE_BLUEPRINT = {
       thumbRadiusPath:'toggle/radius'    /* circle thumb — 9999 */
     },
     'Switch / Labeled': {
+      pill: false, label: true,
       thumbXVar: 'toggle/thumb-inset',
       isRounded: false,
       isLabeled: true
     },
     'Switch / Pill / Labeled': {
+      pill: true, label: true,
       thumbXVar:      'toggle/thumb-inset',
       isRounded:      true,
       isLabeled:      true,
@@ -2815,8 +2826,17 @@ async function generateComponentFromBlueprint(blueprint) {
   var _bpSectionNames = [
     BP.name + ' \u2014 Overview',
     BP.name + ' \u2014 Tier 1 / Masters',
-    BP.name + ' \u2014 Tier 2 / Variants'
+    BP.name + ' \u2014 Tier 2 / Variants',
+    /* Unified BP: new section names for Internal + single variant section */
+    '_' + BP.name + ' \u2014 Internal',
+    BP.name  /* e.g. "Switch" — the unified variant section */
   ];
+  /* Also clean up any BP-declared legacy section names (e.g. old Tier 1/2 names
+     that existed before the unified refactor). */
+  var _legacySectionNames = BP.legacySectionNames || [];
+  for (var _lsni = 0; _lsni < _legacySectionNames.length; _lsni++) {
+    _bpSectionNames.push(_legacySectionNames[_lsni]);
+  }
   /* Also catch sections built under legacy BP names (e.g. "Toggle —
      Overview" when BP.name is now "Switch"). These have no dtf-owner
      plugin data (pre-stampOwner builds) so plugin-data checks miss them;
@@ -4027,7 +4047,9 @@ async function generateComponentFromBlueprint(blueprint) {
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   figma.ui.postMessage({ type: 'gen-progress', text: 'Building master components…' });
 
-  var masterSec = createSection(BP.name + ' — Tier 1 / Masters', SECTION_W);
+  var masterSec = createSection(
+    BP.unified ? '_' + BP.name + ' \u2014 Internal' : BP.name + ' \u2014 Tier 1 / Masters',
+    SECTION_W);
 
   /* Header bar — plain frame with absolute text */
   var mHeaderBar = figma.createFrame();
@@ -4822,7 +4844,9 @@ async function generateComponentFromBlueprint(blueprint) {
 
   var allComponentSets = [];
 
-  var variantSec = createSection(BP.name + ' — Tier 2 / Variants', SECTION_W);
+  var variantSec = createSection(
+    BP.unified ? BP.name : BP.name + ' \u2014 Tier 2 / Variants',
+    SECTION_W);
 
   /* Header bar — plain frame, absolute children */
   var vHeaderBar = figma.createFrame();
@@ -4864,6 +4888,25 @@ async function generateComponentFromBlueprint(blueprint) {
 
   var varSecContentY = variantSec.innerY + vHeaderBar.height + 24;
 
+  /* Unified blueprint: shared variant accumulator across ALL master iterations.
+     All 4 masters (Switch, Switch/Pill, Switch/Labeled, Switch/Pill/Labeled)
+     contribute to a SINGLE "Switch" component set with Pill=On|Off + Label=On|Off axes.
+     _unifiedVarMap is pre-built once from the existing set (SAFE_REBUILD)
+     and consumed during variant creation; survivors are stale and get pruned. */
+  var _unifiedComps = BP.unified ? [] : null;
+  var _unifiedVarMap = {};
+  if (BP.unified && SAFE_REBUILD) {
+    var _uPreSet = reuseSetByName[BP.name];
+    if (_uPreSet && !_uPreSet.removed) {
+      var _uKids = _uPreSet.children || [];
+      for (var _uki = 0; _uki < _uKids.length; _uki++) {
+        var _uk = _uKids[_uki];
+        if (_uk && _uk.type === 'COMPONENT') _unifiedVarMap[_uk.name] = _uk;
+      }
+      log('SAFE_REBUILD unified: ' + Object.keys(_unifiedVarMap).length + ' existing variants for "' + BP.name + '"');
+    }
+  }
+
   for (var mci = 0; mci < masterNames.length; mci++) {
     var mName = masterNames[mci];
     var masterCfg = BP.masters[mName]; /* re-read per master — builder loop used a separate iterator */
@@ -4891,11 +4934,14 @@ async function generateComponentFromBlueprint(blueprint) {
         famOverrides = family.stateOverrides;
       }
 
-      var setDisplayName = BP.singleFamily
-        ? mName
-        : (BP.name + ' / ' + familyName + ' / ' + mName);
+      var setDisplayName = BP.unified
+        ? BP.name
+        : (BP.singleFamily ? mName : (BP.name + ' / ' + familyName + ' / ' + mName));
 
-      var components = []; /* { component, type, state, rounded } */
+      /* Unified blueprints: all masters share a single components array and a
+         single pre-built _existingVarMap (populated from the "Switch" set above).
+         Non-unified: per-iteration fresh array + fresh SAFE_REBUILD lookup. */
+      var components = BP.unified ? _unifiedComps : []; /* { component, type, state, rounded } */
 
       /* SAFE_REBUILD variant reuse map — keyed by variant name.
          If we have an existing set to reuse, pre-index its current COMPONENT
@@ -4903,8 +4949,8 @@ async function generateComponentFromBlueprint(blueprint) {
          Preserving individual variant node IDs keeps placed instances from
          showing "Missing variant" (instances track mainComponent by ID, not
          just by the set's library key). */
-      var _existingVarMap = {};
-      if (SAFE_REBUILD) {
+      var _existingVarMap = BP.unified ? _unifiedVarMap : {};
+      if (!BP.unified && SAFE_REBUILD) {
         var _preReuseSet = reuseSetByName[setDisplayName];
         if (_preReuseSet && !_preReuseSet.removed) {
           var _preKids = _preReuseSet.children || [];
@@ -4952,11 +4998,20 @@ async function generateComponentFromBlueprint(blueprint) {
             ? masterComponents[mName + '_on']
             : masterComp;
 
-          /* Build the full variant name from all active axes. */
-          var _labeledSuffix = BP.labeledAxis ? (', Label=' + (isLabeledIter ? 'On' : 'Off')) : '';
-          var _variantName = BP.skipRounded
-            ? 'Type=' + typeName + ', State=' + stateName + _labeledSuffix
-            : 'Type=' + typeName + ', State=' + stateName + ', Square=' + (isRounded ? 'Off' : 'On') + _labeledSuffix;
+          /* Build the full variant name from all active axes.
+             Unified: Pill=On|Off + Label=On|Off prefix from masterCfg booleans.
+             Non-unified: existing Type= + State= (+ optional Square= / Label= suffix). */
+          var _variantName;
+          if (BP.unified) {
+            var _pillVal  = (masterCfg && masterCfg.pill)  ? 'On' : 'Off';
+            var _labelVal = (masterCfg && masterCfg.label) ? 'On' : 'Off';
+            _variantName = 'Pill=' + _pillVal + ', Label=' + _labelVal + ', Type=' + typeName + ', State=' + stateName;
+          } else {
+            var _labeledSuffix = BP.labeledAxis ? (', Label=' + (isLabeledIter ? 'On' : 'Off')) : '';
+            _variantName = BP.skipRounded
+              ? 'Type=' + typeName + ', State=' + stateName + _labeledSuffix
+              : 'Type=' + typeName + ', State=' + stateName + ', Square=' + (isRounded ? 'Off' : 'On') + _labeledSuffix;
+          }
 
           /* SAFE_REBUILD: reuse the existing COMPONENT node so placed instances
              keep their mainComponent reference (same node ID). Clear its
@@ -5530,6 +5585,11 @@ async function generateComponentFromBlueprint(blueprint) {
       } /* end rounded loop */
       } /* end labeled loop */
 
+      /* Unified blueprints: component accumulation is done above; skip the
+         per-family combineAsVariants — the unified set is created after all
+         master iterations complete (see "Unified component set" block below). */
+      if (!BP.unified) {
+
       /* ── Combine into ComponentSet ── */
       figma.ui.postMessage({ type: 'gen-progress', text: 'Combining ' + setDisplayName + '…' });
 
@@ -6013,7 +6073,144 @@ async function generateComponentFromBlueprint(blueprint) {
       }
 
       log('Created component set: ' + setDisplayName + ' (' + components.length + ' variants)');
+      } /* end !BP.unified — non-unified combineAsVariants */
     } /* end families loop */
+  }
+
+  /* ── Unified component set (e.g. Switch with Pill + Label boolean axes) ──
+     After all 4 master iterations have accumulated variants into _unifiedComps,
+     create ONE component set named BP.name ("Switch"). Variant names encode all
+     axes: "Pill=Off, Label=Off, Type=Fill, State=Off" — Figma automatically
+     renders Pill= and Label= as boolean toggles in the Design panel. */
+  if (BP.unified && _unifiedComps && _unifiedComps.length > 0) {
+    figma.ui.postMessage({ type: 'gen-progress', text: 'Combining unified ' + BP.name + '…' });
+
+    var _uAllComps = [];
+    for (var _uai = 0; _uai < _unifiedComps.length; _uai++) {
+      _uAllComps.push(_unifiedComps[_uai].component);
+    }
+
+    var _uComponentSet;
+    var _uReuseTarget = (SAFE_REBUILD && reuseSetByName[BP.name]) || null;
+
+    /* Schema-change guard: if 0 old variants match the new spec, force fresh. */
+    if (_uReuseTarget && !_uReuseTarget.removed) {
+      var _uNewNameSet = {};
+      for (var _unni = 0; _unni < _uAllComps.length; _unni++) {
+        if (_uAllComps[_unni].name) _uNewNameSet[_uAllComps[_unni].name] = true;
+      }
+      var _uOldKeys = Object.keys(_unifiedVarMap);
+      var _uMatchCount = 0;
+      for (var _uoki = 0; _uoki < _uOldKeys.length; _uoki++) {
+        if (_uNewNameSet[_uOldKeys[_uoki]]) _uMatchCount++;
+      }
+      if (_uOldKeys.length > 0 && _uMatchCount === 0) {
+        log('SAFE_REBUILD unified: 0/' + _uOldKeys.length + ' match — fresh set for "' + BP.name + '"');
+        try { _uReuseTarget.remove(); } catch (_ure) {}
+        _uReuseTarget = null;
+      }
+    }
+
+    if (_uReuseTarget && !_uReuseTarget.removed) {
+      /* SAFE_REBUILD: reuse existing ComponentSet, preserving its ID.
+         STEP 1: prune stale variants (unconsumed _unifiedVarMap entries). */
+      try {
+        var _uStaleKeys = Object.keys(_unifiedVarMap);
+        for (var _usk = 0; _usk < _uStaleKeys.length; _usk++) {
+          var _uStale = _unifiedVarMap[_uStaleKeys[_usk]];
+          if (_uStale && !_uStale.removed) {
+            try { _uStale.remove(); } catch (_use) {}
+          }
+        }
+        /* Guard: Figma auto-deletes an empty ComponentSet. */
+        if (_uReuseTarget.removed) {
+          log('SAFE_REBUILD unified: auto-deleted after prune — falling back to combineAsVariants');
+          _uComponentSet = figma.combineAsVariants(_uAllComps, page);
+        } else {
+          /* STEP 2: append only truly new variants (not reused in-place). */
+          for (var _uai2 = 0; _uai2 < _uAllComps.length; _uai2++) {
+            var _uNewC = _uAllComps[_uai2];
+            if (_uNewC.parent && _uNewC.parent.id === _uReuseTarget.id) continue;
+            try { _uReuseTarget.appendChild(_uNewC); } catch (_uae) {}
+          }
+          _uComponentSet = _uReuseTarget;
+          log('SAFE_REBUILD: reused unified set "' + BP.name + '" id=' + _uReuseTarget.id);
+        }
+      } catch (_urue) {
+        log('SAFE_REBUILD unified failed, falling back: ' + _urue.message);
+        _uComponentSet = figma.combineAsVariants(_uAllComps, page);
+      }
+    } else {
+      _uComponentSet = figma.combineAsVariants(_uAllComps, page);
+    }
+
+    _uComponentSet.name = BP.name;
+    stampOwner(_uComponentSet);
+    _uComponentSet.description = BP.description || '';
+
+    /* Grid layout: rows = Pill × Label × Type (8 combos), cols = 8 states.
+       Position each variant using its index across masters (pill, label, type, state). */
+    var _uColSpacing = (BP.gridLayout && BP.gridLayout.colSpacing) || 155;
+    var _uRowSpacing = (BP.gridLayout && BP.gridLayout.rowSpacing) || 70;
+    var _uCompW     = (BP.gridLayout && BP.gridLayout.componentW) || 120;
+    var _uCompH     = (BP.gridLayout && BP.gridLayout.componentH) || 32;
+    var _uFamStates = [];
+    var _uFamTypes  = [];
+    /* Collect ordered states + types from the single family */
+    var _uFamKeys = Object.keys(BP.families || {});
+    if (_uFamKeys.length > 0) {
+      var _uFam = BP.families[_uFamKeys[0]];
+      _uFamStates = _uFam.states || [];
+      _uFamTypes  = _uFam.types  || [];
+    }
+    /* Build row key → row index: "Pill=Off,Label=Off,Type=Fill" → 0 etc. */
+    var _uRowKeys = [];
+    var _uPillVals  = ['Off', 'On'];
+    var _uLabelVals = ['Off', 'On'];
+    for (var _upi = 0; _upi < _uPillVals.length; _upi++) {
+      for (var _uli = 0; _uli < _uLabelVals.length; _uli++) {
+        for (var _uti2 = 0; _uti2 < _uFamTypes.length; _uti2++) {
+          _uRowKeys.push('Pill=' + _uPillVals[_upi] + ',Label=' + _uLabelVals[_uli] + ',Type=' + _uFamTypes[_uti2]);
+        }
+      }
+    }
+    var _uPadX = 20;
+    var _uPadY = 27;
+    var _uPillGroupGap = 16;
+    for (var _ugi = 0; _ugi < _unifiedComps.length; _ugi++) {
+      var _uEntry = _unifiedComps[_ugi];
+      /* Parse variant name: "Pill=X, Label=Y, Type=Z, State=S" */
+      var _uVName = _uEntry.component.name;
+      var _uPillM  = _uVName.match(/Pill=(\w+)/);
+      var _uLabelM = _uVName.match(/Label=(\w+)/);
+      var _uTypeM  = _uVName.match(/Type=(\w+)/);
+      var _uStateM = _uVName.match(/State=(.+)$/);
+      if (!_uPillM || !_uLabelM || !_uTypeM || !_uStateM) continue;
+      var _uRowKey = 'Pill=' + _uPillM[1] + ',Label=' + _uLabelM[1] + ',Type=' + _uTypeM[1];
+      var _uRowIdx = _uRowKeys.indexOf(_uRowKey);
+      var _uColIdx = _uFamStates.indexOf(_uStateM[1]);
+      if (_uRowIdx < 0 || _uColIdx < 0) continue;
+      /* Extra gap between Pill=Off group and Pill=On group */
+      var _uPillGroupOffset = (_uPillM[1] === 'On') ? (_uPillVals.length * _uLabelVals.length * _uFamTypes.length * _uRowSpacing + _uPillGroupGap) : 0;
+      _uEntry.component.x = _uPadX + _uColIdx * _uColSpacing;
+      _uEntry.component.y = _uPadY + (_uRowIdx % (_uLabelVals.length * _uFamTypes.length)) * _uRowSpacing
+                            + (Math.floor(_uRowIdx / (_uLabelVals.length * _uFamTypes.length)) * (_uLabelVals.length * _uFamTypes.length * _uRowSpacing + _uPillGroupGap));
+    }
+    var _uTotalCols = _uFamStates.length;
+    var _uTotalRows = _uRowKeys.length;
+    var _uTotalW = _uPadX * 2 + (_uTotalCols - 1) * _uColSpacing + _uCompW;
+    var _uTotalH = _uPadY + (_uTotalRows - 1) * _uRowSpacing + _uCompH + _uPadY + _uPillGroupGap;
+    try { _uComponentSet.resize(_uTotalW, _uTotalH); } catch (e) {}
+
+    /* Place in variantSec */
+    var _uCsX = variantSec.innerX + 100; /* ROW_LABEL_WIDTH offset */
+    _uComponentSet.x = _uCsX;
+    _uComponentSet.y = varSecContentY;
+    variantSec.section.appendChild(_uComponentSet);
+    varSecContentY += _uTotalH + 40;
+
+    allComponentSets.push(_uComponentSet);
+    log('Created unified component set: "' + BP.name + '" (' + _uAllComps.length + ' variants)');
   }
 
   /* Finalize variant section size and append to page */
