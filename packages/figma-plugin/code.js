@@ -4901,7 +4901,13 @@ async function generateComponentFromBlueprint(blueprint) {
       var _uKids = _uPreSet.children || [];
       for (var _uki = 0; _uki < _uKids.length; _uki++) {
         var _uk = _uKids[_uki];
-        if (_uk && _uk.type === 'COMPONENT') _unifiedVarMap[_uk.name] = _uk;
+        if (_uk && _uk.type === 'COMPONENT') {
+          /* Key by CANONICAL sorted axes so axis reordering never breaks
+             the name-match lookup (e.g. "Pill=Off,State=Off,Type=Fill"
+             and "State=Off,Type=Fill,Pill=Off" → same canonical key). */
+          var _ukCK = _uk.name.split(/,\s*/).sort().join('|');
+          _unifiedVarMap[_ukCK] = _uk;
+        }
       }
       log('SAFE_REBUILD unified: ' + Object.keys(_unifiedVarMap).length + ' existing variants for "' + BP.name + '"');
     }
@@ -5015,12 +5021,17 @@ async function generateComponentFromBlueprint(blueprint) {
 
           /* SAFE_REBUILD: reuse the existing COMPONENT node so placed instances
              keep their mainComponent reference (same node ID). Clear its
-             children so we can re-add a fresh master instance below. */
-          var _reuseVarComp = _existingVarMap[_variantName];
+             children so we can re-add a fresh master instance below.
+             For unified sets the map is keyed by canonical sorted axes; for
+             non-unified it is keyed by exact name. */
+          var _vLookupKey = BP.unified
+            ? _variantName.split(/,\s*/).sort().join('|')
+            : _variantName;
+          var _reuseVarComp = _existingVarMap[_vLookupKey];
           var varComp;
           if (_reuseVarComp && !_reuseVarComp.removed) {
             varComp = _reuseVarComp;
-            delete _existingVarMap[_variantName]; /* mark consumed */
+            delete _existingVarMap[_vLookupKey]; /* mark consumed */
             var _rvKids = varComp.children ? varComp.children.slice() : [];
             for (var _rvk = 0; _rvk < _rvKids.length; _rvk++) {
               try { _rvKids[_rvk].remove(); } catch (e) {}
@@ -6093,13 +6104,19 @@ async function generateComponentFromBlueprint(blueprint) {
     var _uComponentSet;
     var _uReuseTarget = (SAFE_REBUILD && reuseSetByName[BP.name]) || null;
 
-    /* Schema-change guard: if 0 old variants match the new spec, force fresh. */
+    /* Schema-change guard: if 0 old variants match the new spec, force fresh.
+       Both old keys and new names are normalised to canonical sorted form so
+       axis reordering (e.g. Pill-first → State-first) never triggers a false
+       full-schema-change and never orphans placed instances. */
     if (_uReuseTarget && !_uReuseTarget.removed) {
       var _uNewNameSet = {};
       for (var _unni = 0; _unni < _uAllComps.length; _unni++) {
-        if (_uAllComps[_unni].name) _uNewNameSet[_uAllComps[_unni].name] = true;
+        if (_uAllComps[_unni].name) {
+          var _unnCK = _uAllComps[_unni].name.split(/,\s*/).sort().join('|');
+          _uNewNameSet[_unnCK] = true;
+        }
       }
-      var _uOldKeys = Object.keys(_unifiedVarMap);
+      var _uOldKeys = Object.keys(_unifiedVarMap); /* already canonical keys */
       var _uMatchCount = 0;
       for (var _uoki = 0; _uoki < _uOldKeys.length; _uoki++) {
         if (_uNewNameSet[_uOldKeys[_uoki]]) _uMatchCount++;
