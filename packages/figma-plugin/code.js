@@ -1499,6 +1499,7 @@ var TOGGLE_BLUEPRINT = {
 
 var BUTTON_BLUEPRINT = {
   name: 'Button',
+  singleFamily: true,       /* all families merge into one set per master — preserves "Text Button" set names */
   description: 'A multi-purpose button supporting 4 structures (Filled, Outlined, Ghost, Fill & Outline), 10 density sizes, icon + text slots, and full state coverage. Uses comp-size variables for spacing and T2/T3 context tokens for color.',
 
   /* Master component layouts (TIER 1)
@@ -1739,6 +1740,7 @@ var BUTTON_BLUEPRINT = {
 
 var SPLIT_BUTTON_BLUEPRINT = {
   name: 'Split Button',
+  singleFamily: true,       /* all families merge into one set per master */
   description: 'A two-zone action+menu button. Action zone is a button-master instance (inherits all button tokens). Trigger zone (chevron) opens a menu. Divider = 1px stroke between zones.',
 
   /* Discriminator: tells the generator to use wrapper-with-button-instance
@@ -1971,6 +1973,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
    ══════════════════════════════════════════════════════════════ */
 var MENU_BUTTON_BLUEPRINT = {
   name: 'Menu Button',
+  singleFamily: true,       /* all families merge into one set per master */
   description: 'A single-zone disclosure button that opens a dropdown menu. Supports icon + text + chevron, text + chevron, and compact icon + chevron layouts, 10 density sizes, all structural and semantic variants.',
 
   masters: {
@@ -2825,11 +2828,14 @@ async function generateComponentFromBlueprint(blueprint) {
      and would otherwise look like foreign content to the foreignMaxX scan. */
   var _bpSectionNames = [
     BP.name + ' \u2014 Overview',
+    /* Current section names */
+    'Masters / ' + BP.name,            /* non-unified masterSec */
+    'Variants / ' + BP.name,           /* non-unified variantSec */
+    '_' + BP.name + ' \u2014 Internal', /* unified masterSec (hidden) */
+    BP.name,                            /* unified variantSec */
+    /* Legacy names (pre-rename) — cleaned up on next generate */
     BP.name + ' \u2014 Tier 1 / Masters',
-    BP.name + ' \u2014 Tier 2 / Variants',
-    /* Unified BP: new section names for Internal + single variant section */
-    '_' + BP.name + ' \u2014 Internal',
-    BP.name  /* e.g. "Switch" — the unified variant section */
+    BP.name + ' \u2014 Tier 2 / Variants'
   ];
   /* Also clean up any BP-declared legacy section names (e.g. old Tier 1/2 names
      that existed before the unified refactor). */
@@ -4048,7 +4054,7 @@ async function generateComponentFromBlueprint(blueprint) {
   figma.ui.postMessage({ type: 'gen-progress', text: 'Building master components…' });
 
   var masterSec = createSection(
-    BP.unified ? '_' + BP.name + ' \u2014 Internal' : BP.name + ' \u2014 Tier 1 / Masters',
+    BP.unified ? '_' + BP.name + ' \u2014 Internal' : 'Masters / ' + BP.name,
     SECTION_W);
 
   /* Header bar — plain frame with absolute text */
@@ -4845,7 +4851,7 @@ async function generateComponentFromBlueprint(blueprint) {
   var allComponentSets = [];
 
   var variantSec = createSection(
-    BP.unified ? BP.name : BP.name + ' \u2014 Tier 2 / Variants',
+    BP.unified ? BP.name : 'Variants / ' + BP.name,
     SECTION_W);
 
   /* Header bar — plain frame, absolute children */
