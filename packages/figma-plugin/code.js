@@ -5885,7 +5885,7 @@ async function generateComponentFromBlueprint(blueprint) {
       componentSet.name = setDisplayName;
       stampOwner(componentSet);
       try { componentSet.setPluginData('dtf-set-id', 'dtf::' + BP.name + '::' + mName); } catch(_csidE) {}
-      componentSet.description = (BP.description || '') + ' Family: ' + familyName + '.';
+      componentSet.description = (BP.description || '') + (BP.singleFamily ? ' All families.' : (' Family: ' + familyName + '.'));
 
       /* Grid layout: types as rows, states as columns. Rounded=False set
          occupies the top half; Rounded=True set is stacked below with a
@@ -6140,7 +6140,7 @@ async function generateComponentFromBlueprint(blueprint) {
       });
       setHeadingCard.counterAxisAlignItems = 'CENTER';
       setHeadingCard.itemSpacing = 12;
-      setHeadingCard.appendChild(createLabel(familyName + ' · ' + mName, 14, true, COLOR_HEADING));
+      setHeadingCard.appendChild(createLabel(BP.singleFamily ? mName : (familyName + ' · ' + mName), 14, true, COLOR_HEADING));
       var slotLabel = (BP.masters[mName].slots && BP.masters[mName].slots.join(' + '))
                    || (BP.masters[mName].buttonMaster ? 'action + chevron' : '')
                    || (BP.kind === 'track-thumb'
@@ -6176,8 +6176,8 @@ async function generateComponentFromBlueprint(blueprint) {
       colHeaderBar.fills = [{ type: 'SOLID', color: COLOR_HEADER_BG }];
       colHeaderBar.clipsContent = false;
 
-      for (var chi = 0; chi < famStates.length; chi++) {
-        var colH = createLabel(famStates[chi], 11, true, COLOR_DIMMED);
+      for (var chi = 0; chi < _gridStates.length; chi++) {
+        var colH = createLabel(_gridStates[chi], 11, true, COLOR_DIMMED);
         colHeaderBar.appendChild(colH);
         colH.x = padX + chi * colSpacing;
         colH.y = 10;
@@ -6213,9 +6213,9 @@ async function generateComponentFromBlueprint(blueprint) {
         tryBindFill(pillHdr, t2Vars['default/content/subtle']);
       }
 
-      for (var rhi = 0; rhi < famTypes.length; rhi++) {
+      for (var rhi = 0; rhi < _gridTypes.length; rhi++) {
         /* Square block label (always shown) */
-        var rowLabel = createLabel(famTypes[rhi], 11, false, COLOR_BODY);
+        var rowLabel = createLabel(_gridTypes[rhi], 11, false, COLOR_BODY);
         variantSec.section.appendChild(rowLabel);
         rowLabel.x = variantSec.innerX + 4;
         rowLabel.y = csY + padY + rhi * rowSpacing + 8;
@@ -6223,7 +6223,7 @@ async function generateComponentFromBlueprint(blueprint) {
 
         /* Pill block label — only when Rounded axis exists */
         if (!BP.skipRounded) {
-          var rowLabelPill = createLabel(famTypes[rhi], 11, false, COLOR_BODY);
+          var rowLabelPill = createLabel(_gridTypes[rhi], 11, false, COLOR_BODY);
           variantSec.section.appendChild(rowLabelPill);
           rowLabelPill.x = variantSec.innerX + 4;
           rowLabelPill.y = csY + padY + rhi * rowSpacing + 8 + halfBlockOffset;
