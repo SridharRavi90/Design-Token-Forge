@@ -1653,11 +1653,11 @@ var BUTTON_BLUEPRINT = {
          Ghost     = no chrome, brand text                          (Inline / minimal)
        ────────────────────────────────────────────────────────── */
     'Brand': {
-      types:  ['Primary', 'Secondary', 'Tertiary', 'Ghost'],
+      types:  ['Brand Primary', 'Brand Secondary', 'Brand Tertiary', 'Ghost'],
       states: ['Default', 'Hover', 'Pressed', 'Selected', 'Focus', 'Disabled'],
       t3Mode: 'brand',
       stateOverrides: {
-        'Primary': {
+        'Brand Primary': {
           'Default':  { fill: { t3: 'component/bg-default' },
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Hover':    { fill: { t3: 'component/bg-hover' },
@@ -1671,7 +1671,7 @@ var BUTTON_BLUEPRINT = {
           'Disabled': { fill: { t3: 'component/bg-default' }, componentOpacity: 0.3,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } }
         },
-        'Secondary': {
+        'Brand Secondary': {
           'Default':  { stroke: { t3: 'component/outline-default' }, strokeWeight: 1,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Hover':    { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-hover' }, strokeWeight: 1,
@@ -1685,7 +1685,7 @@ var BUTTON_BLUEPRINT = {
           'Disabled': { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } }
         },
-        'Tertiary': {
+        'Brand Tertiary': {
           'Default':  { fill: { t3: 'container/bg' },
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Hover':    { fill: { t3: 'container/hover' },
@@ -1900,10 +1900,10 @@ var SPLIT_BUTTON_BLUEPRINT = {
     },
 
     'Brand': {
-      types: ['Primary', 'Secondary', 'Tertiary', 'Ghost'],
+      types: ['Brand Primary', 'Brand Secondary', 'Brand Tertiary', 'Ghost'],
       t3Mode: 'brand',
       typeSpecs: {
-        'Primary': {
+        'Brand Primary': {
           rest:     { fill: { t3: 'component/bg-default' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           hover:    { fill: { t3: 'component/bg-hover' },   text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           pressed:  { fill: { t3: 'component/bg-pressed' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
@@ -1915,7 +1915,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
           disabled: { fill: { t3: 'component/bg-default' }, text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' },
                       wrapper: { componentOpacity: 0.3 } }
         },
-        'Secondary': {
+        'Brand Secondary': {
           rest:     { text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           hover:    { fill: { t3: 'container/bg' },    text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           pressed:  { fill: { t3: 'container/hover' }, text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
@@ -1929,7 +1929,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
                       wrapper: { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3 } },
           wrapperBase: { stroke: { t3: 'component/outline-default' }, strokeWeight: 1 }
         },
-        'Tertiary': {
+        'Brand Tertiary': {
           rest:     { fill: { t3: 'container/bg' },     text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           hover:    { fill: { t3: 'container/hover' },  text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           pressed:  { fill: { t3: 'container/pressed' }, text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
@@ -2102,11 +2102,11 @@ var MENU_BUTTON_BLUEPRINT = {
     },
 
     'Brand': {
-      types:  ['Primary', 'Secondary', 'Tertiary', 'Ghost'],
+      types:  ['Brand Primary', 'Brand Secondary', 'Brand Tertiary', 'Ghost'],
       states: ['Default', 'Hover', 'Pressed', 'Selected', 'Focus', 'Disabled'],
       t3Mode: 'brand',
       stateOverrides: {
-        'Primary': {
+        'Brand Primary': {
           'Default':  { fill: { t3: 'component/bg-default' },
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } },
           'Hover':    { fill: { t3: 'component/bg-hover' },
@@ -2120,7 +2120,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Disabled': { fill: { t3: 'component/bg-default' }, componentOpacity: 0.3,
                         text: { t3: 'oncomponent-content/default' }, icon: { t3: 'oncomponent-content/default' } }
         },
-        'Secondary': {
+        'Brand Secondary': {
           'Default':  { stroke: { t3: 'component/outline-default' }, strokeWeight: 1,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } },
           'Hover':    { fill: { t3: 'container/bg' }, stroke: { t3: 'component/outline-hover' }, strokeWeight: 1,
@@ -2134,7 +2134,7 @@ var MENU_BUTTON_BLUEPRINT = {
           'Disabled': { stroke: { t3: 'component/outline-default' }, strokeWeight: 1, componentOpacity: 0.3,
                         text: { t3: 'content/default' }, icon: { t3: 'content/default' } }
         },
-        'Tertiary': {
+        'Brand Tertiary': {
           'Default':  { fill: { t3: 'container/bg' },
                         text: { t3: 'oncontainer-content/default' }, icon: { t3: 'oncontainer-content/default' } },
           'Hover':    { fill: { t3: 'container/hover' },
