@@ -2295,86 +2295,75 @@ async function generateComponentFromBlueprint(blueprint) {
   var _t1VarsForRepair = await buildCollectionVarMap('T1 Color Tokens');
 
   /* ── Step 2c: Focus Ring master components ──────────────────────────────
-     One pair of Focus Ring master components per blueprint — "Default" and
-     "Pill" shapes. Each master is named after its parent blueprint so the
-     Masters section is self-documenting and parallels the button masters.
-     e.g. "mc / Focus Ring / Button",  "mc / Focus Ring / Button Pill"
-          "mc / Focus Ring / Split Button", etc.
+     One pair per blueprint: Default shape + Pill shape.
+     Masters are created LAZILY (first Focus variant encountered) so they
+     land inside masterSec — alongside the regular button masters, not in a
+     separate off-canvas section.
 
-     Geometry: ring is the SAME SIZE as the button (STRETCH at 0,0 in the
-     variant). The OUTSIDE stroke extends 2px beyond the button boundary —
-     only the stroke overflows varComp, not the frame itself. clipsContent
-     is still set to false on varComp so the stroke remains visible.
-
-     CornerRadius: bound to the blueprint's own radius variable (same one
-     the button master uses) so the ring perfectly traces the button edge
-     across all 10 comp-size modes. Width uses a placeholder (80px); STRETCH
-     constraints handle the live width. Height is bound to the blueprint's
-     height variable so the standalone component shows correct dimensions. */
+     Visual technique: two DROP_SHADOW effects (no stroke).
+       • White,  spread=4  → 4px white gap  (= outline-offset)
+       • Brand,  spread=6  → 2px brand ring (= outline-width)
+     Ring frame = same size as button at (0,0). Only the shadow overflows
+     varComp (clipsContent=false). CornerRadius bound to button's own
+     radius variable so the ring traces the button edge at every size mode. */
   var _focusRingMasterDefault = null;
   var _focusRingMasterPill    = null;
 
-  /* Derive ring master names and variable paths from this blueprint */
   var _frBPName    = BP.name || 'Button';
   var _frMcName    = 'mc / Focus Ring / ' + _frBPName;
   var _frPillName  = 'mc / Focus Ring / ' + _frBPName + ' Pill';
   var _frSBRoot    = (BP.sizeBindings && BP.sizeBindings.root) || null;
   var _frRadiusVar = _frSBRoot ? (compSizeVars[_frSBRoot.topLeftRadius] || null) : null;
   var _frHeightVar = _frSBRoot ? (compSizeVars[_frSBRoot.height]         || null) : null;
-
-  var _frPrimNums  = null;
-  var _frWidthVar  = null;
   var _frColorVar  = (_t1VarsForRepair && _t1VarsForRepair['focus/ring-color']) || null;
 
-  async function _ensureFRMaster(mcName, isPill) {
+  /* Reads the first-mode hex value of a T1 variable (for shadow color fallback). */
+  function _frReadColor(variable, fallback) {
+    if (!variable) return fallback;
+    try {
+      var _modes = Object.keys(variable.valuesByMode || {});
+      if (_modes.length) {
+        var _v = variable.valuesByMode[_modes[0]];
+        if (_v && typeof _v.r === 'number') return { r: _v.r, g: _v.g, b: _v.b, a: 1 };
+      }
+    } catch (e) {}
+    return fallback;
+  }
+
+  /* Creates or updates a focus ring master component inside parentSec.
+     Uses two drop-shadow effects instead of a stroke so the white
+     gap is visible — equivalent to CSS outline-offset. */
+  async function _ensureFRMaster(mcName, isPill, parentSec) {
     var _frMc = figma.currentPage.findOne(function(n) {
       return n.type === 'COMPONENT' && n.name === mcName;
     });
     if (!_frMc) {
-      var _frSec = figma.currentPage.findOne(function(n) {
-        return n.type === 'SECTION' && n.name === 'Masters / Focus Ring';
-      });
-      if (!_frSec) {
-        _frSec = figma.createSection();
-        _frSec.name = 'Masters / Focus Ring';
-        _frSec.x = -1400;
-        _frSec.y = 200;
-      }
       _frMc = figma.createComponent();
       _frMc.name = mcName;
-      _frMc.resize(80, 36); /* placeholder — STRETCH makes it match button width in variants */
-      _frMc.description = 'Focus ring overlay for ' + _frBPName + '. Same dimensions as ' +
-                          'the button master. Placed at (0,0) inside Focus state variants. ' +
-                          'OUTSIDE stroke provides the 2px ring beyond the button boundary.';
-      _frSec.appendChild(_frMc);
+      _frMc.resize(80, 36);
+      _frMc.description = 'Focus ring overlay for ' + _frBPName + '. ' +
+                          'Same size as the button master, placed at (0,0) in ' +
+                          'Focus state variants. Two drop-shadow effects create ' +
+                          'a 4px white gap + 2px brand ring (like outline-offset).';
+      parentSec.appendChild(_frMc);
       log('Created Focus Ring master: ' + mcName);
     }
-    /* Update properties in-place (preserves existing instance references) */
-    _frMc.fills       = [];
-    _frMc.strokeAlign = 'OUTSIDE';
-    /* Bind strokeWeight to primitives-numbers/focus/ring-width (lazily loaded) */
-    if (!_frPrimNums) {
-      try { _frPrimNums = await buildCollectionVarMap('primitives-numbers'); } catch (e) { _frPrimNums = {}; }
-      _frWidthVar = (_frPrimNums && _frPrimNums['focus/ring-width']) || null;
-    }
-    if (_frWidthVar) {
-      try { _frMc.setBoundVariable('strokeWeight', _frWidthVar); } catch (e) { _frMc.strokeWeight = 2; }
-    } else {
-      _frMc.strokeWeight = 2;
-    }
-    /* Bind stroke color to T1 Color Tokens/focus/ring-color */
-    if (_frColorVar) {
-      setPaintBoundToVariable(_frMc, 'strokes', _frColorVar);
-    } else {
-      _frMc.strokes = [{ type: 'SOLID', color: { r: 0.22, g: 0.37, b: 0.98 }, opacity: 1 }];
-    }
-    /* Bind height to the blueprint's height variable (self-documenting standalone view) */
+    /* Update in-place — preserves existing instance references */
+    _frMc.fills   = [];
+    _frMc.strokes = [];
+    _frMc.strokeWeight = 0;
+    /* Two shadows: white gap (spread=4) sits on top of brand ring (spread=6)
+       so only the outer 2px of the brand shadow is visible. */
+    var _brandRGBA = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
+    _frMc.effects = [
+      { type: 'DROP_SHADOW', color: { r: 1, g: 1, b: 1, a: 1 },
+        offset: { x: 0, y: 0 }, radius: 0, spread: 4, visible: true, blendMode: 'NORMAL' },
+      { type: 'DROP_SHADOW', color: _brandRGBA,
+        offset: { x: 0, y: 0 }, radius: 0, spread: 6, visible: true, blendMode: 'NORMAL' }
+    ];
     if (_frHeightVar) {
       try { await tryBindVar(_frMc, 'height', _frHeightVar); } catch (e) {}
     }
-    /* CornerRadius: same variable as button master (Default) or 9999 (Pill).
-       Ring radius matches the button exactly — visually hugs the button edge
-       across all size modes without requiring a separate focus/ring-radius token. */
     if (isPill) {
       _frMc.cornerRadius = 9999;
     } else if (_frRadiusVar) {
@@ -2389,10 +2378,7 @@ async function generateComponentFromBlueprint(blueprint) {
     }
     return _frMc;
   }
-
-  _focusRingMasterDefault = await _ensureFRMaster(_frMcName,   false);
-  _focusRingMasterPill    = await _ensureFRMaster(_frPillName,  true);
-  log('Focus Ring masters: "' + _frMcName + '"=' + !!_focusRingMasterDefault + '  "' + _frPillName + '"=' + !!_focusRingMasterPill);
+  /* Masters are created lazily on first Focus variant — see focusRing handlers below. */
 
 
 
@@ -5609,19 +5595,21 @@ async function generateComponentFromBlueprint(blueprint) {
               } else {
                 try { instance.strokes = []; } catch (e) {}
               }
-              /* Add Focus Ring overlay as an ABSOLUTE STRETCH child of varComp.
-                 Placed at (0,0) — same size as the button. The OUTSIDE stroke
-                 on the master extends 2px beyond varComp's boundary, providing
-                 the ring without the ring frame itself extending outside varComp. */
+              /* Add Focus Ring overlay — lazily create master in masterSec on first use.
+                 Two drop-shadow effects (white gap + brand ring) on the master frame
+                 replicate CSS outline-offset:4px; outline:2px solid brand-color.
+                 Frame is same size as button at (0,0); shadows overflow via clipsContent=false. */
+              if (!_focusRingMasterDefault) _focusRingMasterDefault = await _ensureFRMaster(_frMcName,  false, masterSec.section);
+              if (!_focusRingMasterPill)    _focusRingMasterPill    = await _ensureFRMaster(_frPillName, true, masterSec.section);
               var _frMW = isRounded ? _focusRingMasterPill : _focusRingMasterDefault;
               if (_frMW) {
                 var _frInstW = _frMW.createInstance();
                 _frInstW.resize(Math.max(varComp.width, 10), Math.max(varComp.height, 10));
-                varComp.insertChild(0, _frInstW); /* insert first, then set layout props */
+                varComp.insertChild(0, _frInstW);
                 try { _frInstW.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
                 _frInstW.x = 0;
                 _frInstW.y = 0;
-                varComp.clipsContent = false; /* let OUTSIDE stroke overflow */
+                varComp.clipsContent = false;
                 stats.bindings++;
               }
             } else if (wrapOv.stroke) {
@@ -5854,19 +5842,21 @@ async function generateComponentFromBlueprint(blueprint) {
             } else {
               instance.strokes = [];
             }
-            /* Inject Focus Ring master instance as ABSOLUTE STRETCH overlay in varComp.
-               Placed at (0,0) — same dimensions as the button. The OUTSIDE stroke on the
-               master provides the 2px ring beyond the button edge; only the stroke overflows
-               varComp, not the frame itself. clipsContent=false lets the stroke render. */
+            /* Focus Ring overlay — lazily create master in masterSec on first use.
+               Two drop-shadow effects on the ring master (white spread=4 gap,
+               brand spread=6 ring) replicate CSS outline-offset. Same size as
+               button at (0,0); shadows overflow via clipsContent=false. */
+            if (!_focusRingMasterDefault) _focusRingMasterDefault = await _ensureFRMaster(_frMcName,  false, masterSec.section);
+            if (!_focusRingMasterPill)    _focusRingMasterPill    = await _ensureFRMaster(_frPillName, true, masterSec.section);
             var _frMB = isRounded ? _focusRingMasterPill : _focusRingMasterDefault;
             if (_frMB) {
               var _frInstB = _frMB.createInstance();
               _frInstB.resize(Math.max(varComp.width, 10), Math.max(varComp.height, 10));
-              varComp.insertChild(0, _frInstB); /* insert first, then set layout props */
+              varComp.insertChild(0, _frInstB);
               try { _frInstB.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
               _frInstB.x = 0;
               _frInstB.y = 0;
-              varComp.clipsContent = false; /* let OUTSIDE stroke overflow */
+              varComp.clipsContent = false;
               stats.bindings++;
             }
           } else if (overrides.stroke) {
