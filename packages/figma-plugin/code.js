@@ -5656,8 +5656,8 @@ async function generateComponentFromBlueprint(blueprint) {
                 var _wfrFrame = figma.createFrame();
                 _wfrFrame.name = 'Focus ring';
                 _wfrFrame.layoutMode            = 'HORIZONTAL';
-                _wfrFrame.primaryAxisSizingMode = 'HUG';
-                _wfrFrame.counterAxisSizingMode = 'HUG';
+                _wfrFrame.primaryAxisSizingMode = 'AUTO';
+                _wfrFrame.counterAxisSizingMode = 'AUTO';
                 _wfrFrame.primaryAxisAlignItems = 'CENTER';
                 _wfrFrame.counterAxisAlignItems = 'CENTER';
                 _wfrFrame.paddingTop    = _frgap;
@@ -5933,8 +5933,8 @@ async function generateComponentFromBlueprint(blueprint) {
               var _ffrFrame = figma.createFrame();
               _ffrFrame.name = 'Focus ring';
               _ffrFrame.layoutMode            = 'HORIZONTAL';
-              _ffrFrame.primaryAxisSizingMode = 'HUG';
-              _ffrFrame.counterAxisSizingMode = 'HUG';
+              _ffrFrame.primaryAxisSizingMode = 'AUTO';
+              _ffrFrame.counterAxisSizingMode = 'AUTO';
               _ffrFrame.primaryAxisAlignItems = 'CENTER';
               _ffrFrame.counterAxisAlignItems = 'CENTER';
               _ffrFrame.paddingTop    = _frgap;
