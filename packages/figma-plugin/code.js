@@ -1533,6 +1533,7 @@ var TOGGLE_BLUEPRINT = {
 var BUTTON_BLUEPRINT = {
   name: 'Button',
   targetPage: '🔘 Buttons',
+  usesIconPrimitives: true,  /* migrates DTF-PRIMITIVES section to target page */
   singleFamily: true,       /* all families merge into one set per master — preserves "Text Button" set names */
   description: 'A multi-purpose button supporting 4 structures (Filled, Outlined, Ghost, Fill & Outline), 10 density sizes, icon + text slots, and full state coverage. Uses comp-size variables for spacing and T2/T3 context tokens for color.',
 
@@ -1785,6 +1786,7 @@ var BUTTON_BLUEPRINT = {
 var SPLIT_BUTTON_BLUEPRINT = {
   name: 'Split Button',
   targetPage: '🔘 Buttons',
+  usesIconPrimitives: true,  /* migrates DTF-PRIMITIVES section to target page */
   singleFamily: true,       /* all families merge into one set per master */
   description: 'A two-zone action+menu button. Action zone is a button-master instance (inherits all button tokens). Trigger zone (chevron) opens a menu. Divider = 1px stroke between zones.',
 
@@ -2019,6 +2021,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
 var MENU_BUTTON_BLUEPRINT = {
   name: 'Menu Button',
   targetPage: '🔘 Buttons',
+  usesIconPrimitives: true,  /* migrates DTF-PRIMITIVES section to target page */
   singleFamily: true,       /* all families merge into one set per master */
   description: 'A single-zone disclosure button that opens a dropdown menu. Supports icon + text + chevron, text + chevron, and compact icon + chevron layouts, 10 density sizes, all structural and semantic variants.',
 
@@ -2816,9 +2819,14 @@ async function generateComponentFromBlueprint(blueprint) {
       if (_mp.id === page.id) continue; /* skip the target page itself */
       var _mpCandidates = [];
       try {
-        /* Find ALL nodes on this page owned by the current blueprint. */
+        /* Find ALL nodes on this page owned by the current blueprint,
+         and (when BP.usesIconPrimitives) also shared DTF-PRIMITIVES. */
         _mpCandidates = _mp.findAll(function(n) {
-          try { return n.getPluginData && n.getPluginData('dtf-owner') === BP.name; } catch(e) { return false; }
+          try {
+            var _owner = n.getPluginData && n.getPluginData('dtf-owner');
+            return _owner === BP.name ||
+                   (BP.usesIconPrimitives && _owner === 'DTF-PRIMITIVES');
+          } catch(e) { return false; }
         });
       } catch(_mfe) {}
       /* Only move DIRECT children of the page — child nodes travel with
