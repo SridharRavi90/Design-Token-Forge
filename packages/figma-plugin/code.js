@@ -5584,11 +5584,11 @@ async function generateComponentFromBlueprint(blueprint) {
                  Pearl file node 230:28468 validated this exact structure. */
               var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
               try {
-                /* Fix varComp at button size + center children BEFORE moving instance. */
-                varComp.layoutSizingHorizontal = 'FIXED';
-                varComp.layoutSizingVertical   = 'FIXED';
-                varComp.primaryAxisAlignItems  = 'CENTER';
-                /* counterAxisAlignItems is already CENTER */
+                /* HUG ring frame on both axes — component size adapts to all density
+                   modes, padding changes, and text widths automatically.
+                   varComp HUGs ring frame, ring frame HUGs instance + _frgap padding. */
+                varComp.layoutSizingHorizontal = 'HUG';
+                varComp.layoutSizingVertical   = 'HUG';
 
                 var _wfr = figma.createFrame();
                 _wfr.name = 'focus-ring';
@@ -5861,11 +5861,11 @@ async function generateComponentFromBlueprint(blueprint) {
                Pearl file node 230:28468 validated this exact structure. */
             var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
             try {
-              /* Fix varComp at button size + center children BEFORE moving instance. */
-              varComp.layoutSizingHorizontal = 'FIXED';
-              varComp.layoutSizingVertical   = 'FIXED';
-              varComp.primaryAxisAlignItems  = 'CENTER';
-              /* counterAxisAlignItems is already CENTER */
+              /* HUG ring frame on both axes — component size adapts to all density
+                 modes, padding changes, and text widths automatically.
+                 varComp HUGs ring frame, ring frame HUGs instance + _frgap padding. */
+              varComp.layoutSizingHorizontal = 'HUG';
+              varComp.layoutSizingVertical   = 'HUG';
 
               var _ffr = figma.createFrame();
               _ffr.name = 'focus-ring';
