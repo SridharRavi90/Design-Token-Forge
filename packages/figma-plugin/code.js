@@ -5640,6 +5640,10 @@ async function generateComponentFromBlueprint(blueprint) {
                   await tryBindVar(_wfr, 'paddingBottom', _frgapVar); stats.bindings++;
                 }
 
+                /* Read button natural dimensions BEFORE appending to ring
+                   frame — most reliable; unaffected by parent auto-layout. */
+                var _wfrInstW = instance.width;
+                var _wfrInstH = instance.height;
                 /* Move instance into ring frame (Figma moves on appendChild). */
                 _wfr.appendChild(instance);
                 /* Ring frame AUTO-positioned inside FIXED+CENTER varComp.
@@ -5647,8 +5651,7 @@ async function generateComponentFromBlueprint(blueprint) {
                    locks to the button footprint, not the ring-inflated 61px.
                    Ring frame (HUG, 8px wider) overflows correctly. */
                 varComp.appendChild(_wfr);
-                var _wfrInstW = instance.width;
-                if (_wfrInstW > 0) varComp.resize(_wfrInstW, varComp.height);
+                if (_wfrInstW > 0) varComp.resize(_wfrInstW, _wfrInstH > 0 ? _wfrInstH : varComp.height);
               } catch(e) { log('focusRing wrapper ring-frame: ' + e.message); }
               varComp.clipsContent = false;
               stats.bindings++;
@@ -5933,6 +5936,10 @@ async function generateComponentFromBlueprint(blueprint) {
                 await tryBindVar(_ffr, 'paddingBottom', _frgapVar); stats.bindings++;
               }
 
+              /* Read button natural dimensions BEFORE appending to ring
+                 frame — most reliable; unaffected by parent auto-layout. */
+              var _ffrInstW = instance.width;
+              var _ffrInstH = instance.height;
               /* Move instance into ring frame (Figma moves on appendChild). */
               _ffr.appendChild(instance);
               /* Ring frame AUTO-positioned inside FIXED+CENTER varComp.
@@ -5940,8 +5947,7 @@ async function generateComponentFromBlueprint(blueprint) {
                  locks to the button footprint, not the ring-inflated 61px.
                  Ring frame (HUG, 8px wider) overflows correctly. */
               varComp.appendChild(_ffr);
-              var _ffrInstW = instance.width;
-              if (_ffrInstW > 0) varComp.resize(_ffrInstW, varComp.height);
+              if (_ffrInstW > 0) varComp.resize(_ffrInstW, _ffrInstH > 0 ? _ffrInstH : varComp.height);
             } catch(e) { log('focusRing ring-frame: ' + e.message); }
             varComp.clipsContent = false;
             stats.bindings++;
