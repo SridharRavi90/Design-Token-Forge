@@ -393,5 +393,17 @@
   /* Figma focus ring frame dimensions (HUG ring frame approach) */
   --btn-focus-ring-gap:   4px;  /* gap between button edge and ring stroke outer edge */
   --btn-focus-ring-width: 2px;  /* ring stroke weight */
+
+  /* Per-density ring corner radius = btn-radius + focus-ring-gap (concentric curves) */
+  --btn-focus-ring-radius-micro:   8px;  /* radius-sm(4)    + gap(4) */
+  --btn-focus-ring-radius-tiny:    8px;
+  --btn-focus-ring-radius-small:  10px;  /* radius-md(6)    + gap(4) */
+  --btn-focus-ring-radius-base:   10px;
+  --btn-focus-ring-radius-medium: 12px;  /* radius-DEFAULT(8) + gap(4) */
+  --btn-focus-ring-radius-large:  12px;
+  --btn-focus-ring-radius-big:    14px;  /* radius-md-lg(10) + gap(4) */
+  --btn-focus-ring-radius-huge:   14px;
+  --btn-focus-ring-radius-mega:   16px;  /* radius-lg(12)   + gap(4) */
+  --btn-focus-ring-radius-ultra:  18px;  /* radius-lg-xl(14)+ gap(4) */
   --btn-min-tap-target: 0px; /* Sizes are intentional — use pseudo-element for a11y tap area if needed */
 }

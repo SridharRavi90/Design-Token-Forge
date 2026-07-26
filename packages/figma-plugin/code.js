@@ -143,8 +143,10 @@ var REQUIRED_COMPSIZE_VARS = [
   { name: 'toggle/radius-square',        defaultVal: 5,    createOnly: true },
   { name: 'toggle/thumb-radius-square',  defaultVal: 3,    createOnly: true },
   /* Focus ring frame dimensions — constant (non-per-density). */
-  { name: 'button/focus-ring-gap',   defaultVal: 4 },
-  { name: 'button/focus-ring-width', defaultVal: 2 }
+  { name: 'button/focus-ring-gap',    defaultVal: 4  },
+  { name: 'button/focus-ring-width',  defaultVal: 2  },
+  /* Focus ring corner radius — per-density (radius + gap), createOnly so sync-server values win. */
+  { name: 'button/focus-ring-radius', defaultVal: 10, createOnly: true }
 ];
 log('code.js loaded — version ' + CODE_VERSION);
 
@@ -2313,9 +2315,10 @@ async function generateComponentFromBlueprint(blueprint) {
        effects[1]  brand  spread=6  → 2px brand ring (behind)            */
   var _frColorVar = (_t1VarsForRepair && _t1VarsForRepair['focus/ring-color']) || null;
 
-  /* Focus ring gap and stroke-width from comp-size variables (no hardcoded 4/2). */
-  var _frgapVar   = (compSizeVars && compSizeVars['button/focus-ring-gap'])   || null;
-  var _frwidthVar = (compSizeVars && compSizeVars['button/focus-ring-width']) || null;
+  /* Focus ring gap, stroke-width, and corner-radius from comp-size variables (no hardcoded 4/2/10). */
+  var _frgapVar    = (compSizeVars && compSizeVars['button/focus-ring-gap'])    || null;
+  var _frwidthVar  = (compSizeVars && compSizeVars['button/focus-ring-width'])  || null;
+  var _frradiusVar = (compSizeVars && compSizeVars['button/focus-ring-radius']) || null;
   var _frgap   = 4; /* fallback = CSS --focus-outline-offset */
   var _frwidth = 2; /* fallback = CSS --focus-outline-width  */
   if (_frgapVar && _frgapVar.valuesByMode) {
@@ -5584,11 +5587,15 @@ async function generateComponentFromBlueprint(blueprint) {
                  Pearl file node 230:28468 validated this exact structure. */
               var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
               try {
-                /* HUG ring frame on both axes — component size adapts to all density
-                   modes, padding changes, and text widths automatically.
-                   varComp HUGs ring frame, ring frame HUGs instance + _frgap padding. */
-                varComp.layoutSizingHorizontal = 'HUG';
-                varComp.layoutSizingVertical   = 'HUG';
+                /* Keep varComp at button's natural dimensions so focus ring OVERFLOWS bounds
+                   (same footprint as other states). Height is variable-bound so density-mode
+                   changes keep the vertical gap correct. Width stays FIXED at generation-time
+                   button width — ring frame HUGs button ± gap so horizontal gap is always right. */
+                varComp.layoutSizingHorizontal = 'FIXED';
+                varComp.layoutSizingVertical   = 'FIXED';
+                var _vcHvW = compSizeVars[BP.sizeBindings.root.height] || null;
+                if (_vcHvW) { try { await tryBindVar(varComp, 'height', _vcHvW); stats.bindings++; } catch (_vchE) {} }
+                varComp.primaryAxisAlignItems  = 'CENTER';
 
                 var _wfr = figma.createFrame();
                 _wfr.name = 'focus-ring';
@@ -5607,9 +5614,17 @@ async function generateComponentFromBlueprint(blueprint) {
                 if (_frColorVar) { setPaintBoundToVariable(_wfr, 'strokes', _frColorVar); stats.bindings++; }
                 _wfr.strokeWeight = _frwidth;
                 _wfr.strokeAlign  = 'INSIDE';
-                /* cornerRadius = button's own radius + ring gap so ring follows button shape exactly. */
+                /* cornerRadius: bound to per-density button/focus-ring-radius variable
+                   (= button radius + gap for each density mode). Fallback reads the
+                   instance's current corner radius + gap at generation time. */
                 var _wfr_instRad = 0; try { _wfr_instRad = instance.topLeftRadius || 0; } catch (_wfr_e) {}
                 _wfr.cornerRadius = isRounded ? 9999 : Math.round(_wfr_instRad + _frgap);
+                if (!isRounded && _frradiusVar) {
+                  await tryBindVar(_wfr, 'topLeftRadius',     _frradiusVar); stats.bindings++;
+                  await tryBindVar(_wfr, 'topRightRadius',    _frradiusVar); stats.bindings++;
+                  await tryBindVar(_wfr, 'bottomLeftRadius',  _frradiusVar); stats.bindings++;
+                  await tryBindVar(_wfr, 'bottomRightRadius', _frradiusVar); stats.bindings++;
+                }
                 _wfr.clipsContent = false;
                 if (_frgapVar) {
                   await tryBindVar(_wfr, 'paddingLeft',   _frgapVar); stats.bindings++;
@@ -5861,11 +5876,15 @@ async function generateComponentFromBlueprint(blueprint) {
                Pearl file node 230:28468 validated this exact structure. */
             var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
             try {
-              /* HUG ring frame on both axes — component size adapts to all density
-                 modes, padding changes, and text widths automatically.
-                 varComp HUGs ring frame, ring frame HUGs instance + _frgap padding. */
-              varComp.layoutSizingHorizontal = 'HUG';
-              varComp.layoutSizingVertical   = 'HUG';
+              /* Keep varComp at button's natural dimensions so focus ring OVERFLOWS bounds
+                 (same footprint as other states). Height is variable-bound so density-mode
+                 changes keep the vertical gap correct. Width stays FIXED at generation-time
+                 button width — ring frame HUGs button ± gap so horizontal gap is always right. */
+              varComp.layoutSizingHorizontal = 'FIXED';
+              varComp.layoutSizingVertical   = 'FIXED';
+              var _vcHvF = compSizeVars[BP.sizeBindings.root.height] || null;
+              if (_vcHvF) { try { await tryBindVar(varComp, 'height', _vcHvF); stats.bindings++; } catch (_vchEF) {} }
+              varComp.primaryAxisAlignItems  = 'CENTER';
 
               var _ffr = figma.createFrame();
               _ffr.name = 'focus-ring';
@@ -5884,9 +5903,17 @@ async function generateComponentFromBlueprint(blueprint) {
               if (_frColorVar) { setPaintBoundToVariable(_ffr, 'strokes', _frColorVar); stats.bindings++; }
               _ffr.strokeWeight = _frwidth;
               _ffr.strokeAlign  = 'INSIDE';
-              /* cornerRadius = button's own radius + ring gap so ring follows button shape exactly. */
+              /* cornerRadius: bound to per-density button/focus-ring-radius variable
+                 (= button radius + gap for each density mode). Fallback reads the
+                 instance's current corner radius + gap at generation time. */
               var _ffr_instRad = 0; try { _ffr_instRad = instance.topLeftRadius || 0; } catch (_ffr_e) {}
               _ffr.cornerRadius = isRounded ? 9999 : Math.round(_ffr_instRad + _frgap);
+              if (!isRounded && _frradiusVar) {
+                await tryBindVar(_ffr, 'topLeftRadius',     _frradiusVar); stats.bindings++;
+                await tryBindVar(_ffr, 'topRightRadius',    _frradiusVar); stats.bindings++;
+                await tryBindVar(_ffr, 'bottomLeftRadius',  _frradiusVar); stats.bindings++;
+                await tryBindVar(_ffr, 'bottomRightRadius', _frradiusVar); stats.bindings++;
+              }
               _ffr.clipsContent = false;
               if (_frgapVar) {
                 await tryBindVar(_ffr, 'paddingLeft',   _frgapVar); stats.bindings++;
