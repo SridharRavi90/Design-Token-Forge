@@ -1382,6 +1382,7 @@ function _recordBoundVarId(id, name){
 
 var TOGGLE_BLUEPRINT = {
   name: 'Switch',
+  targetPage: '☑️ Selection Controls',
   kind: 'track-thumb',
   unified: true,            /* collapse 4 masters into ONE "Switch" component set with
                                Pill=On|Off + Label=On|Off boolean variant axes */
@@ -1531,6 +1532,7 @@ var TOGGLE_BLUEPRINT = {
 
 var BUTTON_BLUEPRINT = {
   name: 'Button',
+  targetPage: '🔘 Buttons',
   singleFamily: true,       /* all families merge into one set per master — preserves "Text Button" set names */
   description: 'A multi-purpose button supporting 4 structures (Filled, Outlined, Ghost, Fill & Outline), 10 density sizes, icon + text slots, and full state coverage. Uses comp-size variables for spacing and T2/T3 context tokens for color.',
 
@@ -1782,6 +1784,7 @@ var BUTTON_BLUEPRINT = {
 
 var SPLIT_BUTTON_BLUEPRINT = {
   name: 'Split Button',
+  targetPage: '🔘 Buttons',
   singleFamily: true,       /* all families merge into one set per master */
   description: 'A two-zone action+menu button. Action zone is a button-master instance (inherits all button tokens). Trigger zone (chevron) opens a menu. Divider = 1px stroke between zones.',
 
@@ -2015,6 +2018,7 @@ var SPLIT_BUTTON_BLUEPRINT = {
    ══════════════════════════════════════════════════════════════ */
 var MENU_BUTTON_BLUEPRINT = {
   name: 'Menu Button',
+  targetPage: '🔘 Buttons',
   singleFamily: true,       /* all families merge into one set per master */
   description: 'A single-zone disclosure button that opens a dropdown menu. Supports icon + text + chevron, text + chevron, and compact icon + chevron layouts, 10 density sizes, all structural and semantic variants.',
 
@@ -2784,17 +2788,18 @@ async function generateComponentFromBlueprint(blueprint) {
 
   log('Comp-size vars after aliasing: ' + Object.keys(compSizeVars).length);
 
-  /* ── Step 3: Find or create DTF Components page ────────── */
+  /* ── Step 3: Find or create the target page for this blueprint ──────────── */
+  var _targetPageName = BP.targetPage || 'Components';
   var page = null;
   for (var pi = 0; pi < figma.root.children.length; pi++) {
-    if (figma.root.children[pi].name === 'Components') {
+    if (figma.root.children[pi].name === _targetPageName) {
       page = figma.root.children[pi];
       break;
     }
   }
   if (!page) {
     page = figma.createPage();
-    page.name = 'Components';
+    page.name = _targetPageName;
   }
   await figma.setCurrentPageAsync(page);
 
@@ -7490,6 +7495,8 @@ figma.ui.onmessage = async function(msg) {
         return oa - ob;
       });
       var allStats = { components: 0, bindings: 0, reactions: 0, errors: [] };
+      /* Track which pages received components so we can wire all of them. */
+      var _usedPages = {}; /* pageName → PageNode */
 
       for (var gci = 0; gci < requested.length; gci++) {
         var compName = requested[gci].toLowerCase();
@@ -7506,25 +7513,27 @@ figma.ui.onmessage = async function(msg) {
         for (var ei = 0; ei < cStats.errors.length; ei++) {
           allStats.errors.push(cStats.errors[ei]);
         }
+        /* Record the page this blueprint just wrote to. */
+        _usedPages[figma.currentPage.name] = figma.currentPage;
       }
 
-      /* Auto-wire any component sets on the page that don't already have
-         hover/press reactions. Idempotent — safe to call after every
-         generation. Catches sets where state-name conventions weren't
-         covered by the per-blueprint wiring loop. */
+      /* Auto-wire prototype interactions on EVERY page that received
+         components. Idempotent — safe to run multiple times per page. */
       figma.ui.postMessage({ type: 'gen-progress', text: 'Auto-wiring prototype interactions…' });
-      try {
-        var wireStats = await wireReactionsForCurrentPage();
-        allStats.reactions += wireStats.reactions;
-        for (var wei = 0; wei < wireStats.errors.length; wei++) {
-          allStats.errors.push('Wire: ' + wireStats.errors[wei]);
+      var _usedPageNames = Object.keys(_usedPages);
+      for (var _wpi = 0; _wpi < _usedPageNames.length; _wpi++) {
+        try {
+          await figma.setCurrentPageAsync(_usedPages[_usedPageNames[_wpi]]);
+          var wireStats = await wireReactionsForCurrentPage();
+          allStats.reactions += wireStats.reactions;
+          for (var wei = 0; wei < wireStats.errors.length; wei++) {
+            allStats.errors.push('Wire: ' + wireStats.errors[wei]);
+          }
+          log('Auto-wired ' + wireStats.reactions + ' reactions on page “' + _usedPageNames[_wpi] + '”');
+        } catch (we) {
+          log('Auto-wire failed on page “' + _usedPageNames[_wpi] + '”: ' + we.message);
+          allStats.errors.push('Auto-wire (' + _usedPageNames[_wpi] + '): ' + we.message);
         }
-        log('Auto-wired ' + wireStats.reactions + ' reactions across ' +
-          wireStats.sets + ' sets (' + wireStats.defaults + ' defaults, ' +
-          wireStats.subzones + ' sub-zones)');
-      } catch (we) {
-        log('Auto-wire pass failed: ' + we.message);
-        allStats.errors.push('Auto-wire: ' + we.message);
       }
 
       /* Post-build icon color heal — runs AFTER all variants are committed
