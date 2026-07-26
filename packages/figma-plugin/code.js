@@ -5642,8 +5642,13 @@ async function generateComponentFromBlueprint(blueprint) {
 
                 /* Move instance into ring frame (Figma moves on appendChild). */
                 _wfr.appendChild(instance);
-                /* Ring frame AUTO-positioned inside FIXED+CENTER varComp. */
+                /* Ring frame AUTO-positioned inside FIXED+CENTER varComp.
+                   Explicitly resize varComp to button natural width so FIXED
+                   locks to the button footprint, not the ring-inflated 61px.
+                   Ring frame (HUG, 8px wider) overflows correctly. */
                 varComp.appendChild(_wfr);
+                var _wfrInstW = instance.width;
+                if (_wfrInstW > 0) varComp.resize(_wfrInstW, varComp.height);
               } catch(e) { log('focusRing wrapper ring-frame: ' + e.message); }
               varComp.clipsContent = false;
               stats.bindings++;
@@ -5930,8 +5935,13 @@ async function generateComponentFromBlueprint(blueprint) {
 
               /* Move instance into ring frame (Figma moves on appendChild). */
               _ffr.appendChild(instance);
-              /* Ring frame AUTO-positioned inside FIXED+CENTER varComp. */
+              /* Ring frame AUTO-positioned inside FIXED+CENTER varComp.
+                 Explicitly resize varComp to button natural width so FIXED
+                 locks to the button footprint, not the ring-inflated 61px.
+                 Ring frame (HUG, 8px wider) overflows correctly. */
               varComp.appendChild(_ffr);
+              var _ffrInstW = instance.width;
+              if (_ffrInstW > 0) varComp.resize(_ffrInstW, varComp.height);
             } catch(e) { log('focusRing ring-frame: ' + e.message); }
             varComp.clipsContent = false;
             stats.bindings++;
