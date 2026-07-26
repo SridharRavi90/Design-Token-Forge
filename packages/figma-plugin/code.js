@@ -5647,38 +5647,53 @@ async function generateComponentFromBlueprint(blueprint) {
               } else {
                 try { instance.strokes = []; } catch (e) {}
               }
-              /* Focus Ring: two DROP_SHADOW effects on varComp.
-                 shadows automatically follow the frame's rendered size — no
-                 child frame needed, works at any width or density mode.
-                 effects[0] = white gap (spread=gap, on top)
-                 effects[1] = brand ring (spread=gap+width, behind) */
+              /* Focus Ring: auto-layout wrapper frame enclosing the instance.
+                 HUG both axes with padding=gap → width/height auto-adapt to
+                 any button content width and any density — no literals needed.
+                 Stroke INSIDE provides the visible ring. */
               var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
               try {
-                varComp.primaryAxisAlignItems = 'CENTER';
-                /* Set varComp cornerRadius to match instance so shadow rounds correctly. */
-                if (isRounded) {
-                  varComp.cornerRadius = 9999;
-                  if (radiusRoundedVar) { try { await tryBindVar(varComp, 'cornerRadius', radiusRoundedVar); stats.bindings++; } catch(e) {} }
-                } else {
-                  var _wfrInstCR = 0; try { _wfrInstCR = instance.topLeftRadius || 0; } catch(_wfre) {}
-                  varComp.cornerRadius = _wfrInstCR;
-                  var _wfrRadVar = BP.sizeBindings && BP.sizeBindings.root && compSizeVars[BP.sizeBindings.root.topLeftRadius] || null;
-                  if (_wfrRadVar) { try { await tryBindVar(varComp, 'cornerRadius', _wfrRadVar); stats.bindings++; } catch(e) {} }
+                var _wfrFrame = figma.createFrame();
+                _wfrFrame.name = 'Focus ring';
+                _wfrFrame.layoutMode            = 'HORIZONTAL';
+                _wfrFrame.primaryAxisSizingMode = 'HUG';
+                _wfrFrame.counterAxisSizingMode = 'HUG';
+                _wfrFrame.primaryAxisAlignItems = 'CENTER';
+                _wfrFrame.counterAxisAlignItems = 'CENTER';
+                _wfrFrame.paddingTop    = _frgap;
+                _wfrFrame.paddingBottom = _frgap;
+                _wfrFrame.paddingLeft   = _frgap;
+                _wfrFrame.paddingRight  = _frgap;
+                if (_frgapVar) {
+                  try { await tryBindVar(_wfrFrame, 'paddingTop',    _frgapVar); stats.bindings++; } catch(e) {}
+                  try { await tryBindVar(_wfrFrame, 'paddingBottom', _frgapVar); stats.bindings++; } catch(e) {}
+                  try { await tryBindVar(_wfrFrame, 'paddingLeft',   _frgapVar); stats.bindings++; } catch(e) {}
+                  try { await tryBindVar(_wfrFrame, 'paddingRight',  _frgapVar); stats.bindings++; } catch(e) {}
                 }
-                /* Gap shadow (white): spread=gap, renders on top — hides inner part of ring. */
-                var _wfrGapShadow = { type: 'DROP_SHADOW',
-                  color: { r: 1, g: 1, b: 1, a: 1 },
-                  offset: { x: 0, y: 0 }, radius: 0, spread: _frgap,
-                  blendMode: 'NORMAL', visible: true };
-                /* Ring shadow (brand): spread=gap+width, renders behind gap shadow. */
-                var _wfrRingShadow = { type: 'DROP_SHADOW',
-                  color: { r: _frBrand.r, g: _frBrand.g, b: _frBrand.b, a: 1 },
-                  offset: { x: 0, y: 0 }, radius: 0, spread: _frgap + _frwidth,
-                  blendMode: 'NORMAL', visible: true };
-                varComp.effects = [_wfrGapShadow, _wfrRingShadow];
-              } catch(e) { log('focusRing wrapper shadow: ' + e.message); }
+                _wfrFrame.fills   = [];
+                _wfrFrame.strokes = [{ type: 'SOLID', color: _frBrand, visible: true, blendMode: 'NORMAL', opacity: 1 }];
+                if (_frColorVar) { setPaintBoundToVariable(_wfrFrame, 'strokes', _frColorVar); stats.bindings++; }
+                _wfrFrame.strokeWeight = _frwidth;
+                if (_frwidthVar) { try { await tryBindVar(_wfrFrame, 'strokeWeight', _frwidthVar); stats.bindings++; } catch(e) {} }
+                _wfrFrame.strokeAlign  = 'INSIDE';
+                /* cornerRadius = button radius + gap so ring follows button shape. */
+                if (isRounded) {
+                  _wfrFrame.cornerRadius = 9999;
+                } else {
+                  var _wfr_instCR = 0; try { _wfr_instCR = instance.topLeftRadius || 0; } catch(_wfr_e) {}
+                  _wfrFrame.cornerRadius = Math.round(_wfr_instCR + _frgap);
+                  if (_frradiusVar) { try { await tryBindVar(_wfrFrame, 'cornerRadius', _frradiusVar); stats.bindings++; } catch(e) {} }
+                }
+                _wfrFrame.clipsContent = false;
+                /* Reparent instance INTO ring frame; then place ring frame in varComp. */
+                _wfrFrame.appendChild(instance);
+                varComp.appendChild(_wfrFrame);
+                try {
+                  _wfrFrame.layoutSizingHorizontal = 'HUG';
+                  _wfrFrame.layoutSizingVertical   = 'HUG';
+                } catch(e) {}
+              } catch(e) { log('focusRing wrapper ring-frame: ' + e.message); }
               varComp.clipsContent = false;
-              stats.bindings++;
             } else if (wrapOv.stroke) {
               var wrapStrokeVar = resolveColorSpec(wrapOv.stroke, t2Vars, t3Vars);
               if (wrapStrokeVar) {
@@ -5909,38 +5924,53 @@ async function generateComponentFromBlueprint(blueprint) {
             } else {
               instance.strokes = [];
             }
-            /* Focus Ring: two DROP_SHADOW effects on varComp.
-               Shadows automatically follow the frame's rendered size — no
-               child frame needed, works at any width or density mode.
-               effects[0] = white gap (spread=gap, on top)
-               effects[1] = brand ring (spread=gap+width, behind) */
+            /* Focus Ring: auto-layout wrapper frame enclosing the instance.
+               HUG both axes with padding=gap → width/height auto-adapt to
+               any button content width and any density — no literals needed.
+               Stroke INSIDE provides the visible ring. */
             var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
             try {
-              varComp.primaryAxisAlignItems  = 'CENTER';
-              /* Set varComp cornerRadius to match instance so shadow rounds correctly. */
-              if (isRounded) {
-                varComp.cornerRadius = 9999;
-                if (radiusRoundedVar) { try { await tryBindVar(varComp, 'cornerRadius', radiusRoundedVar); stats.bindings++; } catch(e) {} }
-              } else {
-                var _ffrInstCR = 0; try { _ffrInstCR = instance.topLeftRadius || 0; } catch(_ffre) {}
-                varComp.cornerRadius = _ffrInstCR;
-                var _ffrRadVar = BP.sizeBindings && BP.sizeBindings.root && compSizeVars[BP.sizeBindings.root.topLeftRadius] || null;
-                if (_ffrRadVar) { try { await tryBindVar(varComp, 'cornerRadius', _ffrRadVar); stats.bindings++; } catch(e) {} }
+              var _ffrFrame = figma.createFrame();
+              _ffrFrame.name = 'Focus ring';
+              _ffrFrame.layoutMode            = 'HORIZONTAL';
+              _ffrFrame.primaryAxisSizingMode = 'HUG';
+              _ffrFrame.counterAxisSizingMode = 'HUG';
+              _ffrFrame.primaryAxisAlignItems = 'CENTER';
+              _ffrFrame.counterAxisAlignItems = 'CENTER';
+              _ffrFrame.paddingTop    = _frgap;
+              _ffrFrame.paddingBottom = _frgap;
+              _ffrFrame.paddingLeft   = _frgap;
+              _ffrFrame.paddingRight  = _frgap;
+              if (_frgapVar) {
+                try { await tryBindVar(_ffrFrame, 'paddingTop',    _frgapVar); stats.bindings++; } catch(e) {}
+                try { await tryBindVar(_ffrFrame, 'paddingBottom', _frgapVar); stats.bindings++; } catch(e) {}
+                try { await tryBindVar(_ffrFrame, 'paddingLeft',   _frgapVar); stats.bindings++; } catch(e) {}
+                try { await tryBindVar(_ffrFrame, 'paddingRight',  _frgapVar); stats.bindings++; } catch(e) {}
               }
-              /* Gap shadow (white): spread=gap, renders on top — hides inner part of ring. */
-              var _ffrGapShadow = { type: 'DROP_SHADOW',
-                color: { r: 1, g: 1, b: 1, a: 1 },
-                offset: { x: 0, y: 0 }, radius: 0, spread: _frgap,
-                blendMode: 'NORMAL', visible: true };
-              /* Ring shadow (brand): spread=gap+width, renders behind gap shadow. */
-              var _ffrRingShadow = { type: 'DROP_SHADOW',
-                color: { r: _frBrand.r, g: _frBrand.g, b: _frBrand.b, a: 1 },
-                offset: { x: 0, y: 0 }, radius: 0, spread: _frgap + _frwidth,
-                blendMode: 'NORMAL', visible: true };
-              varComp.effects = [_ffrGapShadow, _ffrRingShadow];
-            } catch(e) { log('focusRing shadow: ' + e.message); }
+              _ffrFrame.fills   = [];
+              _ffrFrame.strokes = [{ type: 'SOLID', color: _frBrand, visible: true, blendMode: 'NORMAL', opacity: 1 }];
+              if (_frColorVar) { setPaintBoundToVariable(_ffrFrame, 'strokes', _frColorVar); stats.bindings++; }
+              _ffrFrame.strokeWeight = _frwidth;
+              if (_frwidthVar) { try { await tryBindVar(_ffrFrame, 'strokeWeight', _frwidthVar); stats.bindings++; } catch(e) {} }
+              _ffrFrame.strokeAlign  = 'INSIDE';
+              /* cornerRadius = button radius + gap so ring follows button shape. */
+              if (isRounded) {
+                _ffrFrame.cornerRadius = 9999;
+              } else {
+                var _ffr_instCR = 0; try { _ffr_instCR = instance.topLeftRadius || 0; } catch(_ffr_e) {}
+                _ffrFrame.cornerRadius = Math.round(_ffr_instCR + _frgap);
+                if (_frradiusVar) { try { await tryBindVar(_ffrFrame, 'cornerRadius', _frradiusVar); stats.bindings++; } catch(e) {} }
+              }
+              _ffrFrame.clipsContent = false;
+              /* Reparent instance INTO ring frame; then place ring frame in varComp. */
+              _ffrFrame.appendChild(instance);
+              varComp.appendChild(_ffrFrame);
+              try {
+                _ffrFrame.layoutSizingHorizontal = 'HUG';
+                _ffrFrame.layoutSizingVertical   = 'HUG';
+              } catch(e) {}
+            } catch(e) { log('focusRing ring-frame: ' + e.message); }
             varComp.clipsContent = false;
-            stats.bindings++;
           } else if (overrides.stroke) {
             var strokeVar = resolveColorSpec(overrides.stroke, t2Vars, t3Vars);
             if (strokeVar) {
