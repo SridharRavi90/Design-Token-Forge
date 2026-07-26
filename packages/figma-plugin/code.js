@@ -5619,11 +5619,10 @@ async function generateComponentFromBlueprint(blueprint) {
                    instance's current corner radius + gap at generation time. */
                 var _wfr_instRad = 0; try { _wfr_instRad = instance.topLeftRadius || 0; } catch (_wfr_e) {}
                 _wfr.cornerRadius = isRounded ? 9999 : Math.round(_wfr_instRad + _frgap);
+                /* Individual topLeft/topRight/etc. silently fail on horizontal
+                   auto-layout frames — use uniform 'cornerRadius' binding instead. */
                 if (!isRounded && _frradiusVar) {
-                  await tryBindVar(_wfr, 'topLeftRadius',     _frradiusVar); stats.bindings++;
-                  await tryBindVar(_wfr, 'topRightRadius',    _frradiusVar); stats.bindings++;
-                  await tryBindVar(_wfr, 'bottomLeftRadius',  _frradiusVar); stats.bindings++;
-                  await tryBindVar(_wfr, 'bottomRightRadius', _frradiusVar); stats.bindings++;
+                  await tryBindVar(_wfr, 'cornerRadius', _frradiusVar); stats.bindings++;
                 }
                 _wfr.clipsContent = false;
                 if (_frgapVar) {
@@ -5908,11 +5907,10 @@ async function generateComponentFromBlueprint(blueprint) {
                  instance's current corner radius + gap at generation time. */
               var _ffr_instRad = 0; try { _ffr_instRad = instance.topLeftRadius || 0; } catch (_ffr_e) {}
               _ffr.cornerRadius = isRounded ? 9999 : Math.round(_ffr_instRad + _frgap);
+              /* Individual topLeft/topRight/etc. silently fail on horizontal
+                 auto-layout frames — use uniform 'cornerRadius' binding instead. */
               if (!isRounded && _frradiusVar) {
-                await tryBindVar(_ffr, 'topLeftRadius',     _frradiusVar); stats.bindings++;
-                await tryBindVar(_ffr, 'topRightRadius',    _frradiusVar); stats.bindings++;
-                await tryBindVar(_ffr, 'bottomLeftRadius',  _frradiusVar); stats.bindings++;
-                await tryBindVar(_ffr, 'bottomRightRadius', _frradiusVar); stats.bindings++;
+                await tryBindVar(_ffr, 'cornerRadius', _frradiusVar); stats.bindings++;
               }
               _ffr.clipsContent = false;
               if (_frgapVar) {
