@@ -5561,26 +5561,42 @@ async function generateComponentFromBlueprint(blueprint) {
               } else {
                 try { instance.strokes = []; } catch (e) {}
               }
-              /* Focus Ring: absolute-positioned ring frame with OUTSIDE stroke.
-                 4px gap (frame offset from button edge) + 2px ring (strokeWeight,
-                 OUTSIDE alignment). cornerRadius tracks isRounded so the ring
-                 follows the button shape: pill=9999, square=button_radius+4=10. */
+              /* Focus Ring: HUG ring frame (4px padding = gap, 2px INSIDE stroke = ring)
+                 wraps the instance inside a FIXED+CENTER varComp.
+                 Math: ring=button+8, offset=(FIXED-HUG)/2=-4 for any content width.
+                 Pearl file node 230:28468 validated this exact structure. */
               var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
               try {
+                /* Fix varComp at button size + center children BEFORE moving instance. */
+                varComp.layoutSizingHorizontal = 'FIXED';
+                varComp.layoutSizingVertical   = 'FIXED';
+                varComp.primaryAxisAlignItems  = 'CENTER';
+                /* counterAxisAlignItems is already CENTER */
+
                 var _wfr = figma.createFrame();
                 _wfr.name = 'focus-ring';
-                _wfr.resize(instance.width + 8, instance.height + 8);
+                _wfr.layoutMode = 'HORIZONTAL';
+                _wfr.counterAxisAlignItems   = 'CENTER';
+                _wfr.primaryAxisAlignItems   = 'CENTER';
+                _wfr.layoutSizingHorizontal  = 'HUG';
+                _wfr.layoutSizingVertical    = 'HUG';
+                _wfr.paddingLeft   = 4;
+                _wfr.paddingRight  = 4;
+                _wfr.paddingTop    = 4;
+                _wfr.paddingBottom = 4;
+                _wfr.itemSpacing   = 0;
                 _wfr.fills = [];
                 _wfr.strokes = [{ type:'SOLID', color:_frBrand, visible:true, blendMode:'NORMAL', opacity:1 }];
                 if (_frColorVar) { setPaintBoundToVariable(_wfr, 'strokes', _frColorVar); stats.bindings++; }
                 _wfr.strokeWeight = 2;
-                _wfr.strokeAlign = 'OUTSIDE';
+                _wfr.strokeAlign  = 'INSIDE';
                 _wfr.cornerRadius = isRounded ? 9999 : 10;
                 _wfr.clipsContent = false;
+
+                /* Move instance into ring frame (Figma moves on appendChild). */
+                _wfr.appendChild(instance);
+                /* Ring frame AUTO-positioned inside FIXED+CENTER varComp. */
                 varComp.appendChild(_wfr);
-                try { _wfr.layoutPositioning = 'ABSOLUTE'; } catch (_lpe) {}
-                _wfr.x = -4;
-                _wfr.y = -4;
               } catch(e) { log('focusRing wrapper ring-frame: ' + e.message); }
               varComp.clipsContent = false;
               stats.bindings++;
@@ -5814,25 +5830,42 @@ async function generateComponentFromBlueprint(blueprint) {
             } else {
               instance.strokes = [];
             }
-            /* Focus Ring: absolute-positioned ring frame with OUTSIDE stroke.
-               4px gap (frame inset from button edge) + 2px ring (strokeWeight, OUTSIDE).
-               cornerRadius: pill=9999, square=button_default_radius+4=10. */
+            /* Focus Ring: HUG ring frame (4px padding = gap, 2px INSIDE stroke = ring)
+               wraps the instance inside a FIXED+CENTER varComp.
+               Math: ring=button+8, offset=(FIXED-HUG)/2=-4 for any content width.
+               Pearl file node 230:28468 validated this exact structure. */
             var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
             try {
+              /* Fix varComp at button size + center children BEFORE moving instance. */
+              varComp.layoutSizingHorizontal = 'FIXED';
+              varComp.layoutSizingVertical   = 'FIXED';
+              varComp.primaryAxisAlignItems  = 'CENTER';
+              /* counterAxisAlignItems is already CENTER */
+
               var _ffr = figma.createFrame();
               _ffr.name = 'focus-ring';
-              _ffr.resize(instance.width + 8, instance.height + 8);
+              _ffr.layoutMode = 'HORIZONTAL';
+              _ffr.counterAxisAlignItems   = 'CENTER';
+              _ffr.primaryAxisAlignItems   = 'CENTER';
+              _ffr.layoutSizingHorizontal  = 'HUG';
+              _ffr.layoutSizingVertical    = 'HUG';
+              _ffr.paddingLeft   = 4;
+              _ffr.paddingRight  = 4;
+              _ffr.paddingTop    = 4;
+              _ffr.paddingBottom = 4;
+              _ffr.itemSpacing   = 0;
               _ffr.fills = [];
               _ffr.strokes = [{ type:'SOLID', color:_frBrand, visible:true, blendMode:'NORMAL', opacity:1 }];
               if (_frColorVar) { setPaintBoundToVariable(_ffr, 'strokes', _frColorVar); stats.bindings++; }
               _ffr.strokeWeight = 2;
-              _ffr.strokeAlign = 'OUTSIDE';
+              _ffr.strokeAlign  = 'INSIDE';
               _ffr.cornerRadius = isRounded ? 9999 : 10;
               _ffr.clipsContent = false;
+
+              /* Move instance into ring frame (Figma moves on appendChild). */
+              _ffr.appendChild(instance);
+              /* Ring frame AUTO-positioned inside FIXED+CENTER varComp. */
               varComp.appendChild(_ffr);
-              try { _ffr.layoutPositioning = 'ABSOLUTE'; } catch (_lpe) {}
-              _ffr.x = -4;
-              _ffr.y = -4;
             } catch(e) { log('focusRing ring-frame: ' + e.message); }
             varComp.clipsContent = false;
             stats.bindings++;
