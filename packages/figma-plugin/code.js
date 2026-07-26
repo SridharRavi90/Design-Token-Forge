@@ -297,7 +297,7 @@ function log(msg) {
 /* ── Scan for existing DTF collections ───────────────────── */
 
 var DTF_PREFIXES = ['T0 ', 'T1 ', 'T2 ', 'T3 ', 'DTF /'];
-var DTF_EXACT_NAMES = ['primitives-numbers', 'comp size'];
+var DTF_EXACT_NAMES = ['primitives-numbers', 'comp size', 'Typography Scale', 'Typography'];
 
 function isDTFCollection(name) {
   for (var p = 0; p < DTF_PREFIXES.length; p++) {
@@ -311,13 +311,21 @@ function isDTFCollection(name) {
 
 async function findDTFCollections() {
   var all = await figma.variables.getLocalVariableCollectionsAsync();
-  var found = [];
+  /* Group by name so duplicates (e.g. multiple 'Typography Scale' from
+     past runs where the collection was not recognised) can be deduplicated.
+     Keep the instance with the most variables — most likely the canonical one. */
+  var byName = {};
   for (var i = 0; i < all.length; i++) {
-    if (isDTFCollection(all[i].name)) {
-      found.push(all[i]);
+    var c = all[i];
+    if (!isDTFCollection(c.name)) continue;
+    var prev = byName[c.name];
+    if (!prev || c.variableIds.length > prev.variableIds.length) {
+      byName[c.name] = c;
+    } else {
+      log('Duplicate collection ignored: "' + c.name + '" (kept the one with more vars)');
     }
   }
-  return found;
+  return Object.values(byName);
 }
 
 /* ── Build lookup of existing DTF variables ──────────────── */
