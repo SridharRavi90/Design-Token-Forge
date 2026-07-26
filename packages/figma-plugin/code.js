@@ -141,7 +141,10 @@ var REQUIRED_COMPSIZE_VARS = [
   { name: 'toggle/thumb-inset',          defaultVal: 2,    createOnly: true },
   { name: 'toggle/thumb-x-on',          defaultVal: 18,   createOnly: true },
   { name: 'toggle/radius-square',        defaultVal: 5,    createOnly: true },
-  { name: 'toggle/thumb-radius-square',  defaultVal: 3,    createOnly: true }
+  { name: 'toggle/thumb-radius-square',  defaultVal: 3,    createOnly: true },
+  /* Focus ring frame dimensions — constant (non-per-density). */
+  { name: 'button/focus-ring-gap',   defaultVal: 4 },
+  { name: 'button/focus-ring-width', defaultVal: 2 }
 ];
 log('code.js loaded — version ' + CODE_VERSION);
 
@@ -2309,6 +2312,20 @@ async function generateComponentFromBlueprint(blueprint) {
        effects[0]  white  spread=4  → 4px white gap  (on top)
        effects[1]  brand  spread=6  → 2px brand ring (behind)            */
   var _frColorVar = (_t1VarsForRepair && _t1VarsForRepair['focus/ring-color']) || null;
+
+  /* Focus ring gap and stroke-width from comp-size variables (no hardcoded 4/2). */
+  var _frgapVar   = (compSizeVars && compSizeVars['button/focus-ring-gap'])   || null;
+  var _frwidthVar = (compSizeVars && compSizeVars['button/focus-ring-width']) || null;
+  var _frgap   = 4; /* fallback = CSS --focus-outline-offset */
+  var _frwidth = 2; /* fallback = CSS --focus-outline-width  */
+  if (_frgapVar && _frgapVar.valuesByMode) {
+    var _frgM = Object.keys(_frgapVar.valuesByMode)[0];
+    if (_frgM && typeof _frgapVar.valuesByMode[_frgM] === 'number') _frgap = _frgapVar.valuesByMode[_frgM];
+  }
+  if (_frwidthVar && _frwidthVar.valuesByMode) {
+    var _frwM = Object.keys(_frwidthVar.valuesByMode)[0];
+    if (_frwM && typeof _frwidthVar.valuesByMode[_frwM] === 'number') _frwidth = _frwidthVar.valuesByMode[_frwM];
+  }
 
   /* Reads the first-mode hex of a T1 variable; returns fallback on alias/error. */
   function _frReadColor(variable, fallback) {
@@ -5580,18 +5597,26 @@ async function generateComponentFromBlueprint(blueprint) {
                 _wfr.primaryAxisAlignItems   = 'CENTER';
                 _wfr.layoutSizingHorizontal  = 'HUG';
                 _wfr.layoutSizingVertical    = 'HUG';
-                _wfr.paddingLeft   = 4;
-                _wfr.paddingRight  = 4;
-                _wfr.paddingTop    = 4;
-                _wfr.paddingBottom = 4;
+                _wfr.paddingLeft   = _frgap;
+                _wfr.paddingRight  = _frgap;
+                _wfr.paddingTop    = _frgap;
+                _wfr.paddingBottom = _frgap;
                 _wfr.itemSpacing   = 0;
                 _wfr.fills = [];
                 _wfr.strokes = [{ type:'SOLID', color:_frBrand, visible:true, blendMode:'NORMAL', opacity:1 }];
                 if (_frColorVar) { setPaintBoundToVariable(_wfr, 'strokes', _frColorVar); stats.bindings++; }
-                _wfr.strokeWeight = 2;
+                _wfr.strokeWeight = _frwidth;
                 _wfr.strokeAlign  = 'INSIDE';
-                _wfr.cornerRadius = isRounded ? 9999 : 10;
+                /* cornerRadius = button's own radius + ring gap so ring follows button shape exactly. */
+                var _wfr_instRad = 0; try { _wfr_instRad = instance.topLeftRadius || 0; } catch (_wfr_e) {}
+                _wfr.cornerRadius = isRounded ? 9999 : Math.round(_wfr_instRad + _frgap);
                 _wfr.clipsContent = false;
+                if (_frgapVar) {
+                  await tryBindVar(_wfr, 'paddingLeft',   _frgapVar); stats.bindings++;
+                  await tryBindVar(_wfr, 'paddingRight',  _frgapVar); stats.bindings++;
+                  await tryBindVar(_wfr, 'paddingTop',    _frgapVar); stats.bindings++;
+                  await tryBindVar(_wfr, 'paddingBottom', _frgapVar); stats.bindings++;
+                }
 
                 /* Move instance into ring frame (Figma moves on appendChild). */
                 _wfr.appendChild(instance);
@@ -5849,18 +5874,26 @@ async function generateComponentFromBlueprint(blueprint) {
               _ffr.primaryAxisAlignItems   = 'CENTER';
               _ffr.layoutSizingHorizontal  = 'HUG';
               _ffr.layoutSizingVertical    = 'HUG';
-              _ffr.paddingLeft   = 4;
-              _ffr.paddingRight  = 4;
-              _ffr.paddingTop    = 4;
-              _ffr.paddingBottom = 4;
+              _ffr.paddingLeft   = _frgap;
+              _ffr.paddingRight  = _frgap;
+              _ffr.paddingTop    = _frgap;
+              _ffr.paddingBottom = _frgap;
               _ffr.itemSpacing   = 0;
               _ffr.fills = [];
               _ffr.strokes = [{ type:'SOLID', color:_frBrand, visible:true, blendMode:'NORMAL', opacity:1 }];
               if (_frColorVar) { setPaintBoundToVariable(_ffr, 'strokes', _frColorVar); stats.bindings++; }
-              _ffr.strokeWeight = 2;
+              _ffr.strokeWeight = _frwidth;
               _ffr.strokeAlign  = 'INSIDE';
-              _ffr.cornerRadius = isRounded ? 9999 : 10;
+              /* cornerRadius = button's own radius + ring gap so ring follows button shape exactly. */
+              var _ffr_instRad = 0; try { _ffr_instRad = instance.topLeftRadius || 0; } catch (_ffr_e) {}
+              _ffr.cornerRadius = isRounded ? 9999 : Math.round(_ffr_instRad + _frgap);
               _ffr.clipsContent = false;
+              if (_frgapVar) {
+                await tryBindVar(_ffr, 'paddingLeft',   _frgapVar); stats.bindings++;
+                await tryBindVar(_ffr, 'paddingRight',  _frgapVar); stats.bindings++;
+                await tryBindVar(_ffr, 'paddingTop',    _frgapVar); stats.bindings++;
+                await tryBindVar(_ffr, 'paddingBottom', _frgapVar); stats.bindings++;
+              }
 
               /* Move instance into ring frame (Figma moves on appendChild). */
               _ffr.appendChild(instance);

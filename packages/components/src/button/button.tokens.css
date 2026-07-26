@@ -389,5 +389,9 @@
   --btn-focus-outline-width: var(--focus-outline-width);
   --btn-focus-outline-color: var(--brand-component-outline-default);
   --btn-focus-outline-offset: var(--focus-outline-offset);
+
+  /* Figma focus ring frame dimensions (HUG ring frame approach) */
+  --btn-focus-ring-gap:   4px;  /* gap between button edge and ring stroke outer edge */
+  --btn-focus-ring-width: 2px;  /* ring stroke weight */
   --btn-min-tap-target: 0px; /* Sizes are intentional — use pseudo-element for a11y tap area if needed */
 }

@@ -935,6 +935,28 @@ function buildCompSize(extrasCollection) {
     } else {
       console.warn(`⚠  button.tokens.css missing --btn-radius-rounded — Rounded variant will report "build needed"`);
     }
+
+    // ── button/focus-ring-gap + button/focus-ring-width ────────────
+    // CONSTANT (non-per-density) dimensions for the HUG ring frame used by
+    // the Figma plugin generator. Reads literal px from button.tokens.css.
+    for (const [frcss, frfigma] of [
+      ['btn-focus-ring-gap',   'button/focus-ring-gap'],
+      ['btn-focus-ring-width', 'button/focus-ring-width']
+    ]) {
+      const frCSS = btnTokens[frcss];
+      if (frCSS) {
+        const frNum = parseCompSizeNumber(frCSS, extrasVarSet);
+        if (frNum !== null) {
+          const frValues = {};
+          for (const mode of COMP_SIZE_MODES) frValues[mode] = frNum;
+          variables.push({ name: frfigma, type: 'FLOAT', scopes: ['GAP'], values: frValues });
+        } else {
+          console.warn(`⚠  ${frfigma}: unresolved value "${frCSS}" — focus ring will use fallback`);
+        }
+      } else {
+        console.warn(`⚠  button.tokens.css missing --${frcss} — focus ring will use fallback`);
+      }
+    }
   }
 
   // ── Split Button ──────────────────────────────────────────
