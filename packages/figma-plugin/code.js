@@ -2349,17 +2349,24 @@ async function generateComponentFromBlueprint(blueprint) {
       log('Created Focus Ring master: ' + mcName);
     }
     /* Update in-place — preserves existing instance references */
-    _frMc.fills   = [];
+    /* Zero-opacity fill gives Figma a defined shape to anchor the drop
+       shadows — without any fill the frame has no renderable boundary
+       and Figma will not render the shadow effects. Visually invisible. */
+    _frMc.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 0 }];
     _frMc.strokes = [];
     _frMc.strokeWeight = 0;
     /* Two shadows: white gap (spread=4) sits on top of brand ring (spread=6)
-       so only the outer 2px of the brand shadow is visible. */
+       so only the outer 2px of the brand shadow is visible.
+       showShadowBehindNode=true ensures the shadow is visible even though
+       the fill is zero-opacity (otherwise Figma clips the shadow behind content). */
     var _brandRGBA = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
     _frMc.effects = [
       { type: 'DROP_SHADOW', color: { r: 1, g: 1, b: 1, a: 1 },
-        offset: { x: 0, y: 0 }, radius: 0, spread: 4, visible: true, blendMode: 'NORMAL' },
+        offset: { x: 0, y: 0 }, radius: 0, spread: 4, visible: true, blendMode: 'NORMAL',
+        showShadowBehindNode: true },
       { type: 'DROP_SHADOW', color: _brandRGBA,
-        offset: { x: 0, y: 0 }, radius: 0, spread: 6, visible: true, blendMode: 'NORMAL' }
+        offset: { x: 0, y: 0 }, radius: 0, spread: 6, visible: true, blendMode: 'NORMAL',
+        showShadowBehindNode: true }
     ];
     if (_frHeightVar) {
       try { await tryBindVar(_frMc, 'height', _frHeightVar); } catch (e) {}
@@ -5607,6 +5614,9 @@ async function generateComponentFromBlueprint(blueprint) {
                 _frInstW.resize(Math.max(varComp.width, 10), Math.max(varComp.height, 10));
                 varComp.insertChild(0, _frInstW);
                 try { _frInstW.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
+                /* FILL sizing: ring always matches varComp dimensions across all 10 size modes */
+                try { _frInstW.layoutSizingHorizontal = 'FILL'; } catch (e) {}
+                try { _frInstW.layoutSizingVertical   = 'FILL'; } catch (e) {}
                 _frInstW.x = 0;
                 _frInstW.y = 0;
                 varComp.clipsContent = false;
@@ -5854,6 +5864,9 @@ async function generateComponentFromBlueprint(blueprint) {
               _frInstB.resize(Math.max(varComp.width, 10), Math.max(varComp.height, 10));
               varComp.insertChild(0, _frInstB);
               try { _frInstB.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
+              /* FILL sizing: ring always matches varComp dimensions across all 10 size modes */
+              try { _frInstB.layoutSizingHorizontal = 'FILL'; } catch (e) {}
+              try { _frInstB.layoutSizingVertical   = 'FILL'; } catch (e) {}
               _frInstB.x = 0;
               _frInstB.y = 0;
               varComp.clipsContent = false;
