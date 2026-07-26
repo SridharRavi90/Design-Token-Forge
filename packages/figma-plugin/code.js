@@ -2294,30 +2294,23 @@ async function generateComponentFromBlueprint(blueprint) {
   /* T1 is needed for T3 alias repair — loaded once, used in the repair block */
   var _t1VarsForRepair = await buildCollectionVarMap('T1 Color Tokens');
 
-  /* ── Step 2c: Focus Ring master components ──────────────────────────────
-     One pair per blueprint: Default shape + Pill shape.
-     Masters are created LAZILY (first Focus variant encountered) so they
-     land inside masterSec — alongside the regular button masters, not in a
-     separate off-canvas section.
+  /* ── Step 2c: Focus Ring color helper ───────────────────────────────
+     Focus ring is applied as two DROP_SHADOW effects directly on the
+     button master INSTANCE inside each Focus variant — no separate ring
+     frame component is created or inserted.
 
-     Visual technique: two DROP_SHADOW effects (no stroke).
-       • White,  spread=4  → 4px white gap  (= outline-offset)
-       • Brand,  spread=6  → 2px brand ring (= outline-width)
-     Ring frame = same size as button at (0,0). Only the shadow overflows
-     varComp (clipsContent=false). CornerRadius bound to button's own
-     radius variable so the ring traces the button edge at every size mode. */
-  var _focusRingMasterDefault = null;
-  var _focusRingMasterPill    = null;
+     Why instance (not a ring frame overlay):
+       • The instance already has the correct cornerRadius bound to the
+         button’s own radius variable — shadow shape matches exactly.
+       • No layoutPositioning / FILL-sizing / insertChild ordering issues.
+       • No orphaned master components cluttering the canvas.
 
-  var _frBPName    = BP.name || 'Button';
-  var _frMcName    = 'mc / Focus Ring / ' + _frBPName;
-  var _frPillName  = 'mc / Focus Ring / ' + _frBPName + ' Pill';
-  var _frSBRoot    = (BP.sizeBindings && BP.sizeBindings.root) || null;
-  var _frRadiusVar = _frSBRoot ? (compSizeVars[_frSBRoot.topLeftRadius] || null) : null;
-  var _frHeightVar = _frSBRoot ? (compSizeVars[_frSBRoot.height]         || null) : null;
-  var _frColorVar  = (_t1VarsForRepair && _t1VarsForRepair['focus/ring-color']) || null;
+     Effect stack (same as CSS outline-offset:4px; outline:2px solid):
+       effects[0]  white  spread=4  → 4px white gap  (on top)
+       effects[1]  brand  spread=6  → 2px brand ring (behind)            */
+  var _frColorVar = (_t1VarsForRepair && _t1VarsForRepair['focus/ring-color']) || null;
 
-  /* Reads the first-mode hex value of a T1 variable (for shadow color fallback). */
+  /* Reads the first-mode hex of a T1 variable; returns fallback on alias/error. */
   function _frReadColor(variable, fallback) {
     if (!variable) return fallback;
     try {
@@ -2330,61 +2323,26 @@ async function generateComponentFromBlueprint(blueprint) {
     return fallback;
   }
 
-  /* Creates or updates a focus ring master component inside parentSec.
-     Uses two drop-shadow effects instead of a stroke so the white
-     gap is visible — equivalent to CSS outline-offset. */
-  async function _ensureFRMaster(mcName, isPill, parentSec) {
-    var _frMc = figma.currentPage.findOne(function(n) {
-      return n.type === 'COMPONENT' && n.name === mcName;
-    });
-    if (!_frMc) {
-      _frMc = figma.createComponent();
-      _frMc.name = mcName;
-      _frMc.resize(80, 36);
-      _frMc.description = 'Focus ring overlay for ' + _frBPName + '. ' +
-                          'Same size as the button master, placed at (0,0) in ' +
-                          'Focus state variants. Two drop-shadow effects create ' +
-                          'a 4px white gap + 2px brand ring (like outline-offset).';
-      parentSec.appendChild(_frMc);
-      log('Created Focus Ring master: ' + mcName);
-    }
-    /* Update in-place — preserves existing instance references */
-    /* Zero-opacity fill gives Figma a defined shape to anchor the drop
-       shadows — without any fill the frame has no renderable boundary
-       and Figma will not render the shadow effects. Visually invisible. */
-    _frMc.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 0 }];
-    _frMc.strokes = [];
-    _frMc.strokeWeight = 0;
-    /* Two shadows: white gap (spread=4) sits on top of brand ring (spread=6)
-       so only the outer 2px of the brand shadow is visible.
-       showShadowBehindNode=true ensures the shadow is visible even though
-       the fill is zero-opacity (otherwise Figma clips the shadow behind content). */
-    var _brandRGBA = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
-    _frMc.effects = [
-      { type: 'DROP_SHADOW', color: { r: 1, g: 1, b: 1, a: 1 },
-        offset: { x: 0, y: 0 }, radius: 0, spread: 4, visible: true, blendMode: 'NORMAL',
-        showShadowBehindNode: true },
-      { type: 'DROP_SHADOW', color: _brandRGBA,
-        offset: { x: 0, y: 0 }, radius: 0, spread: 6, visible: true, blendMode: 'NORMAL',
-        showShadowBehindNode: true }
-    ];
-    if (_frHeightVar) {
-      try { await tryBindVar(_frMc, 'height', _frHeightVar); } catch (e) {}
-    }
-    if (isPill) {
-      _frMc.cornerRadius = 9999;
-    } else if (_frRadiusVar) {
-      try {
-        _frMc.setBoundVariable('topLeftRadius',     _frRadiusVar);
-        _frMc.setBoundVariable('topRightRadius',    _frRadiusVar);
-        _frMc.setBoundVariable('bottomLeftRadius',  _frRadiusVar);
-        _frMc.setBoundVariable('bottomRightRadius', _frRadiusVar);
-      } catch (e) { _frMc.cornerRadius = 6; }
-    } else {
-      _frMc.cornerRadius = 6;
-    }
-    return _frMc;
-  }
+  /* Cleanup: remove orphaned mc / Focus Ring / * master components and
+     their containing sections from previous generator runs that used
+     the ring-frame overlay approach (now abandoned). */
+  (function _cleanupOldRingMasters() {
+    try {
+      var _oldFR = figma.currentPage.findAll(function(n) {
+        return n.type === 'COMPONENT' && n.name.indexOf('mc / Focus Ring /') === 0;
+      });
+      for (var _oi = 0; _oi < _oldFR.length; _oi++) {
+        try { _oldFR[_oi].remove(); } catch(e) {}
+      }
+      var _oldSec = figma.currentPage.findAll(function(n) {
+        return n.type === 'SECTION' &&
+               (n.name === 'Masters / Focus Ring' || n.name === 'Focus Ring');
+      });
+      for (var _si = 0; _si < _oldSec.length; _si++) {
+        try { _oldSec[_si].remove(); } catch(e) {}
+      }
+    } catch(e) { log('Focus Ring cleanup failed: ' + e.message); }
+  })();
   /* Masters are created lazily on first Focus variant — see focusRing handlers below. */
 
 
@@ -5602,26 +5560,22 @@ async function generateComponentFromBlueprint(blueprint) {
               } else {
                 try { instance.strokes = []; } catch (e) {}
               }
-              /* Add Focus Ring overlay — lazily create master in masterSec on first use.
-                 Two drop-shadow effects (white gap + brand ring) on the master frame
-                 replicate CSS outline-offset:4px; outline:2px solid brand-color.
-                 Frame is same size as button at (0,0); shadows overflow via clipsContent=false. */
-              if (!_focusRingMasterDefault) _focusRingMasterDefault = await _ensureFRMaster(_frMcName,  false, masterSec.section);
-              if (!_focusRingMasterPill)    _focusRingMasterPill    = await _ensureFRMaster(_frPillName, true, masterSec.section);
-              var _frMW = isRounded ? _focusRingMasterPill : _focusRingMasterDefault;
-              if (_frMW) {
-                var _frInstW = _frMW.createInstance();
-                _frInstW.resize(Math.max(varComp.width, 10), Math.max(varComp.height, 10));
-                varComp.insertChild(0, _frInstW);
-                try { _frInstW.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
-                /* FILL sizing: ring always matches varComp dimensions across all 10 size modes */
-                try { _frInstW.layoutSizingHorizontal = 'FILL'; } catch (e) {}
-                try { _frInstW.layoutSizingVertical   = 'FILL'; } catch (e) {}
-                _frInstW.x = 0;
-                _frInstW.y = 0;
-                varComp.clipsContent = false;
-                stats.bindings++;
-              }
+              /* Focus Ring: two DROP_SHADOW effects on the button instance.
+                 The instance already has the correct cornerRadius, so the
+                 shadow shape matches the button exactly — no ring frame needed.
+                 effects[0] white  spread=4  → 4px gap  (CSS outline-offset:4px)
+                 effects[1] brand  spread=6  → 2px ring (CSS outline-width:2px) */
+              var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
+              try {
+                instance.effects = [
+                  { type: 'DROP_SHADOW', color: { r:1, g:1, b:1, a:1 },
+                    offset:{x:0,y:0}, radius:0, spread:4, visible:true, blendMode:'NORMAL' },
+                  { type: 'DROP_SHADOW', color: _frBrand,
+                    offset:{x:0,y:0}, radius:0, spread:6, visible:true, blendMode:'NORMAL' }
+                ];
+              } catch(e) { log('focusRing wrapper effects: ' + e.message); }
+              varComp.clipsContent = false;
+              stats.bindings++;
             } else if (wrapOv.stroke) {
               var wrapStrokeVar = resolveColorSpec(wrapOv.stroke, t2Vars, t3Vars);
               if (wrapStrokeVar) {
@@ -5852,26 +5806,22 @@ async function generateComponentFromBlueprint(blueprint) {
             } else {
               instance.strokes = [];
             }
-            /* Focus Ring overlay — lazily create master in masterSec on first use.
-               Two drop-shadow effects on the ring master (white spread=4 gap,
-               brand spread=6 ring) replicate CSS outline-offset. Same size as
-               button at (0,0); shadows overflow via clipsContent=false. */
-            if (!_focusRingMasterDefault) _focusRingMasterDefault = await _ensureFRMaster(_frMcName,  false, masterSec.section);
-            if (!_focusRingMasterPill)    _focusRingMasterPill    = await _ensureFRMaster(_frPillName, true, masterSec.section);
-            var _frMB = isRounded ? _focusRingMasterPill : _focusRingMasterDefault;
-            if (_frMB) {
-              var _frInstB = _frMB.createInstance();
-              _frInstB.resize(Math.max(varComp.width, 10), Math.max(varComp.height, 10));
-              varComp.insertChild(0, _frInstB);
-              try { _frInstB.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
-              /* FILL sizing: ring always matches varComp dimensions across all 10 size modes */
-              try { _frInstB.layoutSizingHorizontal = 'FILL'; } catch (e) {}
-              try { _frInstB.layoutSizingVertical   = 'FILL'; } catch (e) {}
-              _frInstB.x = 0;
-              _frInstB.y = 0;
-              varComp.clipsContent = false;
-              stats.bindings++;
-            }
+            /* Focus Ring: two DROP_SHADOW effects directly on the button instance.
+               The instance has the correct cornerRadius bound to the button's own
+               radius variable — shadow shape matches exactly.
+               effects[0] white  spread=4  → 4px gap  (CSS outline-offset:4px)
+               effects[1] brand  spread=6  → 2px ring (CSS outline-width:2px) */
+            var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
+            try {
+              instance.effects = [
+                { type: 'DROP_SHADOW', color: { r:1, g:1, b:1, a:1 },
+                  offset:{x:0,y:0}, radius:0, spread:4, visible:true, blendMode:'NORMAL' },
+                { type: 'DROP_SHADOW', color: _frBrand,
+                  offset:{x:0,y:0}, radius:0, spread:6, visible:true, blendMode:'NORMAL' }
+              ];
+            } catch(e) { log('focusRing effects: ' + e.message); }
+            varComp.clipsContent = false;
+            stats.bindings++;
           } else if (overrides.stroke) {
             var strokeVar = resolveColorSpec(overrides.stroke, t2Vars, t3Vars);
             if (strokeVar) {
