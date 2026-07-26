@@ -145,8 +145,11 @@ var REQUIRED_COMPSIZE_VARS = [
   /* Focus ring frame dimensions — constant (non-per-density). */
   { name: 'button/focus-ring-gap',    defaultVal: 4  },
   { name: 'button/focus-ring-width',  defaultVal: 2  },
-  /* Focus ring corner radius — per-density (radius + gap), createOnly so sync-server values win. */
-  { name: 'button/focus-ring-radius', defaultVal: 10, createOnly: true }
+  /* Focus ring corner radius — per-density (radius + gap). Values are baked in so no sync
+     server is needed. Each value = button border-radius for that density + 4px gap.
+     micro/tiny: 4+4=8  |  small/base: 6+4=10  |  medium/large: 8+4=12
+     big/huge: 10+4=14  |  mega: 12+4=16  |  ultra: 14+4=18. */
+  { name: 'button/focus-ring-radius', defaultVal: 10, modeVals: { micro: 8, tiny: 8, small: 10, base: 10, medium: 12, large: 12, big: 14, huge: 14, mega: 16, ultra: 18 } }
 ];
 log('code.js loaded — version ' + CODE_VERSION);
 
@@ -2686,15 +2689,20 @@ async function generateComponentFromBlueprint(blueprint) {
            touch it. Otherwise we'd clobber the proper per-mode aliases
            with our literal fallback. Also fill in any mode that has no
            value yet (undefined → would resolve to 0). */
+        var _rModeVals = requiredVars[rvi].modeVals || null;
         for (var emi = 0; emi < csAllModeIds.length; emi++) {
           var emModeId = csAllModeIds[emi];
+          /* Resolve per-mode target: use modeVals map when present, else flat defaultVal. */
+          var _emModeName = _rModeVals && csCol.modes[emi] ? csCol.modes[emi].name.toLowerCase() : null;
+          var _emTargetVal = (_rModeVals && _emModeName && _rModeVals[_emModeName] !== undefined)
+            ? _rModeVals[_emModeName] : reqVal;
           try {
             var curVal = existing.valuesByMode && existing.valuesByMode[emModeId];
             var isAlias = curVal && typeof curVal === 'object' && curVal.type === 'VARIABLE_ALIAS';
             if (isAlias) continue;
-            if (curVal === undefined || curVal === null || curVal !== reqVal) {
-              existing.setValueForMode(emModeId, reqVal);
-              log('Updated ' + reqName + ' [mode ' + emi + ']: ' + curVal + ' → ' + reqVal);
+            if (curVal === undefined || curVal === null || curVal !== _emTargetVal) {
+              existing.setValueForMode(emModeId, _emTargetVal);
+              log('Updated ' + reqName + ' [mode ' + emi + ']: ' + curVal + ' → ' + _emTargetVal);
               stats.bindings++;
             }
           } catch (uve) {
@@ -2706,9 +2714,14 @@ async function generateComponentFromBlueprint(blueprint) {
           var newVar = figma.variables.createVariable(reqName, csCol, 'FLOAT');
           /* Set value for EVERY mode so the variable resolves correctly
              across the entire comp-size scale. Without this, any mode
-             beyond modes[0] silently resolves to 0. */
+             beyond modes[0] silently resolves to 0.
+             Use per-mode modeVals map when present, else flat defaultVal. */
+          var _nvModeVals = requiredVars[rvi].modeVals || null;
           for (var nmi = 0; nmi < csAllModeIds.length; nmi++) {
-            try { newVar.setValueForMode(csAllModeIds[nmi], reqVal); } catch (e) {}
+            var _nvModeName = _nvModeVals && csCol.modes[nmi] ? csCol.modes[nmi].name.toLowerCase() : null;
+            var _nvVal = (_nvModeVals && _nvModeName && _nvModeVals[_nvModeName] !== undefined)
+              ? _nvModeVals[_nvModeName] : reqVal;
+            try { newVar.setValueForMode(csAllModeIds[nmi], _nvVal); } catch (e) {}
           }
           compSizeVars[reqName] = newVar;
           /* Also create 2-segment ↔ 3-segment alias so blueprint lookups
@@ -7768,9 +7781,11 @@ figma.ui.onmessage = async function(msg) {
           }
         } catch (eC) {}
         var _requiredByName = {};
+        var _requiredModeVals = {};
         for (var _rqi = 0; _rqi < REQUIRED_COMPSIZE_VARS.length; _rqi++){
           var _rq = REQUIRED_COMPSIZE_VARS[_rqi];
           _requiredByName[_rq.name] = _rq.defaultVal;
+          if (_rq.modeVals) _requiredModeVals[_rq.name] = _rq.modeVals;
         }
         async function _ensureRequired(name){
           if (_nameToId[name]) return _nameToId[name];
@@ -7779,8 +7794,11 @@ figma.ui.onmessage = async function(msg) {
           try {
             var nv = figma.variables.createVariable(name, _csColHeal, 'FLOAT');
             var modes = (_csColHeal.modes || []).map(function(m){ return m.modeId; });
+            var _erModeVals = _requiredModeVals[name] || null;
             for (var mi = 0; mi < modes.length; mi++){
-              try { nv.setValueForMode(modes[mi], _requiredByName[name]); } catch (e) {}
+              var _erMN = _erModeVals && _csColHeal.modes[mi] ? _csColHeal.modes[mi].name.toLowerCase() : null;
+              var _erVal = (_erModeVals && _erMN && _erModeVals[_erMN] !== undefined) ? _erModeVals[_erMN] : _requiredByName[name];
+              try { nv.setValueForMode(modes[mi], _erVal); } catch (e) {}
             }
             try { nv.scopes = ['CORNER_RADIUS', 'GAP', 'WIDTH_HEIGHT']; } catch (e) {}
             _nameToId[name] = nv.id;
