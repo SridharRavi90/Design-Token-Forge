@@ -5640,18 +5640,14 @@ async function generateComponentFromBlueprint(blueprint) {
                   await tryBindVar(_wfr, 'paddingBottom', _frgapVar); stats.bindings++;
                 }
 
-                /* Read button natural dimensions BEFORE appending to ring
-                   frame — most reliable; unaffected by parent auto-layout. */
-                var _wfrInstW = instance.width;
-                var _wfrInstH = instance.height;
-                /* Move instance into ring frame (Figma moves on appendChild). */
                 _wfr.appendChild(instance);
-                /* Ring frame AUTO-positioned inside FIXED+CENTER varComp.
-                   Explicitly resize varComp to button natural width so FIXED
-                   locks to the button footprint, not the ring-inflated 61px.
-                   Ring frame (HUG, 8px wider) overflows correctly. */
                 varComp.appendChild(_wfr);
-                if (_wfrInstW > 0) varComp.resize(_wfrInstW, _wfrInstH > 0 ? _wfrInstH : varComp.height);
+                /* Derive button dimensions from the resolved ring frame rather
+                   than instance.width (which may be 0 before layout is computed).
+                   _wfr is HUG: _wfr.width = btnW + 2*gap, _wfr.height = btnH + 2*gap. */
+                var _wfrBtnW = _wfr.width  - 2 * _frgap;
+                var _wfrBtnH = _wfr.height - 2 * _frgap;
+                if (_wfrBtnW > 0) varComp.resize(_wfrBtnW, _wfrBtnH > 0 ? _wfrBtnH : varComp.height);
               } catch(e) { log('focusRing wrapper ring-frame: ' + e.message); }
               varComp.clipsContent = false;
               stats.bindings++;
@@ -5936,18 +5932,14 @@ async function generateComponentFromBlueprint(blueprint) {
                 await tryBindVar(_ffr, 'paddingBottom', _frgapVar); stats.bindings++;
               }
 
-              /* Read button natural dimensions BEFORE appending to ring
-                 frame — most reliable; unaffected by parent auto-layout. */
-              var _ffrInstW = instance.width;
-              var _ffrInstH = instance.height;
-              /* Move instance into ring frame (Figma moves on appendChild). */
               _ffr.appendChild(instance);
-              /* Ring frame AUTO-positioned inside FIXED+CENTER varComp.
-                 Explicitly resize varComp to button natural width so FIXED
-                 locks to the button footprint, not the ring-inflated 61px.
-                 Ring frame (HUG, 8px wider) overflows correctly. */
               varComp.appendChild(_ffr);
-              if (_ffrInstW > 0) varComp.resize(_ffrInstW, _ffrInstH > 0 ? _ffrInstH : varComp.height);
+              /* Derive button dimensions from the resolved ring frame rather
+                 than instance.width (which may be 0 before layout is computed).
+                 _ffr is HUG: _ffr.width = btnW + 2*gap, _ffr.height = btnH + 2*gap. */
+              var _ffrBtnW = _ffr.width  - 2 * _frgap;
+              var _ffrBtnH = _ffr.height - 2 * _frgap;
+              if (_ffrBtnW > 0) varComp.resize(_ffrBtnW, _ffrBtnH > 0 ? _ffrBtnH : varComp.height);
             } catch(e) { log('focusRing ring-frame: ' + e.message); }
             varComp.clipsContent = false;
             stats.bindings++;
