@@ -5654,11 +5654,9 @@ async function generateComponentFromBlueprint(blueprint) {
                  that overflows varComp by _frgap on all sides. */
               var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
               try {
-                /* varComp stays HUG (set in general setup) — no FIXED override.
-                   Bind height variable so density-mode changes keep the vertical
-                   size correct on the instance and varComp (HUG inherits it). */
-                var _vcHvW = compSizeVars[BP.sizeBindings.root.height] || null;
-                if (_vcHvW) { try { await tryBindVar(varComp, 'height', _vcHvW); stats.bindings++; } catch (_vchE) {} }
+                /* varComp stays HUG (set in general setup) — no FIXED override and
+                   no height variable binding. Height inherits correctly through the
+                   HUG chain: varComp(HUG) → instance(FIXED) → master(variable-bound). */
                 varComp.primaryAxisAlignItems = 'CENTER';
 
                 /* Read instance (= wrapper) natural dimensions before creating overlay. */
@@ -5934,11 +5932,9 @@ async function generateComponentFromBlueprint(blueprint) {
                that overflows varComp by _frgap on all sides. */
             var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
             try {
-              /* varComp stays HUG (set in general setup) — no FIXED override.
-                 Bind height variable so density-mode changes keep the vertical
-                 size correct on the instance (master height is variable-driven). */
-              var _vcHvF = compSizeVars[BP.sizeBindings.root.height] || null;
-              if (_vcHvF) { try { await tryBindVar(varComp, 'height', _vcHvF); stats.bindings++; } catch (_vchEF) {} }
+              /* varComp stays HUG (set in general setup) — no FIXED override and
+                 no height variable binding. Height inherits correctly through the
+                 HUG chain: varComp(HUG) → instance(FIXED) → master(variable-bound). */
               varComp.primaryAxisAlignItems  = 'CENTER';
 
               /* Read button natural dimensions from varComp (HUG = instance size). */
