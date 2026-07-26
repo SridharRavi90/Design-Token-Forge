@@ -5617,11 +5617,10 @@ async function generateComponentFromBlueprint(blueprint) {
               if (_frMW) {
                 var _frInstW = _frMW.createInstance();
                 _frInstW.resize(Math.max(varComp.width, 10), Math.max(varComp.height, 10));
+                varComp.insertChild(0, _frInstW); /* insert first, then set layout props */
+                try { _frInstW.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
                 _frInstW.x = 0;
                 _frInstW.y = 0;
-                try { _frInstW.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
-                _frInstW.constraints = { horizontal: 'STRETCH', vertical: 'STRETCH' };
-                varComp.insertChild(0, _frInstW);
                 varComp.clipsContent = false; /* let OUTSIDE stroke overflow */
                 stats.bindings++;
               }
@@ -5863,11 +5862,10 @@ async function generateComponentFromBlueprint(blueprint) {
             if (_frMB) {
               var _frInstB = _frMB.createInstance();
               _frInstB.resize(Math.max(varComp.width, 10), Math.max(varComp.height, 10));
+              varComp.insertChild(0, _frInstB); /* insert first, then set layout props */
+              try { _frInstB.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
               _frInstB.x = 0;
               _frInstB.y = 0;
-              try { _frInstB.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
-              _frInstB.constraints = { horizontal: 'STRETCH', vertical: 'STRETCH' };
-              varComp.insertChild(0, _frInstB);
               varComp.clipsContent = false; /* let OUTSIDE stroke overflow */
               stats.bindings++;
             }
