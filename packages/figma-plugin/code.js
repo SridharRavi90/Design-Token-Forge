@@ -2803,6 +2803,38 @@ async function generateComponentFromBlueprint(blueprint) {
   }
   await figma.setCurrentPageAsync(page);
 
+  /* ── Step 3b: Migrate owned nodes from other pages → target page ──────
+     When BP.targetPage changes (e.g. file had old 'Components' page),
+     sections/sets owned by this blueprint that are on a DIFFERENT page are
+     moved here BEFORE priorSnapshot is built, so SAFE_REBUILD finds and
+     reuses them (preserving their Figma library key). Moving a node to a
+     new parent in Figma preserves its internal ID and key. */
+  try {
+    await figma.loadAllPagesAsync();
+    for (var _mpi = 0; _mpi < figma.root.children.length; _mpi++) {
+      var _mp = figma.root.children[_mpi];
+      if (_mp.id === page.id) continue; /* skip the target page itself */
+      var _mpCandidates = [];
+      try {
+        /* Find ALL nodes on this page owned by the current blueprint. */
+        _mpCandidates = _mp.findAll(function(n) {
+          try { return n.getPluginData && n.getPluginData('dtf-owner') === BP.name; } catch(e) { return false; }
+        });
+      } catch(_mfe) {}
+      /* Only move DIRECT children of the page — child nodes travel with
+         their parent automatically. Avoids double-moving nested sets. */
+      for (var _mni = 0; _mni < _mpCandidates.length; _mni++) {
+        var _mn = _mpCandidates[_mni];
+        if (_mn && !_mn.removed && _mn.parent && _mn.parent.id === _mp.id) {
+          try {
+            page.appendChild(_mn);
+            log('Migrated "' + _mn.name + '" from page "' + _mp.name + '" \u2192 "' + page.name + '"');
+          } catch(_mve) { log('Migrate failed for "' + (_mn.name || '?') + '": ' + _mve.message); }
+        }
+      }
+    }
+  } catch(_mpe) { log('Page migration pass failed: ' + _mpe.message); }
+
   /* W2 — stamp the Components page so renames don't create duplicates
      on next Build. See docs/architecture/component-builder/
      component-ledger-and-safe-rebuild.md §11.5. Write-only today;
