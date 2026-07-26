@@ -2843,6 +2843,32 @@ async function generateComponentFromBlueprint(blueprint) {
     }
   } catch(_mpe) { log('Page migration pass failed: ' + _mpe.message); }
 
+  /* ── Step 3c: Delete DTF-PRIMITIVES orphans on non-target pages ──────
+     After migration, any DTF-PRIMITIVES direct children still on pages
+     OTHER than the target page are duplicates (e.g. ones Toggle created
+     before the cross-page lookup fix). Remove them so the canvas stays
+     clean. Only runs for blueprints that own icon primitives. */
+  if (BP.usesIconPrimitives) {
+    try {
+      for (var _dopi = 0; _dopi < figma.root.children.length; _dopi++) {
+        var _dop = figma.root.children[_dopi];
+        if (_dop.id === page.id) continue;
+        var _dopOrphans = [];
+        try {
+          _dopOrphans = _dop.findAll(function(n) {
+            try { return n.getPluginData && n.getPluginData('dtf-owner') === 'DTF-PRIMITIVES'; } catch(e) { return false; }
+          });
+        } catch(e) {}
+        for (var _doni = 0; _doni < _dopOrphans.length; _doni++) {
+          var _don = _dopOrphans[_doni];
+          if (_don && !_don.removed && _don.parent && _don.parent.id === _dop.id) {
+            try { _don.remove(); log('Removed DTF-PRIMITIVES orphan from "' + _dop.name + '": ' + _don.name); } catch(e) {}
+          }
+        }
+      }
+    } catch(_dope) { log('DTF-PRIMITIVES orphan cleanup failed: ' + _dope.message); }
+  }
+
   /* W2 — stamp the Components page so renames don't create duplicates
      on next Build. See docs/architecture/component-builder/
      component-ledger-and-safe-rebuild.md §11.5. Write-only today;
@@ -3601,7 +3627,24 @@ async function generateComponentFromBlueprint(blueprint) {
      If a primitives section already exists on the page, existingMaxX
      above has already shifted past it — no extra reservation needed. */
   var PRIMITIVES_COL_W = 540; /* generous fixed width for the shared column */
-  var primitivesAlreadyOnPage = page.findOne(function(n) {
+
+  /* Cross-page primitive lookup — searches all loaded pages, preferring
+     the current (target) page. figma.loadAllPagesAsync() was already
+     called in Step 3b so all pages are in memory. Using this for every
+     primitive lookup prevents Toggle (and future non-button blueprints)
+     from creating redundant icon copies just because their target page
+     is different from the page where primitives were originally built. */
+  function _findPrimAcrossPages(predicate) {
+    try { var _lc = page.findOne(predicate); if (_lc) return _lc; } catch(e) {}
+    for (var _fpI = 0; _fpI < figma.root.children.length; _fpI++) {
+      var _fpPg = figma.root.children[_fpI];
+      if (_fpPg.id === page.id) continue;
+      try { var _fpR = _fpPg.findOne(predicate); if (_fpR) return _fpR; } catch(e) {}
+    }
+    return null;
+  }
+
+  var primitivesAlreadyOnPage = _findPrimAcrossPages(function(n) {
     return (n.type === 'SECTION' || n.type === 'FRAME') &&
            n.getPluginData && n.getPluginData('dtf-owner') === 'DTF-PRIMITIVES';
   });
@@ -3634,7 +3677,7 @@ async function generateComponentFromBlueprint(blueprint) {
      components and keeps the shared primitives showcase coherent. */
   var iconPlaceholder = null;
   var iconPlaceholderCreated = false;
-  iconPlaceholder = page.findOne(function(n) {
+  iconPlaceholder = _findPrimAcrossPages(function(n) {
     return n.type === 'COMPONENT' && (n.name === 'Icon/Placeholder' || n.name === 'DTF/Icon/Placeholder');
   });
   if (iconPlaceholder) {
@@ -3715,7 +3758,7 @@ async function generateComponentFromBlueprint(blueprint) {
      shared primitive. Either wrapper-kind (split-button) or any BP
      that sets usesChevron=true (menu-button) is allowed to CREATE
      the set if it is missing. */
-  chevronIconSet = page.findOne(function(n) {
+  chevronIconSet = _findPrimAcrossPages(function(n) {
     return n.type === 'COMPONENT_SET' && n.name === 'Icon/Chevron';
   });
   if (BP.kind === 'wrapper-with-button-instance' || BP.usesChevron) {
@@ -4108,7 +4151,7 @@ async function generateComponentFromBlueprint(blueprint) {
   /* Legacy name (pre-rename) — still detected so old files don't end
      up with duplicate sections after this update. */
   var LEGACY_PRIMITIVES_SECTION_NAME = 'DTF \u2014 Primitives';
-  var existingPrimitivesSection = page.findOne(function(n) {
+  var existingPrimitivesSection = _findPrimAcrossPages(function(n) {
     return (n.type === 'SECTION' || n.type === 'FRAME') &&
            (n.name === SHARED_PRIMITIVES_SECTION_NAME ||
             n.name === LEGACY_PRIMITIVES_SECTION_NAME) &&
