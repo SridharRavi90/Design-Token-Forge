@@ -5301,7 +5301,7 @@ async function generateComponentFromBlueprint(blueprint) {
           varComp.resize(120, 36);
           varComp.layoutMode = 'HORIZONTAL';
           varComp.counterAxisAlignItems = 'CENTER';
-          varComp.primaryAxisAlignItems = 'MIN';
+          varComp.primaryAxisAlignItems = 'CENTER';
           varComp.layoutSizingHorizontal = 'HUG';
           varComp.layoutSizingVertical = 'HUG';
           varComp.fills = [];
