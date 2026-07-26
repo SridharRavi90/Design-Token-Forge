@@ -5285,6 +5285,7 @@ async function generateComponentFromBlueprint(blueprint) {
           varComp.layoutSizingHorizontal = 'HUG';
           varComp.layoutSizingVertical = 'HUG';
           varComp.fills = [];
+          varComp.effects = []; /* clear stale effects from old generator runs */
           varComp.clipsContent = false;
           varComp.paddingLeft = 0;
           varComp.paddingRight = 0;
