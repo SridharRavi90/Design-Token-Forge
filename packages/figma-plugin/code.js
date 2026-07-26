@@ -145,11 +145,27 @@ var REQUIRED_COMPSIZE_VARS = [
   /* Focus ring frame dimensions — constant (non-per-density). */
   { name: 'button/focus-ring-gap',    defaultVal: 4  },
   { name: 'button/focus-ring-width',  defaultVal: 2  },
-  /* Focus ring corner radius — per-density (radius + gap). Values are baked in so no sync
-     server is needed. Each value = button border-radius for that density + 4px gap.
-     micro/tiny: 4+4=8  |  small/base: 6+4=10  |  medium/large: 8+4=12
-     big/huge: 10+4=14  |  mega: 12+4=16  |  ultra: 14+4=18. */
-  { name: 'button/focus-ring-radius', defaultVal: 10, modeVals: { micro: 8, tiny: 8, small: 10, base: 10, medium: 12, large: 12, big: 14, huge: 14, mega: 16, ultra: 18 } }
+  /* Focus ring corner radius — per-density, VARIABLE_ALIAS to primitives-numbers.
+     String modeVals = Figma variable path in primitives-numbers collection.
+     micro/tiny: spacing/8  |  small/base: spacing/10  |  medium/large: spacing/12
+     big/huge: spacing/14   |  mega: spacing/16         |  ultra: spacing/18 */
+  { name: 'button/focus-ring-radius', defaultVal: 10, modeVals: {
+    micro: 'spacing/8',  tiny: 'spacing/8',
+    small: 'spacing/10', base: 'spacing/10',
+    medium: 'spacing/12', large: 'spacing/12',
+    big: 'spacing/14',  huge: 'spacing/14',
+    mega: 'spacing/16', ultra: 'spacing/18'
+  } },
+  /* Focus ring frame height — per-density = button-height + 2*gap (4px each side).
+     Used by the ABSOLUTE-positioned ring overlay in the plugin generator.
+     spacing/52 doesn't exist in primitives → large mode uses literal 52. */
+  { name: 'button/focus-ring-height', defaultVal: 44, modeVals: {
+    micro: 'spacing/32', tiny: 'spacing/36',
+    small: 'spacing/40', base: 'spacing/44',
+    medium: 'spacing/48', large: 52,
+    big: 'spacing/56',  huge: 'spacing/64',
+    mega: 'spacing/72', ultra: 'spacing/80'
+  } }
 ];
 log('code.js loaded — version ' + CODE_VERSION);
 
@@ -2330,6 +2346,9 @@ async function generateComponentFromBlueprint(blueprint) {
   var _frgapVar    = (compSizeVars && compSizeVars['button/focus-ring-gap'])    || null;
   var _frwidthVar  = (compSizeVars && compSizeVars['button/focus-ring-width'])  || null;
   var _frradiusVar = (compSizeVars && compSizeVars['button/focus-ring-radius']) || null;
+  /* Per-density ring frame height (= button-height + 2*gap). Bound to the
+     ABSOLUTE overlay ring frame so the vertical gap adapts per density. */
+  var _frHeightVar = (compSizeVars && compSizeVars['button/focus-ring-height']) || null;
   var _frgap   = 4; /* fallback = CSS --focus-outline-offset */
   var _frwidth = 2; /* fallback = CSS --focus-outline-width  */
   if (_frgapVar && _frgapVar.valuesByMode) {
@@ -2656,6 +2675,32 @@ async function generateComponentFromBlueprint(blueprint) {
        in tiny/small/medium/large/etc the rounded variants resolved to 0
        — visibly square pills at non-base sizes. */
     var csAllModeIds = csCol.modes.map(function(m) { return m.modeId; });
+
+    /* Build a primitives-numbers lookup once so string modeVals entries can be
+       written as VARIABLE_ALIAS refs (e.g. 'spacing/8' → alias to primitives-numbers/spacing/8)
+       rather than literal numbers.  Falls back to numeric if the variable isn't found. */
+    var _csReqPrimMap = {};
+    try { _csReqPrimMap = await buildCollectionVarMap('primitives-numbers'); } catch (_pme) {}
+
+    /* Helper: resolve a single modeVals entry (number = literal, string = alias path). */
+    function _resolveReqModeVal(modeVal, fallbackNum) {
+      if (typeof modeVal === 'number') return modeVal;
+      if (typeof modeVal === 'string') {
+        var _pv = _csReqPrimMap[modeVal];
+        if (_pv) return { type: 'VARIABLE_ALIAS', id: _pv.id };
+        /* Alias not found — extract numeric suffix as literal fallback (e.g. 'spacing/8' → 8) */
+        var _nSuffix = parseFloat(modeVal.split('/').pop());
+        return isNaN(_nSuffix) ? fallbackNum : _nSuffix;
+      }
+      return fallbackNum;
+    }
+
+    /* Helper: are two setValueForMode values equivalent? Avoids unnecessary writes. */
+    function _reqValEq(a, b) {
+      if (a === b) return true;
+      if (a && b && typeof a === 'object' && typeof b === 'object') return a.id === b.id;
+      return false;
+    }
     for (var rvi = 0; rvi < requiredVars.length; rvi++) {
       var reqName    = requiredVars[rvi].name;
       var reqVal     = requiredVars[rvi].defaultVal;
@@ -2694,17 +2739,16 @@ async function generateComponentFromBlueprint(blueprint) {
           var emModeId = csAllModeIds[emi];
           /* Resolve per-mode target: use modeVals map when present, else flat defaultVal. */
           var _emModeName = _rModeVals && csCol.modes[emi] ? csCol.modes[emi].name.toLowerCase() : null;
-          var _emTargetVal = (_rModeVals && _emModeName && _rModeVals[_emModeName] !== undefined)
+          var _emRawVal   = (_rModeVals && _emModeName && _rModeVals[_emModeName] !== undefined)
             ? _rModeVals[_emModeName] : reqVal;
+          var _emTargetVal = _resolveReqModeVal(_emRawVal, reqVal);
           try {
             var curVal = existing.valuesByMode && existing.valuesByMode[emModeId];
-            var isAlias = curVal && typeof curVal === 'object' && curVal.type === 'VARIABLE_ALIAS';
-            if (isAlias) continue;
-            if (curVal === undefined || curVal === null || curVal !== _emTargetVal) {
-              existing.setValueForMode(emModeId, _emTargetVal);
-              log('Updated ' + reqName + ' [mode ' + emi + ']: ' + curVal + ' → ' + _emTargetVal);
-              stats.bindings++;
-            }
+            if (_reqValEq(curVal, _emTargetVal)) continue; /* already correct */
+            existing.setValueForMode(emModeId, _emTargetVal);
+            log('Updated ' + reqName + ' [mode ' + emi + ']: → ' +
+              (typeof _emTargetVal === 'object' ? 'alias(' + _emTargetVal.id + ')' : _emTargetVal));
+            stats.bindings++;
           } catch (uve) {
             log('Failed to update variable ' + reqName + ' (mode ' + emi + '): ' + uve.message);
           }
@@ -2715,12 +2759,13 @@ async function generateComponentFromBlueprint(blueprint) {
           /* Set value for EVERY mode so the variable resolves correctly
              across the entire comp-size scale. Without this, any mode
              beyond modes[0] silently resolves to 0.
-             Use per-mode modeVals map when present, else flat defaultVal. */
+             Use per-mode modeVals map when present (strings → VARIABLE_ALIAS). */
           var _nvModeVals = requiredVars[rvi].modeVals || null;
           for (var nmi = 0; nmi < csAllModeIds.length; nmi++) {
             var _nvModeName = _nvModeVals && csCol.modes[nmi] ? csCol.modes[nmi].name.toLowerCase() : null;
-            var _nvVal = (_nvModeVals && _nvModeName && _nvModeVals[_nvModeName] !== undefined)
+            var _nvRawVal   = (_nvModeVals && _nvModeName && _nvModeVals[_nvModeName] !== undefined)
               ? _nvModeVals[_nvModeName] : reqVal;
+            var _nvVal = _resolveReqModeVal(_nvRawVal, reqVal);
             try { newVar.setValueForMode(csAllModeIds[nmi], _nvVal); } catch (e) {}
           }
           compSizeVars[reqName] = newVar;
@@ -5602,65 +5647,53 @@ async function generateComponentFromBlueprint(blueprint) {
               } else {
                 try { instance.strokes = []; } catch (e) {}
               }
-              /* Focus Ring: HUG ring frame (4px padding = gap, 2px INSIDE stroke = ring)
-                 wraps the instance inside a FIXED+CENTER varComp.
-                 Math: ring=button+8, offset=(FIXED-HUG)/2=-4 for any content width.
-                 Pearl file node 230:28468 validated this exact structure. */
+              /* Focus Ring: ABSOLUTE overlay ring frame positioned at (-gap, -gap)
+                 relative to varComp (HUG = instance/button natural size).
+                 varComp stays HUG so it matches the button's natural footprint.
+                 The ring frame has no children — it is a pure decorative stroke
+                 that overflows varComp by _frgap on all sides. */
               var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
               try {
-                /* Keep varComp at button's natural dimensions so focus ring OVERFLOWS bounds
-                   (same footprint as other states). Height is variable-bound so density-mode
-                   changes keep the vertical gap correct. Width stays FIXED at generation-time
-                   button width — ring frame HUGs button ± gap so horizontal gap is always right. */
-                varComp.layoutSizingHorizontal = 'FIXED';
-                varComp.layoutSizingVertical   = 'FIXED';
+                /* varComp stays HUG (set in general setup) — no FIXED override.
+                   Bind height variable so density-mode changes keep the vertical
+                   size correct on the instance and varComp (HUG inherits it). */
                 var _vcHvW = compSizeVars[BP.sizeBindings.root.height] || null;
                 if (_vcHvW) { try { await tryBindVar(varComp, 'height', _vcHvW); stats.bindings++; } catch (_vchE) {} }
-                varComp.primaryAxisAlignItems  = 'CENTER';
+                varComp.primaryAxisAlignItems = 'CENTER';
+
+                /* Read instance (= wrapper) natural dimensions before creating overlay. */
+                var _wInstW = varComp.width;
+                var _wInstH = varComp.height;
 
                 var _wfr = figma.createFrame();
                 _wfr.name = 'focus-ring';
-                _wfr.layoutMode = 'HORIZONTAL';
-                _wfr.counterAxisAlignItems   = 'CENTER';
-                _wfr.primaryAxisAlignItems   = 'CENTER';
-                _wfr.layoutSizingHorizontal  = 'HUG';
-                _wfr.layoutSizingVertical    = 'HUG';
-                _wfr.paddingLeft   = _frgap;
-                _wfr.paddingRight  = _frgap;
-                _wfr.paddingTop    = _frgap;
-                _wfr.paddingBottom = _frgap;
-                _wfr.itemSpacing   = 0;
+                _wfr.layoutMode = 'NONE';    /* decorative overlay — no children, no auto-layout */
                 _wfr.fills = [];
                 _wfr.strokes = [{ type:'SOLID', color:_frBrand, visible:true, blendMode:'NORMAL', opacity:1 }];
                 if (_frColorVar) { setPaintBoundToVariable(_wfr, 'strokes', _frColorVar); stats.bindings++; }
                 _wfr.strokeWeight = _frwidth;
+                if (_frwidthVar) { try { await tryBindVar(_wfr, 'strokeWeight', _frwidthVar); stats.bindings++; } catch (e) {} }
                 _wfr.strokeAlign  = 'INSIDE';
-                /* cornerRadius: bound to per-density button/focus-ring-radius variable
-                   (= button radius + gap for each density mode). Fallback reads the
-                   instance's current corner radius + gap at generation time. */
+                /* cornerRadius: bound to per-density button/focus-ring-radius variable. */
                 var _wfr_instRad = 0; try { _wfr_instRad = instance.topLeftRadius || 0; } catch (_wfr_e) {}
                 _wfr.cornerRadius = isRounded ? 9999 : Math.round(_wfr_instRad + _frgap);
-                /* Individual topLeft/topRight/etc. silently fail on horizontal
-                   auto-layout frames — use uniform 'cornerRadius' binding instead. */
                 if (!isRounded && _frradiusVar) {
                   await tryBindVar(_wfr, 'cornerRadius', _frradiusVar); stats.bindings++;
                 }
                 _wfr.clipsContent = false;
-                if (_frgapVar) {
-                  await tryBindVar(_wfr, 'paddingLeft',   _frgapVar); stats.bindings++;
-                  await tryBindVar(_wfr, 'paddingRight',  _frgapVar); stats.bindings++;
-                  await tryBindVar(_wfr, 'paddingTop',    _frgapVar); stats.bindings++;
-                  await tryBindVar(_wfr, 'paddingBottom', _frgapVar); stats.bindings++;
-                }
+                /* Size ring frame to (instance + 2*gap) × (instance + 2*gap). */
+                var _wfrW = (_wInstW > 0 ? _wInstW : 100) + 2 * _frgap;
+                var _wfrH = (_wInstH > 0 ? _wInstH : 36) + 2 * _frgap;
+                _wfr.resize(_wfrW, _wfrH);
+                /* Bind ring height to per-density variable for vertical gap adaptation. */
+                if (_frHeightVar) { try { await tryBindVar(_wfr, 'height', _frHeightVar); stats.bindings++; } catch (e) {} }
 
-                _wfr.appendChild(instance);
+                /* Add as ABSOLUTE overlay: doesn't affect varComp's HUG sizing. */
                 varComp.appendChild(_wfr);
-                /* Derive button dimensions from the resolved ring frame rather
-                   than instance.width (which may be 0 before layout is computed).
-                   _wfr is HUG: _wfr.width = btnW + 2*gap, _wfr.height = btnH + 2*gap. */
-                var _wfrBtnW = _wfr.width  - 2 * _frgap;
-                var _wfrBtnH = _wfr.height - 2 * _frgap;
-                if (_wfrBtnW > 0) varComp.resize(_wfrBtnW, _wfrBtnH > 0 ? _wfrBtnH : varComp.height);
+                try { _wfr.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
+                /* Position ring so it overflows varComp by _frgap on all sides. */
+                _wfr.x = -_frgap;
+                _wfr.y = -_frgap;
               } catch(e) { log('focusRing wrapper ring-frame: ' + e.message); }
               varComp.clipsContent = false;
               stats.bindings++;
@@ -5894,65 +5927,53 @@ async function generateComponentFromBlueprint(blueprint) {
             } else {
               instance.strokes = [];
             }
-            /* Focus Ring: HUG ring frame (4px padding = gap, 2px INSIDE stroke = ring)
-               wraps the instance inside a FIXED+CENTER varComp.
-               Math: ring=button+8, offset=(FIXED-HUG)/2=-4 for any content width.
-               Pearl file node 230:28468 validated this exact structure. */
+            /* Focus Ring: ABSOLUTE overlay ring frame positioned at (-gap, -gap)
+               relative to varComp (HUG = button natural size).
+               varComp stays HUG so it matches the button's natural footprint.
+               The ring frame has no children — it is a pure decorative stroke
+               that overflows varComp by _frgap on all sides. */
             var _frBrand = _frReadColor(_frColorVar, { r: 0.22, g: 0.37, b: 0.98, a: 1 });
             try {
-              /* Keep varComp at button's natural dimensions so focus ring OVERFLOWS bounds
-                 (same footprint as other states). Height is variable-bound so density-mode
-                 changes keep the vertical gap correct. Width stays FIXED at generation-time
-                 button width — ring frame HUGs button ± gap so horizontal gap is always right. */
-              varComp.layoutSizingHorizontal = 'FIXED';
-              varComp.layoutSizingVertical   = 'FIXED';
+              /* varComp stays HUG (set in general setup) — no FIXED override.
+                 Bind height variable so density-mode changes keep the vertical
+                 size correct on the instance (master height is variable-driven). */
               var _vcHvF = compSizeVars[BP.sizeBindings.root.height] || null;
               if (_vcHvF) { try { await tryBindVar(varComp, 'height', _vcHvF); stats.bindings++; } catch (_vchEF) {} }
               varComp.primaryAxisAlignItems  = 'CENTER';
 
+              /* Read button natural dimensions from varComp (HUG = instance size). */
+              var _fInstW = varComp.width;
+              var _fInstH = varComp.height;
+
               var _ffr = figma.createFrame();
               _ffr.name = 'focus-ring';
-              _ffr.layoutMode = 'HORIZONTAL';
-              _ffr.counterAxisAlignItems   = 'CENTER';
-              _ffr.primaryAxisAlignItems   = 'CENTER';
-              _ffr.layoutSizingHorizontal  = 'HUG';
-              _ffr.layoutSizingVertical    = 'HUG';
-              _ffr.paddingLeft   = _frgap;
-              _ffr.paddingRight  = _frgap;
-              _ffr.paddingTop    = _frgap;
-              _ffr.paddingBottom = _frgap;
-              _ffr.itemSpacing   = 0;
+              _ffr.layoutMode = 'NONE';    /* decorative overlay — no children, no auto-layout */
               _ffr.fills = [];
               _ffr.strokes = [{ type:'SOLID', color:_frBrand, visible:true, blendMode:'NORMAL', opacity:1 }];
               if (_frColorVar) { setPaintBoundToVariable(_ffr, 'strokes', _frColorVar); stats.bindings++; }
               _ffr.strokeWeight = _frwidth;
+              if (_frwidthVar) { try { await tryBindVar(_ffr, 'strokeWeight', _frwidthVar); stats.bindings++; } catch (e) {} }
               _ffr.strokeAlign  = 'INSIDE';
-              /* cornerRadius: bound to per-density button/focus-ring-radius variable
-                 (= button radius + gap for each density mode). Fallback reads the
-                 instance's current corner radius + gap at generation time. */
+              /* cornerRadius: bound to per-density button/focus-ring-radius variable. */
               var _ffr_instRad = 0; try { _ffr_instRad = instance.topLeftRadius || 0; } catch (_ffr_e) {}
               _ffr.cornerRadius = isRounded ? 9999 : Math.round(_ffr_instRad + _frgap);
-              /* Individual topLeft/topRight/etc. silently fail on horizontal
-                 auto-layout frames — use uniform 'cornerRadius' binding instead. */
               if (!isRounded && _frradiusVar) {
                 await tryBindVar(_ffr, 'cornerRadius', _frradiusVar); stats.bindings++;
               }
               _ffr.clipsContent = false;
-              if (_frgapVar) {
-                await tryBindVar(_ffr, 'paddingLeft',   _frgapVar); stats.bindings++;
-                await tryBindVar(_ffr, 'paddingRight',  _frgapVar); stats.bindings++;
-                await tryBindVar(_ffr, 'paddingTop',    _frgapVar); stats.bindings++;
-                await tryBindVar(_ffr, 'paddingBottom', _frgapVar); stats.bindings++;
-              }
+              /* Size ring frame to (button + 2*gap) × (button + 2*gap). */
+              var _ffrW = (_fInstW > 0 ? _fInstW : 100) + 2 * _frgap;
+              var _ffrH = (_fInstH > 0 ? _fInstH : 36) + 2 * _frgap;
+              _ffr.resize(_ffrW, _ffrH);
+              /* Bind ring height to per-density variable for vertical gap adaptation. */
+              if (_frHeightVar) { try { await tryBindVar(_ffr, 'height', _frHeightVar); stats.bindings++; } catch (e) {} }
 
-              _ffr.appendChild(instance);
+              /* Add as ABSOLUTE overlay: doesn't affect varComp's HUG sizing. */
               varComp.appendChild(_ffr);
-              /* Derive button dimensions from the resolved ring frame rather
-                 than instance.width (which may be 0 before layout is computed).
-                 _ffr is HUG: _ffr.width = btnW + 2*gap, _ffr.height = btnH + 2*gap. */
-              var _ffrBtnW = _ffr.width  - 2 * _frgap;
-              var _ffrBtnH = _ffr.height - 2 * _frgap;
-              if (_ffrBtnW > 0) varComp.resize(_ffrBtnW, _ffrBtnH > 0 ? _ffrBtnH : varComp.height);
+              try { _ffr.layoutPositioning = 'ABSOLUTE'; } catch (e) {}
+              /* Position ring so it overflows varComp by _frgap on all sides. */
+              _ffr.x = -_frgap;
+              _ffr.y = -_frgap;
             } catch(e) { log('focusRing ring-frame: ' + e.message); }
             varComp.clipsContent = false;
             stats.bindings++;
