@@ -6065,6 +6065,8 @@ async function generateComponentFromBlueprint(blueprint) {
 
       componentSet.name = setDisplayName;
       stampOwner(componentSet);
+      /* Allow focus-ring drop-shadow effects to overflow the set bounds. */
+      try { componentSet.clipsContent = false; } catch(_ccE) {}
       try { componentSet.setPluginData('dtf-set-id', 'dtf::' + BP.name + '::' + mName); } catch(_csidE) {}
       componentSet.description = (BP.description || '') + (BP.singleFamily ? ' All families.' : (' Family: ' + familyName + '.'));
 
@@ -6508,6 +6510,8 @@ async function generateComponentFromBlueprint(blueprint) {
 
     _uComponentSet.name = BP.name;
     stampOwner(_uComponentSet);
+    /* Allow focus-ring drop-shadow effects to overflow the set bounds. */
+    try { _uComponentSet.clipsContent = false; } catch(_uccE) {}
     try { _uComponentSet.setPluginData('dtf-set-id', 'dtf::' + BP.name); } catch(_uSidE) {}
     _uComponentSet.description = BP.description || '';
 
