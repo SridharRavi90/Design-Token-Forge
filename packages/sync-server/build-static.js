@@ -542,7 +542,7 @@ async function main() {
       }
       btn.addEventListener('click', function() {
         localStorage.setItem('dtf-active-project', p.id);
-        go('demo/index.html');
+        go('demo/editor-v2/index.html');
       });
       $list.appendChild(btn);
     });
@@ -559,7 +559,7 @@ async function main() {
     var match = projects.find(function(p) { return p.id === active; });
     if (match && !FORCE) {
       // Active project still belongs to this user → go straight in
-      go('demo/index.html');
+      go('demo/editor-v2/index.html');
       return;
     }
     // Otherwise show picker
@@ -591,6 +591,9 @@ async function main() {
       localStorage.setItem('dtf-gh-user', login);
       localStorage.setItem('dtf-gh-owner', login);
       setStatus($status, '✓ Connected as ' + login + '. Loading your projects…', 'ok');
+      // Set sessionStorage so auth-gate.js on demo/ pages skips the prompt
+      // PAT is already in localStorage; this marks "verified in this tab"
+      try { sessionStorage.setItem('dtf-auth-ok', '1'); } catch(_se) {}
       return fetchUserProjectsLive(login, pat).then(function(projects) {
         routeAuthenticated(login, projects);
       });
