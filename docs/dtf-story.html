@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design Token Forge — The Story</title>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #4F6EF7;
+      --brand-light:  #EEF1FE;
+      --brand-dark:   #2C47C7;
+      --brand-deeper: #1a2d8a;
+      --accent:       #10B981;
+      --accent-light: #ECFDF5;
+      --warn:         #F59E0B;
+      --danger:       #EF4444;
+      --ink:          #0f172a;
+      --ink-2:        #334155;
+      --ink-3:        #64748b;
+      --ink-4:        #94a3b8;
+      --line:         #e2e8f0;
+      --surface:      #FFFFFF;
+      --surface-2:    #F8FAFC;
+      --surface-3:    #F1F5F9;
+      --dark-bg:      #0f172a;
+      --dark-surface: #1e293b;
+      --dark-line:    #334155;
+      --radius:       16px;
+      --radius-sm:    10px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-serif: 'Georgia', 'Times New Roman', serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--ink);
+      line-height: 1.7;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    h1, h2, h3, h4, h5 { line-height: 1.2; font-weight: 700; }
+    h1 { font-size: clamp(32px, 5vw, 64px); letter-spacing: -0.02em; }
+    h2 { font-size: clamp(24px, 3.5vw, 44px); letter-spacing: -0.02em; }
+    h3 { font-size: clamp(18px, 2vw, 26px); }
+    h4 { font-size: 14px; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
+    p  { color: var(--ink-2); line-height: 1.8; }
+    strong { color: var(--ink); font-weight: 600; }
+
+    /* ── Layout ── */
+    .container { max-width: 800px; margin: 0 auto; padding: 0 28px; }
+    .container-wide { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+    .section { padding: 100px 0; }
+    .section-sm { padding: 64px 0; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226,232,240,0.6);
+    }
+    .nav-logo {
+      font-size: 14px; font-weight: 700; color: var(--ink);
+      display: flex; align-items: center; gap: 8px; text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .nav-tag {
+      font-size: 12px; font-weight: 500; color: var(--ink-3);
+      background: var(--surface-3); padding: 4px 12px; border-radius: 999px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      background: var(--dark-bg);
+      display: flex; align-items: center;
+      padding: 120px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(79,110,247,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,110,247,0.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .hero-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(79,110,247,0.18) 0%, transparent 70%);
+      top: -100px; left: -100px;
+      pointer-events: none;
+    }
+    .hero-glow-2 {
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16,185,129,0.10) 0%, transparent 70%);
+      bottom: 0; right: -50px;
+      pointer-events: none;
+    }
+    .hero-content { position: relative; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(79,110,247,0.15); border: 1px solid rgba(79,110,247,0.3);
+      border-radius: 999px; padding: 6px 16px;
+      font-size: 12px; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: #93c5fd;
+      margin-bottom: 32px;
+    }
+    .hero h1 { color: #fff; margin-bottom: 28px; max-width: 700px; }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, #93c5fd, #6ee7b7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-lede {
+      font-size: clamp(16px, 2vw, 20px);
+      color: rgba(255,255,255,0.6);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 56px;
+    }
+    .hero-scroll-hint {
+      display: flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,0.3); font-size: 13px;
+    }
+    .hero-scroll-line {
+      width: 40px; height: 1px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* ── Act label ── */
+    .act-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 20px;
+    }
+    .act-label::before {
+      content: '';
+      display: block; width: 24px; height: 2px;
+      background: var(--brand);
+    }
+
+    /* ── Pull quote ── */
+    .pull-quote {
+      font-family: var(--font-serif);
+      font-size: clamp(20px, 2.5vw, 30px);
+      line-height: 1.5;
+      color: var(--ink);
+      border-left: 4px solid var(--brand);
+      padding: 12px 0 12px 32px;
+      margin: 48px 0;
+      font-style: italic;
+    }
+    .pull-quote-dark {
+      font-family: var(--font-serif);
+      font-size: clamp(20px, 2.5vw, 32px);
+      line-height: 1.5;
+      color: #fff;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+      font-style: italic;
+    }
+    .pull-quote-dark::before { content: '\201C'; }
+    .pull-quote-dark::after  { content: '\201D'; }
+
+    /* ── Story text ── */
+    .story-body p {
+      font-size: clamp(15px, 1.5vw, 17px);
+      line-height: 1.9;
+      color: var(--ink-2);
+      margin-bottom: 24px;
+    }
+    .story-body p:last-child { margin-bottom: 0; }
+
+    /* ── Scene box — the "happens every day" mini story ── */
+    .scene {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 36px 40px;
+      margin: 48px 0;
+      position: relative;
+    }
+    .scene-label {
+      position: absolute; top: -12px; left: 28px;
+      background: var(--surface-2); border: 1px solid var(--line);
+      border-radius: 999px; padding: 2px 14px;
+      font-size: 11px; font-weight: 700; color: var(--ink-3);
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+    .scene-line {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid var(--line);
+    }
+    .scene-line:last-child { border-bottom: none; }
+    .scene-who {
+      min-width: 90px; font-size: 12px; font-weight: 700;
+      color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em;
+      padding-top: 2px;
+    }
+    .scene-what { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+    .scene-what code {
+      background: var(--surface-3); border: 1px solid var(--line);
+      border-radius: 4px; padding: 1px 6px; font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .scene-pain .scene-who { color: #dc2626; }
+    .scene-pain .scene-what { color: #7f1d1d; }
+
+    /* ── Dark interlude ── */
+    .dark-section {
+      background: var(--dark-bg);
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .dark-section p { color: rgba(255,255,255,0.6); }
+    .dark-section h2 { color: #fff; }
+    .dark-section h3 { color: #fff; }
+    .dark-glow {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(79,110,247,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Token diagram — pure CSS ── */
+    .token-pipeline {
+      display: flex; align-items: center; gap: 0;
+      background: var(--dark-surface);
+      border: 1px solid var(--dark-line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 48px 0;
+    }
+    .tp-step {
+      flex: 1; padding: 28px 20px; text-align: center;
+      position: relative;
+    }
+    .tp-step + .tp-step::before {
+      content: '→';
+      position: absolute; left: -12px; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,0.2); font-size: 18px; z-index: 1;
+    }
+    .tp-step:nth-child(1) { background: rgba(79,110,247,0.08); }
+    .tp-step:nth-child(2) { background: rgba(79,110,247,0.12); }
+    .tp-step:nth-child(3) { background: rgba(79,110,247,0.16); }
+    .tp-step:nth-child(4) { background: rgba(16,185,129,0.12); }
+    .tp-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+    .tp-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); margin-bottom: 6px; }
+    .tp-desc { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+    @media (max-width: 640px) {
+      .token-pipeline { flex-direction: column; }
+      .tp-step + .tp-step::before { content: '↓'; left: 50%; top: -14px; transform: translateX(-50%); }
+    }
+
+    /* ── Code token visual ── */
+    .token-visual {
+      background: #0f1629;
+      border: 1px solid rgba(79,110,247,0.2);
+      border-radius: var(--radius-sm);
+      padding: 28px 32px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 2;
+      overflow-x: auto;
+      margin: 40px 0;
+    }
+    .t-comment { color: #475569; font-style: italic; }
+    .t-selector { color: #f472b6; }
+    .t-prop { color: #93c5fd; }
+    .t-val { color: #86efac; }
+    .t-ref { color: #fcd34d; }
+
+    /* ── Before / After — narrative version ── */
+    .ba-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      margin: 48px 0;
+    }
+    @media (max-width: 640px) { .ba-split { grid-template-columns: 1fr; } }
+    .ba-panel { padding: 36px 32px; }
+    .ba-before-panel { background: #fff5f5; }
+    .ba-after-panel  { background: #f0fdf4; }
+    .ba-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+    .ba-before-panel .ba-label { color: #dc2626; }
+    .ba-after-panel  .ba-label { color: #16a34a; }
+    .ba-steps { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .ba-step { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+    .ba-step-num {
+      min-width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+    .ba-before-panel .ba-step-num { background: #fecaca; color: #991b1b; }
+    .ba-after-panel  .ba-step-num { background: #bbf7d0; color: #14532d; }
+    .ba-before-panel .ba-step { color: #7f1d1d; }
+    .ba-after-panel  .ba-step { color: #14532d; }
+    .ba-time {
+      display: flex; gap: 12px; align-items: center;
+      margin-top: 20px; padding-top: 20px;
+      border-top: 1px solid;
+      font-size: 14px; font-weight: 700;
+    }
+    .ba-before-panel .ba-time { border-color: #fecaca; color: #dc2626; }
+    .ba-after-panel  .ba-time { border-color: #bbf7d0; color: #16a34a; }
+
+    /* ── Stat row ── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin: 56px 0;
+    }
+    @media (max-width: 640px) { .stat-row { grid-template-columns: 1fr; } }
+    .stat {
+      text-align: center; padding: 36px 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .stat-num {
+      font-size: 48px; font-weight: 800; line-height: 1;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 10px; display: block;
+    }
+    .stat-text { font-size: 14px; color: var(--ink-3); line-height: 1.5; }
+
+    /* ── Insight cards ── */
+    .insight-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      margin: 48px 0;
+    }
+    @media (max-width: 640px) { .insight-grid { grid-template-columns: 1fr; } }
+    .insight-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .insight-card-icon { font-size: 28px; margin-bottom: 16px; display: block; }
+    .insight-card h3 { font-size: 17px; margin-bottom: 10px; color: var(--ink); }
+    .insight-card p { font-size: 14px; color: var(--ink-3); line-height: 1.7; }
+
+    /* ── Horizontal separator ── */
+    .sep {
+      height: 1px; background: var(--line);
+      margin: 0;
+    }
+
+    /* ── Clarifier callout ── */
+    .clarifier {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--brand);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 24px 28px;
+      margin: 32px 0 0;
+    }
+    .clarifier-title {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .clarifier-body { font-size: 14px; color: var(--ink-2); line-height: 1.7; }
+    .clarifier-body strong { color: var(--ink); }
+    .clarifier-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;
+    }
+    @media (max-width: 600px) { .clarifier-grid { grid-template-columns: 1fr; } }
+    .clarifier-item {
+      background: var(--surface-2); border: 1px solid var(--line);
+      border-radius: var(--radius-sm); padding: 16px 18px;
+    }
+    .clarifier-item-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--ink-3); margin-bottom: 6px;
+    }
+    .clarifier-item p { font-size: 13px; color: var(--ink-3); line-height: 1.6; }
+
+    /* ── Vision section ── */
+    .vision-point {
+      display: flex; gap: 24px; align-items: flex-start;
+      padding: 28px 0; border-bottom: 1px solid var(--line);
+    }
+    .vision-point:last-child { border-bottom: none; }
+    .vision-num {
+      font-size: 36px; font-weight: 800; line-height: 1;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      flex-shrink: 0; min-width: 48px;
+    }
+    .vision-body h3 { font-size: 18px; margin-bottom: 8px; }
+    .vision-body p  { font-size: 15px; color: var(--ink-3); line-height: 1.7; }
+
+    /* ── Roadmap (simplified, narrative) ── */
+    .road-row {
+      display: flex; gap: 20px; align-items: flex-start;
+      padding: 24px 0; border-bottom: 1px solid var(--dark-line);
+    }
+    .road-row:last-child { border-bottom: none; }
+    .road-status {
+      min-width: 100px; flex-shrink: 0;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+    }
+    .pill-done  { background: rgba(16,185,129,0.15); color: #34d399; }
+    .pill-now   { background: rgba(79,110,247,0.2); color: #93c5fd; }
+    .pill-next  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
+    .road-body h3 { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 6px; }
+    .road-body p  { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+
+    /* ── Closing section ── */
+    .closing-section {
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+      padding: 80px 0;
+      text-align: center;
+    }
+    .closing-section h2 { font-size: clamp(20px, 2.5vw, 28px); margin-bottom: 16px; color: var(--ink); }
+    .closing-section p { color: var(--ink-3); font-size: 16px; max-width: 520px; margin: 0 auto 36px; line-height: 1.8; }
+    .btn-contact {
+      display: inline-block;
+      background: var(--brand); color: #fff;
+      padding: 13px 32px; border-radius: var(--radius-sm);
+      font-weight: 600; font-size: 15px; text-decoration: none;
+      transition: background .15s;
+    }
+    .btn-contact:hover { background: var(--brand-dark); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--dark-bg);
+      text-align: center; padding: 48px 24px;
+      font-size: 13px; color: rgba(255,255,255,0.25);
+      border-top: 1px solid var(--dark-line);
+    }
+
+    /* ── Utilities ── */
+    .mt-8  { margin-top: 8px;  }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mt-48 { margin-top: 48px; }
+    .mb-8  { margin-bottom: 8px;  }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+    .mb-48 { margin-bottom: 48px; }
+    .text-center { text-align: center; }
+    .color-muted { color: var(--ink-3); }
+    .w-full { width: 100%; }
+
+    /* ── Scroll fade-in ── */
+    .fade-in {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ════════ NAV ════════ -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon">⚙️</div>
+    Design Token Forge
+  </a>
+  <span class="nav-tag">The Story</span>
+</nav>
+
+
+<!-- ════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
+  <div class="container hero-content">
+    <div class="hero-eyebrow">✦ Design Token Forge</div>
+    <h1>The design decision<br/>made <em>twice</em>.</h1>
+    <p class="hero-lede">
+      Every color. Every corner radius. Every spacing unit.<br/>
+      Defined by the designer. Re-entered by the engineer.<br/>
+      I got tired of watching good work get lost in translation.
+    </p>
+    <div class="hero-scroll-hint">
+      <div class="hero-scroll-line"></div>
+      <span>Read the story</span>
+    </div>
+  </div>
+</header>
+
+
+<!-- ════════════════════════════════════════════
+     ACT 1 — THE FAMILIAR FRUSTRATION
+════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+
+    <h2 class="fade-in mb-24">It happens every week.</h2>
+
+    <div class="story-body fade-in">
+      <p>
+        A designer wraps up a rebrand sprint. New primary blue. Slightly warmer.
+        Tighter border radii on buttons. Typography scale nudged up 1px.
+        It looks great in Figma. The stakeholders approved it. 
+      </p>
+      <p>
+        Then a Slack message goes out: <em>"Hey engineering, the brand colors updated — full spec in the Figma file."</em>
+      </p>
+      <p>
+        And then begins the part nobody talks about.
+      </p>
+    </div>
+
+    <div class="scene fade-in">
+      <div class="scene-label">A Tuesday afternoon, somewhere in the org</div>
+
+      <div class="scene-line">
+        <div class="scene-who">Engineer</div>
+        <div class="scene-what">Opens Figma. Inspects the new button color. It's <code>#3D72F5</code>. Old one was… somewhere. Searches codebase.</div>
+      </div>
+      <div class="scene-line">
+        <div class="scene-who">Codebase</div>
+        <div class="scene-what">Has <code>#3B6EF2</code> in one file. <code>#4070F4</code> in another. <code>$primary-blue</code> which is a variable pointing to… something. And one stray <code>rgba(63, 113, 245, 1)</code> in a legacy component.</div>
+      </div>
+      <div class="scene-line">
+        <div class="scene-who">Engineer</div>
+        <div class="scene-what">Spends 40 minutes doing find-and-replace. Misses the mobile stylesheet. Misses a third-party email template. Ships it.</div>
+      </div>
+      <div class="scene-line scene-pain">
+        <div class="scene-who">QA</div>
+        <div class="scene-what">Files a bug: "Button is wrong color on the confirmation screen." Another PR. Another review cycle. Another half-day of time.</div>
+      </div>
+    </div>
+
+    <div class="story-body fade-in">
+      <p>
+        I've watched this happen. Dozens of times. Across products. 
+        The frustrating part isn't the bug — it's that <strong>the designer had already made the right decision</strong>. 
+        The answer existed. It just lived in the wrong place.
+      </p>
+      <p>
+        This isn't a people problem. The designer did their job. The engineer did their job.
+        The process failed them.
+      </p>
+    </div>
+
+    <blockquote class="pull-quote fade-in">
+      "The same decision, made twice. Once in design. Once in code. And the gap between them is where consistency dies."
+    </blockquote>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+
+<!-- ════════════════════════════════════════════
+     DARK INTERLUDE — THE REALIZATION
+════════════════════════════════════════════ -->
+<section class="dark-section">
+  <div class="dark-glow" style="top:-100px; right:-100px;"></div>
+  <div class="container text-center">
+    <div class="act-label fade-in" style="color:#6ee7b7; justify-content: center;">
+      The Question That Changed Everything
+    </div>
+    <div class="pull-quote-dark fade-in mt-24">
+      What if design decisions were code from the very beginning — not Figma values that engineers have to translate?
+    </div>
+    <p class="fade-in mt-24" style="font-size:16px; color:rgba(255,255,255,0.4); max-width:480px; margin:24px auto 0;">
+      That question is what Design Token Forge was built to answer.
+    </p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     ACT 2 — HOW DTF WAS BORN
+════════════════════════════════════════════ -->
+<section class="section" style="background: var(--surface-2);">
+  <div class="container">
+    <h2 class="fade-in mb-24">Not a handoff tool.<br/>A shared language.</h2>
+
+    <div class="story-body fade-in">
+      <p>
+        Every design tool I'd seen treated the "gap" as an export problem. 
+        Generate some JSON. Paste it into the codebase. Done? 
+        No. That's just automating the translation. The same decision is still being made twice — just faster.
+      </p>
+      <p>
+        The insight was simpler than that: what if there was <strong>no translation step at all</strong>?
+        What if the decision — "our primary blue is #4F6EF7" — existed once,
+        in a canonical form that Figma, the web app, the mobile app, and the email template all read from directly?
+      </p>
+      <p>
+        That's a design token. And a token system done right isn't a spreadsheet of hex values —
+        it's a living vocabulary that an entire organization speaks.
+      </p>
+    </div>
+
+    <div class="insight-grid fade-in">
+      <div class="insight-card">
+        <span class="insight-card-icon">🔡</span>
+        <h3>Tokens aren't just variables</h3>
+        <p>They're decisions with names. <code>--brand-500</code> doesn't just mean "this blue" — it means "the color we use for primary actions." That meaning travels with it everywhere.</p>
+      </div>
+      <div class="insight-card">
+        <span class="insight-card-icon">🌊</span>
+        <h3>One change, infinite reach</h3>
+        <p>When a token is updated, every surface that references it updates automatically. Web, mobile, Figma, email. No Slack message required.</p>
+      </div>
+      <div class="insight-card">
+        <span class="insight-card-icon">🗂️</span>
+        <h3>Layers, not chaos</h3>
+        <p>Raw colors → semantic roles → component-level decisions. Each layer builds on the last. Change one primitive and the whole system responds with intention.</p>
+      </div>
+      <div class="insight-card">
+        <span class="insight-card-icon">🧩</span>
+        <h3>Components that speak the language</h3>
+        <p>When components are built on tokens — not hardcoded values — they automatically inherit every future design decision without a single line of refactoring.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+
+<!-- ════════════════════════════════════════════
+     ACT 3 — WHAT DTF IS
+════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+    <h2 class="fade-in mb-16">Design Token Forge<br/>in plain English.</h2>
+    <p class="fade-in mb-48 color-muted" style="font-size:17px; max-width:580px;">
+      DTF is an end-to-end platform that turns design decisions into living,
+      version-controlled code — and keeps every product surface in sync, automatically.
+    </p>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="container-wide">
+    <div class="token-pipeline fade-in">
+      <div class="tp-step">
+        <span class="tp-icon">🎨</span>
+        <div class="tp-name">Design Tokens</div>
+        <div class="tp-desc">Colors, spacing, type — named decisions in one canonical file</div>
+      </div>
+      <div class="tp-step">
+        <span class="tp-icon">⚙️</span>
+        <div class="tp-name">Token Engine</div>
+        <div class="tp-desc">Transforms primitives → semantic roles → component contracts</div>
+      </div>
+      <div class="tp-step">
+        <span class="tp-icon">🧩</span>
+        <div class="tp-name">Component Library</div>
+        <div class="tp-desc">30+ production-ready UI components, zero hardcoded values</div>
+      </div>
+      <div class="tp-step">
+        <span class="tp-icon">🚀</span>
+        <div class="tp-name">Every Surface</div>
+        <div class="tp-desc">Web, mobile, Figma, email — all reading from one source</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="story-body fade-in">
+      <p>
+        The token system has layers. At the bottom are the raw color values — 
+        a 22-step palette for every role (brand, danger, success, neutral...).
+        Above that, semantic tokens give them meaning: "this is what we use for error states."
+        At the top, component tokens make it concrete: "this is the background of a danger button."
+      </p>
+      <p>
+        Change the raw palette. Everything above it adapts. That's not automation — that's architecture.
+      </p>
+    </div>
+
+    <div class="token-visual fade-in">
+<span class="t-comment">/* T0 — Primitives: the raw palette */</span>
+<span class="t-selector">:root</span> {
+  <span class="t-prop">--prim-brand-500</span>: <span class="t-val">#4F6EF7</span>;     <span class="t-comment">/* Change this once → */</span>
+  <span class="t-prop">--prim-brand-600</span>: <span class="t-val">#2C47C7</span>;
+}
+
+<span class="t-comment">/* T1 — Semantic: what it means */</span>
+<span class="t-selector">:root</span> {
+  <span class="t-prop">--color-action-bg</span>:       <span class="t-ref">var(--prim-brand-500)</span>;  <span class="t-comment">/* → flows here */</span>
+  <span class="t-prop">--color-action-bg-hover</span>:  <span class="t-ref">var(--prim-brand-600)</span>;
+}
+
+<span class="t-comment">/* T2 — Component: how it's applied */</span>
+<span class="t-selector">.button-primary</span> {
+  <span class="t-prop">background</span>: <span class="t-ref">var(--color-action-bg)</span>;        <span class="t-comment">/* → and here */</span>
+  <span class="t-prop">color</span>:      <span class="t-ref">var(--color-action-text)</span>;
+}
+<span class="t-comment">/* → Every button on every platform, updated. */</span>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+
+<!-- ════════════════════════════════════════════
+     ACT 4 — THE WORLD AFTER
+════════════════════════════════════════════ -->
+<section class="section" style="background: var(--surface-2);">
+  <div class="container">
+    <h2 class="fade-in mb-24">Same Tuesday.<br/>Different story.</h2>
+
+    <div class="story-body fade-in">
+      <p>
+        Let me replay that Tuesday. Same rebrand. Same designer. Same engineer.
+        But this time, the org is running on DTF.
+      </p>
+    </div>
+
+    <div class="ba-split fade-in">
+      <div class="ba-panel ba-before-panel">
+        <div class="ba-label">⚠ Without DTF — The Old Way</div>
+        <ul class="ba-steps">
+          <li class="ba-step"><div class="ba-step-num">1</div>Designer changes hex in Figma styles panel</li>
+          <li class="ba-step"><div class="ba-step-num">2</div>Posts in Slack: "hey, brand blue changed to #3D72F5"</li>
+          <li class="ba-step"><div class="ba-step-num">3</div>Engineer hunts through 4 repos. Finds 3 slightly-different blues.</li>
+          <li class="ba-step"><div class="ba-step-num">4</div>Misses the mobile stylesheet. Misses the email template.</li>
+          <li class="ba-step"><div class="ba-step-num">5</div>Ships. QA files a bug. Another PR. Another day.</li>
+        </ul>
+        <div class="ba-time">⏱ 2–3 days of rework for one color change</div>
+      </div>
+
+      <div class="ba-panel ba-after-panel">
+        <div class="ba-label">✅ With DTF — The New Way</div>
+        <ul class="ba-steps">
+          <li class="ba-step"><div class="ba-step-num">1</div>Edit <code style="background:#d1fae5;border:1px solid #86efac;padding:1px 6px;border-radius:4px;font-size:12px;font-family:monospace;">--prim-brand-500: #3D72F5</code> in one file</li>
+          <li class="ba-step"><div class="ba-step-num">2</div>DTF pipeline runs — CSS, Figma variables, mobile tokens all update</li>
+          <li class="ba-step"><div class="ba-step-num">3</div>Commit the change. CI verifies token contracts. A versioned release is cut.</li>
+          <li class="ba-step"><div class="ba-step-num">4</div>Every product surface reflects the new color on their next build — automatically.</li>
+          <li class="ba-step"><div class="ba-step-num">5</div>The engineer didn't need to know. Their code never referenced the hex value — only the token name. The variable's value changed. Their code didn't have to.</li>
+        </ul>
+        <div class="ba-time">⏱ ~5 minutes. Change once, done everywhere.</div>
+      </div>
+    </div>
+
+    <div class="story-body fade-in">
+      <p>
+        That last point is the one that matters most: <strong>the engineer didn't need to know.</strong>
+        That's not laziness — that's good architecture. When the system is right,
+        the right thing happens automatically. People's attention goes toward building, not translating.
+      </p>
+    </div>
+
+    <!-- Clarifier: the honest question answered -->
+    <div class="clarifier fade-in">
+      <div class="clarifier-title">💡 A fair question — how does the frontend developer actually get notified?</div>
+      <div class="clarifier-body">
+        <p>This is the right thing to wonder. Here's the honest answer: <strong>most of the time, they don't need to be.</strong> When a developer writes <code style="background:var(--surface-3);border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:12px;">background: var(--brand-500)</code>, they're referencing a name — not a hex value. When that name's value changes, their code updates automatically on the next build. No one needed to tell them anything.</p>
+        <div class="clarifier-grid">
+          <div class="clarifier-item">
+            <div class="clarifier-item-label">📦 Value changes (most common)</div>
+            <p>A color updates, a spacing value shifts. The developer's code already uses the token name. The updated tokens file is published as a new package version. Their next build picks it up automatically. <strong>Zero action required.</strong></p>
+          </div>
+          <div class="clarifier-item">
+            <div class="clarifier-item-label">🔖 Structural changes (rare)</div>
+            <p>A token is renamed or a new one is added. This triggers a versioned release (semver major bump) with a CHANGELOG entry — the same workflow as any package dependency update. CI lint checks catch anything missed. Developers review, update, and move on.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+
+<!-- ════════════════════════════════════════════
+     NUMBERS — earned, not leading
+════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+    <h2 class="fade-in mb-16">The math is simple.</h2>
+    <p class="fade-in mb-48 color-muted" style="font-size:17px; max-width:540px;">
+      Studies on design-dev handoff consistently find 30–40% of front-end time 
+      is re-implementing decisions that already existed in design. DTF attacks that directly.
+    </p>
+
+    <div class="stat-row fade-in">
+      <div class="stat">
+        <span class="stat-num">~60%</span>
+        <div class="stat-text">Reduction in design-to-code rework per feature, once the team is on DTF</div>
+      </div>
+      <div class="stat">
+        <span class="stat-num">1</span>
+        <div class="stat-text">Place to update any visual decision — one edit, every platform follows</div>
+      </div>
+      <div class="stat">
+        <span class="stat-num">30+</span>
+        <div class="stat-text">Production-ready components, all zero hardcoded values, all working today</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+
+<!-- ════════════════════════════════════════════
+     ACT 5 — THE BIGGER PICTURE
+════════════════════════════════════════════ -->
+<section class="dark-section">
+  <div class="dark-glow" style="bottom:-100px; left:50%; transform:translateX(-50%);"></div>
+  <div class="container">
+    <h2 class="fade-in mb-16" style="color:#fff;">This isn't just about tokens.</h2>
+    <p class="fade-in mb-48" style="font-size:17px; color:rgba(255,255,255,0.5); max-width:560px;">
+      Once your design decisions live in code, you own your visual language completely.
+      No vendor can take it from you. No tool change breaks it.
+    </p>
+
+    <div class="fade-in">
+      <div class="vision-point">
+        <div class="vision-num">01</div>
+        <div class="vision-body">
+          <h3 style="color:rgba(255,255,255,0.9);">Your design system is an asset, not a dependency</h3>
+          <p>It lives in your repo, versioned alongside your code. Figma is a consumer of DTF — not its home. If you move design tools tomorrow, your system survives intact.</p>
+        </div>
+      </div>
+      <div class="vision-point">
+        <div class="vision-num">02</div>
+        <div class="vision-body">
+          <h3 style="color:rgba(255,255,255,0.9);">Multi-platform without extra work</h3>
+          <p>The same tokens that power your web app export to CSS, JSON, Figma variables, and mobile format simultaneously. Build the decision once — deploy it everywhere, automatically.</p>
+        </div>
+      </div>
+      <div class="vision-point">
+        <div class="vision-num">03</div>
+        <div class="vision-body">
+          <h3 style="color:rgba(255,255,255,0.9);">New products start with a full system, not a blank canvas</h3>
+          <p>With the brand theming CLI, a new product or white-label client can have a full, accessible, production-ready design system generated from a single hex color in minutes.</p>
+        </div>
+      </div>
+      <div class="vision-point">
+        <div class="vision-num">04</div>
+        <div class="vision-body">
+          <h3 style="color:rgba(255,255,255,0.9);">Designers get creative time back</h3>
+          <p>When token maintenance is automated, designers aren't curating color style libraries. They're designing. The chores disappear. The creative work stays.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     ROADMAP — in plain English
+════════════════════════════════════════════ -->
+<section class="dark-section" style="padding-top:0;">
+  <div class="container">
+    <h2 class="fade-in mb-48" style="color:#fff; padding-top:64px;">What exists. What's coming.</h2>
+
+    <div class="fade-in">
+      <div class="road-row">
+        <div class="road-status"><span class="pill pill-done">✓ Shipped</span></div>
+        <div class="road-body">
+          <h3>Token Foundation</h3>
+          <p>Full 4-tier token system: primitives → semantic → component → density. Dark mode baked in. Zero hardcoded values anywhere.</p>
+        </div>
+      </div>
+      <div class="road-row">
+        <div class="road-status"><span class="pill pill-done">✓ Shipped</span></div>
+        <div class="road-body">
+          <h3>Component Library</h3>
+          <p>30+ production-ready components (Button, Input, Select, Toast, Card, Badge, Datepicker…). Live demo explorer. Visual regression tests with Playwright.</p>
+        </div>
+      </div>
+      <div class="road-row">
+        <div class="road-status"><span class="pill pill-done">✓ Shipped</span></div>
+        <div class="road-body">
+          <h3>Figma Plugin — Two-way Sync</h3>
+          <p>Push DTF tokens into Figma as Variables. Pull Figma changes back into the token source. Designers and engineers share the same truth.</p>
+        </div>
+      </div>
+      <div class="road-row">
+        <div class="road-status"><span class="pill pill-now">▶ In Progress</span></div>
+        <div class="road-body">
+          <h3>React + Framework Wrappers</h3>
+          <p>Typed React 18 components. Vue and Svelte next. Engineers drop in &lt;Button variant="primary"&gt; and get the full design system automatically.</p>
+        </div>
+      </div>
+      <div class="road-row">
+        <div class="road-status"><span class="pill pill-next">Coming</span></div>
+        <div class="road-body">
+          <h3>Brand Theming CLI</h3>
+          <p>One hex color → a full branded, accessible design system in seconds. Instant onboarding for new products or white-label clients.</p>
+        </div>
+      </div>
+      <div class="road-row">
+        <div class="road-status"><span class="pill pill-next">Coming</span></div>
+        <div class="road-body">
+          <h3>W3C Token Interop</h3>
+          <p>Export to the DTCG standard format, Tailwind preset, Style Dictionary. DTF becomes compatible with any future design tooling.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     CLOSING
+════════════════════════════════════════════ -->
+<section class="closing-section">
+  <div class="container">
+    <h2 class="fade-in">Interested in seeing it in action?</h2>
+    <p class="fade-in">
+      Design Token Forge is a working, production-ready system — not a prototype.
+      If this resonates with problems your team is facing, a short walkthrough can show you exactly how it works end-to-end.
+    </p>
+    <a href="mailto:?subject=Design%20Token%20Forge%20%E2%80%94%20Walkthrough%20Request" class="btn-contact fade-in">
+      Request a walkthrough
+    </a>
+  </div>
+</section>
+
+
+<footer>
+  <strong style="color:rgba(255,255,255,0.4);">Design Token Forge</strong>
+  &nbsp;·&nbsp; Built because the problem was real
+  &nbsp;·&nbsp; 2026
+</footer>
+
+
+<script>
+  // Scroll-triggered fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

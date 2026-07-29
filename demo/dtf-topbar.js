@@ -30,7 +30,7 @@
 
   /* ── Page registry (shared with nav.js) ─────────────────── */
   var NAV_ITEMS = [
-    { label: 'Token Editor',    href: 'editor-v2/'           },
+    { label: 'Token Editor',    href: 'editor-v2/index.html'           },
     { label: 'Tokens',          href: 'color-tokens.html'    },
     { label: 'Typography',      href: 'typography.html'      },
     { label: 'Frameworks',      href: 'frameworks.html'      },

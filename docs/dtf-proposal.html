@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design Token Forge — Executive Proposal</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #4F6EF7;
+      --brand-light:  #EEF1FE;
+      --brand-dark:   #2C47C7;
+      --accent:       #10B981;
+      --accent-light: #ECFDF5;
+      --warn:         #F59E0B;
+      --warn-light:   #FFFBEB;
+      --danger:       #EF4444;
+      --danger-light: #FEF2F2;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --line:         #E5E7EB;
+      --surface:      #FFFFFF;
+      --surface-2:    #F9FAFB;
+      --surface-3:    #F3F4F6;
+      --radius:       12px;
+      --radius-sm:    8px;
+      --shadow-card:  0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+      --shadow-lg:    0 8px 32px rgba(0,0,0,.10);
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--surface-2);
+      color: var(--ink);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ── Typography ── */
+    h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
+    h1 { font-size: clamp(28px, 4vw, 48px); }
+    h2 { font-size: clamp(20px, 2.5vw, 30px); }
+    h3 { font-size: 18px; }
+    h4 { font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
+    p  { color: var(--ink-2); }
+    strong { color: var(--ink); font-weight: 600; }
+
+    /* ── Layout Helpers ── */
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    .section    { padding: 72px 0; }
+    .section + .section { border-top: 1px solid var(--line); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+    @media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .flex-center { display: flex; align-items: center; gap: 12px; }
+    .stack { display: flex; flex-direction: column; gap: 16px; }
+    .gap-8  { gap: 8px; }
+    .gap-24 { gap: 24px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow-card);
+    }
+    .card-icon {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .card h3 { margin-bottom: 8px; }
+    .card p  { font-size: 14px; line-height: 1.6; }
+
+    /* ── Pill / Badge ── */
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+    }
+    .pill-brand   { background: var(--brand-light); color: var(--brand-dark); }
+    .pill-green   { background: var(--accent-light); color: #065F46; }
+    .pill-yellow  { background: var(--warn-light);   color: #92400E; }
+    .pill-red     { background: var(--danger-light);  color: #991B1B; }
+    .pill-gray    { background: var(--surface-3);     color: var(--ink-2); }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1E2A78 0%, #4F6EF7 60%, #818CF8 100%);
+      color: #fff;
+      padding: 96px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero .container { position: relative; }
+    .hero-tag { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 5px 14px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #E0E7FF; margin-bottom: 24px; }
+    .hero h1 { color: #fff; margin-bottom: 20px; max-width: 720px; }
+    .hero .subtitle { font-size: clamp(15px, 2vw, 18px); color: rgba(255,255,255,.80); max-width: 580px; margin-bottom: 40px; }
+    .hero-meta { display: flex; gap: 32px; flex-wrap: wrap; }
+    .hero-meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .hero-meta-item .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); }
+    .hero-meta-item .value { font-size: 14px; font-weight: 600; color: #fff; }
+
+    /* ── Problem Section ── */
+    .problem-row {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center;
+    }
+    @media (max-width: 700px) { .problem-row { grid-template-columns: 1fr; } .problem-arrow { display: none; } }
+    .problem-box {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 24px; text-align: center;
+    }
+    .problem-box .icon { font-size: 32px; margin-bottom: 12px; }
+    .problem-box h3 { font-size: 15px; margin-bottom: 8px; }
+    .problem-box p  { font-size: 13px; color: var(--ink-3); }
+    .problem-box.pain { border-color: #FECACA; background: #FFF5F5; }
+    .problem-box.pain h3 { color: #991B1B; }
+    .problem-arrow { color: var(--ink-4); font-size: 24px; text-align: center; }
+
+    /* ── How It Works flow ── */
+    .flow {
+      display: flex; align-items: flex-start; gap: 0;
+      position: relative; overflow-x: auto; padding-bottom: 8px;
+    }
+    .flow-step {
+      flex: 1; min-width: 140px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative;
+    }
+    .flow-step:not(:last-child)::after {
+      content: '';
+      position: absolute; top: 22px; left: calc(50% + 28px); right: calc(-50% + 28px);
+      height: 2px; background: var(--brand-light);
+      border-top: 2px dashed var(--brand);
+      opacity: .4;
+    }
+    .flow-circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--brand-light); color: var(--brand-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; margin-bottom: 12px;
+      border: 2px solid var(--brand);
+      flex-shrink: 0;
+    }
+    .flow-step h4 { font-size: 13px; font-weight: 600; color: var(--ink); text-transform: none; letter-spacing: 0; margin-bottom: 4px; }
+    .flow-step p  { font-size: 12px; color: var(--ink-3); }
+
+    /* ── Comparison Table ── */
+    .compare-table { width: 100%; border-collapse: collapse; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+    .compare-table thead tr { background: var(--ink); color: #fff; }
+    .compare-table th { padding: 14px 20px; text-align: left; font-size: 13px; font-weight: 600; }
+    .compare-table th:not(:first-child) { text-align: center; }
+    .compare-table td { padding: 14px 20px; font-size: 14px; border-bottom: 1px solid var(--line); background: var(--surface); }
+    .compare-table td:not(:first-child) { text-align: center; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:nth-child(even) td { background: var(--surface-2); }
+    .check { color: var(--accent); font-size: 18px; font-weight: 700; }
+    .cross { color: #D1D5DB; font-size: 18px; }
+    .partial { color: var(--warn); font-size: 14px; font-weight: 600; }
+
+    /* ── Before / After ── */
+    .ba-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 600px) { .ba-row { grid-template-columns: 1fr; } }
+    .ba-box { border-radius: var(--radius); padding: 28px; }
+    .ba-box h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 16px; }
+    .ba-box ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .ba-box li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.5; }
+    .ba-box li .dot { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .ba-before { background: #FFF5F5; border: 1px solid #FECACA; }
+    .ba-before h4 { color: #991B1B; }
+    .ba-before .dot { background: #FECACA; color: #991B1B; }
+    .ba-after { background: #F0FDF4; border: 1px solid #86EFAC; }
+    .ba-after h4 { color: #14532D; }
+    .ba-after .dot { background: #BBF7D0; color: #14532D; }
+
+    /* ── Stats / Numbers ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    @media (max-width: 700px) { .stat-grid { grid-template-columns: 1fr 1fr; } }
+    .stat-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px 20px; text-align: center; box-shadow: var(--shadow-card); }
+    .stat-number { font-size: 36px; font-weight: 800; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+    .stat-label  { font-size: 13px; color: var(--ink-3); line-height: 1.4; }
+
+    /* ── Roadmap Timeline ── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+    .tl-item { position: relative; margin-bottom: 32px; }
+    .tl-item:last-child { margin-bottom: 0; }
+    .tl-dot { position: absolute; left: -28px; top: 4px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 2px var(--brand); background: var(--brand); }
+    .tl-dot.done  { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+    .tl-dot.next  { background: var(--surface); box-shadow: 0 0 0 2px var(--brand); }
+    .tl-dot.future{ background: var(--surface); box-shadow: 0 0 0 2px var(--line); }
+    .tl-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .tl-header h3 { font-size: 15px; }
+    .tl-desc { font-size: 13px; color: var(--ink-3); }
+
+    /* ── Quote ── */
+    .quote-block {
+      background: var(--brand-light); border-left: 4px solid var(--brand);
+      border-radius: 0 var(--radius) var(--radius) 0; padding: 24px 28px; margin: 32px 0;
+    }
+    .quote-block p { font-size: 16px; color: var(--ink-2); font-style: italic; line-height: 1.7; }
+    .quote-block .attr { margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--brand-dark); font-style: normal; }
+
+    /* ── Code Snippet (illustrative) ── */
+    .code-block {
+      background: #1E2235; border-radius: var(--radius-sm); padding: 20px 24px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px;
+      line-height: 1.8; overflow-x: auto; color: #E2E8F0;
+    }
+    .code-block .c-token { color: #93C5FD; }
+    .code-block .c-val   { color: #86EFAC; }
+    .code-block .c-comment{ color: #64748B; font-style: italic; }
+    .code-block .c-tag   { color: #F9A8D4; }
+    .code-block .c-attr  { color: #FCA5A5; }
+
+    /* ── CTA Section ── */
+    .cta-section {
+      background: linear-gradient(135deg, #1E2A78, #4F6EF7);
+      color: #fff; text-align: center; padding: 80px 24px;
+    }
+    .cta-section h2 { color: #fff; margin-bottom: 16px; }
+    .cta-section p  { color: rgba(255,255,255,.75); max-width: 560px; margin: 0 auto 36px; font-size: 16px; }
+    .btn-primary {
+      display: inline-block; background: #fff; color: var(--brand-dark);
+      padding: 14px 32px; border-radius: var(--radius-sm); font-weight: 700;
+      font-size: 15px; text-decoration: none; transition: transform .15s, box-shadow .15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+
+    /* ── Footer ── */
+    footer { text-align: center; padding: 40px 24px; font-size: 13px; color: var(--ink-4); border-top: 1px solid var(--line); }
+
+    /* ── Misc helpers ── */
+    .mt-8  { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mt-40 { margin-top: 40px; }
+    .mb-8  { margin-bottom: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+    .mb-40 { margin-bottom: 40px; }
+    .text-center { text-align: center; }
+    .text-sm { font-size: 13px; }
+    .color-brand { color: var(--brand); }
+    .color-accent { color: var(--accent); }
+    .divider { height: 1px; background: var(--line); margin: 32px 0; }
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .highlight { background: var(--brand-light); color: var(--brand-dark); padding: 0 4px; border-radius: 4px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════ HERO ════════════════════ -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-tag">Executive Proposal · Confidential</div>
+    <h1>One system. Every product. No drift.</h1>
+    <p class="subtitle">
+      Design Token Forge (DTF) is our internal platform that eliminates the gap
+      between how our products are designed and how they are built — permanently.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="label">Prepared by</span>
+        <span class="value">Product Engineering</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Date</span>
+        <span class="value">July 2026</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Category</span>
+        <span class="value">Internal Platform Investment</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════ EXECUTIVE BRIEF ════════════════════ -->
+<section class="section" style="background: var(--surface);">
+  <div class="container">
+    <h4 class="mb-16">Executive Summary</h4>
+    <h2 class="mb-16">The 60-second brief</h2>
+    <div class="grid-2 gap-24" style="gap:40px">
+      <div>
+        <p style="font-size:16px; line-height:1.8; color:var(--ink-2);">
+          Every time our products change — a new brand color, a button style, a spacing
+          update — <strong>the same decision is made twice</strong>: once by the designer
+          in Figma, once by the engineer in code. If either side drifts, the product looks
+          broken or inconsistent.
+        </p>
+        <p class="mt-16" style="font-size:16px; line-height:1.8; color:var(--ink-2);">
+          <strong>Design Token Forge</strong> solves this by creating a
+          <span class="highlight">single source of truth</span> — a shared library of
+          design decisions that flows automatically into Figma, every app, and every
+          platform we build. Change it once. It updates everywhere.
+        </p>
+      </div>
+      <div class="stack">
+        <div class="card" style="border-left: 3px solid var(--brand); padding: 20px 24px;">
+          <div class="badge-row">
+            <span class="pill pill-brand">Core benefit</span>
+          </div>
+          <h3 style="font-size:15px;">Eliminates design-code drift</h3>
+          <p>One change in DTF propagates to every product surface. No manual re-entry.</p>
+        </div>
+        <div class="card" style="border-left: 3px solid var(--accent); padding: 20px 24px;">
+          <div class="badge-row">
+            <span class="pill pill-green">Core benefit</span>
+          </div>
+          <h3 style="font-size:15px;">Reduces Figma dependency</h3>
+          <p>Token and component maintenance moves out of Figma into versioned code. Figma becomes optional for day-to-day production work.</p>
+        </div>
+        <div class="card" style="border-left: 3px solid var(--warn); padding: 20px 24px;">
+          <div class="badge-row">
+            <span class="pill pill-yellow">Core benefit</span>
+          </div>
+          <h3 style="font-size:15px;">Ships faster, costs less rework</h3>
+          <p>Engineers pull from a ready component library. No more "what's the exact hex for this blue?" conversations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ THE PROBLEM ════════════════════ -->
+<section class="section">
+  <div class="container">
+    <h4 class="mb-8 text-center">The Problem</h4>
+    <h2 class="mb-24 text-center">How design work is lost today</h2>
+
+    <div class="problem-row">
+      <div class="problem-box pain">
+        <div class="icon">🎨</div>
+        <h3>Designer in Figma</h3>
+        <p>Defines colors, spacing, and components.<br/>Keeps everything perfect inside Figma.</p>
+      </div>
+      <div class="problem-arrow">→</div>
+      <div class="problem-box pain">
+        <div class="icon">😤</div>
+        <h3>Manual hand-off</h3>
+        <p>Engineer eyeballs specs or screenshots. Re-enters every value by hand. No guarantee it matches.</p>
+      </div>
+    </div>
+
+    <div class="problem-row mt-16">
+      <div class="problem-box pain">
+        <div class="icon">🔄</div>
+        <h3>Design changes</h3>
+        <p>Designer updates a color in Figma. Now it must be found and changed in 5 codebases too.</p>
+      </div>
+      <div class="problem-arrow">→</div>
+      <div class="problem-box pain">
+        <div class="icon">🐛</div>
+        <h3>Bugs and inconsistency</h3>
+        <p>Products look different from each other. Brand guidelines are ignored in practice. QA issues pile up.</p>
+      </div>
+    </div>
+
+    <div class="quote-block mt-40">
+      <p>"We spend roughly 30–40% of front-end development time re-implementing decisions that already existed in the design. That is time and budget that could ship new features."</p>
+      <div class="attr">— Industry benchmark, Figma / Smashing Magazine studies on design-dev handoff cost</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ WHAT IS DTF ════════════════════ -->
+<section class="section" style="background: var(--surface);">
+  <div class="container">
+    <h4 class="mb-8 text-center">What We Built</h4>
+    <h2 class="mb-40 text-center">Design Token Forge — explained simply</h2>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-circle">🎨</div>
+        <h4>Design Tokens</h4>
+        <p>Colors, spacing, type — defined once as named variables</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-circle">⚙️</div>
+        <h4>Token Engine</h4>
+        <p>Transforms decisions into CSS, JSON, Figma vars automatically</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-circle">🧩</div>
+        <h4>Component Library</h4>
+        <p>Ready-made UI building blocks (buttons, forms, cards…)</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-circle">🚀</div>
+        <h4>Every Product</h4>
+        <p>Web apps, mobile, Figma — all reading from the same source</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3 class="mb-16">Concrete example: changing the brand color</h3>
+    <div class="ba-row">
+      <div class="ba-box ba-before">
+        <h4>⚠ Without DTF — Today</h4>
+        <ul>
+          <li><div class="dot">1</div> Designer changes hex in Figma styles panel</li>
+          <li><div class="dot">2</div> Posts in Slack: "hey, brand blue changed"</li>
+          <li><div class="dot">3</div> Engineer searches for #3D5EFC across 4 repos</li>
+          <li><div class="dot">4</div> Misses 2 CSS files. Ships with mixed colors</li>
+          <li><div class="dot">5</div> QA flags it. Another PR. Another review cycle</li>
+          <li><div class="dot" style="background:#FECACA;color:#991B1B;">⏱</div> <strong>~2–3 days of rework</strong> per color change</li>
+        </ul>
+      </div>
+      <div class="ba-box ba-after">
+        <h4>✅ With DTF</h4>
+        <ul>
+          <li><div class="dot">1</div> Edit <code style="background:#D1FAE5;padding:1px 5px;border-radius:3px;font-size:12px;">--brand-500: #NEW</code> in one file</li>
+          <li><div class="dot">2</div> DTF pipeline runs: updates CSS, Figma vars, mobile tokens</li>
+          <li><div class="dot">3</div> All products pull from the same variable</li>
+          <li><div class="dot">4</div> Every surface updates. No search, no manual re-entry</li>
+          <li><div class="dot">5</div> Figma automatically reflects the new value too</li>
+          <li><div class="dot" style="background:#BBF7D0;color:#14532D;">⏱</div> <strong>~5 minutes</strong> — change once, done everywhere</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Code snippet — illustrative -->
+    <div class="mt-24">
+      <p class="text-sm" style="color:var(--ink-3); margin-bottom:10px;">
+        Illustrative example — what a design token looks like in code:
+      </p>
+      <div class="code-block">
+<span class="c-comment">/* Design Token Forge — Global Tokens (source of truth) */</span>
+<span class="c-tag">:root</span> {
+  <span class="c-token">--brand-500</span>: <span class="c-val">#4F6EF7</span>;          <span class="c-comment">/* Primary brand blue */</span>
+  <span class="c-token">--brand-600</span>: <span class="c-val">#2C47C7</span>;          <span class="c-comment">/* Hover state */</span>
+  <span class="c-token">--spacing-base</span>: <span class="c-val">16px</span>;         <span class="c-comment">/* Base unit */</span>
+  <span class="c-token">--radius-md</span>: <span class="c-val">8px</span>;             <span class="c-comment">/* Button corners */</span>
+  <span class="c-token">--font-size-base</span>: <span class="c-val">15px</span>;        <span class="c-comment">/* Body text */</span>
+}
+
+<span class="c-comment">/* Every button in every app uses this — one update covers all */</span>
+<span class="c-tag">.button</span> {
+  <span class="c-attr">background</span>: <span class="c-val">var(--brand-500)</span>;
+  <span class="c-attr">border-radius</span>: <span class="c-val">var(--radius-md)</span>;
+  <span class="c-attr">font-size</span>: <span class="c-val">var(--font-size-base)</span>;
+}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ BENEFITS ════════════════════ -->
+<section class="section">
+  <div class="container">
+    <h4 class="mb-8 text-center">Why It Matters</h4>
+    <h2 class="mb-40 text-center">What DTF delivers for the business</h2>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-icon" style="background:#EEF1FE;">🔗</div>
+        <h3>Single Source of Truth</h3>
+        <p>Design decisions live in one place. Figma, web, mobile, and email all reference the same token — not each team's local copy.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#ECFDF5;">⚡</div>
+        <h3>Faster Delivery</h3>
+        <p>Engineers no longer rebuild what designers already defined. They consume a component library and focus on product logic instead.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#FFFBEB;">🧱</div>
+        <h3>Brand Consistency</h3>
+        <p>Every product, every screen, every platform automatically shares the same visual language. No "off-brand" screens slip through.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#FEF2F2;">💸</div>
+        <h3>Reduces Tooling Cost</h3>
+        <p>Token and component maintenance moves out of Figma. Your Figma subscription can be scoped to designers only — not all engineers.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#F0FDF4;">🌍</div>
+        <h3>Multi-Platform by Default</h3>
+        <p>The same DTF tokens export to CSS (web), JSON (mobile/React Native), and Figma variables simultaneously. Build once, target all.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#F5F3FF;">🔒</div>
+        <h3>In-House Ownership</h3>
+        <p>No external vendor dependency for your design system. It lives in your codebase, versioned, auditable, and fully under your control.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ FIGMA COMPARISON ════════════════════ -->
+<section class="section" style="background: var(--surface);">
+  <div class="container">
+    <h4 class="mb-8 text-center">Figma vs DTF</h4>
+    <h2 class="mb-16 text-center">What changes — and what doesn't</h2>
+    <p class="text-center" style="color:var(--ink-3); max-width:540px; margin:0 auto 40px;">
+      DTF doesn't eliminate Figma — it right-sizes it. Here's what each tool is responsible for:
+    </p>
+
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width:40%">Capability</th>
+            <th>Figma only</th>
+            <th>DTF alone</th>
+            <th>DTF + Figma together</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Color / spacing / typography tokens</strong></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓ (best)</span></td>
+          </tr>
+          <tr>
+            <td><strong>UI component library (buttons, forms…)</strong></td>
+            <td><span class="partial">Partial</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓ (best)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Push token updates to Figma automatically</strong></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td><strong>Screen layout & composition</strong></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td><strong>Stakeholder prototyping & user testing</strong></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td><strong>Icon & illustration asset production</strong></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td><strong>Export to React / mobile / Tailwind</strong></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td><strong>Works without internet / Figma account</strong></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="partial">Partial</span></td>
+          </tr>
+          <tr>
+            <td><strong>Per-seat cost to developers</strong></td>
+            <td><span class="cross">~$45/seat/mo</span></td>
+            <td><span class="check">$0 (in-house)</span></td>
+            <td><span class="partial">Designers only</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="mt-24 text-sm" style="color:var(--ink-3); text-align:center;">
+      With DTF, you can confidently remove Figma access from engineering seats while keeping it for designers. That is an immediate, measurable cost reduction.
+    </p>
+  </div>
+</section>
+
+<!-- ════════════════════ IMPACT NUMBERS ════════════════════ -->
+<section class="section">
+  <div class="container">
+    <h4 class="mb-8 text-center">Expected Impact</h4>
+    <h2 class="mb-40 text-center">What the numbers look like</h2>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">~60%</div>
+        <div class="stat-label">Reduction in design-to-code translation rework per feature</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">1</div>
+        <div class="stat-label">Place to update any visual decision — change once, ship everywhere</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">$0</div>
+        <div class="stat-label">Figma seats needed for engineering once DTF component library is complete</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">4×</div>
+        <div class="stat-label">Platforms served simultaneously: web, mobile, Figma, email</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ ROADMAP ════════════════════ -->
+<section class="section" style="background: var(--surface);">
+  <div class="container">
+    <h4 class="mb-8">Roadmap</h4>
+    <h2 class="mb-40">What is built, what is next</h2>
+    <div class="grid-2" style="gap:40px; align-items:start;">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot done"></div>
+          <div class="tl-header">
+            <span class="pill pill-green" style="font-size:11px;">Shipped</span>
+            <h3>Phase 1 — Foundation</h3>
+          </div>
+          <p class="tl-desc">Global color, spacing, typography tokens. Full dark-mode support. Figma variable sync via plugin.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot done"></div>
+          <div class="tl-header">
+            <span class="pill pill-green" style="font-size:11px;">Shipped</span>
+            <h3>Phase 2 — Component Library</h3>
+          </div>
+          <p class="tl-desc">30+ production-ready UI components (Button, Input, Card, Modal, Toast…). Live demo explorer with all variants and states.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot next"></div>
+          <div class="tl-header">
+            <span class="pill pill-brand" style="font-size:11px;">In Progress</span>
+            <h3>Phase 3 — Framework Wrappers</h3>
+          </div>
+          <p class="tl-desc">Typed React, Vue, and Svelte components. Engineers drop in <code style="font-size:12px;">&lt;Button variant="primary"&gt;</code> and get the full design system automatically.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot future"></div>
+          <div class="tl-header">
+            <span class="pill pill-gray" style="font-size:11px;">Planned</span>
+            <h3>Phase 4 — Token Interop</h3>
+          </div>
+          <p class="tl-desc">Export to W3C standard format, Tailwind preset, Style Dictionary. Makes DTF compatible with any third-party tool or future design tooling.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot future"></div>
+          <div class="tl-header">
+            <span class="pill pill-gray" style="font-size:11px;">Planned</span>
+            <h3>Phase 5 — Brand Theming CLI</h3>
+          </div>
+          <p class="tl-desc">Generate a full branded design system from a single hex color. Instant onboarding for new products or white-label clients.</p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card" style="background:var(--surface-2);">
+          <h4 class="mb-16">What is already usable today</h4>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:10px;">
+            <li class="flex-center gap-8"><span style="color:var(--accent);font-weight:700;">✓</span> <span style="font-size:14px;">Full color system with 11-step palette per role</span></li>
+            <li class="flex-center gap-8"><span style="color:var(--accent);font-weight:700;">✓</span> <span style="font-size:14px;">Dark mode tokens — zero extra work per component</span></li>
+            <li class="flex-center gap-8"><span style="color:var(--accent);font-weight:700;">✓</span> <span style="font-size:14px;">30+ components with all variants and states</span></li>
+            <li class="flex-center gap-8"><span style="color:var(--accent);font-weight:700;">✓</span> <span style="font-size:14px;">Figma plugin: push/pull variables automatically</span></li>
+            <li class="flex-center gap-8"><span style="color:var(--accent);font-weight:700;">✓</span> <span style="font-size:14px;">Live component explorer (no Figma needed)</span></li>
+            <li class="flex-center gap-8"><span style="color:var(--accent);font-weight:700;">✓</span> <span style="font-size:14px;">Export to CSS, JSON, Style Dictionary</span></li>
+            <li class="flex-center gap-8"><span style="color:var(--accent);font-weight:700;">✓</span> <span style="font-size:14px;">Accessibility-tested (WCAG 2.1 AA contrast)</span></li>
+            <li class="flex-center gap-8"><span style="color:var(--accent);font-weight:700;">✓</span> <span style="font-size:14px;">Custom brand theming via palette engine</span></li>
+          </ul>
+        </div>
+        <div class="card" style="border-color:var(--brand); background:var(--brand-light);">
+          <h3 style="color:var(--brand-dark); margin-bottom:8px;">Where Figma fits in this picture</h3>
+          <p style="font-size:14px; color:var(--ink-2); line-height:1.7;">
+            Figma is still the right tool for <strong>screen composition, stakeholder presentations, and user testing flows</strong>. DTF removes the token and component maintenance work from Figma — the part causing drift — while leaving the creative and communication work where it belongs. If the org moves away from Figma in the future, DTF is already fully self-sufficient: tokens, components, and exports work without it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ KEY RISKS ADDRESSED ════════════════════ -->
+<section class="section">
+  <div class="container">
+    <h4 class="mb-8 text-center">Risk Mitigation</h4>
+    <h2 class="mb-40 text-center">Common concerns — answered</h2>
+    <div class="grid-2" style="gap:20px;">
+
+      <div class="card">
+        <div class="badge-row"><span class="pill pill-red">Concern</span></div>
+        <h3 class="mb-8">"What if we unsubscribe from Figma?"</h3>
+        <p>DTF already works without Figma. The component explorer, tokens, and exports are all code-native. Figma is a consumer of DTF — not a dependency. Cancelling Figma for engineering seats is already viable today.</p>
+      </div>
+
+      <div class="card">
+        <div class="badge-row"><span class="pill pill-red">Concern</span></div>
+        <h3 class="mb-8">"Is this just another tool to maintain?"</h3>
+        <p>DTF is versioned source code in your own repo — no third-party SaaS, no per-seat pricing, no vendor lock-in. Maintenance is a fraction of what double-maintaining Figma + code currently costs.</p>
+      </div>
+
+      <div class="card">
+        <div class="badge-row"><span class="pill pill-red">Concern</span></div>
+        <h3 class="mb-8">"Will designers lose their workflow?"</h3>
+        <p>Designers still use Figma for layout and prototyping. What changes: they no longer manually maintain color styles or component specs. DTF pushes those automatically. Their creative workflow is untouched — it just has fewer chores.</p>
+      </div>
+
+      <div class="card">
+        <div class="badge-row"><span class="pill pill-red">Concern</span></div>
+        <h3 class="mb-8">"How long until it pays off?"</h3>
+        <p>The component library and token sync are already running. Every new feature built on DTF components pays off immediately — no new setup cost. The saving compounds with every sprint.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ CTA ════════════════════ -->
+<section class="cta-section">
+  <h2>Ready to see it live?</h2>
+  <p>The component explorer, token system, and Figma sync are all running today. Schedule a 30-minute walkthrough and we'll show you the full pipeline end-to-end.</p>
+  <a href="mailto:?subject=DTF%20Demo%20Request" class="btn-primary">Request a Live Demo</a>
+</section>
+
+<footer>
+  <strong>Design Token Forge</strong> · Internal Platform Proposal · Product Engineering · 2026 ·
+  Confidential — For management review only
+</footer>
+
+</body>
+</html>

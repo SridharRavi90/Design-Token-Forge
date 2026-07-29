@@ -525,7 +525,7 @@
       var c = colorFromId(p.id || 'x');
       var card = document.createElement('a');
       card.className = 'proj-card';
-      card.href = 'editor-v2/?project=' + encodeURIComponent(p.id);
+      card.href = 'editor-v2/index.html?project=' + encodeURIComponent(p.id);
       card.setAttribute('aria-label', 'Open ' + (p.name || p.id) + ' in editor');
       card.innerHTML =
         '<div class="proj-card-head">' +
@@ -557,7 +557,7 @@
       'Couldn\u2019t load <code>projects.json</code>. ' +
       'If you opened this file directly, your browser may be blocking local fetches \u2014 ' +
       '<a href="onboard.html">create a project</a> or ' +
-      '<a href="editor-v2/">open the editor directly \u2192</a>' +
+      '<a href="editor-v2/index.html">open the editor directly \u2192</a>' +
     '</div>';
   }
 

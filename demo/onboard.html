@@ -945,7 +945,7 @@
       /* Redirect straight into the editor for the freshly-created
          project. Going to the hub (index.html) felt like a dead end
          because the hub never auto-opens an active project. */
-      window.location.href = 'editor-v2/?project=' + encodeURIComponent(slug);
+      window.location.href = 'editor-v2/index.html?project=' + encodeURIComponent(slug);
 
     } catch (err) {
       errorBox.textContent = '❌ ' + err.message;

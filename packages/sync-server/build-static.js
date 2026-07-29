@@ -590,10 +590,12 @@ async function main() {
       localStorage.setItem('dtf-gh-pat', pat);
       localStorage.setItem('dtf-gh-user', login);
       localStorage.setItem('dtf-gh-owner', login);
-      setStatus($status, '✓ Connected as ' + login + '. Loading your projects…', 'ok');
-      // Set sessionStorage so auth-gate.js on demo/ pages skips the prompt
-      // PAT is already in localStorage; this marks "verified in this tab"
+      /* Mark this session as verified so auth-gate.js on subsequent
+         pages (editor, hub) skips the PAT prompt. Without this the
+         gate re-prompts on every navigation because sessionStorage is
+         not set until explicitly done here. */
       try { sessionStorage.setItem('dtf-auth-ok', '1'); } catch(_se) {}
+      setStatus($status, '✓ Connected as ' + login + '. Loading your projects…', 'ok');
       return fetchUserProjectsLive(login, pat).then(function(projects) {
         routeAuthenticated(login, projects);
       });
