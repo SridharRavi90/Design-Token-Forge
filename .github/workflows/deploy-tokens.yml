@@ -12,6 +12,9 @@ on:
       - 'projects/**'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: pages
   cancel-in-progress: true
