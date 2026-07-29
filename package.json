@@ -4,7 +4,7 @@
   "description": "This workspace is configured to use the Figma Model Context Protocol (MCP) server with VS Code.",
   "main": "index.js",
   "scripts": {
-    "build": "cp src/socket.js dist/socket.js",
+    "build": "echo 'Static site — no build step needed'",
     "start": "node dist/socket.js",
     "dev": "node src/socket.js",
     "audit:naming": "node scripts/audit-naming.cjs",
