@@ -1,4 +1,4 @@
-name: Deploy to Zoho Pages
+name: Deploy to Zoho Slate
 
 on:
   push:
@@ -38,20 +38,22 @@ jobs:
         # Fails the deploy if build-static.js mutated any
         # projects/<id>/*.css (which would clobber editor saves) or
         # if a project's dist mirror disagrees with the editor truth.
-        # Re-runs the build internally, so it also catches non-
-        # determinism between the two build invocations.
         run: node scripts/audit-token-drift.cjs
-
-      - name: Copy demo pages
-        run: |
-          cp -r demo dist/demo
 
       - name: Copy plugin UI to root
         run: |
           mkdir -p dist/plugin
           cp demo/plugin/ui.html dist/plugin/ui.html
 
-      - name: Deploy to Zoho Pages (push to pages branch)
+      - name: Deploy to pages branch (GitHub — used by Zoho Slate)
+        # Zoho Slate reads from the 'pages' branch of the GitHub repository.
+        # This branch contains ONLY the built dist/ output (no source files).
+        # The site root is the branch root, so:
+        #   /index.html          → dist/index.html (launchpad)
+        #   /demo/               → dist/demo/ (hub + component explorer)
+        #   /packages/tokens/src → dist/packages/tokens/src/ (design tokens CSS)
+        #   /projects.json       → dist/projects.json (project list)
+        #   /<project>/          → dist/<project>/ (per-project token mirror)
         run: |
           cd dist
           git init -q
@@ -59,5 +61,6 @@ jobs:
           git add -A
           git -c user.name="Deploy Bot" -c user.email="deploy@dtf" \
               commit -q -m "Deploy $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-          git remote add origin "${{ github.server_url }}/${{ github.repository }}.git" || true
+          # Push to GitHub (authenticated via GITHUB_TOKEN)
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push --force origin pages
