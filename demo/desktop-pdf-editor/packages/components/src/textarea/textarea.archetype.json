@@ -1,0 +1,39 @@
+{
+  "archetype": "form-text",
+  "tokenPrefix": "textarea",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "focus-visible", "disabled", "readonly", "invalid"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["outlined", "filled", "underline"],
+  "onComponentTokens": [
+    {
+      "token": "--textarea-caret-color",
+      "fillStates": ["--textarea-outlined-bg", "--textarea-filled-bg"],
+      "derivation": "manual",
+      "wcag": "AA-non-text",
+      "notes": "Caret reads against the field bg; tied to --brand-component-bg-default so it follows the role remap."
+    }
+  ],
+  "editorExposureOverrides": {
+    "--textarea-min-tap-target": "required",
+    "--textarea-required-indicator": "required",
+    "--textarea-required-color": "required",
+    "--textarea-min-rows": "required",
+    "--textarea-resize": "required",
+    "--textarea-radius-rounded": "advanced",
+    "--textarea-focus-outline-offset": "advanced",
+    "--textarea-label-gap": "advanced",
+    "--textarea-helper-gap": "advanced",
+    "--textarea-shadow-focus": "advanced",
+    "--textarea-caret-color": "advanced"
+  },
+  "figmaBindingPrefix": "textarea/",
+  "notes": [
+    "Form-text archetype peer of input. Multi-line variant: same outlined/filled/underline triplet + same 6 roles + same 6 states.",
+    "Sizing model differs: textarea uses min-rows × line-height instead of a fixed height. The --textarea-height-* tokens are retained for data-height='fixed' opt-in.",
+    "No prefix/suffix affix slots (textareas don't typically host inline icons). Slots reduce to label + helper.",
+    "Roles brand|danger|warning|info|success|neutral remap via [data-role=...] overriding --brand-* palette vars. Affects focus ring, focus border, focus label color, and caret.",
+    "aria-invalid='true' overrides role and applies danger-coloured border across all three variants. Invalid is a STATE, not a role.",
+    "Resize axis (--textarea-resize) defaults to 'vertical' \u2014 most common ergonomic choice. Override to 'none', 'both', or 'horizontal' per use case."
+  ]
+}

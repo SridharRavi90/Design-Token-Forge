@@ -912,9 +912,78 @@ function walkHtml(dir) {
   return { totalFiles: totalFiles, totalRefs: totalRefs };
 }
 
+/* ── Sync demo/ for Zoho Slate direct-branch serving ──────────
+   Zoho Slate may be configured to serve directly from the 'demo/'
+   folder on the main branch (not from 'dist/'). In that case, every
+   path demo pages request must be reachable within demo/:
+
+     /packages/tokens/src/*.css       — all HTML: ../packages/tokens/
+     /packages/components/src/*.css   — component pages: ../packages/components/
+     /projects.json                   — shared.js depth='.' (no /demo/ in URL)
+     /<project>/config.json           — shared.js deployed path
+     /<project>/packages/tokens/src/  — shared.js per-project token CSS
+
+   This function runs after the main dist/ build so it can reuse the
+   per-project token CSS that build-static.js already wrote to dist/.
+   It is a NO-OP when dist/ hasn't been built (e.g. dry-run).      */
+function syncDemoForZohoSlate(ROOT, BASE_OUT_DIR, projectList) {
+  const demoDir = path.join(ROOT, 'demo');
+  if (!fs.existsSync(demoDir)) return;
+
+  // 1. packages/tokens/src/ → demo/packages/tokens/src/
+  const tokensSrc = path.join(ROOT, 'packages', 'tokens', 'src');
+  const tokensDst = path.join(demoDir, 'packages', 'tokens', 'src');
+  if (fs.existsSync(tokensSrc)) copyDirSync(tokensSrc, tokensDst);
+
+  // 2. packages/components/src/ → demo/packages/components/src/
+  const compSrc = path.join(ROOT, 'packages', 'components', 'src');
+  const compDst = path.join(demoDir, 'packages', 'components', 'src');
+  if (fs.existsSync(compSrc)) copyDirSync(compSrc, compDst);
+
+  // 3. projects.json → demo/projects.json
+  const projJsonSrc = path.join(ROOT, 'projects.json');
+  if (fs.existsSync(projJsonSrc)) {
+    fs.copyFileSync(projJsonSrc, path.join(demoDir, 'projects.json'));
+  }
+
+  // 4. Per-project mirrors: copy dist/<project>/ into demo/<project>/
+  //    but strip the nested demo/ subfolder to avoid infinite nesting.
+  if (!Array.isArray(projectList)) return;
+  for (const proj of projectList) {
+    const id = proj.id;
+    if (!id) continue;
+    const projDistDir = path.join(BASE_OUT_DIR, id);
+    if (!fs.existsSync(projDistDir)) continue;
+    const projDemoDir = path.join(demoDir, id);
+    fs.mkdirSync(projDemoDir, { recursive: true });
+    // Copy all files/dirs except the nested demo/ copy (avoids self-referential trees)
+    for (const entry of fs.readdirSync(projDistDir, { withFileTypes: true })) {
+      if (entry.name === 'demo') continue; // skip nested demo mirror
+      const s = path.join(projDistDir, entry.name);
+      const d = path.join(projDemoDir, entry.name);
+      if (entry.isDirectory()) copyDirSync(s, d);
+      else fs.copyFileSync(s, d);
+    }
+  }
+
+  console.log('  ✓ demo/ synced for Zoho Slate direct serving');
+}
+
 main().then(function () {
   // Run only when we actually produced an output tree
   if (!fs.existsSync(BASE_OUT_DIR)) return;
+
+  // Sync demo/ so Zoho Slate (which serves from demo/ on main branch)
+  // can find packages/tokens/, projects.json and per-project token CSS.
+  const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+  // Read projects list from dist/projects.json (freshly written by main())
+  let projectList = [];
+  try {
+    const pj = path.join(BASE_OUT_DIR, 'projects.json');
+    if (fs.existsSync(pj)) projectList = JSON.parse(fs.readFileSync(pj, 'utf-8'));
+  } catch (_e) {}
+  syncDemoForZohoSlate(ROOT, BASE_OUT_DIR, projectList);
+
   var stats = walkHtml(BASE_OUT_DIR);
   if (stats.totalFiles > 0) {
     console.log('  ✓ Cache-bust: rewrote ' + stats.totalRefs + ' asset refs across ' + stats.totalFiles + ' HTML files');

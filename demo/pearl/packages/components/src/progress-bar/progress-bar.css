@@ -1,0 +1,395 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Progress Bar Component CSS
+   Variable-driven rendering. Zero hardcoded visual values.
+   Uses internal (--_pg-*) vars set by variant/size/role selectors.
+
+   Markup:
+   <div class="progress-bar" data-size="base" data-role="brand"
+        data-variant="filled"
+        role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+     <div class="progress-bar__track">
+       <div class="progress-bar__fill" style="--progress: 60%"></div>
+     </div>
+     <span class="progress-bar__label">60%</span>
+   </div>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ──────────────────────────────────────────────── */
+@keyframes progress-stripe {
+  from { background-position: var(--_pg-h) 0; }
+  to   { background-position: 0 0; }
+}
+
+@keyframes progress-indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   1.  BASE STRUCTURE
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--_pg-gap);
+  width: 100%;
+  max-width: var(--progress-max-width);
+  padding-inline: 0px;
+  font-family: var(--progress-font-family);
+  font-size: var(--_pg-fs);
+  font-weight: var(--progress-font-weight);
+  line-height: var(--progress-line-height);
+  letter-spacing: var(--progress-letter-spacing);
+  color: var(--_pg-label-color);
+
+  /* Internal vars — set by size/role/variant selectors */
+  --_pg-h: var(--progress-height-base);
+  --_pg-radius: var(--progress-radius-base);
+  --_pg-gap: var(--progress-gap-base);
+  --_pg-label-w: var(--progress-label-width-base);
+  --_pg-fs: var(--progress-font-size-base);
+  --_pg-icon: var(--progress-icon-size-base);
+  --_pg-fill: var(--progress-brand-fill);
+  --_pg-track-bg: var(--progress-track-bg);
+  --_pg-track-border-color: var(--progress-track-border-color);
+  --_pg-track-border-width: var(--progress-border-width);
+  --_pg-label-color: var(--progress-label-color);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   2.  SIZE SELECTORS — map stored tokens → active vars
+   ════════════════════════════════════════════════════════════════ */
+
+.progress-bar:not([data-size]),
+.progress-bar[data-size="base"] {
+  --_pg-h: var(--progress-height-base);
+  --_pg-radius: var(--progress-radius-base);
+  --_pg-gap: var(--progress-gap-base);
+  --_pg-label-w: var(--progress-label-width-base);
+  --_pg-fs: var(--progress-font-size-base);
+  --_pg-icon: var(--progress-icon-size-base);
+}
+
+.progress-bar[data-size="micro"] {
+  --_pg-h: var(--progress-height-micro);
+  --_pg-radius: var(--progress-radius-micro);
+  --_pg-gap: var(--progress-gap-micro);
+  --_pg-label-w: var(--progress-label-width-micro);
+  --_pg-fs: var(--progress-font-size-micro);
+  --_pg-icon: var(--progress-icon-size-micro);
+}
+
+.progress-bar[data-size="tiny"] {
+  --_pg-h: var(--progress-height-tiny);
+  --_pg-radius: var(--progress-radius-tiny);
+  --_pg-gap: var(--progress-gap-tiny);
+  --_pg-label-w: var(--progress-label-width-tiny);
+  --_pg-fs: var(--progress-font-size-tiny);
+  --_pg-icon: var(--progress-icon-size-tiny);
+}
+
+.progress-bar[data-size="small"] {
+  --_pg-h: var(--progress-height-small);
+  --_pg-radius: var(--progress-radius-small);
+  --_pg-gap: var(--progress-gap-small);
+  --_pg-label-w: var(--progress-label-width-small);
+  --_pg-fs: var(--progress-font-size-small);
+  --_pg-icon: var(--progress-icon-size-small);
+}
+
+.progress-bar[data-size="medium"] {
+  --_pg-h: var(--progress-height-medium);
+  --_pg-radius: var(--progress-radius-medium);
+  --_pg-gap: var(--progress-gap-medium);
+  --_pg-label-w: var(--progress-label-width-medium);
+  --_pg-fs: var(--progress-font-size-medium);
+  --_pg-icon: var(--progress-icon-size-medium);
+}
+
+.progress-bar[data-size="large"] {
+  --_pg-h: var(--progress-height-large);
+  --_pg-radius: var(--progress-radius-large);
+  --_pg-gap: var(--progress-gap-large);
+  --_pg-label-w: var(--progress-label-width-large);
+  --_pg-fs: var(--progress-font-size-large);
+  --_pg-icon: var(--progress-icon-size-large);
+}
+
+.progress-bar[data-size="big"] {
+  --_pg-h: var(--progress-height-big);
+  --_pg-radius: var(--progress-radius-big);
+  --_pg-gap: var(--progress-gap-big);
+  --_pg-label-w: var(--progress-label-width-big);
+  --_pg-fs: var(--progress-font-size-big);
+  --_pg-icon: var(--progress-icon-size-big);
+}
+
+.progress-bar[data-size="huge"] {
+  --_pg-h: var(--progress-height-huge);
+  --_pg-radius: var(--progress-radius-huge);
+  --_pg-gap: var(--progress-gap-huge);
+  --_pg-label-w: var(--progress-label-width-huge);
+  --_pg-fs: var(--progress-font-size-huge);
+  --_pg-icon: var(--progress-icon-size-huge);
+}
+
+.progress-bar[data-size="mega"] {
+  --_pg-h: var(--progress-height-mega);
+  --_pg-radius: var(--progress-radius-mega);
+  --_pg-gap: var(--progress-gap-mega);
+  --_pg-label-w: var(--progress-label-width-mega);
+  --_pg-fs: var(--progress-font-size-mega);
+  --_pg-icon: var(--progress-icon-size-mega);
+}
+
+.progress-bar[data-size="ultra"] {
+  --_pg-h: var(--progress-height-ultra);
+  --_pg-radius: var(--progress-radius-ultra);
+  --_pg-gap: var(--progress-gap-ultra);
+  --_pg-label-w: var(--progress-label-width-ultra);
+  --_pg-fs: var(--progress-font-size-ultra);
+  --_pg-icon: var(--progress-icon-size-ultra);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   3.  ROLE SELECTORS — set fill color per semantic role
+   ════════════════════════════════════════════════════════════════ */
+
+.progress-bar:not([data-role]),
+.progress-bar[data-role="brand"] {
+  --_pg-fill: var(--progress-brand-fill);
+  --_pg-soft-track: var(--progress-brand-soft-track);
+  --_pg-role-label: var(--progress-brand-label);
+}
+
+.progress-bar[data-role="success"] {
+  --_pg-fill: var(--progress-success-fill);
+  --_pg-soft-track: var(--progress-success-soft-track);
+  --_pg-role-label: var(--progress-success-label);
+}
+
+.progress-bar[data-role="warning"] {
+  --_pg-fill: var(--progress-warning-fill);
+  --_pg-soft-track: var(--progress-warning-soft-track);
+  --_pg-role-label: var(--progress-warning-label);
+}
+
+.progress-bar[data-role="danger"] {
+  --_pg-fill: var(--progress-danger-fill);
+  --_pg-soft-track: var(--progress-danger-soft-track);
+  --_pg-role-label: var(--progress-danger-label);
+}
+
+.progress-bar[data-role="info"] {
+  --_pg-fill: var(--progress-info-fill);
+  --_pg-soft-track: var(--progress-info-soft-track);
+  --_pg-role-label: var(--progress-info-label);
+}
+
+.progress-bar[data-role="neutral"] {
+  --_pg-fill: var(--progress-neutral-fill);
+  --_pg-soft-track: var(--progress-neutral-soft-track);
+  --_pg-role-label: var(--progress-neutral-label);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   4.  VARIANT SELECTORS — structural surface treatment
+   ════════════════════════════════════════════════════════════════ */
+
+/* Filled (default) — colored fill on muted neutral track */
+.progress-bar:not([data-variant]),
+.progress-bar[data-variant="filled"] {
+  --_pg-track-bg: var(--progress-track-bg);
+  --_pg-track-border-color: transparent;
+  --_pg-track-border-width: 0px;
+}
+
+/* Outline — border on track, transparent background */
+.progress-bar[data-variant="outlined"] {
+  --_pg-track-bg: var(--progress-outlined-track-bg);
+  --_pg-track-border-color: var(--progress-outlined-border-color);
+  --_pg-track-border-width: var(--progress-outlined-border-width);
+}
+
+/* Soft — tinted track matching role color family */
+.progress-bar[data-variant="soft"] {
+  --_pg-track-bg: var(--_pg-soft-track);
+  --_pg-track-border-color: transparent;
+  --_pg-track-border-width: 0px;
+  --_pg-label-color: var(--_pg-role-label);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   5.  SHAPE OVERRIDES
+   ════════════════════════════════════════════════════════════════ */
+
+.progress-bar[data-shape="square"] {
+  --_pg-radius: var(--progress-radius-square);
+}
+
+.progress-bar[data-rounded] {
+  --_pg-radius: var(--progress-radius-rounded);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   6.  DISABLED STATE
+   ════════════════════════════════════════════════════════════════ */
+
+.progress-bar[data-disabled] {
+  opacity: var(--progress-opacity-disabled);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   7.  TRACK
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar__track {
+  flex: 1;
+  height: var(--_pg-h);
+  background: var(--_pg-track-bg);
+  border-radius: var(--_pg-radius);
+  border: var(--_pg-track-border-width) var(--progress-border-style) var(--_pg-track-border-color);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   8.  FILL
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar__fill {
+  height: 100%;
+  width: var(--progress, 0%);
+  background: var(--_pg-fill);
+  border-radius: var(--_pg-radius);
+  transition: width var(--progress-transition-duration) var(--progress-transition-easing);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   9.  BUFFER (secondary fill for streaming/buffering)
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar__buffer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--buffer, 0%);
+  background: var(--progress-buffer-bg);
+  opacity: var(--progress-buffer-opacity);
+  border-radius: var(--_pg-radius);
+  transition: width var(--progress-transition-duration) var(--progress-transition-easing);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   10. LABEL
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar__label {
+  min-width: var(--_pg-label-w);
+  text-align: end;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   11. ICON (status indicator)
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar__icon {
+  width: var(--_pg-icon);
+  height: var(--_pg-icon);
+  flex-shrink: 0;
+  color: var(--progress-icon-color);
+}
+
+.progress-bar__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   12. HELPER TEXT (below the bar)
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar__helper {
+  display: block;
+  margin-top: var(--spacing-2);
+  font-size: var(--progress-helper-font-size);
+  color: var(--progress-helper-color);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   13. :has() — conditional slot styling
+   ════════════════════════════════════════════════════════════════ */
+
+/* When label is present, ensure track doesn't take too much space */
+.progress-bar:has(.progress-bar__label) .progress-bar__track {
+  min-width: 0;
+}
+
+/* When icon is present alongside label */
+.progress-bar:has(.progress-bar__icon) {
+  gap: var(--_pg-gap);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   14. STRIPED VARIANT
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar[data-striped] .progress-bar__fill {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, var(--progress-stripe-opacity)) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, var(--progress-stripe-opacity)) 50%,
+    rgba(255, 255, 255, var(--progress-stripe-opacity)) 75%,
+    transparent 75%
+  );
+  background-size: var(--_pg-h) var(--_pg-h);
+}
+
+.progress-bar[data-striped][data-animated] .progress-bar__fill {
+  animation: progress-stripe var(--progress-stripe-duration) linear infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   15. INDETERMINATE
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar[data-indeterminate] .progress-bar__fill {
+  width: var(--progress-indeterminate-width);
+  animation: progress-indeterminate var(--progress-indeterminate-duration) var(--progress-transition-easing) infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   16. FOCUS (for interactive / tabbable progress bars)
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar:focus-visible {
+  outline: var(--progress-focus-outline-width) solid var(--progress-focus-outline-color);
+  outline-offset: var(--progress-focus-outline-offset);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   17. ELEVATED / SHADOW
+   ════════════════════════════════════════════════════════════════ */
+.progress-bar[data-strong] {
+  box-shadow: var(--progress-shadow-strong);
+  border-radius: var(--_pg-radius);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   18. FORCED COLORS
+   ════════════════════════════════════════════════════════════════ */
+@media (forced-colors: active) {
+  .progress-bar__track {
+    border: 1px solid CanvasText;
+  }
+  .progress-bar__fill {
+    background: Highlight;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   18. REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar__fill {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

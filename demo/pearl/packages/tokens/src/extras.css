@@ -1,0 +1,96 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — DTF Global Extras
+   Radius (10) + Shadows (8) + Motion (13) + Z-Index (10) +
+   Opacity (16) + Focus (3) = 60 tokens
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Color Utility Tokens ────────────────────────────────────── */
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-fixed-white: #FFFFFF;
+  --color-fixed-black: #000000;
+  /* ── Border Radius ────────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-sm-md: 5px;
+  --radius-md: 6px;
+  --radius-DEFAULT: 8px;
+  --radius-md-lg: 10px;
+  --radius-lg: 12px;
+  --radius-lg-xl: 14px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ──────────────────────────────────────────────── */
+  --shadow-none: none;
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-DEFAULT: 0 2px 5px -1px rgb(0 0 0 / 0.1), 0 1px 3px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* ── Motion — Duration ────────────────────────────────────── */
+  --duration-instant: 0ms;
+  --duration-fastest: 50ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-slowest: 500ms;
+
+  /* ── Motion — Easing ──────────────────────────────────────── */
+  --easing-linear: linear;
+  --easing-in: cubic-bezier(0.4, 0, 1, 1);
+  --easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --easing-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* ── Z-Index ──────────────────────────────────────────────── */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-overlay: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-toast: 1600;
+  --z-tooltip: 1700;
+  --z-max: 9999;
+
+  /* ── Opacity (16 steps) ───────────────────────────────────── */
+  --opacity-0: 0;
+  --opacity-5: 0.05;
+  --opacity-10: 0.1;
+  --opacity-20: 0.2;
+  --opacity-25: 0.25;
+  --opacity-30: 0.3;
+  --opacity-40: 0.4;
+  --opacity-50: 0.5;
+  --opacity-60: 0.6;
+  --opacity-70: 0.7;
+  --opacity-75: 0.75;
+  --opacity-80: 0.8;
+  --opacity-90: 0.9;
+  --opacity-95: 0.95;
+  --opacity-100: 1;
+
+  /* ── Focus Ring ───────────────────────────────────────────── */
+  --focus-outline-width:  2px;
+  --focus-outline-offset: 4px;
+  --focus-outline-style:  solid;
+}
+
+/* ── Dark theme: flip theme-aware colors ─────────────────── */
+[data-theme="dark"] {
+  --color-white: #1B1B1B;
+  --color-black: #FFFFFF;
+  /* --color-fixed-white and --color-fixed-black stay unchanged */
+}

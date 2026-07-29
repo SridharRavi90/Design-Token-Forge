@@ -1,0 +1,36 @@
+{
+  "archetype": "form-text",
+  "tokenPrefix": "select",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "focus-visible", "disabled", "readonly", "invalid"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["outlined", "filled", "underline"],
+  "onComponentTokens": [
+    {
+      "token": "--select-chevron-color",
+      "fillStates": ["--select-outlined-bg", "--select-filled-bg"],
+      "derivation": "manual",
+      "wcag": "AA-non-text",
+      "notes": "Chevron icon reads against the field bg; defaults to subtle surface text so it follows theme."
+    }
+  ],
+  "editorExposureOverrides": {
+    "--select-min-tap-target": "required",
+    "--select-required-indicator": "required",
+    "--select-required-color": "required",
+    "--select-radius-rounded": "advanced",
+    "--select-focus-outline-offset": "advanced",
+    "--select-label-gap": "advanced",
+    "--select-helper-gap": "advanced",
+    "--select-shadow-focus": "advanced",
+    "--select-chevron-color": "advanced"
+  },
+  "figmaBindingPrefix": "select/",
+  "notes": [
+    "Form-text archetype peer of input + textarea: dropdown field with chevron slot and optional label/helper rows.",
+    "Three variants: outlined (default, transparent fill + border), filled (tinted fill + border), underline (bottom border only). All ship 15 surface tokens per variant.",
+    "Roles brand|danger|warning|info|success|neutral remap via [data-role=...] overriding --brand-* palette vars. Affects focus ring, focus border, focus label colour. Role does NOT override the default border (use aria-invalid for that).",
+    "aria-invalid='true' overrides role and applies danger-coloured border across all three variants. Invalid is a STATE, not a role.",
+    "Chevron slot ships its own per-density size ladder (--select-chevron-size-*) scaling alongside height and font-size."
+  ]
+}

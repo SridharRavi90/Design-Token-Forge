@@ -1,0 +1,32 @@
+{
+  "archetype": "form-binary",
+  "tokenPrefix": "switch",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["unchecked", "checked", "hover", "pressed", "disabled", "focus-visible", "loading", "invalid"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined"],
+  "onComponentTokens": [
+    {
+      "token": "--switch-thumb-bg",
+      "fillStates": ["--switch-track-bg-on", "--switch-track-bg-on-hover"],
+      "derivation": "auto-aa",
+      "wcag": "AA-non-text"
+    }
+  ],
+  "editorExposureOverrides": {
+    "--switch-min-tap-target": "required",
+    "--switch-thumb-shadow": "required",
+    "--switch-thumb-shadow-pressed": "advanced",
+    "--switch-thumb-icon-size": "advanced",
+    "--switch-loader-speed": "advanced",
+    "--switch-focus-outline-offset": "advanced"
+  },
+  "figmaBindingPrefix": "switch/",
+  "notes": [
+    "Form-binary archetype: track + thumb with off/on dual state pair plus standard interaction states.",
+    "Variant pair is filled (solid track) + outlined (border-only off, filled on). No soft/ghost — track must always be visible.",
+    "Roles brand|danger|warning|info|success|neutral remap via [data-role=...] overriding --brand-* palette vars at the component scope.",
+    "aria-invalid='true' forces a visible border even on the filled variant — invalid-state tokens use the canonical -invalid suffix per naming-charter.md §State.",
+    "Thumb icon slot is optional (✓/✕ glyph) — sized via --switch-thumb-icon-size, color split off/on."
+  ]
+}

@@ -64,3 +64,31 @@ jobs:
           # Push to GitHub (authenticated via GITHUB_TOKEN)
           git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push --force origin pages
+
+      - name: Commit demo/ sync back to main
+        # build-static.js's syncDemoForZohoSlate() copies
+        # packages/tokens/src/, packages/components/src/, projects.json,
+        # and per-project token mirrors into demo/ so that Zoho Slate
+        # (which serves from the demo/ folder on the main branch) can
+        # resolve all asset paths correctly.
+        # We commit these generated files back to main so Zoho always
+        # has fresh content without needing a separate manual step.
+        run: |
+          git config user.name "Deploy Bot"
+          git config user.email "deploy@dtf"
+          git add demo/packages/ demo/projects.json
+          # Add per-project mirrors (desktop-pdf-editor, pearl, etc.)
+          for dir in projects/*/; do
+            proj=$(basename "$dir")
+            if [ -d "demo/$proj" ]; then
+              git add "demo/$proj/"
+            fi
+          done
+          # Only commit if there are staged changes
+          if git diff --cached --quiet; then
+            echo "No demo/ changes to commit."
+          else
+            git commit -m "chore(deploy): sync demo/ assets for Zoho Slate [skip ci]"
+            git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+            git push origin main
+          fi

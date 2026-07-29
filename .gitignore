@@ -4,3 +4,8 @@ dist/
 .DS_Store
 .vscode/settings.json
 tokn-deploy/
+
+# demo/ generated assets (synced by build-static.js syncDemoForZohoSlate)
+# These are committed so Zoho Slate (which serves from demo/ on main branch)
+# can resolve packages/tokens/, projects.json, and per-project token CSS.
+# DO NOT add demo/packages/, demo/projects.json, or demo/<project>/ here.

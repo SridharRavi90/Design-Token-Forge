@@ -1,0 +1,17 @@
+{
+  "connected": true,
+  "hash": "2b8b1baaae8e",
+  "lastChanged": "2026-07-29T07:16:11.245Z",
+  "buildVersion": "v1.0.12",
+  "versionLabel": "Jun9 14:07",
+  "versionSavedAt": "2026-06-09T08:37:45.764Z",
+  "buildCommit": "cee31b5",
+  "pendingChanges": 0,
+  "totalVariables": 763,
+  "totalCollections": 7,
+  "lastSyncedHash": "",
+  "project": {
+    "id": "writer-handhelds",
+    "name": "writer-handhelds"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "archetype": "feedback-banner",
+  "tokenPrefix": "alert",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "dismissing"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["default", "filled", "outlined", "soft"],
+  "sizesSupported": ["small", "base", "large"],
+  "onComponentTokens": [
+    {
+      "token": "--alert-{role}-filled-fg",
+      "fillStates": ["--alert-{role}-filled-bg"],
+      "derivation": "auto-aa",
+      "wcag": "AA",
+      "notes": "Filled-variant text reads against component fill; ships from {role}-on-component derivation."
+    }
+  ],
+  "editorExposureOverrides": {
+    "--alert-accent-width": "advanced",
+    "--alert-accent-radius": "advanced",
+    "--alert-min-height": "advanced",
+    "--alert-icon-offset": "advanced",
+    "--alert-close-opacity": "advanced",
+    "--alert-close-hover-opacity": "advanced",
+    "--alert-close-hover-bg": "advanced",
+    "--alert-animation-enter": "advanced",
+    "--alert-animation-dismiss": "advanced",
+    "--alert-focus-outline-offset": "advanced"
+  },
+  "figmaBindingPrefix": "alert/",
+  "notes": [
+    "Feedback-banner archetype: leading-accent banner with optional icon / title / body / close slots and dismissible motion. Roles brand|danger|warning|info|success|neutral each ship a full 8-var slot bundle (bg/fg/accent/border/icon-color/title-color/link-color/link-hover) plus per-variant overrides.",
+    "Four variants: default (soft container bg + accent bar), filled (solid role bg + on-component fg), outlined (transparent bg + role border), soft (container bg, no accent). data-role swaps the internal --_al-* chain to the matching slot rather than remapping --brand-*.",
+    "Three SIZES (small/base/large) — not the 10-density ladder. Sizes drive padding-x/y, gap, content-gap, font-size, title-font-size, icon-size, close-size simultaneously.",
+    "Info is a dedicated palette (blue), DISTINCT from brand. Alerts often need a 'tip' surface that doesn't read as brand identity.",
+    "Title is optional; when absent, alert becomes a single-line status. Close slot is optional via .alert__close + dismissing state."
+  ]
+}

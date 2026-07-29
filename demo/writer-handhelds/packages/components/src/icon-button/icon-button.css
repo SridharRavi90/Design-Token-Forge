@@ -1,0 +1,590 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — IconButton Component CSS
+   Variable-driven rendering. Zero hardcoded visual values.
+   Uses internal (--_ib-*) vars set by variant/size selectors.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════════
+   BASE STRUCTURE
+   ════════════════════════════════════════════════════════════════ */
+
+.icon-btn {
+  /* Layout — always centered, always square */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+
+  /* Dimension (square: width = height) */
+  min-width: var(--icon-btn-min-tap-target);
+  min-height: var(--icon-btn-min-tap-target);
+  width: var(--_ib-size);
+  height: var(--_ib-size);
+  padding: 0;
+  padding-inline: 0px;  /* RTL-ready explicit logical shorthand */
+
+  /* Shape */
+  border-radius: var(--_ib-radius);
+  border-width: var(--icon-btn-border-width);
+  border-style: var(--icon-btn-border-style);
+  box-shadow: var(--_ib-shadow);
+  overflow: var(--icon-btn-overflow);
+
+  /* Surface */
+  background-color: var(--_ib-bg);
+  color: var(--_ib-fg);
+  border-color: var(--_ib-border-color);
+
+  /* Motion */
+  transition-property: var(--icon-btn-transition-property);
+  transition-duration: var(--icon-btn-transition-duration);
+  transition-timing-function: var(--icon-btn-transition-easing);
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  text-decoration: none;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIZE SELECTORS  — map stored tokens → active vars
+   ════════════════════════════════════════════════════════════════ */
+
+.icon-btn:not([data-size]),
+.icon-btn[data-size="base"] {
+  --_ib-size: var(--icon-btn-size-base);
+  --_ib-radius: var(--icon-btn-radius-base);
+  --_ib-icon-size: var(--icon-btn-icon-size-base);
+}
+
+.icon-btn[data-size="micro"] {
+  --_ib-size: var(--icon-btn-size-micro);
+  --_ib-radius: var(--icon-btn-radius-micro);
+  --_ib-icon-size: var(--icon-btn-icon-size-micro);
+}
+
+.icon-btn[data-size="tiny"] {
+  --_ib-size: var(--icon-btn-size-tiny);
+  --_ib-radius: var(--icon-btn-radius-tiny);
+  --_ib-icon-size: var(--icon-btn-icon-size-tiny);
+}
+
+.icon-btn[data-size="small"] {
+  --_ib-size: var(--icon-btn-size-small);
+  --_ib-radius: var(--icon-btn-radius-small);
+  --_ib-icon-size: var(--icon-btn-icon-size-small);
+}
+
+.icon-btn[data-size="medium"] {
+  --_ib-size: var(--icon-btn-size-medium);
+  --_ib-radius: var(--icon-btn-radius-medium);
+  --_ib-icon-size: var(--icon-btn-icon-size-medium);
+}
+
+.icon-btn[data-size="large"] {
+  --_ib-size: var(--icon-btn-size-large);
+  --_ib-radius: var(--icon-btn-radius-large);
+  --_ib-icon-size: var(--icon-btn-icon-size-large);
+}
+
+.icon-btn[data-size="big"] {
+  --_ib-size: var(--icon-btn-size-big);
+  --_ib-radius: var(--icon-btn-radius-big);
+  --_ib-icon-size: var(--icon-btn-icon-size-big);
+}
+
+.icon-btn[data-size="huge"] {
+  --_ib-size: var(--icon-btn-size-huge);
+  --_ib-radius: var(--icon-btn-radius-huge);
+  --_ib-icon-size: var(--icon-btn-icon-size-huge);
+}
+
+.icon-btn[data-size="mega"] {
+  --_ib-size: var(--icon-btn-size-mega);
+  --_ib-radius: var(--icon-btn-radius-mega);
+  --_ib-icon-size: var(--icon-btn-icon-size-mega);
+}
+
+.icon-btn[data-size="ultra"] {
+  --_ib-size: var(--icon-btn-size-ultra);
+  --_ib-radius: var(--icon-btn-radius-ultra);
+  --_ib-icon-size: var(--icon-btn-icon-size-ultra);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SHAPE MODIFIERS
+   ════════════════════════════════════════════════════════════════ */
+
+/* Rounded (circle) — always full radius */
+.icon-btn[data-rounded] {
+  --_ib-radius: var(--icon-btn-radius-rounded);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT SELECTORS  — map stored tokens → active surface vars
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── PRIMARY (default) ──────────────────────────────────────── */
+.icon-btn:not([data-variant]),
+.icon-btn[data-variant="filled"] {
+  --_ib-bg: var(--icon-btn-filled-bg);
+  --_ib-fg: var(--icon-btn-filled-fg);
+  --_ib-border-color: var(--icon-btn-filled-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn:not([data-variant]):hover,
+.icon-btn[data-variant="filled"]:hover {
+  --_ib-bg: var(--icon-btn-filled-bg-hover);
+  --_ib-fg: var(--icon-btn-filled-fg-hover);
+  --_ib-border-color: var(--icon-btn-filled-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn:not([data-variant]):active,
+.icon-btn[data-variant="filled"]:active {
+  --_ib-bg: var(--icon-btn-filled-bg-pressed);
+  --_ib-border-color: var(--icon-btn-filled-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+/* ── SECONDARY ──────────────────────────────────────────────── */
+.icon-btn[data-variant="outlined"] {
+  --_ib-bg: var(--icon-btn-outlined-bg);
+  --_ib-fg: var(--icon-btn-outlined-fg);
+  --_ib-border-color: var(--icon-btn-outlined-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="outlined"]:hover {
+  --_ib-bg: var(--icon-btn-outlined-bg-hover);
+  --_ib-fg: var(--icon-btn-outlined-fg-hover);
+  --_ib-border-color: var(--icon-btn-outlined-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="outlined"]:active {
+  --_ib-bg: var(--icon-btn-outlined-bg-pressed);
+  --_ib-border-color: var(--icon-btn-outlined-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+/* ── GHOST ──────────────────────────────────────────────────── */
+.icon-btn[data-variant="ghost"] {
+  --_ib-bg: var(--icon-btn-ghost-bg);
+  --_ib-fg: var(--icon-btn-ghost-fg);
+  --_ib-border-color: var(--icon-btn-ghost-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="ghost"]:hover {
+  --_ib-bg: var(--icon-btn-ghost-bg-hover);
+  --_ib-fg: var(--icon-btn-ghost-fg-hover);
+  --_ib-border-color: var(--icon-btn-ghost-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="ghost"]:active {
+  --_ib-bg: var(--icon-btn-ghost-bg-pressed);
+  --_ib-border-color: var(--icon-btn-ghost-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+/* ── DANGER ─────────────────────────────────────────────────── */
+.icon-btn[data-variant="danger"] {
+  --_ib-bg: var(--icon-btn-danger-bg);
+  --_ib-fg: var(--icon-btn-danger-fg);
+  --_ib-border-color: var(--icon-btn-danger-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="danger"]:hover {
+  --_ib-bg: var(--icon-btn-danger-bg-hover);
+  --_ib-fg: var(--icon-btn-danger-fg-hover);
+  --_ib-border-color: var(--icon-btn-danger-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="danger"]:active {
+  --_ib-bg: var(--icon-btn-danger-bg-pressed);
+  --_ib-border-color: var(--icon-btn-danger-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+/* ── NEUTRAL (filled, surface-context) ──────────────────────── */
+.icon-btn[data-variant="neutral"] {
+  --_ib-bg: var(--icon-btn-neutral-bg);
+  --_ib-fg: var(--icon-btn-neutral-fg);
+  --_ib-border-color: var(--icon-btn-neutral-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="neutral"]:hover {
+  --_ib-bg: var(--icon-btn-neutral-bg-hover);
+  --_ib-fg: var(--icon-btn-neutral-fg-hover);
+  --_ib-border-color: var(--icon-btn-neutral-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="neutral"]:active {
+  --_ib-bg: var(--icon-btn-neutral-bg-pressed);
+  --_ib-border-color: var(--icon-btn-neutral-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+/* ── TERTIARY (soft, tinted fill) ──────────────────────────── */
+.icon-btn[data-variant="soft"] {
+  --_ib-bg: var(--icon-btn-soft-bg);
+  --_ib-fg: var(--icon-btn-soft-fg);
+  --_ib-border-color: var(--icon-btn-soft-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="soft"]:hover {
+  --_ib-bg: var(--icon-btn-soft-bg-hover);
+  --_ib-fg: var(--icon-btn-soft-fg-hover);
+  --_ib-border-color: var(--icon-btn-soft-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="soft"]:active {
+  --_ib-bg: var(--icon-btn-soft-bg-pressed);
+  --_ib-border-color: var(--icon-btn-soft-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+/* ── SUCCESS (filled, green) ───────────────────────────────── */
+.icon-btn[data-variant="success"] {
+  --_ib-bg: var(--icon-btn-success-bg);
+  --_ib-fg: var(--icon-btn-success-fg);
+  --_ib-border-color: var(--icon-btn-success-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="success"]:hover {
+  --_ib-bg: var(--icon-btn-success-bg-hover);
+  --_ib-fg: var(--icon-btn-success-fg-hover);
+  --_ib-border-color: var(--icon-btn-success-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="success"]:active {
+  --_ib-bg: var(--icon-btn-success-bg-pressed);
+  --_ib-border-color: var(--icon-btn-success-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+/* ── WARNING (filled, amber) ───────────────────────────────── */
+.icon-btn[data-variant="warning"] {
+  --_ib-bg: var(--icon-btn-warning-bg);
+  --_ib-fg: var(--icon-btn-warning-fg);
+  --_ib-border-color: var(--icon-btn-warning-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="warning"]:hover {
+  --_ib-bg: var(--icon-btn-warning-bg-hover);
+  --_ib-fg: var(--icon-btn-warning-fg-hover);
+  --_ib-border-color: var(--icon-btn-warning-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="warning"]:active {
+  --_ib-bg: var(--icon-btn-warning-bg-pressed);
+  --_ib-border-color: var(--icon-btn-warning-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+/* ── BRAND (filled, brand palette) ───────────────────────────── */
+.icon-btn[data-variant="brand"] {
+  --_ib-bg: var(--icon-btn-brand-bg);
+  --_ib-fg: var(--icon-btn-brand-fg);
+  --_ib-border-color: var(--icon-btn-brand-border-color);
+  --_ib-shadow: var(--icon-btn-shadow);
+}
+.icon-btn[data-variant="brand"]:hover {
+  --_ib-bg: var(--icon-btn-brand-bg-hover);
+  --_ib-fg: var(--icon-btn-brand-fg-hover);
+  --_ib-border-color: var(--icon-btn-brand-border-color-hover);
+  --_ib-shadow: var(--icon-btn-shadow-hover);
+}
+.icon-btn[data-variant="brand"]:active {
+  --_ib-bg: var(--icon-btn-brand-bg-pressed);
+  --_ib-border-color: var(--icon-btn-brand-border-color-pressed);
+  --_ib-shadow: var(--icon-btn-shadow-pressed);
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   ROLE REMAPPING — Orthogonal 2-Axis API
+   ────────────────────────────────────────────────────────────────
+   Usage:  data-variant="filled"   data-role="danger"
+           data-variant="outlined" data-role="success"
+           data-variant="soft"     data-role="warning"
+           data-variant="ghost"    data-role="brand"
+
+   Structural variants: filled | outlined | soft | ghost
+   Semantic roles:      brand | danger | warning | info | success | neutral
+
+   HOW IT WORKS:
+   • Structural variants (filled/outlined/soft) read from --brand-* semantic palette.
+   • Role selectors remap --brand-* to the chosen role palette at the element level.
+   • This composes automatically — any structure × any role without per-combo selectors.
+   • Ghost defaults to neutral (surface tokens). Role selectors override ghost tokens too.
+   • Legacy single-value names (danger, success, etc.) keep working unchanged above.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── data-role="brand" ────────────────────────────────────── */
+/* Filled/outlined/soft already read --brand-* by default.
+   Only ghost needs explicit override so it inherits the brand palette
+   instead of the neutral surface fallback. */
+.icon-btn[data-role="brand"] {
+  --icon-btn-ghost-bg-hover: var(--brand-container-bg);
+  --icon-btn-ghost-bg-pressed: var(--brand-container-pressed);
+  --icon-btn-ghost-fg: var(--brand-content-default);
+  --icon-btn-ghost-fg-hover: var(--brand-content-default);
+  --icon-btn-ghost-fg-disabled: var(--brand-content-default);
+}
+
+/* ── data-role="danger" ─────────────────────────────────────── */
+.icon-btn[data-role="danger"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-bg-hover: var(--danger-component-bg-hover);
+  --brand-component-bg-pressed: var(--danger-component-bg-pressed);
+  --brand-on-component: var(--danger-on-component);
+  --brand-content-default: var(--danger-content-default);
+  --brand-container-bg: var(--danger-container-bg);
+  --brand-container-hover: var(--danger-container-hover);
+  --brand-container-pressed: var(--danger-container-pressed);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+  --brand-component-outline-hover: var(--danger-component-outline-hover);
+  --brand-component-outline-pressed: var(--danger-component-outline-pressed);
+  /* Ghost overrides */
+  --icon-btn-ghost-bg-hover: var(--danger-container-bg);
+  --icon-btn-ghost-bg-pressed: var(--danger-container-pressed);
+  --icon-btn-ghost-fg: var(--danger-content-default);
+  --icon-btn-ghost-fg-hover: var(--danger-content-default);
+  --icon-btn-ghost-fg-disabled: var(--danger-content-default);
+}
+
+/* ── data-role="success" ────────────────────────────────────── */
+.icon-btn[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-bg-hover: var(--success-component-bg-hover);
+  --brand-component-bg-pressed: var(--success-component-bg-pressed);
+  --brand-on-component: var(--success-on-component);
+  --brand-content-default: var(--success-content-default);
+  --brand-container-bg: var(--success-container-bg);
+  --brand-container-hover: var(--success-container-hover);
+  --brand-container-pressed: var(--success-container-pressed);
+  --brand-component-outline-default: var(--success-component-outline-default);
+  --brand-component-outline-hover: var(--success-component-outline-hover);
+  --brand-component-outline-pressed: var(--success-component-outline-pressed);
+  /* Ghost overrides */
+  --icon-btn-ghost-bg-hover: var(--success-container-bg);
+  --icon-btn-ghost-bg-pressed: var(--success-container-pressed);
+  --icon-btn-ghost-fg: var(--success-content-default);
+  --icon-btn-ghost-fg-hover: var(--success-content-default);
+  --icon-btn-ghost-fg-disabled: var(--success-content-default);
+}
+
+/* ── data-role="warning" ────────────────────────────────────── */
+.icon-btn[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-bg-hover: var(--warning-component-bg-hover);
+  --brand-component-bg-pressed: var(--warning-component-bg-pressed);
+  --brand-on-component: var(--warning-on-component);
+  --brand-content-default: var(--warning-content-default);
+  --brand-container-bg: var(--warning-container-bg);
+  --brand-container-hover: var(--warning-container-hover);
+  --brand-container-pressed: var(--warning-container-pressed);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+  --brand-component-outline-hover: var(--warning-component-outline-hover);
+  --brand-component-outline-pressed: var(--warning-component-outline-pressed);
+  /* Ghost overrides */
+  --icon-btn-ghost-bg-hover: var(--warning-container-bg);
+  --icon-btn-ghost-bg-pressed: var(--warning-container-pressed);
+  --icon-btn-ghost-fg: var(--warning-content-default);
+  --icon-btn-ghost-fg-hover: var(--warning-content-default);
+  --icon-btn-ghost-fg-disabled: var(--warning-content-default);
+}
+
+/* ── data-role="info" ───────────────────────────────────────── */
+.icon-btn[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-bg-hover: var(--info-component-bg-hover);
+  --brand-component-bg-pressed: var(--info-component-bg-pressed);
+  --brand-on-component: var(--info-on-component);
+  --brand-content-default: var(--info-content-default);
+  --brand-container-bg: var(--info-container-bg);
+  --brand-container-hover: var(--info-container-hover);
+  --brand-container-pressed: var(--info-container-pressed);
+  --brand-component-outline-default: var(--info-component-outline-default);
+  --brand-component-outline-hover: var(--info-component-outline-hover);
+  --brand-component-outline-pressed: var(--info-component-outline-pressed);
+  /* Ghost overrides */
+  --icon-btn-ghost-bg-hover: var(--info-container-bg);
+  --icon-btn-ghost-bg-pressed: var(--info-container-pressed);
+  --icon-btn-ghost-fg: var(--info-content-default);
+  --icon-btn-ghost-fg-hover: var(--info-content-default);
+  --icon-btn-ghost-fg-disabled: var(--info-content-default);
+}
+
+/* ── data-role="neutral" ────────────────────────────────────── */
+/* Remaps primary palette → surface-context tokens so structural
+   variants automatically get neutral/surface treatment. */
+.icon-btn[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg);
+  --brand-component-bg-hover: var(--surface-base-cm-bg-hover);
+  --brand-component-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --brand-on-component: var(--surface-base-ct-default);
+  --brand-content-default: var(--surface-base-ct-default);
+  --brand-container-bg: var(--surface-base-subtle);
+  --brand-container-hover: var(--surface-base-strong);
+  --brand-container-pressed: var(--surface-base-strong);
+  --brand-component-outline-default: var(--surface-base-cm-outline);
+  --brand-component-outline-hover: var(--surface-base-cm-outline-hover);
+  --brand-component-outline-pressed: var(--surface-base-cm-outline-pressed);
+  /* Ghost stays at its surface-token defaults — no override needed */
+}
+/* ════════════════════════════════════════════════════════════════
+   STATES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Focus-visible — keyboard focus ring */
+.icon-btn:focus-visible {
+  outline: var(--icon-btn-focus-outline-width) solid var(--icon-btn-focus-outline-color);
+  outline-offset: var(--icon-btn-focus-outline-offset);
+}
+
+/* Disabled */
+.icon-btn:disabled,
+.icon-btn[data-disabled] {
+
+  pointer-events: none;
+}
+
+/* Disabled: per-variant opacity + color override */
+.icon-btn:disabled:not([data-variant]),
+.icon-btn:disabled[data-variant="filled"],
+.icon-btn[data-disabled]:not([data-variant]),
+.icon-btn[data-disabled][data-variant="filled"] {
+  --_ib-bg: var(--icon-btn-filled-bg-disabled);
+  --_ib-fg: var(--icon-btn-filled-fg-disabled);
+  --_ib-border-color: var(--icon-btn-filled-border-color-disabled);
+  opacity: var(--icon-btn-filled-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="outlined"],
+.icon-btn[data-disabled][data-variant="outlined"] {
+  --_ib-bg: var(--icon-btn-outlined-bg-disabled);
+  --_ib-fg: var(--icon-btn-outlined-fg-disabled);
+  --_ib-border-color: var(--icon-btn-outlined-border-color-disabled);
+  opacity: var(--icon-btn-outlined-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="ghost"],
+.icon-btn[data-disabled][data-variant="ghost"] {
+  --_ib-bg: var(--icon-btn-ghost-bg-disabled);
+  --_ib-fg: var(--icon-btn-ghost-fg-disabled);
+  --_ib-border-color: var(--icon-btn-ghost-border-color-disabled);
+  opacity: var(--icon-btn-ghost-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="danger"],
+.icon-btn[data-disabled][data-variant="danger"] {
+  --_ib-bg: var(--icon-btn-danger-bg-disabled);
+  --_ib-fg: var(--icon-btn-danger-fg-disabled);
+  --_ib-border-color: var(--icon-btn-danger-border-color-disabled);
+  opacity: var(--icon-btn-danger-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="neutral"],
+.icon-btn[data-disabled][data-variant="neutral"] {
+  --_ib-bg: var(--icon-btn-neutral-bg-disabled);
+  --_ib-fg: var(--icon-btn-neutral-fg-disabled);
+  --_ib-border-color: var(--icon-btn-neutral-border-color-disabled);
+  opacity: var(--icon-btn-neutral-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="soft"],
+.icon-btn[data-disabled][data-variant="soft"] {
+  --_ib-bg: var(--icon-btn-soft-bg-disabled);
+  --_ib-fg: var(--icon-btn-soft-fg-disabled);
+  --_ib-border-color: var(--icon-btn-soft-border-color-disabled);
+  opacity: var(--icon-btn-soft-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="success"],
+.icon-btn[data-disabled][data-variant="success"] {
+  --_ib-bg: var(--icon-btn-success-bg-disabled);
+  --_ib-fg: var(--icon-btn-success-fg-disabled);
+  --_ib-border-color: var(--icon-btn-success-border-color-disabled);
+  opacity: var(--icon-btn-success-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="warning"],
+.icon-btn[data-disabled][data-variant="warning"] {
+  --_ib-bg: var(--icon-btn-warning-bg-disabled);
+  --_ib-fg: var(--icon-btn-warning-fg-disabled);
+  --_ib-border-color: var(--icon-btn-warning-border-color-disabled);
+  opacity: var(--icon-btn-warning-opacity-disabled);
+}
+.icon-btn:disabled[data-variant="brand"],
+.icon-btn[data-disabled][data-variant="brand"] {
+  --_ib-bg: var(--icon-btn-brand-bg-disabled);
+  --_ib-fg: var(--icon-btn-brand-fg-disabled);
+  --_ib-border-color: var(--icon-btn-brand-border-color-disabled);
+  opacity: var(--icon-btn-brand-opacity-disabled);
+}
+/* Loading state — pulse opacity */
+.icon-btn[data-loading] {
+  cursor: wait;
+  pointer-events: none;
+  animation: icon-btn-pulse var(--icon-btn-loader-speed) ease-in-out infinite;
+}
+
+@keyframes icon-btn-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ICON SLOT
+   ════════════════════════════════════════════════════════════════ */
+
+.icon-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_ib-icon-size);
+  height: var(--_ib-icon-size);
+  color: var(--icon-btn-icon-color);
+  flex-shrink: 0;
+}
+.icon-btn:hover .icon-btn__icon {
+  color: var(--icon-btn-icon-color-hover);
+}
+.icon-btn__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Elevated shadow override */
+.icon-btn[data-strong] {
+  box-shadow: var(--icon-btn-shadow-strong);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FORCED COLORS (Windows High Contrast)
+   ════════════════════════════════════════════════════════════════ */
+
+@media (forced-colors: active) {
+  .icon-btn {
+    border: 1px solid ButtonText;
+    color: ButtonText;
+    background: ButtonFace;
+  }
+  .icon-btn:hover {
+    border-color: Highlight;
+    color: Highlight;
+  }
+  .icon-btn:disabled,
+  .icon-btn[data-disabled] {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

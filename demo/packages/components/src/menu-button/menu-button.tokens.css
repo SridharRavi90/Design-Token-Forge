@@ -1,0 +1,368 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — MenuButton Token Defaults
+   Layer 0: System defaults for 139 menu-button variables.
+   All values reference global tokens — zero hardcoded visuals.
+
+   ORTHOGONAL MODEL
+   ────────────────
+   Structure (data-variant): filled | outlined | soft | ghost
+   Role (data-role):         brand | danger | warning | info | success | neutral
+
+   Token groups below use legacy names for backward compatibility:
+     primary  ≡ filled   (solid background, role-colored)
+     secondary ≡ outlined (border emphasis, role-colored)
+     tertiary ≡ soft     (tinted container, role-colored)
+     ghost    = ghost    (transparent, neutral by default)
+
+   All primary/secondary/tertiary tokens reference --brand-* semantic palette.
+   CSS role selectors remap --brand-* → --{role}-* at the element level,
+   so every structural variant × every role composes automatically.
+
+   danger/success/warning/neutral/outline/brand token groups below are
+   LEGACY shortcuts for filled+danger, filled+success, etc. They remain
+   for backward compatibility with data-variant="danger" syntax.
+   ════════════════════════════════════════════════════════════════ */
+
+.menu-btn {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode */
+  --menu-btn-radius-micro: var(--radius-sm);    /* 4px  — matches btn-micro */
+  --menu-btn-radius-tiny: var(--radius-sm);     /* 4px  — matches btn-tiny */
+  --menu-btn-radius-small: var(--radius-md);     /* 6px  — matches btn-small */
+  --menu-btn-radius-base: var(--radius-md);     /* 6px  — matches btn-base */
+  --menu-btn-radius-medium: var(--radius-DEFAULT); /* 8px  — matches btn-medium */
+  --menu-btn-radius-large: var(--radius-DEFAULT); /* 8px  — matches btn-large */
+  --menu-btn-radius-big: var(--radius-md-lg); /* 10px — matches btn-big */
+   --menu-btn-radius-huge: var(--radius-md-lg);   /* 10px — matches btn-huge */
+   --menu-btn-radius-mega: var(--radius-lg);    /* 12px — matches btn-mega */
+   --menu-btn-radius-ultra: var(--radius-lg-xl);   /* 14px — matches btn-ultra */
+
+  /* Border */
+  --menu-btn-border-width: 1px;
+  --menu-btn-border-style: solid;
+
+  /* Shadow */
+  --menu-btn-shadow: var(--shadow-none);
+  --menu-btn-shadow-hover: var(--shadow-none);
+  --menu-btn-shadow-pressed: var(--shadow-none);
+  --menu-btn-shadow-strong: var(--shadow-sm);
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (40 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Height per density mode */
+  --menu-btn-height-micro: var(--spacing-24);
+  --menu-btn-height-tiny: var(--spacing-28);
+  --menu-btn-height-small: var(--spacing-32);
+  --menu-btn-height-base: var(--spacing-36);
+  --menu-btn-height-medium: var(--spacing-40);
+  --menu-btn-height-large: var(--spacing-44);
+  --menu-btn-height-big: var(--spacing-48);
+  --menu-btn-height-huge: var(--spacing-56);
+  --menu-btn-height-mega: var(--spacing-64);
+  --menu-btn-height-ultra: var(--spacing-72);
+
+  /* Inline-start padding (left of label) */
+  --menu-btn-padding-x-micro: var(--spacing-8);
+  --menu-btn-padding-x-tiny: var(--spacing-8);
+  --menu-btn-padding-x-small: var(--spacing-10);
+  --menu-btn-padding-x-base: var(--spacing-12);
+  --menu-btn-padding-x-medium: var(--spacing-14);
+  --menu-btn-padding-x-large: var(--spacing-16);
+  --menu-btn-padding-x-big: var(--spacing-18);
+  --menu-btn-padding-x-huge: var(--spacing-20);
+  --menu-btn-padding-x-mega: var(--spacing-24);
+  --menu-btn-padding-x-ultra: var(--spacing-28);
+
+  /* Block (vertical) padding */
+  --menu-btn-padding-y-micro: var(--spacing-2);
+  --menu-btn-padding-y-tiny: var(--spacing-3);
+  --menu-btn-padding-y-small: var(--spacing-4);
+  --menu-btn-padding-y-base: var(--spacing-6);
+  --menu-btn-padding-y-medium: var(--spacing-8);
+  --menu-btn-padding-y-large: var(--spacing-10);
+  --menu-btn-padding-y-big: var(--spacing-12);
+  --menu-btn-padding-y-huge: var(--spacing-14);
+  --menu-btn-padding-y-mega: var(--spacing-16);
+  --menu-btn-padding-y-ultra: var(--spacing-20);
+
+  /* Inline-end padding after chevron (right edge)
+     Formula: padding-x − gap  →  trailing air ≈ leading air at each density.
+     spacing-7 and spacing-9 don't exist in the ladder; rounded to spacing-6/8. */
+  --menu-btn-chevron-pe-micro: var(--spacing-6);   /* 8-2=6  */
+  --menu-btn-chevron-pe-tiny: var(--spacing-6);    /* 8-2=6  */
+  --menu-btn-chevron-pe-small: var(--spacing-6);   /* 10-3=7 → 6 */
+  --menu-btn-chevron-pe-base: var(--spacing-8);    /* 12-4=8  */
+  --menu-btn-chevron-pe-medium: var(--spacing-8);  /* 14-5=9 → 8 */
+  --menu-btn-chevron-pe-large: var(--spacing-10);  /* 16-6=10 */
+  --menu-btn-chevron-pe-big: var(--spacing-12);    /* 18-6=12 */
+  --menu-btn-chevron-pe-huge: var(--spacing-12);   /* 20-8=12 */
+  --menu-btn-chevron-pe-mega: var(--spacing-14);   /* 24-10=14 */
+  --menu-btn-chevron-pe-ultra: var(--spacing-16);  /* 28-12=16 */
+
+  /* Gap (between icon, label, chevron) */
+  --menu-btn-gap-micro: var(--spacing-2);
+  --menu-btn-gap-tiny: var(--spacing-2);
+  --menu-btn-gap-small: var(--spacing-3);
+  --menu-btn-gap-base: var(--spacing-4);
+  --menu-btn-gap-medium: var(--spacing-5);
+  --menu-btn-gap-large: var(--spacing-6);
+  --menu-btn-gap-big: var(--spacing-6);
+  --menu-btn-gap-huge: var(--spacing-8);
+  --menu-btn-gap-mega: var(--spacing-10);
+  --menu-btn-gap-ultra: var(--spacing-12);
+
+  /* Min-width per density mode */
+  --menu-btn-min-width-micro: var(--spacing-48);
+  --menu-btn-min-width-tiny: var(--spacing-56);
+  --menu-btn-min-width-small: var(--spacing-64);
+  --menu-btn-min-width-base: var(--spacing-72);
+  --menu-btn-min-width-medium: var(--spacing-80);
+  --menu-btn-min-width-large: var(--spacing-80);
+  --menu-btn-min-width-big: var(--spacing-96);
+  --menu-btn-min-width-huge: var(--spacing-112);
+  --menu-btn-min-width-mega: var(--spacing-120);
+  --menu-btn-min-width-ultra: var(--spacing-120); /* spacing-144 doesn't exist; ladder tops at 120 */
+
+  /* Icon-only symmetric edge padding — used when no label is present.
+     Mirrors --btn-icon-pad-* for consistent spacing across the button family. */
+  --menu-btn-padding-x-icon-micro: var(--spacing-3);
+  --menu-btn-padding-x-icon-tiny: var(--spacing-4);
+  --menu-btn-padding-x-icon-small: var(--spacing-6);
+  --menu-btn-padding-x-icon-base: var(--spacing-8);
+  --menu-btn-padding-x-icon-medium: var(--spacing-8);
+  --menu-btn-padding-x-icon-large: var(--spacing-8);
+  --menu-btn-padding-x-icon-big: var(--spacing-10);
+  --menu-btn-padding-x-icon-huge: var(--spacing-12);
+  --menu-btn-padding-x-icon-mega: var(--spacing-14);
+  --menu-btn-padding-x-icon-ultra: var(--spacing-16);
+
+  /* Width model */
+  --menu-btn-max-width: none;
+  --menu-btn-inline-size: fit-content;
+  --menu-btn-white-space: nowrap;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (48 vars = 4 variants × 12 properties)
+     Pattern: --menu-btn-{variant}-{property}[-{state}]
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── PRIMARY ≡ FILLED (solid bg, reads --brand-* palette) ─────────────────────────────── */
+  --menu-btn-filled-bg: var(--brand-component-bg-default);
+  --menu-btn-filled-bg-hover: var(--brand-component-bg-hover);
+  --menu-btn-filled-bg-pressed: var(--brand-component-bg-pressed);
+  --menu-btn-filled-bg-disabled: var(--brand-component-bg-default);
+  --menu-btn-filled-fg: var(--brand-on-component);
+  --menu-btn-filled-fg-hover: var(--brand-on-component);
+  --menu-btn-filled-fg-disabled: var(--brand-on-component);
+  --menu-btn-filled-border-color: var(--brand-component-bg-default);
+  --menu-btn-filled-border-color-hover: var(--brand-component-bg-hover);
+  --menu-btn-filled-border-color-pressed: var(--brand-component-bg-pressed);
+  --menu-btn-filled-border-color-disabled: var(--brand-component-bg-default);
+  --menu-btn-filled-opacity-disabled: 0.5;
+
+  /* ── SECONDARY ≡ OUTLINED (border emphasis, --brand-* palette) ─────────── */
+  --menu-btn-outlined-bg: transparent;
+  --menu-btn-outlined-bg-hover: var(--brand-container-bg);
+  --menu-btn-outlined-bg-pressed: var(--brand-container-pressed);
+  --menu-btn-outlined-bg-disabled: transparent;
+  --menu-btn-outlined-fg: var(--brand-content-default);
+  --menu-btn-outlined-fg-hover: var(--brand-content-default);
+  --menu-btn-outlined-fg-disabled: var(--brand-content-default);
+  --menu-btn-outlined-border-color: var(--brand-component-outline-default);
+  --menu-btn-outlined-border-color-hover: var(--brand-component-outline-hover);
+  --menu-btn-outlined-border-color-pressed: var(--brand-component-outline-pressed);
+  --menu-btn-outlined-border-color-disabled: var(--brand-component-outline-default);
+  --menu-btn-outlined-opacity-disabled: 0.5;
+
+  /* ── GHOST (transparent bg, --surface-* by default) ────────────────────── */
+  --menu-btn-ghost-bg: transparent;
+  --menu-btn-ghost-bg-hover: var(--surface-base-cm-bg-hover);
+  --menu-btn-ghost-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --menu-btn-ghost-bg-disabled: transparent;
+  --menu-btn-ghost-fg: var(--surface-base-ct-default);
+  --menu-btn-ghost-fg-hover: var(--surface-base-ct-strong);
+  --menu-btn-ghost-fg-disabled: var(--surface-base-ct-default);
+  --menu-btn-ghost-border-color: transparent;
+  --menu-btn-ghost-border-color-hover: transparent;
+  --menu-btn-ghost-border-color-pressed: transparent;
+  --menu-btn-ghost-border-color-disabled: transparent;
+  --menu-btn-ghost-opacity-disabled: 0.5;
+
+  /* ── NEUTRAL (legacy: filled + neutral/surface context) ──────────────────── */
+  --menu-btn-neutral-bg: var(--surface-base-cm-bg);
+  --menu-btn-neutral-bg-hover: var(--surface-base-cm-bg-hover);
+  --menu-btn-neutral-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --menu-btn-neutral-bg-disabled: var(--surface-base-cm-bg);
+  --menu-btn-neutral-fg: var(--surface-base-ct-default);
+  --menu-btn-neutral-fg-hover: var(--surface-base-ct-strong);
+  --menu-btn-neutral-fg-disabled: var(--surface-base-ct-default);
+  --menu-btn-neutral-border-color: var(--surface-base-cm-outline);
+  --menu-btn-neutral-border-color-hover: var(--surface-base-cm-outline-hover);
+  --menu-btn-neutral-border-color-pressed: var(--surface-base-cm-outline-pressed);
+  --menu-btn-neutral-border-color-disabled: var(--surface-base-cm-outline);
+  --menu-btn-neutral-opacity-disabled: 0.5;
+
+  /* ── TERTIARY ≡ SOFT (tinted container, --brand-* palette) ────────────────────────── */
+  --menu-btn-soft-bg: var(--brand-container-bg);
+  --menu-btn-soft-bg-hover: var(--brand-container-hover);
+  --menu-btn-soft-bg-pressed: var(--brand-container-pressed);
+  --menu-btn-soft-bg-disabled: var(--brand-container-bg);
+  --menu-btn-soft-fg: var(--brand-content-default);
+  --menu-btn-soft-fg-hover: var(--brand-content-default);
+  --menu-btn-soft-fg-disabled: var(--brand-content-default);
+  --menu-btn-soft-border-color: transparent;
+  --menu-btn-soft-border-color-hover: transparent;
+  --menu-btn-soft-border-color-pressed: transparent;
+  --menu-btn-soft-border-color-disabled: transparent;
+  --menu-btn-soft-opacity-disabled: 0.5;
+
+  /* ── DANGER (legacy: filled + danger role) ───────────────────────────────── */
+  --menu-btn-danger-bg: var(--danger-component-bg-default);
+  --menu-btn-danger-bg-hover: var(--danger-component-bg-hover);
+  --menu-btn-danger-bg-pressed: var(--danger-component-bg-pressed);
+  --menu-btn-danger-bg-disabled: var(--danger-component-bg-default);
+  --menu-btn-danger-fg: var(--danger-on-component);
+  --menu-btn-danger-fg-hover: var(--danger-on-component);
+  --menu-btn-danger-fg-disabled: var(--danger-on-component);
+  --menu-btn-danger-border-color: var(--danger-component-bg-default);
+  --menu-btn-danger-border-color-hover: var(--danger-component-bg-hover);
+  --menu-btn-danger-border-color-pressed: var(--danger-component-bg-pressed);
+  --menu-btn-danger-border-color-disabled: var(--danger-component-bg-default);
+  --menu-btn-danger-opacity-disabled: 0.5;
+
+  /* ── SUCCESS (legacy: filled + success role) ─────────────────────────────── */
+  --menu-btn-success-bg: var(--success-component-bg-default);
+  --menu-btn-success-bg-hover: var(--success-component-bg-hover);
+  --menu-btn-success-bg-pressed: var(--success-component-bg-pressed);
+  --menu-btn-success-bg-disabled: var(--success-component-bg-default);
+  --menu-btn-success-fg: var(--success-on-component);
+  --menu-btn-success-fg-hover: var(--success-on-component);
+  --menu-btn-success-fg-disabled: var(--success-on-component);
+  --menu-btn-success-border-color: var(--success-component-bg-default);
+  --menu-btn-success-border-color-hover: var(--success-component-bg-hover);
+  --menu-btn-success-border-color-pressed: var(--success-component-bg-pressed);
+  --menu-btn-success-border-color-disabled: var(--success-component-bg-default);
+  --menu-btn-success-opacity-disabled: 0.5;
+
+  /* ── WARNING (legacy: filled + warning role) ─────────────────────────────── */
+  --menu-btn-warning-bg: var(--warning-component-bg-default);
+  --menu-btn-warning-bg-hover: var(--warning-component-bg-hover);
+  --menu-btn-warning-bg-pressed: var(--warning-component-bg-pressed);
+  --menu-btn-warning-bg-disabled: var(--warning-component-bg-default);
+  --menu-btn-warning-fg: var(--warning-on-component);
+  --menu-btn-warning-fg-hover: var(--warning-on-component);
+  --menu-btn-warning-fg-disabled: var(--warning-on-component);
+  --menu-btn-warning-border-color: var(--warning-component-bg-default);
+  --menu-btn-warning-border-color-hover: var(--warning-component-bg-hover);
+  --menu-btn-warning-border-color-pressed: var(--warning-component-bg-pressed);
+  --menu-btn-warning-border-color-disabled: var(--warning-component-bg-default);
+  --menu-btn-warning-opacity-disabled: 0.5;
+
+  /* ── BRAND (legacy: filled + brand role) ───────────────────────── */
+  --menu-btn-brand-bg: var(--brand-component-bg-default);
+  --menu-btn-brand-bg-hover: var(--brand-component-bg-hover);
+  --menu-btn-brand-bg-pressed: var(--brand-component-bg-pressed);
+  --menu-btn-brand-bg-disabled: var(--brand-component-bg-default);
+  --menu-btn-brand-fg: var(--brand-on-component);
+  --menu-btn-brand-fg-hover: var(--brand-on-component);
+  --menu-btn-brand-fg-disabled: var(--brand-on-component);
+  --menu-btn-brand-border-color: var(--brand-component-bg-default);
+  --menu-btn-brand-border-color-hover: var(--brand-component-bg-hover);
+  --menu-btn-brand-border-color-pressed: var(--brand-component-bg-pressed);
+  --menu-btn-brand-border-color-disabled: var(--brand-component-bg-default);
+  --menu-btn-brand-opacity-disabled: 0.5;
+
+  /* ── INFO (legacy: filled + info role) ────────────────────────────────── */
+  --menu-btn-info-bg: var(--info-component-bg-default);
+  --menu-btn-info-bg-hover: var(--info-component-bg-hover);
+  --menu-btn-info-bg-pressed: var(--info-component-bg-pressed);
+  --menu-btn-info-bg-disabled: var(--info-component-bg-default);
+  --menu-btn-info-fg: var(--info-on-component);
+  --menu-btn-info-fg-hover: var(--info-on-component);
+  --menu-btn-info-fg-disabled: var(--info-on-component);
+  --menu-btn-info-border-color: var(--info-component-bg-default);
+  --menu-btn-info-border-color-hover: var(--info-component-bg-hover);
+  --menu-btn-info-border-color-pressed: var(--info-component-bg-pressed);
+  --menu-btn-info-border-color-disabled: var(--info-component-bg-default);
+  --menu-btn-info-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --menu-btn-font-family: var(--font-family-sans);
+
+  /* Font size per density mode */
+  --menu-btn-font-size-micro: var(--font-size-10);
+  --menu-btn-font-size-tiny: var(--font-size-11);
+  --menu-btn-font-size-small: var(--font-size-12);
+  --menu-btn-font-size-base: var(--font-size-13);
+  --menu-btn-font-size-medium: var(--font-size-14);
+  --menu-btn-font-size-large: var(--font-size-14);
+  --menu-btn-font-size-big: var(--font-size-16);
+  --menu-btn-font-size-huge: var(--font-size-18);
+  --menu-btn-font-size-mega: var(--font-size-20);
+  --menu-btn-font-size-ultra: var(--font-size-24);
+
+  --menu-btn-font-weight: var(--font-weight-regular);
+  --menu-btn-line-height: var(--line-height-normal);
+  --menu-btn-letter-spacing: var(--letter-spacing-normal);
+  --menu-btn-text-transform: none;
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Icon / chevron size per density mode */
+  --menu-btn-icon-size-micro: var(--spacing-10);
+  --menu-btn-icon-size-tiny: var(--spacing-12);
+  --menu-btn-icon-size-small: var(--spacing-14);
+  --menu-btn-icon-size-base: var(--spacing-18);
+  --menu-btn-icon-size-medium: var(--spacing-20);
+  --menu-btn-icon-size-large: var(--spacing-22);
+  --menu-btn-icon-size-big: var(--spacing-24);
+  --menu-btn-icon-size-huge: var(--spacing-28);
+  --menu-btn-icon-size-mega: var(--spacing-32);
+  --menu-btn-icon-size-ultra: var(--spacing-36);
+
+  /* Trailing chevron size per density — smaller than leading icon */
+  --menu-btn-chevron-size-micro:  var(--spacing-10);
+  --menu-btn-chevron-size-tiny:   var(--spacing-12);
+  --menu-btn-chevron-size-small:  var(--spacing-12);
+  --menu-btn-chevron-size-base:   var(--spacing-14);
+  --menu-btn-chevron-size-medium: var(--spacing-14);
+  --menu-btn-chevron-size-large:  var(--spacing-16);
+  --menu-btn-chevron-size-big:    var(--spacing-18);
+  --menu-btn-chevron-size-huge:   var(--spacing-20);
+  --menu-btn-chevron-size-mega:   var(--spacing-20);
+  --menu-btn-chevron-size-ultra:  var(--spacing-22);
+
+  --menu-btn-icon-color: currentColor;
+  --menu-btn-icon-color-hover: currentColor;
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --menu-btn-transition-property: background-color, border-color, color, box-shadow, opacity;
+  --menu-btn-transition-duration: var(--duration-normal);
+  --menu-btn-transition-easing: var(--easing-in-out);
+  --menu-btn-animation-enter: none;
+  --menu-btn-animation-exit: none;
+
+  /* Loader */
+  --menu-btn-loader-speed: 1.5s;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --menu-btn-focus-outline-width: var(--focus-outline-width);
+  --menu-btn-focus-outline-color: var(--brand-component-outline-default);
+  --menu-btn-focus-outline-offset: var(--focus-outline-offset);
+  --menu-btn-min-tap-target: 44px;
+  --menu-btn-radius-rounded: var(--radius-full);
+}

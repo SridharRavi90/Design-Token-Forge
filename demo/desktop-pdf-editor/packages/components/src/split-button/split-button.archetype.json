@@ -1,0 +1,31 @@
+{
+  "archetype": "action",
+  "tokenPrefix": "split-btn",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "pressed", "disabled", "focus-visible"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined", "soft", "ghost"],
+  "onComponentTokens": [
+    {
+      "token": "--split-btn-filled-fg",
+      "fillStates": ["--split-btn-filled-bg", "--split-btn-filled-bg-hover", "--split-btn-filled-bg-pressed"],
+      "derivation": "auto-aa",
+      "wcag": "AA-normal"
+    }
+  ],
+  "editorExposureOverrides": {
+    "--split-btn-min-tap-target": "advanced",
+    "--split-btn-focus-outline-offset": "advanced"
+  },
+  "figmaBindingPrefix": "split-btn/",
+  "multiZone": {
+    "zones": ["action", "trigger", "divider"],
+    "inheritsFrom": ["btn"],
+    "inheritedAxes": ["dimension", "typography"],
+    "notes": "Radius/dimension inherited from button via --btn-* aliases per multi-zone-model.md Q6. Focus ring on wrapper via .split-btn:has(:focus-visible)."
+  },
+  "notes": [
+    "Composite action: action zone + trigger zone, joined visually.",
+    "Wrapper has overflow:hidden — focus ring must live on wrapper, NOT inner zones."
+  ]
+}
