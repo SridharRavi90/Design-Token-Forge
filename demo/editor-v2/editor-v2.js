@@ -835,11 +835,15 @@
   var $listSub   = document.getElementById('listSub');
   var $body      = document.getElementById('tokenListBody');
   var $frame     = document.getElementById('previewFrame');
-  // The inline script in index.html already set $frame.src the moment
-  // the parser reached the <iframe> element — before this deferred
-  // script ran. Only set src here as a fallback (e.g. direct file://
-  // open where the inline script may have been blocked).
-  if ($frame && !$frame.src) $frame.src = './preview.html?v=' + Date.now();
+  // The inline script in index.html fetches preview.html and sets
+  // srcdoc to bypass X-Frame-Options headers on Zoho Pages hosting.
+  // Only fall back to src= if srcdoc was never set (e.g. file:// open).
+  if ($frame && !$frame.srcdoc && !$frame.src) {
+    fetch('./preview.html?v=' + Date.now())
+      .then(function(r){ return r.text(); })
+      .then(function(html){ if($frame) $frame.srcdoc = html; })
+      .catch(function(){ if($frame && !$frame.src) $frame.src = './preview.html?v=' + Date.now(); });
+  }
   var $changeCt  = document.getElementById('changeCount');
   var $deploy    = document.getElementById('deployBtn');
   var $discard   = document.getElementById('discardBtn');
@@ -6728,7 +6732,7 @@
      iframe's 'load' event fires BEFORE this listener is attached.
      Detect that case and push overrides immediately. */
   try {
-    if ($frame.contentDocument && $frame.contentDocument.readyState === 'complete' && $frame.src) {
+    if ($frame.contentDocument && $frame.contentDocument.readyState === 'complete' && ($frame.src || $frame.srcdoc)) {
       _onFrameLoad();
     }
   } catch (_re) {}
