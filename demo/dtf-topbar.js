@@ -124,7 +124,7 @@
     /* All NAV_ITEMS hrefs are written relative to /demo/. If we are
        currently inside a subdir like /demo/editor-v2/, prefix '../'
        so links resolve to the right files instead of 404'ing. */
-    var inSubdir = /\/demo\/[^/]+\/[^/]*$/.test(location.pathname);
+    var inSubdir = /\/demo\/[^/]+\//.test(location.pathname);
     var prefix = inSubdir ? '../' : '';
     for (i = 0; i < NAV_ITEMS.length; i++) {
       var it = NAV_ITEMS[i];
