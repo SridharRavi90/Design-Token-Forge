@@ -152,19 +152,24 @@ try {
   var cachedList = []; /* last-known project list for switching */
   var authExpired = false;
 
-  /* GitHub API setup — owner is ALWAYS the signed-in user's login
-     (set by auth-gate.js on PAT verify). No fallback to the canonical
-     maintainer's login — that was the bug where every visitor's dropdown
-     queried the maintainer's repo. If no owner is known, leave the API
-     base unset and the dropdown will simply show nothing until sign-in. */
-  var ghOwnerStored = localStorage.getItem('dtf-gh-owner') || localStorage.getItem('dtf-gh-user') || '';
-  var ghApiBase = ghOwnerStored
-    ? 'https://api.github.com/repos/' + ghOwnerStored + '/Design-Token-Forge'
-    : '';
-  var ghToken = localStorage.getItem('dtf-gh-pat') || '';
-  var ghHdrs = ghToken
-    ? { 'Authorization': 'Bearer ' + ghToken, 'Accept': 'application/vnd.github+json' }
-    : { 'Accept': 'application/vnd.github+json' };
+  /* Catalyst user identity — set by auth-gate.js after Catalyst SDK resolves.
+     The user_id (e.g. "60040413786") is the routing key used to build
+     personalized paths like /{userId}/pearl/editor.html.
+     Falls back to window.DTF_AUTH if sessionStorage hasn't been populated yet. */
+  function _getCatalystUserId() {
+    try {
+      var uid = sessionStorage.getItem('dtf-catalyst-uid') || '';
+      if (uid) return uid;
+    } catch (_e) {}
+    if (window.DTF_AUTH && window.DTF_AUTH.user) return window.DTF_AUTH.user.userId || '';
+    return '';
+  }
+
+  /* Legacy GitHub API vars — kept as no-ops so existing call sites don't throw.
+     Project CRUD (rename/delete) will be migrated to Catalyst DataStore API. */
+  var ghApiBase = '';
+  var ghToken = '';
+  var ghHdrs = { 'Accept': 'application/json' };
 
   /* Set button text to active project name */
   function syncBtnLabel() {
@@ -178,9 +183,10 @@ try {
     var deleted = [];
     try { deleted = JSON.parse(deletedRaw) || []; } catch(e) {}
     var filtered = list.filter(function(p) { return deleted.indexOf(p.id) === -1; });
-    var ghUser = (localStorage.getItem('dtf-gh-user') || '').toLowerCase();
-    if (ghUser) {
-      filtered = filtered.filter(function(p) { return !p.owner || p.owner.toLowerCase() === ghUser; });
+    /* Use Catalyst user ID for ownership filtering */
+    var catalystUid = _getCatalystUserId().toLowerCase();
+    if (catalystUid) {
+      filtered = filtered.filter(function(p) { return !p.owner || p.owner.toLowerCase() === catalystUid; });
     }
     return filtered;
   }
@@ -196,14 +202,15 @@ try {
       return;
     }
 
-    var ghUser = (localStorage.getItem('dtf-gh-user') || '').toLowerCase();
+    /* Use Catalyst user ID for grouping */
+    var catalystUid = _getCatalystUserId().toLowerCase();
     var mine, others;
-    if (!ghUser) {
-      /* No user logged in — show all as own (no grouping) */
+    if (!catalystUid) {
+      /* No user identity yet — show all as own (no grouping) */
       mine = list; others = [];
     } else {
-      mine = list.filter(function(p) { return !p.owner || p.owner.toLowerCase() === ghUser; });
-      others = list.filter(function(p) { return p.owner && p.owner.toLowerCase() !== ghUser; });
+      mine = list.filter(function(p) { return !p.owner || p.owner.toLowerCase() === catalystUid; });
+      others = list.filter(function(p) { return p.owner && p.owner.toLowerCase() !== catalystUid; });
     }
 
     mine.forEach(function(proj) { ddPanel.appendChild(_buildRow(proj, true)); });

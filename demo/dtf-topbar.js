@@ -153,30 +153,37 @@
         + ICON_SUN + ICON_MOON +
       '</button>';
 
-    /* Account menu — username + Sign out. Visible whenever a PAT
-       session is active (auth-gate stored dtf-gh-user on verify).
-       Anchored to the right of the topbar; opens a small menu
-       with the GitHub username and a Sign out action that calls
-       window.DtfAuthLogout (auth-gate.js) to clear credentials
-       and reload. Hidden via `no-account` attribute on pages that
-       don't want it (none currently). */
-    var ghUser = '';
-    try { ghUser = localStorage.getItem('dtf-gh-user') || ''; } catch (e) {}
+    /* Account menu — Catalyst/Zoho user display + Sign out.
+       Reads from sessionStorage (set by auth-gate.js after Catalyst
+       SDK resolves). Falls back to window.DTF_AUTH for the case where
+       auth-gate resolves before this component mounts. */
+    var catalystName = '';
+    var catalystEmail = '';
+    try {
+      catalystName  = sessionStorage.getItem('dtf-catalyst-name')  || '';
+      catalystEmail = sessionStorage.getItem('dtf-catalyst-email') || '';
+    } catch (e) {}
+    /* Also check window.DTF_AUTH (set synchronously by auth-gate) */
+    if (!catalystName && window.DTF_AUTH && window.DTF_AUTH.user) {
+      catalystName  = window.DTF_AUTH.user.firstName || '';
+      catalystEmail = window.DTF_AUTH.user.email     || '';
+    }
     var acctHtml = '';
-    if (!noAcct && ghUser) {
-      var initial = (ghUser.charAt(0) || '?').toUpperCase();
+    if (!noAcct && (catalystName || catalystEmail)) {
+      var displayName = catalystName || catalystEmail.split('@')[0] || 'User';
+      var initial = (displayName.charAt(0) || '?').toUpperCase();
       acctHtml = ''
         + '<div class="nav-acct">'
         +   '<button class="nav-acct-btn" type="button" '
         +     'aria-haspopup="true" aria-expanded="false" '
-        +     'aria-label="Account: ' + esc(ghUser) + '" '
-        +     'title="Signed in as ' + esc(ghUser) + '">'
+        +     'aria-label="Account: ' + esc(displayName) + '" '
+        +     'title="Signed in as ' + esc(displayName) + '">'
         +     '<span class="nav-acct-avatar" aria-hidden="true">' + esc(initial) + '</span>'
         +   '</button>'
         +   '<div class="nav-acct-menu" role="menu">'
         +     '<div class="nav-acct-head">'
-        +       '<div class="nav-acct-name">' + esc(ghUser) + '</div>'
-        +       '<div class="nav-acct-meta">GitHub PAT session</div>'
+        +       '<div class="nav-acct-name">' + esc(displayName) + '</div>'
+        +       '<div class="nav-acct-meta">Zoho account</div>'
         +     '</div>'
         +     '<div class="dd-sep" role="separator"></div>'
         +     '<button class="nav-acct-signout" type="button" role="menuitem">'
@@ -279,52 +286,54 @@
       });
       if (signOut) {
         signOut.addEventListener('click', function () {
-          var ok = window.confirm(
-            'Sign out of Design Token Forge?\n\n' +
-            'Your GitHub PAT will be cleared from this browser. ' +
-            'You will need to paste it again to access projects.'
-          );
+          var ok = window.confirm('Sign out of Design Token Forge?\n\nYou will be redirected to the Zoho login page.');
           if (!ok) return;
-          if (typeof window.DtfAuthLogout === 'function') {
+          /* DtfAuthLogout is aliased to DtfCatalystSignOut by auth-gate.js */
+          if (typeof window.DtfCatalystSignOut === 'function') {
+            window.DtfCatalystSignOut();
+          } else if (typeof window.DtfAuthLogout === 'function') {
             window.DtfAuthLogout();
           } else {
-            /* Fallback if auth-gate.js isn't loaded on this page */
+            /* Fallback: clear session and redirect to Catalyst sign-out */
             try {
-              localStorage.removeItem('dtf-gh-pat');
-              localStorage.removeItem('dtf-gh-user');
               sessionStorage.removeItem('dtf-auth-ok');
-              sessionStorage.removeItem('dtf-admin-auth');
+              sessionStorage.removeItem('dtf-catalyst-uid');
+              sessionStorage.removeItem('dtf-catalyst-name');
+              sessionStorage.removeItem('dtf-catalyst-email');
+              localStorage.removeItem('dtf-active-project');
             } catch (_e) {}
-            location.reload();
+            location.href = '/__catalyst/auth/signout';
           }
         });
       }
     }
 
-    /* If the auth gate verifies AFTER the topbar mounts (first PAT
-       entry of a fresh session), dtf-gh-user isn't in localStorage at
-       render time, so the account chip is missing. Listen for the
-       gate's ready event and remount once so the avatar appears
-       without forcing the user to navigate away and back. */
-    if (!noAcct && !ghUser && !this._authListenerWired) {
+    /* If auth-gate resolves AFTER the topbar mounts, the account chip
+       is missing from the first render. Listen for dtf-auth-ready and
+       remount so the avatar appears without a page reload. */
+    if (!noAcct && !(catalystName || catalystEmail) && !this._authListenerWired) {
       this._authListenerWired = true;
       var self = this;
       var rerender = function () {
-        try {
-          if (!localStorage.getItem('dtf-gh-user')) return;
-        } catch (_e) { return; }
+        var hasName = '';
+        try { hasName = sessionStorage.getItem('dtf-catalyst-name') || ''; } catch (_e) {}
+        if (!hasName && window.DTF_AUTH && window.DTF_AUTH.user) {
+          hasName = window.DTF_AUTH.user.firstName || window.DTF_AUTH.user.email || '';
+        }
+        if (!hasName) return;
         self._mounted = false;
         self.connectedCallback();
       };
       document.addEventListener('dtf-auth-ready', rerender, { once: true });
-      /* Belt-and-braces: poll briefly in case the event already fired
-         before this listener attached (auth-gate dispatches it
-         synchronously after release()). */
+      /* Poll briefly in case dtf-auth-ready already fired. */
       var tries = 0;
       var iv = setInterval(function () {
-        try {
-          if (localStorage.getItem('dtf-gh-user')) { clearInterval(iv); rerender(); return; }
-        } catch (_e) { clearInterval(iv); return; }
+        var hasName = '';
+        try { hasName = sessionStorage.getItem('dtf-catalyst-name') || ''; } catch (_e) {}
+        if (!hasName && window.DTF_AUTH && window.DTF_AUTH.user) {
+          hasName = window.DTF_AUTH.user.firstName || window.DTF_AUTH.user.email || '';
+        }
+        if (hasName) { clearInterval(iv); rerender(); return; }
         if (++tries > 40) clearInterval(iv);
       }, 50);
     }
