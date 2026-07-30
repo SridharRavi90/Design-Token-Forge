@@ -10,6 +10,7 @@ on:
       - 'packages/figma-plugin/**'
       - 'demo/**'
       - 'projects/**'
+      - '.github/workflows/deploy-tokens.yml'
   workflow_dispatch:
 
 permissions:
@@ -47,6 +48,76 @@ jobs:
         run: |
           mkdir -p dist/plugin
           cp demo/plugin/ui.html dist/plugin/ui.html
+
+      - name: Copy root entry point and demo/ to dist/
+        # dist/index.html  → Catalyst Slate entry (reads Zoho user ID, routes to /{userId}/)
+        # dist/demo/       → hub + component explorer (auth-gate.js v3, catalyst-user.js)
+        run: |
+          # Root entry point — Catalyst-native auth splash that reads the
+          # signed-in Zoho user_id and routes to /{userId}/index.html.
+          cp dist/index.html dist/index.html.bak 2>/dev/null || true
+          cat > dist/index.html << 'ENTRY_HTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0b0d11;color:#f1f5f9;-webkit-font-smoothing:antialiased;display:grid;place-items:center}
+  .s{display:flex;flex-direction:column;align-items:center;gap:18px;padding:40px 24px;text-align:center}
+  .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#286CE5 0%,#8b5cf6 100%);display:grid;place-items:center;color:#fff;font-weight:800;font-size:22px}
+  .title{font-size:20px;font-weight:700;color:#f1f5f9}
+  .sub{font-size:13px;color:#94a3b8;max-width:280px}
+  .spin{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#fff;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .err{font-size:12px;color:#f87171;max-width:320px;display:none}
+  .btn{display:none;padding:10px 24px;border-radius:6px;border:none;background:#286CE5;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn:hover{background:#1e54b8}
+</style>
+</head>
+<body>
+<div class="s">
+  <div class="logo">DT</div>
+  <div class="title">Design Token Forge</div>
+  <p class="sub" id="sub">Signing you in&hellip;</p>
+  <div class="spin" id="spin"></div>
+  <p class="err" id="err"></p>
+  <button class="btn" id="btn" type="button">Sign in with Zoho</button>
+</div>
+<script>
+(function(){
+  var sub=document.getElementById('sub'),spin=document.getElementById('spin'),
+      err=document.getElementById('err'),btn=document.getElementById('btn');
+  function showErr(m){spin.style.display='none';sub.style.display='none';err.textContent=m;err.style.display='block';btn.style.display='block';}
+  function route(uid){
+    var dest=uid?('/'+encodeURIComponent(uid)+'/index.html'):'/demo/index.html';
+    sub.textContent='Redirecting\u2026';window.location.replace(dest);
+  }
+  function run(n){
+    var sdk=window.catalyst||window.catalystApp;
+    if(!sdk){if(n<50){setTimeout(function(){run(n+1);},100);}else{sub.textContent='Redirecting\u2026';window.location.replace('/demo/index.html');}return;}
+    var auth=sdk.auth?sdk.auth():null;
+    if(!auth||typeof auth.getCurrentUser!=='function'){window.location.replace('/demo/index.html');return;}
+    auth.getCurrentUser().then(function(d){
+      var ud=(d&&d.user_details)?d.user_details:(d||{});
+      var uid=String(ud.user_id||ud.userId||'');
+      try{sessionStorage.setItem('dtf-auth-ok','1');sessionStorage.setItem('dtf-catalyst-uid',uid);sessionStorage.setItem('dtf-catalyst-name',String(ud.first_name||ud.firstName||''));sessionStorage.setItem('dtf-catalyst-email',String(ud.email_id||ud.email||''));}catch(_e){}
+      route(uid);
+    }).catch(function(){
+      showErr('Could not verify your Zoho account. Please sign in.');
+      btn.onclick=function(){location.href='/__catalyst/auth/login?redirect_url='+encodeURIComponent(location.href);};
+    });
+  }
+  run(0);
+})();
+</script>
+</body>
+</html>
+ENTRY_HTML
+          # Copy entire demo/ into dist/demo/ so hub + editor + components work
+          cp -r demo/. dist/demo/
 
       - name: Deploy to pages branch (GitHub — used by Zoho Slate)
         # Zoho Slate reads from the 'pages' branch of the GitHub repository.
