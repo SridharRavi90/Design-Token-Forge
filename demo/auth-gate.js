@@ -89,6 +89,27 @@
     }
   } catch (_e) {}
 
+  /* ── Also fast-path if Catalyst SDK already set uid in sessionStorage
+     (set by the root index.html entry point before routing here). ── */
+  try {
+    var _uid = sessionStorage.getItem(UID_KEY);
+    if (_uid) {
+      var _preUser = {
+        userId:    _uid,
+        firstName: sessionStorage.getItem(NAME_KEY)  || '',
+        email:     sessionStorage.getItem(EMAIL_KEY) || ''
+      };
+      /* Mark session so subsequent pages use the top fast path. */
+      sessionStorage.setItem(SESSION_KEY, '1');
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { release(_preUser); });
+      } else {
+        release(_preUser);
+      }
+      return;
+    }
+  } catch (_e) {}
+
   /* ── Fetch user from Catalyst SDK. ─────────────────────────────
      The Catalyst Web SDK is auto-injected by Slate at:
        /__catalyst/js/catalystApp.js

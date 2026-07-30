@@ -177,18 +177,28 @@ try {
     ddBtn.textContent = active ? (active.name || active.id) : (currentId || '…');
   }
 
+  /* Helper: check if a project entry belongs to the current user.
+     Matches by ownerEmail first (most reliable), falls back to owner. */
+  function _isMyProject(p) {
+    var userEmail = _getCatalystEmail();
+    if (!userEmail) return true; /* no identity — show all */
+    if (p.ownerEmail && p.ownerEmail.toLowerCase() === userEmail) return true;
+    if (!p.ownerEmail && p.owner) {
+      var localPart = userEmail.split('@')[0].replace(/[.\-_]/g, '').toLowerCase();
+      var ownerNorm = p.owner.replace(/[.\-_]/g, '').toLowerCase();
+      return ownerNorm.indexOf(localPart) !== -1 || localPart.indexOf(ownerNorm) !== -1;
+    }
+    return false;
+  }
+
   /* ── Visibility filter (owner + deleted) ── */
   function getVisibleProjects(list) {
     var deletedRaw = localStorage.getItem('dtf-deleted-projects');
     var deleted = [];
     try { deleted = JSON.parse(deletedRaw) || []; } catch(e) {}
-    var filtered = list.filter(function(p) { return deleted.indexOf(p.id) === -1; });
-    /* Use Catalyst user ID for ownership filtering */
-    var catalystUid = _getCatalystUserId().toLowerCase();
-    if (catalystUid) {
-      filtered = filtered.filter(function(p) { return !p.owner || p.owner.toLowerCase() === catalystUid; });
-    }
-    return filtered;
+    return list.filter(function(p) {
+      return deleted.indexOf(p.id) === -1 && _isMyProject(p);
+    });
   }
 
   /* ── Render items into panel ── */
@@ -202,16 +212,9 @@ try {
       return;
     }
 
-    /* Use Catalyst user ID for grouping */
-    var catalystUid = _getCatalystUserId().toLowerCase();
-    var mine, others;
-    if (!catalystUid) {
-      /* No user identity yet — show all as own (no grouping) */
-      mine = list; others = [];
-    } else {
-      mine = list.filter(function(p) { return !p.owner || p.owner.toLowerCase() === catalystUid; });
-      others = list.filter(function(p) { return p.owner && p.owner.toLowerCase() !== catalystUid; });
-    }
+    /* Group: mine (always true here since list is pre-filtered) */
+    var mine = list;
+    var others = [];
 
     mine.forEach(function(proj) { ddPanel.appendChild(_buildRow(proj, true)); });
 
@@ -277,23 +280,48 @@ try {
     return row;
   }
 
-  /* ── Fetch live projects — if PAT available use API (always up-to-date), else static json ── */
+  /* ── Fetch live projects from static projects.json filtered to current user ── */
   var pagesBase = depth + '/projects.json?_cb=' + Date.now();
 
+  function _getCatalystEmail() {
+    try {
+      var email = sessionStorage.getItem('dtf-catalyst-email') || '';
+      if (email) return email.toLowerCase();
+    } catch (_e) {}
+    if (window.DTF_AUTH && window.DTF_AUTH.user) return (window.DTF_AUTH.user.email || '').toLowerCase();
+    return '';
+  }
+
   function fetchLiveProjects(cb) {
-    if (ghToken && ghApiBase) {
-      /* Signed in: ONLY the user's own fork is source of truth. We never
-         fall back to the deployed site's static projects.json — that
-         file belongs to the maintainer and would leak their project
-         list into every visitor's dropdown. Empty fork = empty list. */
-      _fetchFromApi(function(list) {
-        cb(list || []);
-      });
-    } else {
-      /* Anonymous — nothing to show. The PAT gate will normally have
-         prevented us getting this far, but guard anyway. */
-      cb([]);
-    }
+    /* Catalyst auth: match projects by Zoho email (ownerEmail field in
+       projects.json). Falls back to matching by owner (GitHub username)
+       if ownerEmail is not set — backwards compat for older projects. */
+    var userEmail = _getCatalystEmail();
+    fetch(pagesBase, { cache: 'no-cache' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(list) {
+        if (!list || !Array.isArray(list)) { cb([]); return; }
+        if (!userEmail) {
+          /* No email yet — show nothing until auth resolves. */
+          cb([]);
+          return;
+        }
+        /* Filter: match by ownerEmail first, then fall back to owner field */
+        var mine = list.filter(function(p) {
+          if (p.ownerEmail && p.ownerEmail.toLowerCase() === userEmail) return true;
+          /* Legacy fallback: if no ownerEmail, keep the project if owner
+             matches the email's local part (e.g. sridhar.ravi matches
+             sridhar-ravi-2917) — loose heuristic, better than nothing. */
+          if (!p.ownerEmail && p.owner) {
+            var localPart = userEmail.split('@')[0].replace(/[.\-_]/g, '').toLowerCase();
+            var ownerNorm = p.owner.replace(/[.\-_]/g, '').toLowerCase();
+            return ownerNorm.indexOf(localPart) !== -1 || localPart.indexOf(ownerNorm) !== -1;
+          }
+          return false;
+        });
+        cb(mine);
+      })
+      .catch(function() { cb([]); });
   }
 
   function _fetchFromStatic(cb) {
