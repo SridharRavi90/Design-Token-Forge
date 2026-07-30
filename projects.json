@@ -14,13 +14,6 @@
     "description": "Design tokens for Pearl"
   },
   {
-    "id": "slate-demo",
-    "name": "Slate demo",
-    "owner": "Gowthamrg20",
-    "ownerEmail": "gowtham.rg@zohocorp.com",
-    "description": "Design tokens for Slate demo"
-  },
-  {
     "id": "writer-handhelds",
     "name": "writer-handhelds",
     "owner": "sridhar-ravi-2917",
