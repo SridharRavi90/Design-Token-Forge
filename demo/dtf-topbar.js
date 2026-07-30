@@ -156,21 +156,30 @@
     /* Account menu — Catalyst/Zoho user display + Sign out.
        Reads from sessionStorage (set by auth-gate.js after Catalyst
        SDK resolves). Falls back to window.DTF_AUTH for the case where
-       auth-gate resolves before this component mounts. */
-    var catalystName = '';
+       auth-gate resolves before this component mounts.
+       Falls back to user ID if name/email are blank (some Zoho accounts
+       have empty first_name). Falls back to 'Zoho User' as last resort
+       so the chip ALWAYS shows when the user is authenticated. */
+    var catalystName  = '';
     var catalystEmail = '';
+    var catalystUid   = '';
     try {
       catalystName  = sessionStorage.getItem('dtf-catalyst-name')  || '';
       catalystEmail = sessionStorage.getItem('dtf-catalyst-email') || '';
+      catalystUid   = sessionStorage.getItem('dtf-catalyst-uid')   || '';
     } catch (e) {}
     /* Also check window.DTF_AUTH (set synchronously by auth-gate) */
-    if (!catalystName && window.DTF_AUTH && window.DTF_AUTH.user) {
-      catalystName  = window.DTF_AUTH.user.firstName || '';
-      catalystEmail = window.DTF_AUTH.user.email     || '';
+    if (window.DTF_AUTH && window.DTF_AUTH.user) {
+      if (!catalystName)  catalystName  = window.DTF_AUTH.user.firstName || '';
+      if (!catalystEmail) catalystEmail = window.DTF_AUTH.user.email     || '';
+      if (!catalystUid)   catalystUid   = window.DTF_AUTH.user.userId    || '';
     }
+    /* Auth is active if ANY identity field is set */
+    var isAuthenticated = !!(catalystName || catalystEmail || catalystUid ||
+                             sessionStorage.getItem('dtf-auth-ok'));
     var acctHtml = '';
-    if (!noAcct && (catalystName || catalystEmail)) {
-      var displayName = catalystName || catalystEmail.split('@')[0] || 'User';
+    if (!noAcct && isAuthenticated) {
+      var displayName = catalystName || catalystEmail.split('@')[0] || catalystUid || 'Zoho User';
       var initial = (displayName.charAt(0) || '?').toUpperCase();
       acctHtml = ''
         + '<div class="nav-acct">'
@@ -311,16 +320,21 @@
     /* If auth-gate resolves AFTER the topbar mounts, the account chip
        is missing from the first render. Listen for dtf-auth-ready and
        remount so the avatar appears without a page reload. */
-    if (!noAcct && !(catalystName || catalystEmail) && !this._authListenerWired) {
+    if (!noAcct && !isAuthenticated && !this._authListenerWired) {
       this._authListenerWired = true;
       var self = this;
+      function _hasAuth() {
+        try {
+          if (sessionStorage.getItem('dtf-auth-ok') === '1') return true;
+          if (sessionStorage.getItem('dtf-catalyst-uid')) return true;
+          if (sessionStorage.getItem('dtf-catalyst-name')) return true;
+          if (sessionStorage.getItem('dtf-catalyst-email')) return true;
+        } catch (_e) {}
+        if (window.DTF_AUTH && window.DTF_AUTH.user) return true;
+        return false;
+      }
       var rerender = function () {
-        var hasName = '';
-        try { hasName = sessionStorage.getItem('dtf-catalyst-name') || ''; } catch (_e) {}
-        if (!hasName && window.DTF_AUTH && window.DTF_AUTH.user) {
-          hasName = window.DTF_AUTH.user.firstName || window.DTF_AUTH.user.email || '';
-        }
-        if (!hasName) return;
+        if (!_hasAuth()) return;
         self._mounted = false;
         self.connectedCallback();
       };
@@ -328,13 +342,8 @@
       /* Poll briefly in case dtf-auth-ready already fired. */
       var tries = 0;
       var iv = setInterval(function () {
-        var hasName = '';
-        try { hasName = sessionStorage.getItem('dtf-catalyst-name') || ''; } catch (_e) {}
-        if (!hasName && window.DTF_AUTH && window.DTF_AUTH.user) {
-          hasName = window.DTF_AUTH.user.firstName || window.DTF_AUTH.user.email || '';
-        }
-        if (hasName) { clearInterval(iv); rerender(); return; }
-        if (++tries > 40) clearInterval(iv);
+        if (_hasAuth()) { clearInterval(iv); rerender(); return; }
+        if (++tries > 60) clearInterval(iv);
       }, 50);
     }
   };
