@@ -351,6 +351,8 @@
     return false;
   }
 
+  var _allProjectsList = null; /* cached full list for re-filtering */
+
   function tryFetch(i){
     var userEmail = _getCatalystEmail();
     /* Try candidates in order until one returns a valid list */
@@ -359,18 +361,32 @@
       .then(function(r){ if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
       .then(function(list) {
         if (!Array.isArray(list) || !list.length) throw new Error('empty');
-        if (userEmail) {
-          /* Filter to current user's projects */
-          var mine = list.filter(function(p) { return _projectMatchesUser(p, userEmail); });
-          if (mine.length) { render(mine); return; }
-          /* User has no projects yet */
-          renderEmpty();
-        } else {
-          /* No email yet — render all but keep trying to get auth */
-          render(list);
-        }
+        _allProjectsList = list; /* cache for re-filter */
+        _applyUserFilter(list, userEmail);
       })
       .catch(function(){ tryFetch(i+1); });
+  }
+
+  function _applyUserFilter(list, userEmail) {
+    if (userEmail) {
+      var mine = list.filter(function(p) { return _projectMatchesUser(p, userEmail); });
+      if (mine.length) { render(mine); return; }
+      renderEmpty();
+    } else {
+      /* No email yet — show all temporarily, then re-filter when auth resolves */
+      render(list);
+      /* Listen for auth-gate to set the email, then re-filter */
+      document.addEventListener('dtf-auth-ready', function onAuth(e) {
+        document.removeEventListener('dtf-auth-ready', onAuth);
+        var email = _getCatalystEmail();
+        if (!email && e && e.detail && e.detail.user) {
+          email = (e.detail.user.email || '').toLowerCase();
+        }
+        if (email && _allProjectsList) {
+          _applyUserFilter(_allProjectsList, email);
+        }
+      });
+    }
   }
 
   /* Fallback when every fetch candidate fails. Chrome blocks fetch()
@@ -535,10 +551,15 @@
     if (sdk && sdk.auth && typeof sdk.auth().getCurrentUser === 'function') {
       sdk.auth().getCurrentUser()
         .then(function(details) {
+          /* DEBUG: log raw Catalyst response to console so we can see
+             which fields are actually populated for this account. */
+          try { console.log('[DTF auth] Catalyst user details:', JSON.stringify(details)); } catch(_) {}
           var ud = (details && details.user_details) ? details.user_details : (details || {});
-          var userEmail = String(ud.email_id || ud.email || '');
-          var userId    = String(ud.user_id  || ud.userId || '');
-          var firstName = String(ud.first_name || ud.firstName || '');
+          /* Try every possible email field name */
+          var userEmail = String(ud.email_id || ud.emailId || ud.email || ud.email_address || ud.emailAddress || '');
+          var userId    = String(ud.user_id   || ud.userId   || ud.id   || '');
+          var firstName = String(ud.first_name || ud.firstName || ud.name || '');
+          try { console.log('[DTF auth] parsed email:', userEmail, 'uid:', userId); } catch(_) {}
           if (userEmail) {
             try {
               sessionStorage.setItem('dtf-auth-ok', '1');
@@ -549,7 +570,10 @@
           }
           tryFetch(0);
         })
-        .catch(function() { tryFetch(0); });
+        .catch(function(err) {
+          try { console.log('[DTF auth] getCurrentUser failed:', err); } catch(_) {}
+          tryFetch(0);
+        });
     } else {
       /* SDK not available yet — poll briefly */
       var attempts = 0;
