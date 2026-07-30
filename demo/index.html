@@ -10,7 +10,31 @@
      decide whether to show the page switcher). Without this, the
      hub paints with the previously-active project's brand instead
      of the package default blue. -->
-<script>try{localStorage.removeItem('dtf-active-project');}catch(e){}</script>
+<script>
+try{localStorage.removeItem('dtf-active-project');}catch(e){}
+/* If Zoho email not yet in sessionStorage, it means this page was opened
+   directly (bypassing the root entry point). Redirect through root so
+   Catalyst sets the session, then comes back here. Only do this once
+   (use ?authd=1 to avoid redirect loop). */
+(function(){
+  try {
+    var email = sessionStorage.getItem('dtf-catalyst-email') || '';
+    var uid   = sessionStorage.getItem('dtf-catalyst-uid')   || '';
+    var ok    = sessionStorage.getItem('dtf-auth-ok')        || '';
+    if (!email && !uid && !ok) {
+      /* Not yet authenticated — check if we've already tried redirecting */
+      if (location.search.indexOf('authd=1') === -1) {
+        /* Go through root entry point which calls Catalyst SDK and caches user */
+        var returnUrl = encodeURIComponent(location.pathname + '?authd=1');
+        location.replace('/?return=' + returnUrl);
+        /* Script execution stops here after redirect */
+      }
+      /* If authd=1 is already set, we came back from root — auth attempted,
+         fall through and show projects (possibly all if email still empty). */
+    }
+  } catch(_e) {}
+})();
+</script>
 <!-- Auth gate MUST be first, no defer, so body hides before paint. -->
 <script src="auth-gate.js?v=3"></script>
 <!-- Catalyst user identity helper — reads Zoho user ID from Catalyst SDK. -->
