@@ -215,10 +215,11 @@
   }
 
   function _redirectToLogin() {
-    /* Redirect to Catalyst's login page with the current URL as the
-       return URL so the user lands back here after signing in. */
+    /* Redirect to Catalyst's login page. The redirect_url must match a
+       pattern whitelisted in Catalyst Console → Security & Identity.
+       Use origin + pathname only (no query/hash) to maximise match chance. */
     try {
-      var returnUrl = encodeURIComponent(location.href);
+      var returnUrl = encodeURIComponent(location.origin + location.pathname);
       location.href = '/__catalyst/auth/login?redirect_url=' + returnUrl;
     } catch (_e) {
       location.href = '/__catalyst/auth/login';
