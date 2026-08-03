@@ -526,7 +526,7 @@
 
   function renderEmpty(){
     countEl.textContent = '0 projects';
-    grid.innerHTML = '<div class="hub-empty">No projects yet. <a href="onboard.html">Create your first project →</a></div>';
+    grid.innerHTML = '<div class="hub-empty">No projects yet. <a href="/onboard.html">Create your first project →</a></div>';
   }
 
   function renderError(){
@@ -534,7 +534,7 @@
     grid.innerHTML = '<div class="hub-empty">' +
       'Couldn\u2019t load <code>projects.json</code>. ' +
       'If you opened this file directly, your browser may be blocking local fetches \u2014 ' +
-      '<a href="onboard.html">create a project</a> or ' +
+      '<a href="/onboard.html">create a project</a> or ' +
       '<a href="editor-v2/index.html">open the editor directly \u2192</a>' +
     '</div>';
   }
