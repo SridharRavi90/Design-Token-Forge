@@ -51,10 +51,11 @@ try {
 
 /* ── Project Selector (injected into nav bar on every page) ── */
 (function(){
-  /* index.html has its own dedicated project bar — skip it there */
+  /* index.html, hub.html, and onboard.html have their own dedicated project
+     bar (or no bar at all) — skip the project selector IIFE on those pages */
   var path = location.pathname;
   var filename = path.substring(path.lastIndexOf('/') + 1) || 'index.html';
-  if (filename === 'index.html' || filename === 'onboard.html') return;
+  if (filename === 'index.html' || filename === 'hub.html' || filename === 'onboard.html') return;
 
   /* Mount into the <dtf-topbar> left-crumb project slot when available,
      fall back to the right-side .nav-actions for any legacy bar. The
