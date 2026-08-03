@@ -123,14 +123,21 @@
       if (attempts < 50) {
         setTimeout(function () { tryGetUser(attempts + 1); }, 100);
       } else {
-        /* Catalyst SDK never loaded. This means either:
-           a) The page is being served locally (not via Slate), OR
-           b) The SDK failed to load.
-           In this case, release with null user so local dev still works. */
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', function () { release(null); });
+        /* Catalyst SDK never loaded. On localhost we allow the page to
+           render without auth (dev convenience). On any Catalyst host
+           (onslate.in, catalystappexecutor.in, etc.) the SDK must be
+           present — treat absence as "not authenticated" and force login. */
+        var isLocal = location.hostname === 'localhost' ||
+                      location.hostname === '127.0.0.1' ||
+                      location.hostname === '';
+        if (isLocal) {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { release(null); });
+          } else {
+            release(null);
+          }
         } else {
-          release(null);
+          _redirectToLogin();
         }
       }
       return;
@@ -138,11 +145,18 @@
 
     var auth = sdk.auth ? sdk.auth() : null;
     if (!auth || typeof auth.getCurrentUser !== 'function') {
-      /* SDK loaded but no auth module — release for local dev. */
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { release(null); });
+      /* SDK loaded but no auth module. Treat same as SDK-missing case. */
+      var isLocal2 = location.hostname === 'localhost' ||
+                     location.hostname === '127.0.0.1' ||
+                     location.hostname === '';
+      if (isLocal2) {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function () { release(null); });
+        } else {
+          release(null);
+        }
       } else {
-        release(null);
+        _redirectToLogin();
       }
       return;
     }
@@ -173,18 +187,11 @@
         }
       })
       .catch(function () {
-        /* getCurrentUser() failed — user is not authenticated.
-           Catalyst Slate will redirect to login on the NEXT request.
-           For now, release with null (page may redirect itself). */
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', function () {
-            release(null);
-            _redirectToLogin();
-          });
-        } else {
-          release(null);
-          _redirectToLogin();
-        }
+        /* getCurrentUser() failed — user is NOT authenticated.
+           Do NOT release the page (that would flash the project list).
+           Go straight to the login redirect so the user never sees
+           protected content. */
+        _redirectToLogin();
       });
   }
 
@@ -202,7 +209,10 @@
   /* Start the SDK check immediately (synchronous script execution). */
   tryGetUser(0);
 
-  /* ── Sign-out helper. ────────────────────────────────────────── */
+  /* ── Sign-out helper (stub — catalyst-user.js overwrites this). ── */
+  /* This runs first (sync script). catalyst-user.js (deferred) will
+     replace window.DtfCatalystSignOut with the full SDK-aware version.
+     This stub is only ever called if catalyst-user.js never loaded. */
   window.DtfCatalystSignOut = function () {
     try {
       sessionStorage.removeItem(SESSION_KEY);
@@ -211,16 +221,7 @@
       sessionStorage.removeItem(EMAIL_KEY);
       localStorage.removeItem('dtf-active-project');
     } catch (_e) {}
-
-    /* Delegate to catalyst-user.js's robust sign-out (tries multiple
-       SDK patterns before falling back to a login-page redirect). */
-    if (typeof window.DtfCatalystSignOut === 'function' &&
-        window.DtfCatalystSignOut !== window.DtfAuthLogout) {
-      window.DtfCatalystSignOut();
-    } else {
-      /* catalyst-user.js not loaded — minimal fallback. */
-      location.href = '/__catalyst/auth/login?logout=true';
-    }
+    location.href = '/__catalyst/auth/login?logout=true';
   };
 
   /* Keep DtfAuthLogout as an alias so any existing code still works. */

@@ -141,9 +141,13 @@
         var auth = typeof sdk.auth === 'function' ? sdk.auth() : sdk.auth;
         if (auth && typeof auth.signOut === 'function') {
           var result = auth.signOut();
-          /* signOut may or may not return a Promise depending on SDK version */
-          if (result && typeof result.catch === 'function') {
-            result.catch(function () { _doLogoutRedirect(); });
+          /* Always redirect after signOut — whether it resolves or rejects.
+             The SDK may or may not navigate the browser itself; we
+             force the redirect so the user always lands on the login page. */
+          if (result && typeof result.then === 'function') {
+            result.then(_doLogoutRedirect, _doLogoutRedirect);
+          } else {
+            _doLogoutRedirect();
           }
           return;
         }
@@ -152,7 +156,12 @@
       /* Pattern B: sdk.signOut() — some Slate versions hoist it */
       try {
         if (typeof sdk.signOut === 'function') {
-          sdk.signOut().catch(function () { _doLogoutRedirect(); });
+          var r2 = sdk.signOut();
+          if (r2 && typeof r2.then === 'function') {
+            r2.then(_doLogoutRedirect, _doLogoutRedirect);
+          } else {
+            _doLogoutRedirect();
+          }
           return;
         }
       } catch (_e) {}
