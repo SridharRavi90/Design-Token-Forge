@@ -321,11 +321,16 @@
   // the file is actually one level higher than the usual `../` parent.
   // Order: nearest-first so file:// + local dev still find the repo root
   // copy without an extra 404.
+  /* Embedded fallback: used when ALL fetch candidates fail (e.g. Catalyst
+     Slate auth intercepts the XHR before the JSON is returned).
+     Keep in sync with root projects.json. New projects added via onboard
+     are saved to localStorage (dtf-known-projects) and take precedence. */
+  var _embeddedProjects = [{"id":"desktop-pdf-editor","name":"Desktop PDF Editor","owner":"sridhar-ravi-2917","ownerEmail":"sridhar.ravi@zohocorp.com","description":"Default project — the original DTF token set for the Desktop PDF Editor product."},{"id":"pearl","name":"Pearl","owner":"sridhar-ravi-2917","ownerEmail":"sridhar.ravi@zohocorp.com","description":"Design tokens for Pearl"},{"id":"writer-handhelds","name":"writer-handhelds","owner":"sridhar-ravi-2917","ownerEmail":"sridhar.ravi@zohocorp.com","description":""}];
+
   var candidates = [
-    '../projects.json',       // /…/demo/index.html  →  /…/projects.json
-    '../../projects.json',    // /…/<project>/demo/index.html  →  /…/projects.json (Pages mirror)
-    '/Design-Token-Forge/projects.json',
-    '/projects.json'
+    '/projects.json',
+    '../projects.json',
+    '/Design-Token-Forge/projects.json'
   ];
 
   /* Catalyst auth: fetch projects.json and filter by the signed-in
@@ -357,7 +362,7 @@
     var userEmail = _getCatalystEmail();
     /* Try candidates in order until one returns a valid list */
     if (i >= candidates.length) { renderFromLocalStorage(); return; }
-    fetch(candidates[i], { cache: 'no-store' })
+    fetch(candidates[i], { cache: 'no-store', credentials: 'include' })
       .then(function(r){ if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
       .then(function(list) {
         if (!Array.isArray(list) || !list.length) throw new Error('empty');
@@ -406,6 +411,12 @@
         if (Array.isArray(list) && list.length) { render(list); return; }
       }
     } catch (_e) {}
+    /* Last resort: use the list embedded at build time. Covers the case
+       where Catalyst Slate intercepts the XHR fetch before serving JSON. */
+    if (_embeddedProjects && _embeddedProjects.length) {
+      render(_embeddedProjects);
+      return;
+    }
     renderError();
   }
 

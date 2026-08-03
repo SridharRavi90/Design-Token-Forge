@@ -216,11 +216,12 @@
 
   function _redirectToLogin() {
     /* Redirect to Catalyst's login page.
-       Use relative pathname only — Catalyst validates redirect_url against
-       its own domain so absolute URLs with the hostname cause PATTERN_NOT_MATCHED. */
+       Use the raw pathname — do NOT encodeURIComponent the slash.
+       Catalyst validates redirect_url against its own domain; using the
+       encoded form (%2Fhub.html) causes it to fall back to the app's
+       configured default URL instead of honoring the param. */
     try {
-      var returnUrl = encodeURIComponent(location.pathname);
-      location.href = '/__catalyst/auth/login?redirect_url=' + returnUrl;
+      location.href = '/__catalyst/auth/login?redirect_url=' + location.pathname;
     } catch (_e) {
       location.href = '/__catalyst/auth/login';
     }
