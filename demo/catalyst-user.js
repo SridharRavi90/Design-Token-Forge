@@ -59,10 +59,12 @@
   }
 
   /* ── Read user from the deployed Catalyst serverless function. ──
-     Function URL: /server/getUser on catalystserverless.in (same project).
-     CORS headers are set in the function to allow requests from onslate.in.
-     We also send ZD_CSRF_TOKEN in the header so Catalyst can validate the
-     Zoho session that was established via /__catalyst/auth/login. */
+     The function at catalystserverless.in returns user info server-side.
+     Cross-domain CORS and session cookie isolation between onslate.in and
+     catalystserverless.in prevent direct calls. If the call fails (which it
+     does today with the Slate architecture), we fall back to null so the
+     topbar shows a generic "Signed In" state. The function stays deployed
+     for when Catalyst resolves the cross-domain auth limitation. */
   var FUNCTION_URL = 'https://project-rainfall-60080440486.development.catalystserverless.in/server/getUser/';
 
   function fetchCatalystUser() {
@@ -80,9 +82,9 @@
       credentials: 'include',
       headers: headers
     })
-      .then(function (res) { return res.json(); })
+      .then(function (res) { return res.ok ? res.json() : Promise.reject(res.status); })
       .then(function (json) {
-        if (json.status === 'success' && json.data) {
+        if (json.status === 'success' && json.data && json.data.userId) {
           var d = json.data;
           var user = {
             userId:    d.userId    || '',
@@ -97,6 +99,8 @@
         }
       })
       .catch(function () {
+        /* Cross-domain CORS blocks this call from the Slate (onslate.in)
+           domain. Fall back to null — topbar shows generic "Signed In". */
         if (!cached) publishUser(null);
       });
   }
