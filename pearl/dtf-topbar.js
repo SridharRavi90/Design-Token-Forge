@@ -119,7 +119,7 @@
        detect it by filename (index.html or trailing slash on /demo/)
        — never show the switcher there even if storage is somehow
        still set. */
-    var isHub = /\/pearl\/(hub\.html)?$/.test(location.pathname);
+    var isHub = /\/hub\.html$|\/hub$/.test(location.pathname);
     if (isHub) activePid = '';
     /* All NAV_ITEMS hrefs are written relative to /pearl/. If we are
        currently inside a subdir like /pearl/editor/, prefix '../'
@@ -145,7 +145,7 @@
     /* Home is the project picker (hub) — it does NOT consume ?project=.
        Leaving the param on would create a stale URL once the user is on
        the hub (URL says project=X but the page shows the picker). */
-    var homeHref = '/pearl/hub.html';
+    var homeHref = '/hub.html';
     var newHtml = noNew ? '' :
       '<a href="/onboard.html" class="nav-project-new" title="New Project">+ New</a>';
     var themeHtml = noTheme ? '' :

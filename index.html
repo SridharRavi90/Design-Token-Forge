@@ -47,7 +47,7 @@ html,body{height:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFo
   function route(){
     var ret='';
     try{ret=new URLSearchParams(location.search).get('return')||'';}catch(_e){}
-    var dest=ret?decodeURIComponent(ret):'/pearl/hub.html';
+    var dest=ret?decodeURIComponent(ret):'/hub.html';
     sub.textContent='Redirecting\u2026';
     window.location.replace(dest);
   }
@@ -90,7 +90,7 @@ html,body{height:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFo
       .catch(function(){
         showErr('Could not verify your Zoho account. Please sign in.');
         btn.onclick=function(){
-          location.href='/__catalyst/auth/login?redirect_url='+encodeURIComponent(location.href);
+          location.href='/__catalyst/auth/login?redirect_url='+encodeURIComponent('/hub.html');
         };
       });
   }

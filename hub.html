@@ -12,11 +12,11 @@
      of the package default blue. -->
 <script>try{localStorage.removeItem('dtf-active-project');}catch(e){}</script>
 <!-- Auth gate MUST be first, no defer, so body hides before paint. -->
-<script src="auth-gate.js?v=7"></script>
+<script src="/pearl/auth-gate.js?v=7"></script>
 <!-- Catalyst user identity helper — reads Zoho user ID from Catalyst SDK. -->
-<script src="catalyst-user.js?v=1" defer></script>
-<link rel="stylesheet" href="../packages/tokens/src/index.css">
-<link rel="stylesheet" href="shared.css?v=1008">
+<script src="/pearl/catalyst-user.js?v=1" defer></script>
+<link rel="stylesheet" href="packages/tokens/src/index.css">
+<link rel="stylesheet" href="/pearl/shared.css?v=1008">
 <!-- Hub is brand-neutral. In the Pages deploy, every per-project mirror
      ships a customized copy of packages/tokens/src/semantic.css, so the
      stylesheet above can resolve to (e.g.) Pearl's pink. Pin the hub's
@@ -65,8 +65,8 @@
     --brand-on-container:#CDDDFF;
   }
 </style>
-<script src="dtf-topbar.js?v=9" defer></script>
-<script src="shared.js?v=1105" defer></script>
+<script src="/pearl/dtf-topbar.js?v=9" defer></script>
+<script src="/pearl/shared.js?v=1105" defer></script>
 <style>
   :root{ color-scheme: light dark; }
   body{
