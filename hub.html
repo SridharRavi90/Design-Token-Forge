@@ -250,15 +250,15 @@
     <h2>Explore</h2>
   </div>
   <div class="hub-secondary">
-    <a class="sec-card" href="components.html">
+    <a class="sec-card" href="/pearl/components.html">
       <span class="sec-card-t">Component library →</span>
       <span class="sec-card-d">Buttons, inputs, toggles, and 20+ more components — fully token-driven, theme-aware.</span>
     </a>
-    <a class="sec-card" href="color-tokens.html">
+    <a class="sec-card" href="/pearl/color-tokens.html">
       <span class="sec-card-t">Color tokens →</span>
       <span class="sec-card-d">Browse the primitive → semantic → surface ladder that powers every theme.</span>
     </a>
-    <a class="sec-card" href="frameworks.html">
+    <a class="sec-card" href="/pearl/frameworks.html">
       <span class="sec-card-t">Framework integration →</span>
       <span class="sec-card-d">Drop-in snippets for React, Vue, Svelte, and vanilla projects.</span>
     </a>
@@ -506,7 +506,7 @@
       var c = colorFromId(p.id || 'x');
       var card = document.createElement('a');
       card.className = 'proj-card';
-      card.href = 'editor-v2/index.html?project=' + encodeURIComponent(p.id);
+      card.href = '/pearl/editor/index.html?project=' + encodeURIComponent(p.id);
       card.setAttribute('aria-label', 'Open ' + (p.name || p.id) + ' in editor');
       card.innerHTML =
         '<div class="proj-card-head">' +
@@ -538,7 +538,7 @@
       'Couldn\u2019t load <code>projects.json</code>. ' +
       'If you opened this file directly, your browser may be blocking local fetches \u2014 ' +
       '<a href="/onboard.html">create a project</a> or ' +
-      '<a href="editor-v2/index.html">open the editor directly \u2192</a>' +
+      '<a href="/pearl/editor/index.html">open the editor directly \u2192</a>' +
     '</div>';
   }
 

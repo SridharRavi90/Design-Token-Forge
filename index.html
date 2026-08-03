@@ -42,58 +42,60 @@ html,body{height:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFo
     };
   }
 
-  /* Fast path: already verified this session → go straight to hub. */
+  /* Fast path: already verified this session → go straight to hub.
+     No spinner needed — user is already authenticated. */
   try{
     if(sessionStorage.getItem('dtf-auth-ok')==='1'){
-      sub.textContent='Redirecting\u2026';
       window.location.replace('/hub.html');
       return;
     }
   }catch(_e){}
 
-  /* Try Catalyst SDK (available when already logged in via Slate). */
-  function run(n){
-    var sdk=window.catalyst||window.catalystApp;
-
-    if(!sdk){
-      if(n<50){setTimeout(function(){run(n+1);},100);}
-      else{
-        /* SDK never loaded — not logged in. Show Sign In button. */
-        showSignIn();
-      }
-      return;
-    }
-
-    var auth=sdk.auth?sdk.auth():null;
-    if(!auth||typeof auth.getCurrentUser!=='function'){
-      /* SDK present but no getCurrentUser (Slate context).
-         Can't tell if logged in — show Sign In button. */
+  /* Check authentication status via Catalyst BaaS (same-origin, fast ~200ms).
+     200 = active Catalyst session → redirect to hub without showing Sign In.
+     401/error = not logged in → show Sign In button immediately.
+     This replaces the old 5-second SDK poll and also handles the
+     "don't show Sign In again if already signed in this browser session" case. */
+  var _done=false;
+  function _finish(loggedIn,uid,email,name){
+    if(_done)return; _done=true;
+    if(loggedIn){
+      try{
+        sessionStorage.setItem('dtf-auth-ok','1');
+        if(uid)   sessionStorage.setItem('dtf-catalyst-uid',uid);
+        if(email) sessionStorage.setItem('dtf-catalyst-email',email);
+        if(name)  sessionStorage.setItem('dtf-catalyst-name',name);
+      }catch(_e){}
+      sub.textContent='Redirecting\u2026';
+      window.location.replace('/hub.html');
+    }else{
       showSignIn();
-      return;
     }
-
-    auth.getCurrentUser()
-      .then(function(d){
-        var ud=(d&&d.user_details)?d.user_details:(d||{});
-        var uid=String(ud.user_id||ud.userId||'');
-        var email=String(ud.email_id||ud.emailId||ud.email||ud.email_address||ud.emailAddress||'');
-        var name=String(ud.first_name||ud.firstName||ud.name||'');
-        try{
-          sessionStorage.setItem('dtf-auth-ok','1');
-          sessionStorage.setItem('dtf-catalyst-uid',uid);
-          sessionStorage.setItem('dtf-catalyst-name',name);
-          sessionStorage.setItem('dtf-catalyst-email',email);
-        }catch(_e){}
-        sub.textContent='Redirecting\u2026';
-        window.location.replace('/hub.html');
-      })
-      .catch(function(){
-        /* Not logged in — show Sign In button. */
-        showSignIn();
-      });
   }
 
-  run(0);
+  /* 1.5s safety net: if BaaS never responds, show Sign In button. */
+  var _timer=setTimeout(function(){_finish(false);},1500);
+
+  fetch('/__catalyst/baas/v1/project/38969000000013030/appuser/',{credentials:'include'})
+    .then(function(r){
+      clearTimeout(_timer);
+      if(!r.ok){_finish(false);return;}
+      r.json().then(function(data){
+        /* Catalyst BaaS wraps user_details in different shapes — try all. */
+        var ud=(data&&data.data&&data.data.user_details)?data.data.user_details:
+               (data&&data.user_details)?data.user_details:
+               (Array.isArray(data)&&data[0])?data[0]:
+               (data&&data.data)?data.data:(data||{});
+        var email=String(ud.email_id||ud.emailId||ud.email||ud.email_address||'');
+        var uid  =String(ud.user_id ||ud.userId ||ud.id  ||'');
+        var name =String(ud.first_name||ud.firstName||ud.name||'');
+        _finish(true,uid,email,name);
+      }).catch(function(){_finish(true);});/* 200 but bad JSON = still logged in */
+    })
+    .catch(function(){
+      clearTimeout(_timer);
+      _finish(false);
+    });
 })();
 </script>
 </body>

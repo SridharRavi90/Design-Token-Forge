@@ -494,22 +494,25 @@
   prevBtn.addEventListener('click', () => {
     if (currentStep > 1) goToStep(currentStep - 1);
   });
-  // Cancel: return to the page that opened the wizard. Fallbacks
-  // cover (a) direct visits via typed URL (no referrer) and (b)
-  // cross-origin referrers \u2014 land on the projects hub in both cases.
+  // Cancel: only meaningful if the user already has projects to go back to.
+  // For brand-new users (nothing in dtf-known-projects) there is nowhere to
+  // cancel back to, so we hide the button entirely.
   const cancelBtn = document.getElementById('cancelBtn');
   if (cancelBtn) {
-    cancelBtn.addEventListener('click', () => {
-      let target = 'index.html';
-      try {
-        const ref = document.referrer;
-        if (ref && new URL(ref).origin === location.origin && !ref.endsWith('/onboard.html')) {
-          target = ref;
-        }
-      } catch (e) {}
-      if (window.history.length > 1 && target === document.referrer) window.history.back();
-      else window.location.href = target;
-    });
+    let hasProjects = false;
+    try {
+      const raw = localStorage.getItem('dtf-known-projects');
+      const list = raw ? JSON.parse(raw) : [];
+      hasProjects = Array.isArray(list) && list.length > 0;
+    } catch (_e) {}
+
+    if (!hasProjects) {
+      cancelBtn.style.display = 'none';
+    } else {
+      cancelBtn.addEventListener('click', () => {
+        window.location.href = '/hub.html';
+      });
+    }
   }
   steps.forEach(s => s.addEventListener('click', () => {
     const target = parseInt(s.dataset.step);
