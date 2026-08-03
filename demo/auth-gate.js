@@ -123,21 +123,25 @@
       if (attempts < 50) {
         setTimeout(function () { tryGetUser(attempts + 1); }, 100);
       } else {
-        /* Catalyst Slate does not expose the JS SDK, so we can't call
-           getCurrentUser(). Use ZD_CSRF_TOKEN as a proxy:
-           — Present  → user came through Zoho SSO and IS authenticated.
-                        Release the page (we just can't get their name).
-           — Absent   → user is not logged in (incognito, fresh session).
-                        Redirect to login. */
-        var hasZohoSession = /(?:^|;\s*)ZD_CSRF_TOKEN=/.test(document.cookie);
-        if (hasZohoSession) {
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function () { release(null); });
+        /* Catalyst SDK never appeared. Same loop-prevention logic — if we
+           already set dtf-auth-pending, we came back from SSO → release.
+           Otherwise redirect to login. */
+        var pendingKey = 'dtf-auth-pending';
+        try {
+          if (sessionStorage.getItem(pendingKey) === '1') {
+            sessionStorage.removeItem(pendingKey);
+            sessionStorage.setItem(SESSION_KEY, '1');
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', function () { release(null); });
+            } else {
+              release(null);
+            }
           } else {
-            release(null);
+            sessionStorage.setItem(pendingKey, '1');
+            _redirectToLogin();
           }
-        } else {
-          _redirectToLogin();
+        } catch (_e) {
+          release(null);
         }
       }
       return;
@@ -145,10 +149,32 @@
 
     var auth = sdk.auth ? sdk.auth() : null;
     if (!auth || typeof auth.getCurrentUser !== 'function') {
-      /* SDK loaded but no auth module — release for local dev. */
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { release(null); });
-      } else {
+      /* SDK present but no getCurrentUser — this is the Catalyst Slate
+         context where the JS SDK loads but lacks auth methods.
+         Use sessionStorage loop-prevention to distinguish a post-login
+         return from a fresh unauthenticated visit:
+           dtf-auth-pending=1  → we set this before redirecting to login;
+                                  if it's here on page load, we just came
+                                  back from a successful SSO login → release.
+           (absent)            → first visit, unauthenticated → redirect. */
+      var pendingKey = 'dtf-auth-pending';
+      try {
+        if (sessionStorage.getItem(pendingKey) === '1') {
+          /* Back from login — authenticated. Clear flag, cache, release. */
+          sessionStorage.removeItem(pendingKey);
+          sessionStorage.setItem(SESSION_KEY, '1');
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { release(null); });
+          } else {
+            release(null);
+          }
+        } else {
+          /* No auth signal — set pending flag then redirect to login. */
+          sessionStorage.setItem(pendingKey, '1');
+          _redirectToLogin();
+        }
+      } catch (_e) {
+        /* sessionStorage blocked (rare) — release rather than loop. */
         release(null);
       }
       return;
