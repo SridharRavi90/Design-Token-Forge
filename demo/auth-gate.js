@@ -123,21 +123,16 @@
       if (attempts < 50) {
         setTimeout(function () { tryGetUser(attempts + 1); }, 100);
       } else {
-        /* Catalyst SDK never loaded. On localhost we allow the page to
-           render without auth (dev convenience). On any Catalyst host
-           (onslate.in, catalystappexecutor.in, etc.) the SDK must be
-           present — treat absence as "not authenticated" and force login. */
-        var isLocal = location.hostname === 'localhost' ||
-                      location.hostname === '127.0.0.1' ||
-                      location.hostname === '';
-        if (isLocal) {
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function () { release(null); });
-          } else {
-            release(null);
-          }
+        /* Catalyst Slate static hosting does NOT expose /__catalyst/js/
+           catalystApp.js — the SDK is unavailable. Release the page so
+           authenticated users are not caught in a redirect loop (Zoho SSO
+           would auto-login them back immediately, causing infinite loops).
+           Route protection for unauthenticated users must be configured
+           in the Catalyst console (Slate → Configuration → Authentication). */
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function () { release(null); });
         } else {
-          _redirectToLogin();
+          release(null);
         }
       }
       return;
@@ -145,18 +140,11 @@
 
     var auth = sdk.auth ? sdk.auth() : null;
     if (!auth || typeof auth.getCurrentUser !== 'function') {
-      /* SDK loaded but no auth module. Treat same as SDK-missing case. */
-      var isLocal2 = location.hostname === 'localhost' ||
-                     location.hostname === '127.0.0.1' ||
-                     location.hostname === '';
-      if (isLocal2) {
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', function () { release(null); });
-        } else {
-          release(null);
-        }
+      /* SDK loaded but no auth module — release for local dev. */
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { release(null); });
       } else {
-        _redirectToLogin();
+        release(null);
       }
       return;
     }
