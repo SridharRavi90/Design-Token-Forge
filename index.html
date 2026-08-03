@@ -13,7 +13,7 @@ html,body{height:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFo
 .sub{font-size:13px;color:#94a3b8;max-width:280px}
 .spin{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#fff;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.err{font-size:12px;color:#f87171;max-width:320px;display:none}
+.err{display:none}
 .btn{display:none;padding:10px 24px;border-radius:6px;border:none;background:#286CE5;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 .btn:hover{background:#1e54b8}
 </style>
@@ -31,45 +31,44 @@ html,body{height:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFo
 (function(){
   var sub=document.getElementById('sub'),
       spin=document.getElementById('spin'),
-      err=document.getElementById('err'),
       btn=document.getElementById('btn');
 
-  function showErr(m){
+  function showSignIn(){
     spin.style.display='none';
-    sub.style.display='none';
-    err.textContent=m;
-    err.style.display='block';
+    sub.textContent='Welcome to Design Token Forge';
     btn.style.display='block';
+    btn.onclick=function(){
+      location.href='/__catalyst/auth/login?redirect_url='+encodeURIComponent('/hub.html');
+    };
   }
 
-  /* After getting the user, redirect to the ?return= target (set by
-     Slate's auth intercept) or fall back to /demo/index.html. */
-  function route(){
-    var ret='';
-    try{ret=new URLSearchParams(location.search).get('return')||'';}catch(_e){}
-    var dest=ret?decodeURIComponent(ret):'/hub.html';
-    sub.textContent='Redirecting\u2026';
-    window.location.replace(dest);
-  }
+  /* Fast path: already verified this session → go straight to hub. */
+  try{
+    if(sessionStorage.getItem('dtf-auth-ok')==='1'){
+      sub.textContent='Redirecting\u2026';
+      window.location.replace('/hub.html');
+      return;
+    }
+  }catch(_e){}
 
+  /* Try Catalyst SDK (available when already logged in via Slate). */
   function run(n){
     var sdk=window.catalyst||window.catalystApp;
 
-    /* SDK not yet injected by Slate — retry for up to 5 seconds. */
     if(!sdk){
       if(n<50){setTimeout(function(){run(n+1);},100);}
       else{
-        /* SDK never loaded (local dev, or unprotected route).
-           Just redirect to the hub — auth-gate.js will handle auth there. */
-        sub.textContent='Redirecting\u2026';
-        window.location.replace('/hub.html');
+        /* SDK never loaded — not logged in. Show Sign In button. */
+        showSignIn();
       }
       return;
     }
 
     var auth=sdk.auth?sdk.auth():null;
     if(!auth||typeof auth.getCurrentUser!=='function'){
-      window.location.replace('/hub.html');
+      /* SDK present but no getCurrentUser (Slate context).
+         Can't tell if logged in — show Sign In button. */
+      showSignIn();
       return;
     }
 
@@ -85,13 +84,12 @@ html,body{height:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFo
           sessionStorage.setItem('dtf-catalyst-name',name);
           sessionStorage.setItem('dtf-catalyst-email',email);
         }catch(_e){}
-        route();
+        sub.textContent='Redirecting\u2026';
+        window.location.replace('/hub.html');
       })
       .catch(function(){
-        showErr('Could not verify your Zoho account. Please sign in.');
-        btn.onclick=function(){
-          location.href='/__catalyst/auth/login?redirect_url='+encodeURIComponent('/hub.html');
-        };
+        /* Not logged in — show Sign In button. */
+        showSignIn();
       });
   }
 
