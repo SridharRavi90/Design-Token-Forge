@@ -181,6 +181,8 @@
     if (!noAcct && isAuthenticated) {
       var displayName = catalystName || catalystEmail.split('@')[0] || catalystUid || 'Zoho User';
       var initial = (displayName.charAt(0) || '?').toUpperCase();
+      /* Subtitle: show email when available, otherwise "Zoho account" */
+      var acctMeta = catalystEmail || 'Zoho account';
       acctHtml = ''
         + '<div class="nav-acct">'
         +   '<button class="nav-acct-btn" type="button" '
@@ -192,7 +194,7 @@
         +   '<div class="nav-acct-menu" role="menu">'
         +     '<div class="nav-acct-head">'
         +       '<div class="nav-acct-name">' + esc(displayName) + '</div>'
-        +       '<div class="nav-acct-meta">Zoho account</div>'
+        +       '<div class="nav-acct-meta">' + esc(acctMeta) + '</div>'
         +     '</div>'
         +     '<div class="dd-sep" role="separator"></div>'
         +     '<button class="nav-acct-signout" type="button" role="menuitem">'

@@ -7077,6 +7077,17 @@
     // reopening the tab restores the same draft state and the
     // Publish-N-change button is still active. Keeping the guard
     // function defined for reference but unused.
+
+    // Push the fully-initialised token state to the preview iframe.
+    // _onFrameLoad() fires at line ~6727 (before boot()) so the
+    // preview may already have loaded with empty State — the push
+    // there races against readBaseline(). This call is the
+    // authoritative push: State is fully populated by now (baseline
+    // read, T1/T2 seeded, draft restored). If the iframe is still
+    // loading the push is a no-op; _onFrameLoad() will push again
+    // when it fires and State will be correct by then.
+    try { pushPreview(); } catch (_e) {}
+    try { loadTypoState(); pushTypoToPreview(); } catch (_e) {}
   }
   // Boot runs at the very bottom, after all helpers are defined.
 

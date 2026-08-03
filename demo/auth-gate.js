@@ -152,10 +152,10 @@
         /* Catalyst SDK returns nested user_details. */
         var ud = (details && details.user_details) ? details.user_details : (details || {});
         var user = {
-          userId:    String(ud.user_id    || ud.userId    || ''),
-          firstName: String(ud.first_name || ud.firstName || ''),
+          userId:    String(ud.user_id    || ud.userId    || ud.id    || ''),
+          firstName: String(ud.first_name || ud.firstName || ud.display_name || ud.displayName || ud.name || ud.user_name || ud.userName || ''),
           lastName:  String(ud.last_name  || ud.lastName  || ''),
-          email:     String(ud.email_id   || ud.email     || '')
+          email:     String(ud.email_id   || ud.emailId   || ud.email || ud.email_address || ud.emailAddress || '')
         };
 
         /* Cache for fast path on next page navigation. */
