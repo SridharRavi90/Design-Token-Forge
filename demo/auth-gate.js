@@ -215,11 +215,11 @@
   }
 
   function _redirectToLogin() {
-    /* Redirect to Catalyst's login page. The redirect_url must match a
-       pattern whitelisted in Catalyst Console → Security & Identity.
-       Use origin + pathname only (no query/hash) to maximise match chance. */
+    /* Redirect to Catalyst's login page.
+       Use relative pathname only — Catalyst validates redirect_url against
+       its own domain so absolute URLs with the hostname cause PATTERN_NOT_MATCHED. */
     try {
-      var returnUrl = encodeURIComponent(location.origin + location.pathname);
+      var returnUrl = encodeURIComponent(location.pathname);
       location.href = '/__catalyst/auth/login?redirect_url=' + returnUrl;
     } catch (_e) {
       location.href = '/__catalyst/auth/login';
