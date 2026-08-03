@@ -1,12 +1,6 @@
 {
-  "project_name": "Project-Rainfall",
-  "project_id": "38969000000013030",
-  "functions": [
-    {
-      "folder_name": "getUser",
-      "function_name": "getUser",
-      "type": "advancedio",
-      "stack": "node18"
-    }
-  ]
+  "functions": {
+    "targets": ["getUser"],
+    "source": "functions"
+  }
 }

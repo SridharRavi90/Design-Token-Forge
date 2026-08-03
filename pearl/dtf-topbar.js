@@ -30,7 +30,7 @@
 
   /* ── Page registry (shared with nav.js) ─────────────────── */
   var NAV_ITEMS = [
-    { label: 'Token Editor',    href: 'editor-v2/index.html'           },
+    { label: 'Token Editor',    href: 'editor/'                        },
     { label: 'Tokens',          href: 'color-tokens.html'    },
     { label: 'Typography',      href: 'typography.html'      },
     { label: 'Frameworks',      href: 'frameworks.html'      },
@@ -119,12 +119,12 @@
        detect it by filename (index.html or trailing slash on /demo/)
        — never show the switcher there even if storage is somehow
        still set. */
-    var isHub = /\/demo\/(index\.html)?$/.test(location.pathname);
+    var isHub = /\/pearl\/(hub\.html)?$/.test(location.pathname);
     if (isHub) activePid = '';
-    /* All NAV_ITEMS hrefs are written relative to /demo/. If we are
-       currently inside a subdir like /demo/editor-v2/, prefix '../'
+    /* All NAV_ITEMS hrefs are written relative to /pearl/. If we are
+       currently inside a subdir like /pearl/editor/, prefix '../'
        so links resolve to the right files instead of 404'ing. */
-    var inSubdir = /\/demo\/[^/]+\//.test(location.pathname);
+    var inSubdir = /\/pearl\/[^/]+\//.test(location.pathname);
     var prefix = inSubdir ? '../' : '';
     for (i = 0; i < NAV_ITEMS.length; i++) {
       var it = NAV_ITEMS[i];
@@ -145,9 +145,9 @@
     /* Home is the project picker (hub) — it does NOT consume ?project=.
        Leaving the param on would create a stale URL once the user is on
        the hub (URL says project=X but the page shows the picker). */
-    var homeHref = prefix + 'index.html';
+    var homeHref = '/pearl/hub.html';
     var newHtml = noNew ? '' :
-      '<a href="' + esc(prefix + 'onboard.html') + '" class="nav-project-new" title="New Project">+ New</a>';
+      '<a href="/onboard.html" class="nav-project-new" title="New Project">+ New</a>';
     var themeHtml = noTheme ? '' :
       '<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" aria-pressed="false">'
         + ICON_SUN + ICON_MOON +
