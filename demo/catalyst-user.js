@@ -58,39 +58,39 @@
     /* Still kick off a background refresh so the cache stays fresh. */
   }
 
-  /* ── Read user from the deployed Catalyst serverless function. ──
-     The function at catalystserverless.in returns user info server-side.
-     Cross-domain CORS and session cookie isolation between onslate.in and
-     catalystserverless.in prevent direct calls. If the call fails (which it
-     does today with the Slate architecture), we fall back to null so the
-     topbar shows a generic "Signed In" state. The function stays deployed
-     for when Catalyst resolves the cross-domain auth limitation. */
-  var FUNCTION_URL = 'https://project-rainfall-60080440486.development.catalystserverless.in/server/getUser/';
+  /* ── Read user from the Catalyst BaaS API (same-domain). ──────
+     The Catalyst BaaS API is proxied through /__catalyst/ on the same
+     onslate.in domain, so session cookies are included automatically.
+     This replaces the old cross-domain serverless function call which
+     was always blocked by CORS. */
+  var PROJECT_ID = '38969000000013030';
+  var BAAS_URL = '/__catalyst/baas/v1/project/' + PROJECT_ID + '/appuser/';
 
   function fetchCatalystUser() {
-    var csrfToken = '';
-    try {
-      var match = document.cookie.match(/(?:^|;\s*)ZD_CSRF_TOKEN=([^;]+)/);
-      if (match) csrfToken = decodeURIComponent(match[1]);
-    } catch (_e) {}
-
-    var headers = { 'Accept': 'application/json' };
-    if (csrfToken) headers['X-ZCSRF-TOKEN'] = csrfToken;
-
-    fetch(FUNCTION_URL, {
+    fetch(BAAS_URL, {
       method: 'GET',
       credentials: 'include',
-      headers: headers
+      headers: { 'Accept': 'application/json' }
     })
       .then(function (res) { return res.ok ? res.json() : Promise.reject(res.status); })
       .then(function (json) {
-        if (json.status === 'success' && json.data && json.data.userId) {
-          var d = json.data;
+        /* BaaS returns { data: { user_details: {...} } } or { data: [{...}] } */
+        var ud = null;
+        if (json && json.data) {
+          if (json.data.user_details) {
+            ud = json.data.user_details;
+          } else if (Array.isArray(json.data) && json.data[0]) {
+            ud = json.data[0].user_details || json.data[0];
+          } else if (json.data.user_id || json.data.email_id) {
+            ud = json.data;
+          }
+        }
+        if (ud) {
           var user = {
-            userId:    d.userId    || '',
-            firstName: d.firstName || '',
-            lastName:  d.lastName  || '',
-            email:     d.email     || ''
+            userId:    String(ud.user_id    || ud.userId    || ''),
+            firstName: String(ud.first_name || ud.firstName || ud.display_name || ud.name || ''),
+            lastName:  String(ud.last_name  || ud.lastName  || ''),
+            email:     String(ud.email_id   || ud.emailId   || ud.email || '')
           };
           setCached(user);
           publishUser(user);
@@ -99,8 +99,6 @@
         }
       })
       .catch(function () {
-        /* Cross-domain CORS blocks this call from the Slate (onslate.in)
-           domain. Fall back to null — topbar shows generic "Signed In". */
         if (!cached) publishUser(null);
       });
   }
