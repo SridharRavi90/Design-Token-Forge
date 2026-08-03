@@ -123,16 +123,21 @@
       if (attempts < 50) {
         setTimeout(function () { tryGetUser(attempts + 1); }, 100);
       } else {
-        /* Catalyst Slate static hosting does NOT expose /__catalyst/js/
-           catalystApp.js — the SDK is unavailable. Release the page so
-           authenticated users are not caught in a redirect loop (Zoho SSO
-           would auto-login them back immediately, causing infinite loops).
-           Route protection for unauthenticated users must be configured
-           in the Catalyst console (Slate → Configuration → Authentication). */
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', function () { release(null); });
+        /* Catalyst Slate does not expose the JS SDK, so we can't call
+           getCurrentUser(). Use ZD_CSRF_TOKEN as a proxy:
+           — Present  → user came through Zoho SSO and IS authenticated.
+                        Release the page (we just can't get their name).
+           — Absent   → user is not logged in (incognito, fresh session).
+                        Redirect to login. */
+        var hasZohoSession = /(?:^|;\s*)ZD_CSRF_TOKEN=/.test(document.cookie);
+        if (hasZohoSession) {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { release(null); });
+          } else {
+            release(null);
+          }
         } else {
-          release(null);
+          _redirectToLogin();
         }
       }
       return;
