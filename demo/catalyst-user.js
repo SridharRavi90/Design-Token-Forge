@@ -58,16 +58,27 @@
     /* Still kick off a background refresh so the cache stays fresh. */
   }
 
-  /* ── Read user from /server/getUser (Catalyst serverless function). ─
-     The function runs server-side and has access to the Catalyst auth
-     session, which the Web SDK cannot reach from the Slate domain.
-     /server/getUser is on the same onslate.in domain, so session
-     cookies are included automatically with credentials:'include'. */
+  /* ── Read user from the deployed Catalyst serverless function. ──
+     Function URL: /server/getUser on catalystserverless.in (same project).
+     CORS headers are set in the function to allow requests from onslate.in.
+     We also send ZD_CSRF_TOKEN in the header so Catalyst can validate the
+     Zoho session that was established via /__catalyst/auth/login. */
+  var FUNCTION_URL = 'https://project-rainfall-60080440486.development.catalystserverless.in/server/getUser/';
+
   function fetchCatalystUser() {
-    fetch('/server/getUser', {
+    var csrfToken = '';
+    try {
+      var match = document.cookie.match(/(?:^|;\s*)ZD_CSRF_TOKEN=([^;]+)/);
+      if (match) csrfToken = decodeURIComponent(match[1]);
+    } catch (_e) {}
+
+    var headers = { 'Accept': 'application/json' };
+    if (csrfToken) headers['X-ZCSRF-TOKEN'] = csrfToken;
+
+    fetch(FUNCTION_URL, {
       method: 'GET',
       credentials: 'include',
-      headers: { 'Accept': 'application/json' }
+      headers: headers
     })
       .then(function (res) { return res.json(); })
       .then(function (json) {
@@ -82,12 +93,10 @@
           setCached(user);
           publishUser(user);
         } else {
-          /* Function returned failure (e.g. not yet deployed). */
           if (!cached) publishUser(null);
         }
       })
       .catch(function () {
-        /* /server/getUser not deployed yet — fall back to null. */
         if (!cached) publishUser(null);
       });
   }

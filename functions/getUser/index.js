@@ -14,10 +14,26 @@
 
 const catalyst = require('zcatalyst-sdk-node');
 
+const ALLOWED_ORIGIN = 'https://design-token-forge-crtmngny.onslate.in';
+
+function setCors(res) {
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-ZCSRF-TOKEN');
+}
+
 module.exports = async (req, res) => {
+  setCors(res);
   res.setHeader('Content-Type', 'application/json');
 
-  /* Only allow GET requests. */
+  /* Handle CORS preflight. */
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    res.end('');
+    return;
+  }
+
   if (req.method !== 'GET') {
     res.statusCode = 405;
     res.end(JSON.stringify({ status: 'failure', error: 'Method not allowed' }));
