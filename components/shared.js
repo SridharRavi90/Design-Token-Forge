@@ -78,7 +78,7 @@ try {
 
   function _mount(nav) {
 
-  var depth = (location.pathname.indexOf('/pearl/') !== -1) ? '..' : '.';
+  var depth = (location.pathname.indexOf('/components/') !== -1) ? '..' : '.';
 
   /* ── Build DOM — pill chip (mock Option C) ── */
   var wrap = document.createElement('div');
@@ -896,7 +896,7 @@ try {
   /* Always fetch fresh config+CSS from server on page load.
      Show cached CSS immediately above for fast render, then update. */
   if (activeProject) {
-    var depth = (location.pathname.indexOf('/pearl/') !== -1) ? '..' : '.';
+    var depth = (location.pathname.indexOf('/components/') !== -1) ? '..' : '.';
     var cssFiles = ['primitives.css', 'semantic.css', 'surfaces.css'];
 
     /* Fetch config */

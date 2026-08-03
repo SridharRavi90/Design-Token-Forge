@@ -12,11 +12,11 @@
      of the package default blue. -->
 <script>try{localStorage.removeItem('dtf-active-project');}catch(e){}</script>
 <!-- Auth gate MUST be first, no defer, so body hides before paint. -->
-<script src="/pearl/auth-gate.js?v=7"></script>
+<script src="/components/auth-gate.js?v=7"></script>
 <!-- Catalyst user identity helper — reads Zoho user ID from Catalyst SDK. -->
-<script src="/pearl/catalyst-user.js?v=1" defer></script>
+<script src="/components/catalyst-user.js?v=1" defer></script>
 <link rel="stylesheet" href="packages/tokens/src/index.css">
-<link rel="stylesheet" href="/pearl/shared.css?v=1008">
+<link rel="stylesheet" href="/components/shared.css?v=1008">
 <!-- Hub is brand-neutral. In the Pages deploy, every per-project mirror
      ships a customized copy of packages/tokens/src/semantic.css, so the
      stylesheet above can resolve to (e.g.) Pearl's pink. Pin the hub's
@@ -65,8 +65,8 @@
     --brand-on-container:#CDDDFF;
   }
 </style>
-<script src="/pearl/dtf-topbar.js?v=9" defer></script>
-<script src="/pearl/shared.js?v=1105" defer></script>
+<script src="/components/dtf-topbar.js?v=9" defer></script>
+<script src="/components/shared.js?v=1105" defer></script>
 <style>
   :root{ color-scheme: light dark; }
   body{
@@ -250,15 +250,15 @@
     <h2>Explore</h2>
   </div>
   <div class="hub-secondary">
-    <a class="sec-card" href="/pearl/components.html">
+    <a class="sec-card" href="/components/components.html">
       <span class="sec-card-t">Component library →</span>
       <span class="sec-card-d">Buttons, inputs, toggles, and 20+ more components — fully token-driven, theme-aware.</span>
     </a>
-    <a class="sec-card" href="/pearl/color-tokens.html">
+    <a class="sec-card" href="/components/color-tokens.html">
       <span class="sec-card-t">Color tokens →</span>
       <span class="sec-card-d">Browse the primitive → semantic → surface ladder that powers every theme.</span>
     </a>
-    <a class="sec-card" href="/pearl/frameworks.html">
+    <a class="sec-card" href="/components/frameworks.html">
       <span class="sec-card-t">Framework integration →</span>
       <span class="sec-card-d">Drop-in snippets for React, Vue, Svelte, and vanilla projects.</span>
     </a>
@@ -317,7 +317,7 @@
   // Try every plausible location for projects.json. The build mirrors
   // `demo/` into every `dist/<project>/demo/` folder, but projects.json
   // only lives at the dist root — so when the user lands on the
-  // per-project hub mirror (e.g. /Design-Token-Forge/pearl/demo/index.html)
+  // per-project hub mirror (e.g. /Design-Token-Forge/components/demo/index.html)
   // the file is actually one level higher than the usual `../` parent.
   // Order: nearest-first so file:// + local dev still find the repo root
   // copy without an extra 404.
@@ -517,7 +517,7 @@
       var c = colorFromId(p.id || 'x');
       var card = document.createElement('a');
       card.className = 'proj-card';
-      card.href = '/pearl/editor/index.html?project=' + encodeURIComponent(p.id);
+      card.href = '/components/editor/index.html?project=' + encodeURIComponent(p.id);
       card.setAttribute('aria-label', 'Open ' + (p.name || p.id) + ' in editor');
       card.innerHTML =
         '<div class="proj-card-head">' +
@@ -549,7 +549,7 @@
       'Couldn\u2019t load <code>projects.json</code>. ' +
       'If you opened this file directly, your browser may be blocking local fetches \u2014 ' +
       '<a href="/onboard.html">create a project</a> or ' +
-      '<a href="/pearl/editor/index.html">open the editor directly \u2192</a>' +
+      '<a href="/components/editor/index.html">open the editor directly \u2192</a>' +
     '</div>';
   }
 

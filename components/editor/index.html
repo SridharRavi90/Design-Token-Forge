@@ -128,7 +128,7 @@
         var qs = '?_cb=' + Date.now();
         try {
           if (location.protocol !== 'file:') {
-            var i = location.pathname.indexOf('/pearl/editor');
+            var i = location.pathname.indexOf('/components/editor');
             if (i > 0) {
               var segs = location.pathname.slice(0, i).split('/').filter(Boolean);
               if (segs.length) return '/' + segs[0] + '/projects/' + encodeURIComponent(p) + '/' + file + qs;

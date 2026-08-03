@@ -121,10 +121,10 @@
        still set. */
     var isHub = /\/hub\.html$|\/hub$/.test(location.pathname);
     if (isHub) activePid = '';
-    /* All NAV_ITEMS hrefs are written relative to /pearl/. If we are
-       currently inside a subdir like /pearl/editor/, prefix '../'
+    /* All NAV_ITEMS hrefs are written relative to /components/. If we are
+       currently inside a subdir like /components/editor/, prefix '../'
        so links resolve to the right files instead of 404'ing. */
-    var inSubdir = /\/pearl\/[^/]+\//.test(location.pathname);
+    var inSubdir = /\/components\/[^/]+\//.test(location.pathname);
     var prefix = inSubdir ? '../' : '';
     for (i = 0; i < NAV_ITEMS.length; i++) {
       var it = NAV_ITEMS[i];
