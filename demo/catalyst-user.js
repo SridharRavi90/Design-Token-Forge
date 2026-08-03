@@ -121,26 +121,55 @@
 
   /* ── Sign-out helper ─────────────────────────────────────────── */
   window.DtfCatalystSignOut = function () {
-    /* Clear our caches first. */
+    /* 1. Wipe all local auth caches so the app forgets the session. */
     try {
       sessionStorage.removeItem(USER_CACHE_KEY);
+      sessionStorage.removeItem('dtf-auth-ok');
+      sessionStorage.removeItem('dtf-catalyst-uid');
+      sessionStorage.removeItem('dtf-catalyst-name');
+      sessionStorage.removeItem('dtf-catalyst-email');
       localStorage.removeItem('dtf-active-project');
     } catch (_e) {}
 
-    /* Delegate to Catalyst SDK sign-out. */
+    /* 2. Try every known Catalyst SDK sign-out pattern.
+          The SDK (injected by Slate at /__catalyst/js/catalystApp.js)
+          varies across Slate versions — try all known shapes. */
     var sdk = window.catalyst || window.catalystApp;
-    if (sdk && sdk.auth && typeof sdk.auth().signOut === 'function') {
-      sdk.auth().signOut()
-        .catch(function () {
-          /* If SDK sign-out fails, fall back to hard reload which Slate
-             will intercept and redirect to login. */
-          location.reload();
-        });
-    } else {
-      /* SDK unavailable — redirect to Catalyst sign-out endpoint directly. */
-      location.href = '/__catalyst/auth/signout';
+    if (sdk) {
+      /* Pattern A: sdk.auth().signOut() — standard Catalyst Web SDK */
+      try {
+        var auth = typeof sdk.auth === 'function' ? sdk.auth() : sdk.auth;
+        if (auth && typeof auth.signOut === 'function') {
+          var result = auth.signOut();
+          /* signOut may or may not return a Promise depending on SDK version */
+          if (result && typeof result.catch === 'function') {
+            result.catch(function () { _doLogoutRedirect(); });
+          }
+          return;
+        }
+      } catch (_e) {}
+
+      /* Pattern B: sdk.signOut() — some Slate versions hoist it */
+      try {
+        if (typeof sdk.signOut === 'function') {
+          sdk.signOut().catch(function () { _doLogoutRedirect(); });
+          return;
+        }
+      } catch (_e) {}
     }
+
+    /* 3. SDK sign-out unavailable — redirect to Catalyst login so
+          Slate re-challenges the user for credentials. */
+    _doLogoutRedirect();
   };
+
+  function _doLogoutRedirect() {
+    /* Redirect to Catalyst login page. Appending ?logout=true hints
+       to the Catalyst platform that this is a deliberate sign-out.
+       The /__catalyst/auth/signout endpoint returns INVALID_URL_PATTERN
+       on some Slate deployments, so we use the login endpoint instead. */
+    location.href = '/__catalyst/auth/login?logout=true';
+  }
 
   /* ── Legacy compatibility shim ───────────────────────────────── */
   /* The old DtfAuthLogout() was called by any code that still has the

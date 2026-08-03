@@ -305,7 +305,7 @@
           } else if (typeof window.DtfAuthLogout === 'function') {
             window.DtfAuthLogout();
           } else {
-            /* Fallback: clear session and redirect to Catalyst sign-out */
+            /* Fallback: clear session and redirect to Catalyst login page */
             try {
               sessionStorage.removeItem('dtf-auth-ok');
               sessionStorage.removeItem('dtf-catalyst-uid');
@@ -313,7 +313,7 @@
               sessionStorage.removeItem('dtf-catalyst-email');
               localStorage.removeItem('dtf-active-project');
             } catch (_e) {}
-            location.href = '/__catalyst/auth/signout';
+            location.href = '/__catalyst/auth/login?logout=true';
           }
         });
       }

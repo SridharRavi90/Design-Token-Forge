@@ -212,11 +212,14 @@
       localStorage.removeItem('dtf-active-project');
     } catch (_e) {}
 
-    var sdk = window.catalyst || window.catalystApp;
-    if (sdk && sdk.auth && typeof sdk.auth().signOut === 'function') {
-      sdk.auth().signOut().catch(function () { location.reload(); });
+    /* Delegate to catalyst-user.js's robust sign-out (tries multiple
+       SDK patterns before falling back to a login-page redirect). */
+    if (typeof window.DtfCatalystSignOut === 'function' &&
+        window.DtfCatalystSignOut !== window.DtfAuthLogout) {
+      window.DtfCatalystSignOut();
     } else {
-      location.href = '/__catalyst/auth/signout';
+      /* catalyst-user.js not loaded — minimal fallback. */
+      location.href = '/__catalyst/auth/login?logout=true';
     }
   };
 
