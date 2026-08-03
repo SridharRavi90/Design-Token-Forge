@@ -370,8 +370,11 @@
   function _applyUserFilter(list, userEmail) {
     if (userEmail) {
       var mine = list.filter(function(p) { return _projectMatchesUser(p, userEmail); });
+      /* If email is set but nothing matches, fall back to showing all projects.
+         This handles cases where the Catalyst SDK returns a slightly different
+         email format than what's stored in projects.json ownerEmail. */
       if (mine.length) { render(mine); return; }
-      renderEmpty();
+      render(list);
     } else {
       /* No email yet — show all temporarily, then re-filter when auth resolves */
       render(list);
