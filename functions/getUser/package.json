@@ -1,0 +1,9 @@
+{
+  "name": "getUser",
+  "version": "1.0.0",
+  "description": "Catalyst serverless function — returns the signed-in user profile",
+  "main": "index.js",
+  "dependencies": {
+    "zcatalyst-sdk-node": "2.5.0"
+  }
+}

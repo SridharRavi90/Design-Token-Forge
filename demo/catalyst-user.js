@@ -1,25 +1,17 @@
 /* demo/catalyst-user.js — Catalyst Slate user identity helper.
  *
- * Catalyst Slate handles all authentication at the infrastructure level:
- *   - Unauthenticated requests to protected routes are intercepted by Slate
- *     and redirected to the Zoho login page automatically.
- *   - After login, Slate sets a session cookie and the Catalyst Web SDK
- *     (auto-injected by Slate at /__catalyst/js/catalystApp.js) is available.
+ * Reads the currently signed-in user by calling the Catalyst serverless
+ * function at /server/getUser (functions/getUser/index.js). That function
+ * runs server-side and can access the Catalyst auth session that the
+ * Web SDK cannot reach from the Slate (onslate.in) domain.
  *
- * This file does only two things:
- *   1. Reads the currently signed-in user from the Catalyst SDK.
- *   2. Exposes the user info on window.DTF_USER so the rest of the app
- *      can build personalized paths like /{userId}/pearl/editor.html.
- *
- * Page integration:
- *   Load this AFTER /__catalyst/js/catalystApp.js (Slate injects that
- *   automatically). Include it early in <head> with defer so it resolves
- *   before the page tries to build user-specific links.
+ * /server/getUser is on the same onslate.in origin as the Slate app,
+ * so session cookies are included automatically (credentials:'include').
  *
  * Exposed globals:
  *   window.DTF_USER        — { userId, firstName, lastName, email } or null
  *   window.DTF_USER_READY  — Promise that resolves with the same object
- *   window.DtfCatalystSignOut() — Signs the user out via Catalyst SDK
+ *   window.DtfCatalystSignOut() — Signs the user out via Catalyst
  */
 (function () {
   'use strict';
@@ -66,53 +58,40 @@
     /* Still kick off a background refresh so the cache stays fresh. */
   }
 
-  /* ── Read user from Catalyst SDK. ───────────────────────────── */
+  /* ── Read user from /server/getUser (Catalyst serverless function). ─
+     The function runs server-side and has access to the Catalyst auth
+     session, which the Web SDK cannot reach from the Slate domain.
+     /server/getUser is on the same onslate.in domain, so session
+     cookies are included automatically with credentials:'include'. */
   function fetchCatalystUser() {
-    /* catalystApp is the Catalyst Web SDK instance injected by Slate.
-       It's available as window.catalyst after /__catalyst/js/catalystApp.js loads. */
-    var sdk = window.catalyst || window.catalystApp;
-    if (!sdk) {
-      /* SDK not loaded yet — wait for it. This can happen if this script
-         runs before Slate's injected catalystApp.js. Retry briefly. */
-      if (window._dtfCatalystRetries === undefined) window._dtfCatalystRetries = 0;
-      if (window._dtfCatalystRetries < 50) {
-        window._dtfCatalystRetries++;
-        setTimeout(fetchCatalystUser, 100);
-      } else {
-        /* Give up — publish null so the app can show a fallback. */
-        if (!cached) publishUser(null);
-      }
-      return;
-    }
-
-    var auth = sdk.auth ? sdk.auth() : null;
-    if (!auth || typeof auth.getCurrentUser !== 'function') {
-      if (!cached) publishUser(null);
-      return;
-    }
-
-    auth.getCurrentUser()
-      .then(function (details) {
-        /* Catalyst SDK returns an object with nested user_details. */
-        var ud = (details && details.user_details) ? details.user_details : details;
-        var user = {
-          userId:    String(ud.user_id    || ud.userId    || ud.id    || ''),
-          firstName: String(ud.first_name || ud.firstName || ud.display_name || ud.displayName || ud.name || ud.user_name || ud.userName || ''),
-          lastName:  String(ud.last_name  || ud.lastName  || ''),
-          email:     String(ud.email_id   || ud.emailId   || ud.email || ud.email_address || ud.emailAddress || '')
-        };
-        setCached(user);
-        publishUser(user);
+    fetch('/server/getUser', {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (json) {
+        if (json.status === 'success' && json.data) {
+          var d = json.data;
+          var user = {
+            userId:    d.userId    || '',
+            firstName: d.firstName || '',
+            lastName:  d.lastName  || '',
+            email:     d.email     || ''
+          };
+          setCached(user);
+          publishUser(user);
+        } else {
+          /* Function returned failure (e.g. not yet deployed). */
+          if (!cached) publishUser(null);
+        }
       })
       .catch(function () {
-        /* Session expired or not authenticated. Catalyst Slate will
-           intercept the NEXT protected-page request and redirect to
-           login automatically — no action needed here. */
+        /* /server/getUser not deployed yet — fall back to null. */
         if (!cached) publishUser(null);
       });
   }
 
-  /* Wait for DOM so catalystApp.js (injected in <head> by Slate) has run. */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', fetchCatalystUser);
   } else {
