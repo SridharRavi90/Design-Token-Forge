@@ -71,7 +71,7 @@ module.exports = async (req, res) => {
     const projectId = '__ptk__' + challenge.toLowerCase();
     const zcql      = app.zcql();
     const rows      = await zcql.executeZCQLQuery(
-      `SELECT ROWID, user_id, description, last_hash FROM ${TABLE} WHERE project_id = '${projectId}' AND name = 'plugin_token'`
+      `SELECT ROWID, user_id, description, last_hash FROM ${TABLE} WHERE project_id = '${projectId}'`
     );
 
     if (!rows || rows.length === 0) {
