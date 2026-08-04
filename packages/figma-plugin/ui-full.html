@@ -1571,6 +1571,9 @@ function _pollLinkToken() {
         if (linkStatus) { linkStatus.textContent = 'Linked! Polling Catalyst directly.'; }
         /* Restart polling so it immediately uses the new bearer token */
         startPolling();
+        /* Refresh the project list — now shows only the user's Catalyst projects */
+        projectsFetched = false;
+        fetchProjects();
         render();
       }
       /* status === 'pending' → keep waiting */
@@ -3963,22 +3966,44 @@ function selectProjectInDropdown(id){
   }
 }
 function fetchProjects(){
-  /* Authenticated path: list projects directly from the signed-in
-     user's own fork via the GitHub Contents API. This bypasses two
-     traps that made "no projects" the default for forks:
-       (a) the static projects.json on Pages belongs to whichever fork
-           hosts the URL — on the maintainer's Pages it leaks the
-           maintainer's project list to anyone signed in.
-       (b) a brand-new fork typically has Pages disabled OR a stale
-           projects.json that hasn't run through build-static yet, so
-           every static fetch 404s and the dropdown stays empty.
-     Hitting /repos/<user>/Design-Token-Forge/contents/projects always
-     reflects the actual project dirs in the fork, with no deploy
-     dependency. Falls back to the static endpoint if the API fails. */
-  /* On Catalyst/Slate: use the getProjects Function — no GitHub PAT needed.
-     On GitHub/localhost: use the GitHub API (requires PAT) so each fork
-     shows only its own project directories. */
-  if (!isCatalystHost() && GH_PAT && GH_USERNAME){
+  /* ── Catalyst bearer path (highest priority) ────────────────────────
+     When the user has linked their DTF account, always fetch the
+     personal project list from Catalyst's listProjects function.
+     This shows only THEIR projects, regardless of the host. */
+  if (hasBearerToken()){
+    fetch(CATALYST_SERVER + '/server/listProjects', {
+      headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN },
+      cache: 'no-store'
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(body){
+      if (body.status === 'success' && Array.isArray(body.data)){
+        _renderProjectList(body.data.map(function(p){
+          return { id: p.id, name: p.name };
+        }));
+      } else {
+        _renderProjectList([]);
+      }
+    })
+    .catch(function(err){
+      log('Catalyst listProjects failed (' + err.message + ') — retrying static fallback');
+      _fetchProjectsStatic();
+    });
+    return;
+  }
+  /* ── No credentials at all ──────────────────────────────────────────
+     If the user has neither a DTF bearer token nor a GitHub PAT, show
+     a prompt instead of leaking every shared project from projects.json. */
+  if (!GH_PAT){
+    projectsFetched = true;
+    projectSelect.innerHTML = '<option value="">Link your DTF account to see projects</option>';
+    return;
+  }
+  /* ── GitHub PAT path ────────────────────────────────────────────────
+     Authenticated path: list projects directly from the signed-in
+     user's own fork via the GitHub Contents API. Falls back to the
+     static endpoint if the API fails. */
+  if (GH_PAT && GH_USERNAME){
     var apiBase = 'https://api.github.com/repos/' + GH_USERNAME + '/Design-Token-Forge';
     var hdrs = { 'Authorization':'Bearer ' + GH_PAT, 'Accept':'application/vnd.github+json' };
     fetch(apiBase + '/contents/projects?ref=main&_cb=' + Date.now(), { headers:hdrs })
@@ -4024,8 +4049,8 @@ function _fetchProjectsStatic(){
 }
 function _renderProjectList(list){
       projectsFetched = true; projectList = list;
-      if (!GH_USERNAME){
-        projectSelect.innerHTML = '<option value="">Connect GitHub first</option>';
+      if (!hasBearerToken() && !GH_USERNAME){
+        projectSelect.innerHTML = '<option value="">Link your DTF account to see projects</option>';
         return;
       }
       /* Show ONLY projects this user owns. A fork inherits every
