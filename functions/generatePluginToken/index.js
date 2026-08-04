@@ -76,6 +76,20 @@ module.exports = async (req, res) => {
     return;
   }
 
+  /* Initialize SDK FIRST — Catalyst populates req.query during initialize().
+     Reading req.query before this returns an empty object (root cause of
+     the "Invalid link" bug where challenge was visibly in the URL but
+     req.query.challenge was undefined). */
+  let app;
+  try {
+    app = catalyst.initialize(req, { type: 'applogic' });
+  } catch (initErr) {
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ status: 'failure', error: 'SDK init failed: ' + initErr.message }));
+    return;
+  }
+
   const rawChallenge = (req.query && req.query.challenge) ? String(req.query.challenge) : '';
   const challenge    = rawChallenge.replace(/[^a-fA-F0-9]/g, '').slice(0, 64);
   if (!challenge || challenge.length < 16) {
@@ -95,7 +109,6 @@ module.exports = async (req, res) => {
   const userId = rawUid.replace(/[^a-zA-Z0-9_\-. @]/g, '').slice(0, 128) || 'unknown';
 
   try {
-    const app       = catalyst.initialize(req, { type: 'applogic' });
     const jwt       = makeJwt(userId);
     const expiresAt = new Date(Date.now() + CHALLENGE_TTL_MS).toISOString();
     const projectId = '__ptk__' + challenge.toLowerCase();
