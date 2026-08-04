@@ -1079,7 +1079,7 @@
         </button>
         <div class="tb-menu-sep connected-only"></div>
         <button class="tb-menu-item danger connected-only" id="menuDisconnect">
-          <span>Disconnect GitHub</span>
+          <span id="menuDisconnectLabel">Disconnect GitHub</span>
         </button>
         <!-- DTF account link/unlink -->
         <div class="tb-menu-sep"></div>
@@ -2128,12 +2128,26 @@ function render(){
   /* Sync the link button label */
   var linkBtn    = document.getElementById('dtfLinkBtn');
   var linkStatus = document.getElementById('dtfLinkStatus');
+  var disconnectBtn   = document.getElementById('menuDisconnect');
+  var disconnectLabel = document.getElementById('menuDisconnectLabel');
   if (linkBtn) {
     var linked = hasBearerToken();
     linkBtn.textContent = linked ? 'Unlink DTF account' : 'Link DTF account';
     if (linkStatus && linked && !_linkPollTimer) {
-      linkStatus.textContent = 'Linked as user ' + DTF_BEARER_USER_ID;
+      linkStatus.textContent = 'Linked as ' + DTF_BEARER_USER_ID;
       linkStatus.hidden = false;
+    } else if (linkStatus && !linked) {
+      linkStatus.hidden = true;
+    }
+  }
+  /* Show/hide "Disconnect" button based on which auth is active */
+  if (disconnectBtn && disconnectLabel) {
+    if (GH_PAT) {
+      disconnectLabel.textContent = 'Disconnect GitHub';
+      disconnectBtn.style.display = '';
+    } else {
+      /* No PAT — only DTF bearer token; disconnect handled by Unlink button */
+      disconnectBtn.style.display = 'none';
     }
   }
 }
@@ -2944,8 +2958,9 @@ function startPolling(){
 }
 
 function poll(){
-  /* When a valid bearer token is present, use Catalyst directly */
-  if (hasBearerToken() && CURRENT_PROJECT) {
+  /* Use Catalyst path only when bearer token present AND no legacy GitHub PAT
+     (PAT users still reach Pearl/GitHub projects via the local sync server). */
+  if (hasBearerToken() && !GH_PAT && CURRENT_PROJECT) {
     var catStatusUrl = CATALYST_SERVER + '/server/getProjectStatus?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
     return fetch(catStatusUrl, { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN }})
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -3022,8 +3037,8 @@ function checkForChanges(data){
 }
 
 function fetchTokenData(){
-  /* Catalyst bearer path */
-  if (hasBearerToken() && CURRENT_PROJECT) {
+  /* Catalyst bearer path — only when no legacy GitHub PAT is present */
+  if (hasBearerToken() && !GH_PAT && CURRENT_PROJECT) {
     var catTokensUrl = CATALYST_SERVER + '/server/getProjectTokens?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
     fetch(catTokensUrl, { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN }})
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
