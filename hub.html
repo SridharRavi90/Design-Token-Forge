@@ -333,6 +333,44 @@
     '/Design-Token-Forge/projects.json'
   ];
 
+  /* ── Catalyst per-user project list ──────────────────────────────────
+     When running on the Catalyst host, fetch projects from the
+     listProjects function instead of the shared static projects.json.
+     Each user only sees their own projects. Credentials are supplied
+     automatically via the Zoho Catalyst session cookie. */
+  function _isCatalystHost() {
+    return window.location.hostname.indexOf('onslate.in') !== -1
+        || window.location.hostname.indexOf('catalystappsecure') !== -1;
+  }
+
+  function _fetchCatalystProjects() {
+    fetch('/server/listProjects', { credentials: 'include', cache: 'no-store' })
+      .then(function(r) {
+        if (!r.ok) throw new Error('listProjects HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(res) {
+        if (!res || res.status !== 'success' || !Array.isArray(res.data)) {
+          throw new Error(res && res.error ? res.error : 'Unexpected response');
+        }
+        var list = res.data.map(function(p) {
+          return {
+            id:          p.id          || p.project_id || '',
+            name:        p.name        || p.id || '',
+            description: p.description || '',
+            owner:       p.owner       || '',
+            ownerEmail:  p.ownerEmail  || ''
+          };
+        });
+        if (!list.length) { renderEmpty(); return; }
+        render(list);
+      })
+      .catch(function(err) {
+        console.warn('[DTF hub] Catalyst listProjects failed, falling back to static:', err);
+        tryFetch(0);   /* graceful degradation */
+      });
+  }
+
   /* Catalyst auth: fetch projects.json and filter by the signed-in
      user's Zoho email (dtf-catalyst-email in sessionStorage, set by
      auth-gate.js / root index.html after Catalyst SDK resolves). */
@@ -554,9 +592,10 @@
   }
 
   /* Wait until auth-gate resolves, then fetch projects.
-     If email is not set yet (direct URL access bypassing root index),
-     try to get it from Catalyst SDK first, then fetch. */
+     On Catalyst host: call listProjects directly (per-user, no filter needed).
+     Elsewhere: fetch static projects.json and filter by email. */
   function _ensureEmailThenFetch() {
+    if (_isCatalystHost()) { _fetchCatalystProjects(); return; }
     var email = _getCatalystEmail();
     if (email) { tryFetch(0); return; }
 

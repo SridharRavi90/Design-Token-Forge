@@ -6299,6 +6299,10 @@
   /* ── GitHub writer for save-as-default ───────────────── */
   var GH_API = 'https://api.github.com';
   var GH_REPO_NAME = 'Design-Token-Forge';
+  function _isCatalystHost() {
+    return window.location.hostname.indexOf('onslate.in') !== -1
+        || window.location.hostname.indexOf('catalystappsecure') !== -1;
+  }
   function getGhPat() { return localStorage.getItem('dtf-gh-pat') || ''; }
   function getGhUser() { return localStorage.getItem('dtf-gh-user') || ''; }
   function ghFetch(endpoint, opts) {
@@ -6464,8 +6468,87 @@
     confirmBtn.disabled = true;
     confirmBtn.textContent = 'Publishing\u2026';
 
-    // Swap form \u2192 timeline. Step 1 starts immediately.
+    // Swap form → timeline. Step 1 starts immediately.
     showTimeline();
+
+    /* ── Catalyst path — no GitHub PAT required ────────────── */
+    if (_isCatalystHost()) {
+      setTimelineStep('save', 'running', 'Saving to Catalyst\u2026');
+      var prevCfgC = readProjectConfigSync();
+      var primCSSC = buildPrimitivesCSS(meta);
+      var semCSSC  = buildSemanticCSS(meta);
+      var surfCSSC = buildSurfacesCSS(meta);
+      var cfgJSONC = buildConfigJSON(prevCfgC, meta);
+      var tokensPayload = {
+        'primitives.css': primCSSC,
+        'semantic.css':   semCSSC,
+        'surfaces.css':   surfCSSC,
+        'config.json':    cfgJSONC,
+        '_meta': meta
+      };
+      fetch('/server/saveTokens', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_id: projId, tokens: tokensPayload })
+      })
+      .then(function(r) {
+        return r.json().then(function(body) {
+          if (!r.ok || body.status !== 'success') throw new Error(body.error || ('HTTP ' + r.status));
+          return body.data;
+        });
+      })
+      .then(function(saved) {
+        setTimelineStep('save', 'ok', 'Saved ' + nextVer + ' to ' + projId);
+        try {
+          State.baseline   = JSON.parse(JSON.stringify(State.proposed));
+          State.baselineAnchor = State.anchor;
+          State.t1Baseline = JSON.parse(JSON.stringify(State.t1));
+          State.t2Baseline = JSON.parse(JSON.stringify(State.t2));
+          State.t2SurfacePaletteBaseline = JSON.parse(JSON.stringify(State.t2SurfacePalette));
+          if (State.typo) {
+            State.typoBaseline = {
+              preset:    State.typo.preset || 'neutral-system',
+              density:   State.typo.density || 'base',
+              overrides: JSON.parse(JSON.stringify(State.typo.overrides || {})),
+              custom:    JSON.parse(JSON.stringify(State.typo.custom    || {}))
+            };
+          }
+          State.lastPublishedVersion = nextVer;
+          clearDraftFromStorage();
+          if (typeof saveUIState === 'function') saveUIState();
+          if (typeof refreshChangeBar === 'function') refreshChangeBar();
+          refreshDraftStatus('published');
+          if (typeof renderActiveTier === 'function') renderActiveTier();
+          /* Mirror to localStorage for immediate next-load hydration */
+          try {
+            localStorage.setItem('dtf-project-primitives-' + projId, primCSSC);
+            localStorage.setItem('dtf-project-semantic-'   + projId, semCSSC);
+            localStorage.setItem('dtf-project-surfaces-'   + projId, surfCSSC);
+            localStorage.setItem('dtf-project-config-'     + projId, cfgJSONC);
+            localStorage.setItem('dtf-saved-tokens-' + projId, primCSSC + '\n' + semCSSC + '\n' + surfCSSC);
+          } catch(_e) {}
+        } catch (_e) {}
+        setTimelineStep('figma', 'ok', 'Figma will pick up changes on next sync');
+        setTimelineStep('done', 'ok', 'All set');
+        finishTimeline('ok',
+          '<strong>Saved ' + nextVer + ' to ' + projId + '.</strong> '
+          + 'Tokens are stored in Catalyst. The Figma plugin will sync on its next poll.'
+        );
+      })
+      .catch(function(err) {
+        var msg = (err && err.message) ? err.message : String(err);
+        setTimelineStep('save', 'fail', msg);
+        setTimelineStep('figma', 'pending', 'Skipped');
+        setTimelineStep('done', 'pending', '');
+        finishTimeline('error',
+          '<strong>Couldn\u2019t save.</strong> ' + msg + '. Your draft is still intact \u2014 try again.'
+        );
+        console.error('[publish/catalyst]', err);
+      });
+      return;   /* skip GitHub path below */
+    }
+
     setTimelineStep('save', 'running', 'Connecting to GitHub\u2026');
 
     // Captured across .then() boundaries so the post-publish step

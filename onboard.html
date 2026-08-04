@@ -285,6 +285,10 @@
 
   <!-- ═══ Step 3: Connect GitHub ═══ -->
   <div class="step-panel" id="step2">
+    <div id="ghStepCatalystNote" style="display:none;padding:14px 16px;background:var(--info-container-bg,#EFF6FF);border:1px solid var(--info-container-outline,#BFDBFE);border-radius:8px;font-size:13px;color:var(--info-content-default,#1D4ED8);line-height:1.6;">
+      <strong>No GitHub token needed.</strong> You&rsquo;re signed in to Design Token Forge — your project will be saved directly to your account. Click <em>Next</em> to continue.
+    </div>
+    <div id="ghStepGitHubForm">
     <p style="font-size:13px;color:var(--demo-fg-subtle);margin-bottom:20px;line-height:1.6;">
       Connect your GitHub account. Your project deploys to <strong>your own</strong> copy of the Design-Token-Forge repo — no special access needed.
     </p>
@@ -292,7 +296,7 @@
     <div class="form-group">
       <label for="ghToken">
         Personal Access Token
-        <a href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=Design+Token+Forge" target="_blank" rel="noopener" style="font-weight:400;font-size:11px;margin-left:8px;color:var(--brand-content-default, #286CE5);text-decoration:underline;">Don't have one? Create here →</a>
+        <a href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=Design+Token+Forge" target="_blank" rel="noopener" style="font-weight:400;font-size:11px;margin-left:8px;color:var(--brand-content-default, #286CE5);text-decoration:underline;">Don't have one? Create here &rarr;</a>
       </label>
       <div class="gh-connect-row">
         <input class="form-input" type="password" id="ghToken" placeholder="ghp_xxxx...">
@@ -303,6 +307,7 @@
         Used to set up your fork and deploy tokens. Stored only in this browser session.
       </p>
       <div class="gh-status" id="ghStatus"></div>
+    </div>
     </div>
   </div>
 
@@ -357,6 +362,11 @@
   const GH_REPO_NAME = 'Design-Token-Forge';
   const GH_REPO_OWNER = 'sridhar-ravi-2917'; // upstream repo owner
   const GH_API = 'https://api.github.com';
+
+  function _isCatalystHost() {
+    return window.location.hostname.indexOf('onslate.in') !== -1
+        || window.location.hostname.indexOf('catalystappsecure') !== -1;
+  }
 
   /* ── State ──────────────────────────────────────── */
   let currentStep = 1;
@@ -449,6 +459,15 @@
   const launchBtn = document.getElementById('launchBtn');
   const errorBox = document.getElementById('errorBox');
 
+  /* On Catalyst: show info note, hide GitHub form */
+  if (_isCatalystHost()) {
+    const note = document.getElementById('ghStepCatalystNote');
+    const form = document.getElementById('ghStepGitHubForm');
+    if (note) note.style.display = '';
+    if (form) form.style.display = 'none';
+    repoVerified = true; /* skip GitHub validation */
+  }
+
   /* ── Step navigation ────────────────────────────── */
   function goToStep(n) {
     currentStep = n;
@@ -473,11 +492,12 @@
       if (!projName.value.trim()) { projName.focus(); return false; }
     }
     if (step === 2) {
-      // Typography step always has a default preset selected, so
-      // it can't be invalid — the user just clicks Next.
+      // Typography step always has a default preset selected.
       return true;
     }
     if (step === 3) {
+      /* On Catalyst host the GitHub step is skipped — always valid. */
+      if (_isCatalystHost()) return true;
       if (!repoVerified) {
         ghStatusEl.textContent = 'Please connect your GitHub account first.';
         ghStatusEl.className = 'gh-status err';
@@ -810,6 +830,39 @@
       const filePath = 'projects/' + slug + '/config.json';
       const fileContent = JSON.stringify(config, null, 2) + '\n';
       const encodedContent = btoa(unescape(encodeURIComponent(fileContent)));
+
+      /* ── Catalyst path — no GitHub PAT required ────────────── */
+      if (_isCatalystHost()) {
+        setProgress('ps-commit', 'active');
+        const catResp = await fetch('/server/createProject', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_id: slug, name: name, description: 'Design tokens for ' + name })
+        });
+        const catBody = await catResp.json();
+        if (!catResp.ok || catBody.status !== 'success') {
+          throw new Error(catBody.error || ('Catalyst error HTTP ' + catResp.status));
+        }
+        setProgress('ps-commit', 'done');
+        setProgress('ps-deploy', 'done');  /* no deploy needed — Catalyst stores tokens directly */
+
+        localStorage.setItem('dtf-active-project', slug);
+        localStorage.setItem('dtf-project-config-' + slug, JSON.stringify(config));
+        try {
+          const knownRaw = localStorage.getItem('dtf-known-projects');
+          let known = [];
+          try { known = JSON.parse(knownRaw) || []; } catch(_e) {}
+          if (!known.some(p => p.id === slug)) {
+            known.push({ id: slug, name: name, owner: ghUsername || 'me' });
+            localStorage.setItem('dtf-known-projects', JSON.stringify(known));
+          }
+        } catch(_e) {}
+
+        window.location.href = '/components/editor/index.html?project=' + encodeURIComponent(slug);
+        return;
+      }
+      /* ── GitHub path (non-Catalyst hosts) ──────────────────── */
 
       // Check if file already exists (retry case)
       let existingSha = null;
