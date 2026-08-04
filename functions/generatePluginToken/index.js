@@ -145,6 +145,15 @@ module.exports = async (req, res) => {
       last_synced_at: ''
     });
 
+    /* Post-insert verification: confirm the row landed in DataStore */
+    let verifyCount = 0;
+    try {
+      const vr = await zcql.executeZCQLQuery(
+        "SELECT ROWID FROM " + TABLE + " WHERE project_id = '" + projectId + "'"
+      );
+      verifyCount = vr ? vr.length : 0;
+    } catch (_) {}
+
     if (isBrowser) {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -157,7 +166,7 @@ module.exports = async (req, res) => {
     } else {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ status: 'success', data: { linked: true, expiresAt } }));
+      res.end(JSON.stringify({ status: 'success', data: { linked: true, expiresAt, verifyCount } }));
     }
   } catch (err) {
     console.error('[generatePluginToken] error:', err);

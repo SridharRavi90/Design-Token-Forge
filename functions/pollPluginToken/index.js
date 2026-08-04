@@ -82,8 +82,8 @@ module.exports = async (req, res) => {
     }
 
     const row      = rows[0][TABLE] || rows[0];
-    const jwt      = row.last_hash || '';
-    const userId   = row.user_id   || '';
+    const jwt      = row.description || '';  /* JWT is stored in description */
+    const userId   = row.user_id      || '';
 
     if (!jwt) {
       res.statusCode = 200;
