@@ -241,18 +241,24 @@ function dtfStableStringify(value) {
    PAT + username live in figma.clientStorage (account-scoped, survives
    plugin reloads and Figma restarts). localStorage from the iframe is
    unreliable in Figma’s sandbox so we don’t rely on it for the secret.   */
+/* user-info is sent AFTER creds-restored so the UI already has the bearer
+   token when fetchProjects and startPolling first run. Three getAsync calls
+   run in parallel to minimise latency.                                     */
 (async function() {
   try {
-    var ghUser    = await figma.clientStorage.getAsync('dtf-gh-username');
-    var ghPat     = await figma.clientStorage.getAsync('dtf-gh-pat');
-    var bearerTok = await figma.clientStorage.getAsync('dtf-bearer-token');
+    var results = await Promise.all([
+      figma.clientStorage.getAsync('dtf-gh-username'),
+      figma.clientStorage.getAsync('dtf-gh-pat'),
+      figma.clientStorage.getAsync('dtf-bearer-token')
+    ]);
     figma.ui.postMessage({
       type: 'creds-restored',
-      username:     ghUser     || '',
-      pat:          ghPat      || '',
-      bearerToken:  bearerTok  || ''
+      username:    results[0] || '',
+      pat:         results[1] || '',
+      bearerToken: results[2] || ''
     });
   } catch (e) { /* clientStorage unavailable — user will have to re-auth */ }
+  sendUserInfo(); /* always fires after creds-restored (or after it fails) */
 })();
 
 /* ── Component Builder access ───────────────────────────
@@ -276,8 +282,8 @@ function sendUserInfo() {
     figma.ui.postMessage({ type: 'user-info', name: '', id: '', authorized: true });
   }
 }
-/* Send after a short delay so the UI listener is ready */
-setTimeout(sendUserInfo, 300);
+/* sendUserInfo is now called from the async credentials block above
+   so it always runs after creds-restored. The setTimeout is removed. */
 
 /* ── Helpers ──────────────────────────────────────────────── */
 
