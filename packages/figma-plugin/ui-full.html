@@ -3692,7 +3692,15 @@ window.onmessage = function(event){
       DTF_BEARER_TOKEN   = msg.bearerToken;
       DTF_BEARER_USER_ID = _jwtUid(DTF_BEARER_TOKEN);
       /* If the locally-decoded token is already expired, discard it */
-      if (!hasBearerToken()) { DTF_BEARER_TOKEN = ''; DTF_BEARER_USER_ID = ''; }
+      if (!hasBearerToken()) {
+        DTF_BEARER_TOKEN = ''; DTF_BEARER_USER_ID = '';
+      } else {
+        /* Token just arrived late (user-info fired first without it).
+           Force a fresh project fetch with the now-available credentials,
+           and kick an immediate poll so the sync hero updates right away. */
+        projectsFetched = false;
+        if (CURRENT_PROJECT) poll();
+      }
     }
     if (GH_USERNAME && !projectsFetched){
       fetchProjects();
