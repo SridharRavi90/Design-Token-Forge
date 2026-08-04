@@ -1529,11 +1529,14 @@ function _generateChallenge() {
 function startLinkFlow(fromHero) {
   _linkChallenge = _generateChallenge();
   _linkPollCount = 0;
-  /* Open link-plugin.html in the user's browser */
-  parent.postMessage({ pluginMessage: {
-    type: 'open-external',
-    url: SLATE_HOST + '/hub.html?dtf-link=' + _linkChallenge
-  }}, '*');
+  /* Open generatePluginToken directly on the serverless URL.
+     The function serves its own "Plugin linked!" HTML page —
+     no hub.html or static-file deployment required.
+     uid is the Figma display name, used as DataStore key. */
+  var linkUrl = CATALYST_SERVER + '/server/generatePluginToken' +
+    '?challenge=' + encodeURIComponent(_linkChallenge) +
+    '&uid='       + encodeURIComponent(GH_USERNAME || 'unknown');
+  parent.postMessage({ pluginMessage: { type: 'open-external', url: linkUrl }}, '*');
   /* Show in-progress state — update whichever surface is visible */
   var linkBtn = document.getElementById('dtfLinkBtn');
   var linkStatus = document.getElementById('dtfLinkStatus');
@@ -1542,11 +1545,11 @@ function startLinkFlow(fromHero) {
     setHero({
       glyph: '…', glyphClass: 'neutral',
       title: 'Waiting for browser…',
-      sub: 'Sign in at the browser tab that just opened, then return here.'
+      sub: 'Complete the sign-in in the browser tab that just opened, then return here.'
     });
   } else {
     if (linkBtn) { linkBtn.disabled = true; linkBtn.textContent = 'Waiting…'; }
-    if (linkStatus) { linkStatus.textContent = 'Sign in at the browser tab, then return here.'; linkStatus.hidden = false; }
+    if (linkStatus) { linkStatus.textContent = 'Complete sign-in in the browser tab, then return here.'; linkStatus.hidden = false; }
   }
   /* Start polling */
   if (_linkPollTimer) clearInterval(_linkPollTimer);
