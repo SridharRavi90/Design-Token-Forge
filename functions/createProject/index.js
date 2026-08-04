@@ -11,20 +11,44 @@
  */
 'use strict';
 
+const crypto   = require('crypto');
 const catalyst = require('zcatalyst-sdk-node');
 
-const ALLOWED_ORIGIN = 'https://design-token-forge-crtmngny.onslate.in';
-const TABLE = 'dtf_projects';
+const TABLE        = 'dtf_projects';
+const TOKEN_SECRET = process.env.DTF_TOKEN_SECRET || 'dtf-default-dev-secret-change-in-prod';
 
 function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-ZCSRF-TOKEN, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-DTF-Token');
   res.setHeader('Cache-Control', 'no-store');
 }
 
-async function resolveUserId(req) {
+function verifyBearerJwt(req) {
+  const auth = (req.headers && (req.headers['x-dtf-token'] || req.headers.authorization)) || '';
+  const bearerMatch = auth.match(/^Bearer\s+(.+)$/i);
+  const rawJwt = bearerMatch ? bearerMatch[1] : auth;
+  if (!rawJwt || rawJwt.split('.').length !== 3) return null;
+  try {
+    const [header, payload, sig] = rawJwt.split('.');
+    if (!header || !payload || !sig) return null;
+    const expected = crypto.createHmac('sha256', TOKEN_SECRET)
+      .update(header + '.' + payload).digest('base64')
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    if (sig !== expected) return null;
+    const claims = JSON.parse(Buffer.from(payload, 'base64').toString('utf8'));
+    if (!claims.uid) return null;
+    if (claims.exp && Math.floor(Date.now() / 1000) > claims.exp) return null;
+    return String(claims.uid);
+  } catch (_) { return null; }
+}
+
+async function resolveUserAndApp(req) {
+  const bearerUid = verifyBearerJwt(req);
+  if (bearerUid) {
+    const app = catalyst.initialize(req, { type: 'applogic' });
+    return { app, userId: bearerUid };
+  }
   const app = catalyst.initialize(req);
   const user = await app.auth().getCurrentUser();
   const ud = user && user.user_details ? user.user_details : (user || {});
@@ -57,7 +81,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { app, userId } = await resolveUserId(req);
+    const { app, userId } = await resolveUserAndApp(req);
     const body = await readBody(req);
 
     var projectId = (body.project_id || '').toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
@@ -73,12 +97,13 @@ module.exports = async (req, res) => {
     }
 
     /* Check for duplicate: same user + same project_id */
-    const zcql = app.zcql();
-    const existing = await zcql.executeZCQLQuery(
-      `SELECT ROWID FROM ${TABLE} WHERE user_id = '${userId.replace(/'/g, "''")}' ` +
-      `AND project_id = '${projectId.replace(/'/g, "''")}'`
-    );
-    if (existing && existing.length > 0) {
+    const allRows  = await app.datastore().table(TABLE).getAllRows();
+    const rawList  = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
+    const existing = rawList.find(function(r) {
+      const row = r[TABLE] || r;
+      return row.user_id === userId && row.project_id === projectId;
+    });
+    if (existing) {
       res.statusCode = 409;
       res.end(JSON.stringify({ status: 'failure', error: 'A project with this id already exists' }));
       return;
