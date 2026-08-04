@@ -79,8 +79,11 @@
     return;
   }
 
-  /* Call generatePluginToken — we're already authenticated via Catalyst session */
-  fetch('/server/generatePluginToken?challenge=' + encodeURIComponent(challenge), {
+  /* Call generatePluginToken — must use the full Catalyst serverless URL
+     so the request reaches the function (not the Slate SPA router).
+     The Zoho session is cross-domain within Catalyst, so credentials work. */
+  var SERVERLESS = 'https://project-rainfall-60080440486.development.catalystserverless.in';
+  fetch(SERVERLESS + '/server/generatePluginToken?challenge=' + encodeURIComponent(challenge), {
     credentials: 'include',
     cache: 'no-store'
   })

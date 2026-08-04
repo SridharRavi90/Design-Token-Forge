@@ -1489,6 +1489,7 @@ autoSyncCb.checked = AUTO_SYNC;
 var DTF_BEARER_TOKEN  = '';            /* HMAC-signed JWT from generatePluginToken */
 var DTF_BEARER_USER_ID = '';           /* uid claim, decoded locally for display */
 var CATALYST_SERVER   = 'https://project-rainfall-60080440486.development.catalystserverless.in'; /* switch to catalystserverless.in (no "development") after Deploy to Production */
+var SLATE_HOST        = 'https://design-token-forge-crtmngny.onslate.in'; /* static pages (link-plugin.html) live here */
 
 /* Decode uid claim from a JWT without verifying (client-side display only).
    Verification happens server-side. */
@@ -1531,7 +1532,7 @@ function startLinkFlow() {
   /* Open link-plugin.html in the user's browser */
   parent.postMessage({ pluginMessage: {
     type: 'open-external',
-    url: CATALYST_SERVER + '/link-plugin.html?challenge=' + _linkChallenge
+    url: SLATE_HOST + '/link-plugin.html?challenge=' + _linkChallenge
   }}, '*');
   /* Show in-progress state in UI */
   var linkBtn = document.getElementById('dtfLinkBtn');
