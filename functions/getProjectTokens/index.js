@@ -36,7 +36,9 @@ function setCors(res) {
 }
 
 function verifyBearerJwt(req) {
-  const authHeader = req.headers && (req.headers['x-dtf-token'] || req.headers.authorization) || '';
+  /* Check _auth query param first (avoids preflight header — gateway-safe) */
+  const q = qs(req);
+  const authHeader = q._auth || (req.headers && (req.headers['x-dtf-token'] || req.headers.authorization)) || '';
   /* X-DTF-Token: <raw-jwt>  OR  Authorization: Bearer <jwt> */
   const bearerMatch = authHeader.match(/^Bearer\s+(.+)$/i);
   const rawJwt = bearerMatch ? bearerMatch[1] : authHeader;
@@ -99,18 +101,17 @@ module.exports = async (req, res) => {
     }
 
     /* Verify ownership + get file ID from DataStore */
-    const zcql = app.zcql();
-    const rows = await zcql.executeZCQLQuery(
-      `SELECT ROWID, description, last_hash FROM ${TABLE} ` +
-      `WHERE user_id = '${userId.replace(/'/g, "''")}' ` +
-      `AND project_id = '${projectId.replace(/'/g, "''")}'`
-    );
-    if (!rows || rows.length === 0) {
+    const allRows = await app.datastore().table(TABLE).getAllRows();
+    const rawList = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
+    const matchRow = rawList.map(function(r) { return r[TABLE] || r; }).find(function(d) {
+      return d.user_id === userId && d.project_id === projectId;
+    });
+    if (!matchRow) {
       res.statusCode = 404;
       res.end(JSON.stringify({ status: 'failure', error: 'Project not found' }));
       return;
     }
-    const row = rows[0][TABLE] || rows[0];
+    const row = matchRow;
 
     var descBlob = {};
     try { descBlob = JSON.parse(row.description || '{}'); } catch(_) {}

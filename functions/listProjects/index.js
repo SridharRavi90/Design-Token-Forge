@@ -22,9 +22,22 @@ function setCors(res) {
   res.setHeader('Cache-Control', 'no-store');
 }
 
+/* Catalyst Advanced I/O does NOT populate req.query — parse from req.url */
+function qs(req) {
+  var raw = (req.url || '').split('?')[1] || '';
+  var out = {};
+  raw.split('&').forEach(function(p) {
+    var i = p.indexOf('='); if (i < 0) return;
+    try { out[decodeURIComponent(p.slice(0,i))] = decodeURIComponent(p.slice(i+1)); } catch(_){}
+  });
+  return out;
+}
+
 /* Verify DTF Bearer JWT — identical to getProjectStatus / getProjectTokens */
 function verifyBearerJwt(req) {
-  const auth = (req.headers && (req.headers['x-dtf-token'] || req.headers.authorization)) || '';
+  /* Check _auth query param first (avoids preflight header — gateway-safe) */
+  const q = qs(req);
+  const auth = q._auth || (req.headers && (req.headers['x-dtf-token'] || req.headers.authorization)) || '';
   /* X-DTF-Token: <raw-jwt>  OR  Authorization: Bearer <jwt> */
   const bearerMatch = auth.match(/^Bearer\s+(.+)$/i);
   const rawJwt = bearerMatch ? bearerMatch[1] : auth;

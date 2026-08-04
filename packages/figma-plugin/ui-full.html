@@ -2961,8 +2961,8 @@ function poll(){
   /* Catalyst path — always used when bearer token present.
      GitHub PAT users who haven't migrated to DTF use the legacy sync server. */
   if (hasBearerToken() && CURRENT_PROJECT) {
-    var catStatusUrl = CATALYST_SERVER + '/server/getProjectStatus?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
-    return fetch(catStatusUrl, { cache: 'no-store', headers: { 'X-DTF-Token': DTF_BEARER_TOKEN }})
+    var catStatusUrl = CATALYST_SERVER + '/server/getProjectStatus?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_auth=' + encodeURIComponent(DTF_BEARER_TOKEN) + '&_cb=' + Date.now();
+    return fetch(catStatusUrl, { cache: 'no-store' })
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(data){
         lastPollError = '';
@@ -3039,8 +3039,8 @@ function checkForChanges(data){
 function fetchTokenData(){
   /* Catalyst path — always used when bearer token present */
   if (hasBearerToken() && CURRENT_PROJECT) {
-    var catTokensUrl = CATALYST_SERVER + '/server/getProjectTokens?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
-    fetch(catTokensUrl, { cache: 'no-store', headers: { 'X-DTF-Token': DTF_BEARER_TOKEN }})
+    var catTokensUrl = CATALYST_SERVER + '/server/getProjectTokens?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_auth=' + encodeURIComponent(DTF_BEARER_TOKEN) + '&_cb=' + Date.now();
+    fetch(catTokensUrl, { cache: 'no-store' })
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(data){
         fetchRetries = 0;
@@ -4022,8 +4022,7 @@ function fetchProjects(){
      Fetch the personal project list from Catalyst. If the list is empty
      the user hasn't created any DTF projects yet — show an import prompt. */
   if (hasBearerToken()){
-    fetch(CATALYST_SERVER + '/server/listProjects', {
-      headers: { 'X-DTF-Token': DTF_BEARER_TOKEN },
+    fetch(CATALYST_SERVER + '/server/listProjects?_auth=' + encodeURIComponent(DTF_BEARER_TOKEN), {
       cache: 'no-store'
     })
     .then(function(r){ return r.json(); })
