@@ -141,9 +141,7 @@ module.exports = async (req, res) => {
       project_id:     projectId,
       name:           'plugin_token',
       description:    jwt,
-      created_at:     new Date().toISOString(),
-      last_hash:      expiresAt,
-      last_synced_at: ''
+      last_hash:      expiresAt
     });
 
     if (isBrowser) {
@@ -162,6 +160,7 @@ module.exports = async (req, res) => {
     }
   } catch (err) {
     console.error('[generatePluginToken] error:', err);
+    const detail = JSON.stringify({ msg: err.message, code: err.code, resp: err.response && err.response.data, stack: err.stack && err.stack.slice(0,400) });
     if (isBrowser) {
       res.statusCode = 500;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -171,7 +170,7 @@ module.exports = async (req, res) => {
     } else {
       res.statusCode = 500;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ status: 'failure', error: err.message || 'Internal error' }));
+      res.end(JSON.stringify({ status: 'failure', error: err.message || 'Internal error', detail: detail }));
     }
   }
 };
