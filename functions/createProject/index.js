@@ -94,9 +94,7 @@ module.exports = async (req, res) => {
       project_id:     projectId,
       name:           String(body.name).slice(0, 120),
       description:    JSON.stringify({ text: String(body.description || '').slice(0, 500), tokens_file_id: null }),
-      created_at:     now,
-      last_hash:      '',
-      last_synced_at: ''
+      last_hash:      ''
     });
 
     res.statusCode = 201;

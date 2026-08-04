@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
 
     const zcql = app.zcql();
     const result = await zcql.executeZCQLQuery(
-      `SELECT ROWID, user_id, project_id, name, description, created_at, last_hash, last_synced_at ` +
+      `SELECT ROWID, user_id, project_id, name, description, last_hash ` +
       `FROM ${TABLE} WHERE user_id = '${userId.replace(/'/g, "''")}'`
     );
 
@@ -67,8 +67,7 @@ module.exports = async (req, res) => {
         id:           row.project_id,
         name:         row.name,
         description:  desc,
-        lastHash:     row.last_hash     || null,
-        lastSyncedAt: row.last_synced_at || null,
+        lastHash:     row.last_hash || null,
         rowId:        row.ROWID
       };
     });

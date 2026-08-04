@@ -96,7 +96,7 @@ module.exports = async (req, res) => {
 
     const zcql = app.zcql();
     const rows = await zcql.executeZCQLQuery(
-      `SELECT last_hash, last_synced_at FROM ${TABLE} ` +
+      `SELECT last_hash FROM ${TABLE} ` +
       `WHERE user_id = '${userId.replace(/'/g, "''")}' ` +
       `AND project_id = '${projectId.replace(/'/g, "''")}'`
     );
@@ -112,7 +112,7 @@ module.exports = async (req, res) => {
     res.statusCode = 200;
     res.end(JSON.stringify({
       hash:           row.last_hash      || '',
-      lastChanged:    row.last_synced_at || null,
+      lastChanged:    row.last_hash || null,
       totalVariables: 0,   /* populated by saveTokens in a future update */
       buildCommit:    'catalyst'
     }));

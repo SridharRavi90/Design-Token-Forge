@@ -132,7 +132,7 @@ module.exports = async (req, res) => {
     await table.updateRow({
       ROWID:          rowId,
       last_hash:      hash,
-      last_synced_at: now,
+
       description:    JSON.stringify({ text: descBlob.text || '', tokens_file_id: newFileId })
     });
 
