@@ -243,11 +243,15 @@ function dtfStableStringify(value) {
    unreliable in Figma’s sandbox so we don’t rely on it for the secret.   */
 (async function() {
   try {
-    var ghUser = await figma.clientStorage.getAsync('dtf-gh-username');
-    var ghPat  = await figma.clientStorage.getAsync('dtf-gh-pat');
-    if (ghUser || ghPat) {
-      figma.ui.postMessage({ type: 'creds-restored', username: ghUser || '', pat: ghPat || '' });
-    }
+    var ghUser    = await figma.clientStorage.getAsync('dtf-gh-username');
+    var ghPat     = await figma.clientStorage.getAsync('dtf-gh-pat');
+    var bearerTok = await figma.clientStorage.getAsync('dtf-bearer-token');
+    figma.ui.postMessage({
+      type: 'creds-restored',
+      username:     ghUser     || '',
+      pat:          ghPat      || '',
+      bearerToken:  bearerTok  || ''
+    });
   } catch (e) { /* clientStorage unavailable — user will have to re-auth */ }
 })();
 
@@ -7497,6 +7501,19 @@ figma.ui.onmessage = async function(msg) {
       if (msg.username !== undefined) await figma.clientStorage.setAsync('dtf-gh-username', msg.username || '');
       if (msg.pat !== undefined)      await figma.clientStorage.setAsync('dtf-gh-pat',      msg.pat || '');
     } catch (e) { log('save-creds failed: ' + e.message); }
+  }
+
+  /* Persist DTF bearer token (linked plugin account) */
+  if (msg.type === 'save-bearer-token') {
+    try {
+      await figma.clientStorage.setAsync('dtf-bearer-token', msg.token || '');
+    } catch (e) { log('save-bearer-token failed: ' + e.message); }
+  }
+
+  if (msg.type === 'clear-bearer-token') {
+    try {
+      await figma.clientStorage.deleteAsync('dtf-bearer-token');
+    } catch (e) { /* ignore */ }
   }
 
   if (msg.type === 'clear-creds') {

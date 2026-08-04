@@ -1,0 +1,11 @@
+{
+  "deployment": {
+    "name": "generatePluginToken",
+    "stack": "node18",
+    "type": "advancedio",
+    "env_variables": { "DTF_TOKEN_SECRET": "" }
+  },
+  "execution": {
+    "main": "index.js"
+  }
+}

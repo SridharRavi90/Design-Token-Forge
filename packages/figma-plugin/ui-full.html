@@ -1081,6 +1081,12 @@
         <button class="tb-menu-item danger connected-only" id="menuDisconnect">
           <span>Disconnect GitHub</span>
         </button>
+        <!-- DTF account link/unlink -->
+        <div class="tb-menu-sep"></div>
+        <div id="dtfLinkSection" style="padding:8px 12px;">
+          <div style="font-size:var(--dtf-fs-11,11px);color:var(--dtf-fg-subtle,#888);margin-bottom:6px;" id="dtfLinkStatus" hidden></div>
+          <button class="btn btn-ghost" id="dtfLinkBtn" type="button" style="width:100%;font-size:var(--dtf-fs-11,11px);padding:5px 10px;">Link DTF account</button>
+        </div>
       </div>
     </details>
   </div>
@@ -1475,6 +1481,112 @@ var ADMIN_USER    = 'sridhar-ravi-2917';
 var COLOR_ONLY_COLLECTIONS = ['T0 Primitive Colors','T1 Color Tokens','T2 Surface Context Tokens','T3 Status Context Tokens'];
 var AUTO_SYNC     = storageGet('dtf-auto-sync') === '1';
 autoSyncCb.checked = AUTO_SYNC;
+
+/* ── DTF bearer token (Phase 2 — linked Catalyst account) ──────
+   When set, the plugin polls Catalyst directly using bearer auth
+   instead of reading GitHub raw files. Loaded from figma.clientStorage
+   via code.js on startup. */
+var DTF_BEARER_TOKEN  = '';            /* HMAC-signed JWT from generatePluginToken */
+var DTF_BEARER_USER_ID = '';           /* uid claim, decoded locally for display */
+var CATALYST_SERVER   = 'https://design-token-forge-crtmngny.onslate.in';
+
+/* Decode uid claim from a JWT without verifying (client-side display only).
+   Verification happens server-side. */
+function _jwtUid(jwt) {
+  try {
+    var parts = (jwt || '').split('.');
+    if (parts.length !== 3) return '';
+    var payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return String(payload.uid || '');
+  } catch (_) { return ''; }
+}
+
+/* Returns whether the bearer token is present and not locally-expired */
+function hasBearerToken() {
+  if (!DTF_BEARER_TOKEN) return false;
+  try {
+    var parts = DTF_BEARER_TOKEN.split('.');
+    if (parts.length !== 3) return false;
+    var payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (payload.exp && (Math.floor(Date.now() / 1000) > payload.exp)) return false;
+  } catch (_) { return false; }
+  return true;
+}
+
+/* ── Plugin link flow (opens link-plugin.html, polls for JWT) ──── */
+var _linkChallenge   = '';
+var _linkPollTimer   = null;
+var _linkPollCount   = 0;
+var LINK_POLL_MAX    = 60;    /* 60 × 2s = 2 minutes */
+
+function _generateChallenge() {
+  var arr = new Uint8Array(24);
+  crypto.getRandomValues(arr);
+  return Array.from(arr).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+function startLinkFlow() {
+  _linkChallenge = _generateChallenge();
+  _linkPollCount = 0;
+  /* Open link-plugin.html in the user's browser */
+  parent.postMessage({ pluginMessage: {
+    type: 'open-external',
+    url: CATALYST_SERVER + '/link-plugin.html?challenge=' + _linkChallenge
+  }}, '*');
+  /* Show in-progress state in UI */
+  var linkBtn = document.getElementById('dtfLinkBtn');
+  var linkStatus = document.getElementById('dtfLinkStatus');
+  if (linkBtn) { linkBtn.disabled = true; linkBtn.textContent = 'Waiting…'; }
+  if (linkStatus) { linkStatus.textContent = 'Sign in at the browser tab, then return here.'; linkStatus.hidden = false; }
+  /* Start polling */
+  if (_linkPollTimer) clearInterval(_linkPollTimer);
+  _linkPollTimer = setInterval(_pollLinkToken, 2000);
+}
+
+function _pollLinkToken() {
+  _linkPollCount++;
+  if (_linkPollCount > LINK_POLL_MAX) {
+    clearInterval(_linkPollTimer); _linkPollTimer = null;
+    var linkBtn = document.getElementById('dtfLinkBtn');
+    var linkStatus = document.getElementById('dtfLinkStatus');
+    if (linkBtn) { linkBtn.disabled = false; linkBtn.textContent = 'Link DTF account'; }
+    if (linkStatus) { linkStatus.textContent = 'Timed out — please try again.'; }
+    return;
+  }
+  fetch(CATALYST_SERVER + '/server/pollPluginToken?challenge=' + _linkChallenge, { cache: 'no-store' })
+    .then(function(r) { return r.json(); })
+    .then(function(body) {
+      if (body.status === 'success' && body.data && body.data.jwt) {
+        clearInterval(_linkPollTimer); _linkPollTimer = null;
+        DTF_BEARER_TOKEN  = body.data.jwt;
+        DTF_BEARER_USER_ID = _jwtUid(DTF_BEARER_TOKEN);
+        /* Persist to figma.clientStorage via code.js */
+        parent.postMessage({ pluginMessage: { type: 'save-bearer-token', token: DTF_BEARER_TOKEN }}, '*');
+        /* Update UI */
+        var linkBtn    = document.getElementById('dtfLinkBtn');
+        var linkStatus = document.getElementById('dtfLinkStatus');
+        var linkSection = document.getElementById('dtfLinkSection');
+        if (linkBtn)    { linkBtn.disabled = false; linkBtn.textContent = 'Unlink'; }
+        if (linkStatus) { linkStatus.textContent = 'Linked! Polling Catalyst directly.'; }
+        /* Restart polling so it immediately uses the new bearer token */
+        startPolling();
+        render();
+      }
+      /* status === 'pending' → keep waiting */
+    })
+    .catch(function() { /* network hiccup — keep polling */ });
+}
+
+function unlinkAccount() {
+  DTF_BEARER_TOKEN   = '';
+  DTF_BEARER_USER_ID = '';
+  parent.postMessage({ pluginMessage: { type: 'clear-bearer-token' }}, '*');
+  var linkBtn    = document.getElementById('dtfLinkBtn');
+  var linkStatus = document.getElementById('dtfLinkStatus');
+  if (linkBtn)    { linkBtn.disabled = false; linkBtn.textContent = 'Link DTF account'; }
+  if (linkStatus) { linkStatus.textContent = ''; linkStatus.hidden = true; }
+  render();
+}
 
 function filterCollections(data){
   if (!data || !data.collections) return data;
@@ -1972,6 +2084,17 @@ function render(){
   setSyncBadge(0);
   setBuilderBusy(false);
   applyFooterForActiveTab();
+  /* Sync the link button label */
+  var linkBtn    = document.getElementById('dtfLinkBtn');
+  var linkStatus = document.getElementById('dtfLinkStatus');
+  if (linkBtn) {
+    var linked = hasBearerToken();
+    linkBtn.textContent = linked ? 'Unlink DTF account' : 'Link DTF account';
+    if (linkStatus && linked && !_linkPollTimer) {
+      linkStatus.textContent = 'Linked as user ' + DTF_BEARER_USER_ID;
+      linkStatus.hidden = false;
+    }
+  }
 }
 
 function setHero(opts){
@@ -2748,6 +2871,23 @@ menuDisconnect.addEventListener('click', function(){
   render();
 });
 
+/* DTF account link / unlink */
+(function(){
+  var linkBtn = document.getElementById('dtfLinkBtn');
+  if (!linkBtn) return;
+  linkBtn.addEventListener('click', function(){
+    closeMenu();
+    if (hasBearerToken()) {
+      unlinkAccount();
+    } else {
+      startLinkFlow();
+    }
+  });
+  /* Sync button text with current state on every render */
+  var _origRender = window.render;
+  /* render() is defined later — patch via render() post-hook in startPolling init */
+})();
+
 /* ════════════════════════════════════════════════════
    POLLING + SYNC (logic preserved from v1)
    ════════════════════════════════════════════════════ */
@@ -2763,6 +2903,28 @@ function startPolling(){
 }
 
 function poll(){
+  /* When a valid bearer token is present, use Catalyst directly */
+  if (hasBearerToken() && CURRENT_PROJECT) {
+    var catStatusUrl = CATALYST_SERVER + '/server/getProjectStatus?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
+    return fetch(catStatusUrl, { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN }})
+      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(data){
+        lastPollError = '';
+        consecutivePollFails = 0;
+        if (!connected){ connected = true; if (!projectsFetched) fetchProjects(); }
+        serverStatus = data;
+        checkForChanges(data);
+        render();
+      })
+      .catch(function(err){
+        connected = false;
+        consecutivePollFails++;
+        lastPollError = err && err.message ? err.message : String(err);
+        log('Poll (catalyst) failed: ' + lastPollError);
+        if (consecutivePollFails === 1) fetchProjects();
+        render();
+      });
+  }
   var url = apiUrl('/status');
   return fetch(url, { cache:'no-store' })
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -2819,6 +2981,19 @@ function checkForChanges(data){
 }
 
 function fetchTokenData(){
+  /* Catalyst bearer path */
+  if (hasBearerToken() && CURRENT_PROJECT) {
+    var catTokensUrl = CATALYST_SERVER + '/server/getProjectTokens?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
+    fetch(catTokensUrl, { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN }})
+      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(data){
+        fetchRetries = 0;
+        tokenData = filterCollections(data);
+        if (isStaticHost()) requestStaticDiff();
+      })
+      .catch(function(err){ log('fetchTokenData (catalyst) failed: ' + (err.message || err)); });
+    return;
+  }
   fetch(apiUrl('/tokens'), { cache:'no-store' })
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
@@ -3456,6 +3631,13 @@ window.onmessage = function(event){
        Only fall back to stored GitHub username if Figma identity hasn't arrived yet. */
     if (!GH_USERNAME && msg.username) GH_USERNAME = msg.username;
     if (msg.pat) GH_PAT = msg.pat;   /* kept for optional advanced/local-server use */
+    /* Restore bearer token for Catalyst-linked accounts */
+    if (msg.bearerToken && !DTF_BEARER_TOKEN) {
+      DTF_BEARER_TOKEN   = msg.bearerToken;
+      DTF_BEARER_USER_ID = _jwtUid(DTF_BEARER_TOKEN);
+      /* If the locally-decoded token is already expired, discard it */
+      if (!hasBearerToken()) { DTF_BEARER_TOKEN = ''; DTF_BEARER_USER_ID = ''; }
+    }
     if (GH_USERNAME && !projectsFetched){
       fetchProjects();
     }

@@ -9,21 +9,45 @@
  */
 'use strict';
 
+const crypto   = require('crypto');
 const catalyst = require('zcatalyst-sdk-node');
 
-const ALLOWED_ORIGIN = 'https://design-token-forge-crtmngny.onslate.in';
-const TABLE = 'dtf_projects';
-const FOLDER_ID = '38969000000065373';
+const ALLOWED_ORIGIN  = 'https://design-token-forge-crtmngny.onslate.in';
+const TABLE           = 'dtf_projects';
+const FOLDER_ID       = '38969000000065373';
+const TOKEN_SECRET    = process.env.DTF_TOKEN_SECRET || 'dtf-default-dev-secret-change-in-prod';
 
 function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-ZCSRF-TOKEN, Authorization');
   res.setHeader('Cache-Control', 'no-store');
 }
 
+function verifyBearerJwt(req) {
+  const authHeader = req.headers && req.headers.authorization || '';
+  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!match) return null;
+  try {
+    const [header, payload, sig] = match[1].split('.');
+    if (!header || !payload || !sig) return null;
+    const sigInput = header + '.' + payload;
+    const expected = crypto.createHmac('sha256', TOKEN_SECRET).update(sigInput).digest('base64')
+                      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    if (sig !== expected) return null;
+    const claims = JSON.parse(Buffer.from(payload, 'base64').toString('utf8'));
+    if (!claims.uid) return null;
+    if (claims.exp && Math.floor(Date.now() / 1000) > claims.exp) return null;
+    return String(claims.uid);
+  } catch (_) { return null; }
+}
+
 async function resolveUserId(req) {
+  const bearerUserId = verifyBearerJwt(req);
+  if (bearerUserId) {
+    const app = catalyst.initialize(req, { type: 'applogic' });
+    return { app, userId: bearerUserId };
+  }
   const app = catalyst.initialize(req);
   const user = await app.auth().getCurrentUser();
   const ud = user && user.user_details ? user.user_details : (user || {});
