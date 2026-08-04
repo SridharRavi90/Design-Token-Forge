@@ -2108,10 +2108,28 @@ function render(){
     return;
   }
 
+  /* No tokens uploaded yet (Catalyst project, empty state) */
+  if (hasBearerToken() && serverStatus && !serverStatus.hash && !(serverStatus.totalVariables > 0)){
+    setHero({
+      glyph: '\u2601', glyphClass: 'neutral',
+      title: 'No tokens uploaded yet',
+      sub: '<strong>' + esc(projectDisplayName(CURRENT_PROJECT)) + '</strong> is connected but has no token data. Push a token set from the DTF editor to start syncing.'
+    });
+    changesPanel.hidden = true;
+    footerSync.hidden = true;
+    setSyncBadge(0);
+    setBuilderBusy(false);
+    applyFooterForActiveTab();
+    return;
+  }
+
   /* Up to date */
-  var upToDateSub = 'Figma matches the source of truth.';
+  var upToDateSub = 'Figma variables match the token source.';
   if (serverStatus){
-    upToDateSub = '<strong>' + serverStatus.totalVariables + '</strong> variables in <strong>' + serverStatus.totalCollections + '</strong> collections.';
+    var nVars = serverStatus.totalVariables || 0;
+    var nCols = serverStatus.totalCollections || 0;
+    upToDateSub = '<strong>' + nVars + '</strong> variable' + (nVars !== 1 ? 's' : '') +
+      (nCols > 0 ? ' in <strong>' + nCols + '</strong> collection' + (nCols !== 1 ? 's' : '') : '') + '.';
     var meta = formatLastUpdated(serverStatus);
     if (meta) upToDateSub += '<div class="hero-meta">' + meta + '</div>';
   }
@@ -2142,11 +2160,12 @@ function render(){
   }
   /* Show/hide "Disconnect" button based on which auth is active */
   if (disconnectBtn && disconnectLabel) {
-    if (GH_PAT) {
+    if (GH_PAT && !hasBearerToken()) {
+      /* Only show GitHub disconnect when the user hasn't migrated to Catalyst.
+         Once a bearer token is active, the Unlink button handles sign-out. */
       disconnectLabel.textContent = 'Disconnect GitHub';
       disconnectBtn.style.display = '';
     } else {
-      /* No PAT — only DTF bearer token; disconnect handled by Unlink button */
       disconnectBtn.style.display = 'none';
     }
   }
