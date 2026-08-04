@@ -69,19 +69,25 @@ module.exports = async (req, res) => {
 
   try {
     const projectId = '__ptk__' + challenge.toLowerCase();
-    const zcql      = app.zcql();
-    const rows      = await zcql.executeZCQLQuery(
-      `SELECT ROWID, user_id, description, last_hash FROM ${TABLE} WHERE project_id = '${projectId}'`
-    );
+    const datastore = app.datastore();
+    const table     = datastore.table(TABLE);
 
-    if (!rows || rows.length === 0) {
+    /* ZCQL scoping varies per function — use getAllRows() + JS filter instead */
+    const allRows   = await table.getAllRows();
+    const rawList   = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
+    const match     = rawList.find(function(r) {
+      const d = r[TABLE] || r;
+      return d.project_id === projectId;
+    });
+
+    if (!match) {
       /* Not yet stored — client should keep polling */
       res.statusCode = 200;
       res.end(JSON.stringify({ status: 'pending' }));
       return;
     }
 
-    const row      = rows[0][TABLE] || rows[0];
+    const row      = match[TABLE] || match;
     const jwt      = row.description || '';  /* JWT is stored in description */
     const userId   = row.user_id      || '';
 
