@@ -667,6 +667,62 @@
     });
   }, 400);
 })();
+
+/* ── Plugin link flow ─────────────────────────────────────────
+   When opened with ?dtf-link=<challenge>, this page acts as the
+   "link-plugin.html" landing: it calls generatePluginToken and
+   shows a success/error message overlay. The challenge comes from
+   the Figma plugin which opens this URL in the user's browser.
+   No separate link-plugin.html file needed — hub.html is always
+   deployed. ─────────────────────────────────────────────────── */
+(function () {
+  function getParam(name) {
+    var s = window.location.search.slice(1).split('&');
+    for (var i = 0; i < s.length; i++) {
+      var p = s[i].split('=');
+      if (decodeURIComponent(p[0]) === name) return decodeURIComponent(p[1] || '');
+    }
+    return '';
+  }
+
+  var challenge = getParam('dtf-link');
+  if (!challenge || challenge.replace(/[^a-fA-F0-9]/g, '').length < 16) return;
+
+  /* Overlay the whole page with a minimal status card */
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:var(--surface-base-bg,#F8FAFC);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
+  overlay.innerHTML = '<div style="text-align:center;max-width:360px;padding:40px 32px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;">' +
+    '<div id="_lnk_icon" style="font-size:36px;margin-bottom:14px">⏳</div>' +
+    '<h2 id="_lnk_h" style="font-size:18px;font-weight:600;margin:0 0 8px">Linking your plugin…</h2>' +
+    '<p id="_lnk_p" style="font-size:13px;color:#64748B;line-height:1.5;margin:0">Connecting your Figma plugin to your DTF account.</p>' +
+  '</div>';
+  document.body.appendChild(overlay);
+
+  var SERVERLESS = 'https://project-rainfall-60080440486.development.catalystserverless.in';
+  fetch(SERVERLESS + '/server/generatePluginToken?challenge=' + encodeURIComponent(challenge), {
+    credentials: 'include', cache: 'no-store'
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(body) {
+    if (body.status === 'success') {
+      document.getElementById('_lnk_icon').textContent = '✅';
+      document.getElementById('_lnk_h').textContent = 'Plugin linked!';
+      document.getElementById('_lnk_p').textContent = 'Your Figma plugin is now connected. You can close this tab.';
+      document.getElementById('_lnk_p').style.color = '#15803D';
+    } else {
+      document.getElementById('_lnk_icon').textContent = '❌';
+      document.getElementById('_lnk_h').textContent = 'Linking failed';
+      document.getElementById('_lnk_p').textContent = (body.error || 'Unknown error') + ' — close this tab and try again from the plugin.';
+      document.getElementById('_lnk_p').style.color = '#B91C1C';
+    }
+  })
+  .catch(function(err) {
+    document.getElementById('_lnk_icon').textContent = '❌';
+    document.getElementById('_lnk_h').textContent = 'Network error';
+    document.getElementById('_lnk_p').textContent = (err.message || String(err)) + ' — check your connection and try again.';
+    document.getElementById('_lnk_p').style.color = '#B91C1C';
+  });
+}());
 </script>
 
 </body>

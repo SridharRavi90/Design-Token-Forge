@@ -1532,7 +1532,7 @@ function startLinkFlow() {
   /* Open link-plugin.html in the user's browser */
   parent.postMessage({ pluginMessage: {
     type: 'open-external',
-    url: SLATE_HOST + '/link-plugin.html?challenge=' + _linkChallenge
+    url: SLATE_HOST + '/hub.html?dtf-link=' + _linkChallenge
   }}, '*');
   /* Show in-progress state in UI */
   var linkBtn = document.getElementById('dtfLinkBtn');
