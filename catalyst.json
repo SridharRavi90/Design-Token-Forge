@@ -1,4 +1,7 @@
 {
+  "client": {
+    "source": "."
+  },
   "functions": {
     "targets": ["getUser", "getTokenStatus", "getTokens", "getProjects", "listProjects", "createProject", "saveTokens", "getProjectTokens", "getProjectStatus", "generatePluginToken", "pollPluginToken"],
     "source": "functions"

@@ -1,0 +1,17 @@
+node_modules
+.git
+.github
+playwright-report
+test-results
+tests
+specs
+scripts
+pnpm-lock.yaml
+functions
+packages/figma-plugin
+packages/generator
+packages/sync-server
+packages/slyte
+packages/react
+packages/react-demo
+packages/foundation-mobile
