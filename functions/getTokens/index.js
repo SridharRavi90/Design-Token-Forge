@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const project = (req.query && req.query.project) ? String(req.query.project).replace(/[^a-zA-Z0-9_-]/g, '') : '';
+  const project = ((req.url||'').split('?')[1]||'').split('&').reduce(function(o,p){var i=p.indexOf('=');if(i>0)try{o[decodeURIComponent(p.slice(0,i))]=decodeURIComponent(p.slice(i+1));}catch(_){}return o;},{}).project || '';
   const filePath = project ? `/${project}/tokens.json` : '/tokens.json';
 
   let body;

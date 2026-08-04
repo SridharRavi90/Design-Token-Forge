@@ -16,6 +16,17 @@ const catalyst = require('zcatalyst-sdk-node');
 const ALLOWED_ORIGIN = '*';   /* plugin origin is figma.com — must be open */
 const TABLE = 'dtf_projects';
 
+/* Catalyst Advanced I/O does NOT populate req.query — parse from req.url */
+function qs(req) {
+  var raw = (req.url || '').split('?')[1] || '';
+  var out = {};
+  raw.split('&').forEach(function(p) {
+    var i = p.indexOf('='); if (i < 0) return;
+    try { out[decodeURIComponent(p.slice(0,i))] = decodeURIComponent(p.slice(i+1)); } catch(_){}
+  });
+  return out;
+}
+
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -48,7 +59,7 @@ module.exports = async (req, res) => {
     }
   }
 
-  const rawChallenge = (req.query && req.query.challenge) ? String(req.query.challenge) : '';
+  const rawChallenge = qs(req).challenge || '';
   const challenge    = rawChallenge.replace(/[^a-fA-F0-9]/g, '').slice(0, 64);
   if (!challenge || challenge.length < 16) {
     res.statusCode = 400;

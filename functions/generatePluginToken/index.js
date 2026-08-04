@@ -20,6 +20,17 @@ const CHALLENGE_TTL_MS = 5 * 60 * 1000;
 const JWT_EXPIRY_S     = 7 * 24 * 3600;
 const TOKEN_SECRET     = process.env.DTF_TOKEN_SECRET || 'dtf-default-dev-secret-change-in-prod';
 
+/* Catalyst Advanced I/O does NOT populate req.query — parse from req.url */
+function qs(req) {
+  var raw = (req.url || '').split('?')[1] || '';
+  var out = {};
+  raw.split('&').forEach(function(p) {
+    var i = p.indexOf('='); if (i < 0) return;
+    try { out[decodeURIComponent(p.slice(0,i))] = decodeURIComponent(p.slice(i+1)); } catch(_){}
+  });
+  return out;
+}
+
 function b64url(str) {
   return Buffer.from(str).toString('base64')
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
@@ -90,17 +101,8 @@ module.exports = async (req, res) => {
     return;
   }
 
-  /* DEBUG — remove after confirming req.query works */
-  if ((req.query && req.query._dbg) || (req.url && req.url.indexOf('_dbg=') !== -1)) {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    var dbg = { url: req.url, query: req.query, params: req.params };
-    try { dbg.keys = Object.keys(req); } catch(_){}
-    res.end(JSON.stringify(dbg));
-    return;
-  }
-
-  const rawChallenge = (req.query && req.query.challenge) ? String(req.query.challenge) : '';
+  const q = qs(req);
+  const rawChallenge = q.challenge || '';
   const challenge    = rawChallenge.replace(/[^a-fA-F0-9]/g, '').slice(0, 64);
   if (!challenge || challenge.length < 16) {
     res.statusCode = 400;
@@ -115,7 +117,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const rawUid = (req.query && req.query.uid) ? String(req.query.uid) : '';
+  const rawUid = q.uid || '';
   const userId = rawUid.replace(/[^a-zA-Z0-9_\-. @]/g, '').slice(0, 128) || 'unknown';
 
   try {

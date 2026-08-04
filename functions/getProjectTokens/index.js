@@ -17,6 +17,17 @@ const TABLE           = 'dtf_projects';
 const FOLDER_ID       = '38969000000065373';
 const TOKEN_SECRET    = process.env.DTF_TOKEN_SECRET || 'dtf-default-dev-secret-change-in-prod';
 
+/* Catalyst Advanced I/O does NOT populate req.query — parse from req.url */
+function qs(req) {
+  var raw = (req.url || '').split('?')[1] || '';
+  var out = {};
+  raw.split('&').forEach(function(p) {
+    var i = p.indexOf('='); if (i < 0) return;
+    try { out[decodeURIComponent(p.slice(0,i))] = decodeURIComponent(p.slice(i+1)); } catch(_){}
+  });
+  return out;
+}
+
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -78,7 +89,7 @@ module.exports = async (req, res) => {
 
   try {
     const { app, userId } = await resolveUserId(req);
-    const projectId = (req.query && req.query.project) ? String(req.query.project).replace(/[^a-z0-9_-]/g, '') : '';
+    const projectId = (qs(req).project || '').replace(/[^a-z0-9_-]/g, '');
     if (!projectId) {
       res.statusCode = 400;
       res.end(JSON.stringify({ status: 'failure', error: 'project query param is required' }));
