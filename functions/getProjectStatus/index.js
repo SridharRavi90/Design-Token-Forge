@@ -34,7 +34,7 @@ function setCors(res) {
   /* Allow both the web app origin and Figma plugin origin */
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-ZCSRF-TOKEN, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-DTF-Token');
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 }
 
