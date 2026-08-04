@@ -1,30 +1,54 @@
 /**
  * functions/listProjects/index.js
  *
- * Returns all projects owned by the currently signed-in Catalyst user.
- * Reads from the dtf_projects DataStore table.
+ * Returns all projects owned by the requesting user.
  *
  * GET /server/listProjects
- * Auth: Catalyst session (browser) or Authorization: Bearer <plugin-token> (Phase 2)
+ * Auth: Authorization: Bearer <plugin-token>  (Figma plugin)
+ *       OR Catalyst session cookie             (web browser)
  */
 'use strict';
 
+const crypto   = require('crypto');
 const catalyst = require('zcatalyst-sdk-node');
 
-const ALLOWED_ORIGIN = 'https://design-token-forge-crtmngny.onslate.in';
-const TABLE = 'dtf_projects';
+const TABLE        = 'dtf_projects';
+const TOKEN_SECRET = process.env.DTF_TOKEN_SECRET || 'dtf-default-dev-secret-change-in-prod';
 
 function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-ZCSRF-TOKEN, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Cache-Control', 'no-store');
 }
 
-/* Resolve the user_id from the Catalyst session.
-   Returns the stable Catalyst user_id string. */
-async function resolveUserId(req) {
+/* Verify DTF Bearer JWT — identical to getProjectStatus / getProjectTokens */
+function verifyBearerJwt(req) {
+  const auth = (req.headers && req.headers.authorization) || '';
+  const match = auth.match(/^Bearer\s+(.+)$/i);
+  if (!match) return null;
+  try {
+    const [header, payload, sig] = match[1].split('.');
+    if (!header || !payload || !sig) return null;
+    const expected = crypto.createHmac('sha256', TOKEN_SECRET)
+      .update(header + '.' + payload).digest('base64')
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    if (sig !== expected) return null;
+    const claims = JSON.parse(Buffer.from(payload, 'base64').toString('utf8'));
+    if (!claims.uid) return null;
+    if (claims.exp && Math.floor(Date.now() / 1000) > claims.exp) return null;
+    return String(claims.uid);
+  } catch (_) { return null; }
+}
+
+async function resolveUserAndApp(req) {
+  /* Bearer JWT path (Figma plugin — no session cookie) */
+  const bearerUid = verifyBearerJwt(req);
+  if (bearerUid) {
+    const app = catalyst.initialize(req, { type: 'applogic' });
+    return { app, userId: bearerUid };
+  }
+  /* Catalyst session path (web browser) */
   const app = catalyst.initialize(req);
   const user = await app.auth().getCurrentUser();
   const ud = user && user.user_details ? user.user_details : (user || {});
@@ -45,33 +69,33 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { app, userId } = await resolveUserId(req);
+    const { app, userId } = await resolveUserAndApp(req);
 
-    const zcql = app.zcql();
-    const result = await zcql.executeZCQLQuery(
-      `SELECT ROWID, user_id, project_id, name, description, last_hash, last_synced_at ` +
-      `FROM ${TABLE} WHERE user_id = '${userId.replace(/'/g, "''")}'`
-    );
+    /* Use getAllRows + JS filter — ZCQL scoping is inconsistent across functions */
+    const allRows  = await app.datastore().table(TABLE).getAllRows();
+    const rawList  = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
 
-    /* Normalise rows — ZCQL wraps each row in a table-name key. */
-    const rows = (result || []).map(function(r) {
-      const row = r[TABLE] || r;
-      /* description is stored as JSON blob:
-         { "text": "<user desc>", "tokens_file_id": "<catalyst file id>" } */
-      var desc = '';
-      try {
-        var d = JSON.parse(row.description || '{}');
-        desc = d.text || '';
-      } catch(_) { desc = row.description || ''; }
-      return {
-        id:           row.project_id,
-        name:         row.name,
-        description:  desc,
-        lastHash:     row.last_hash      || null,
-        lastSyncedAt: row.last_synced_at  || null,
-        rowId:        row.ROWID
-      };
-    });
+    const rows = rawList
+      .map(function(r) { return r[TABLE] || r; })
+      .filter(function(row) {
+        /* Skip challenge-token rows (project_id starts with __ptk__) */
+        return row.user_id === userId && !(row.project_id || '').startsWith('__ptk__');
+      })
+      .map(function(row) {
+        var desc = '';
+        try {
+          var d = JSON.parse(row.description || '{}');
+          desc = d.text || '';
+        } catch(_) { desc = row.description || ''; }
+        return {
+          id:           row.project_id,
+          name:         row.name,
+          description:  desc,
+          lastHash:     row.last_hash      || null,
+          lastSyncedAt: row.last_synced_at  || null,
+          rowId:        row.ROWID
+        };
+      });
 
     res.statusCode = 200;
     res.end(JSON.stringify({ status: 'success', data: rows }));

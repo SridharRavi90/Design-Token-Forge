@@ -2958,9 +2958,9 @@ function startPolling(){
 }
 
 function poll(){
-  /* Use Catalyst path only when bearer token present AND no legacy GitHub PAT
-     (PAT users still reach Pearl/GitHub projects via the local sync server). */
-  if (hasBearerToken() && !GH_PAT && CURRENT_PROJECT) {
+  /* Catalyst path — always used when bearer token present.
+     GitHub PAT users who haven't migrated to DTF use the legacy sync server. */
+  if (hasBearerToken() && CURRENT_PROJECT) {
     var catStatusUrl = CATALYST_SERVER + '/server/getProjectStatus?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
     return fetch(catStatusUrl, { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN }})
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -3037,8 +3037,8 @@ function checkForChanges(data){
 }
 
 function fetchTokenData(){
-  /* Catalyst bearer path — only when no legacy GitHub PAT is present */
-  if (hasBearerToken() && !GH_PAT && CURRENT_PROJECT) {
+  /* Catalyst path — always used when bearer token present */
+  if (hasBearerToken() && CURRENT_PROJECT) {
     var catTokensUrl = CATALYST_SERVER + '/server/getProjectTokens?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
     fetch(catTokensUrl, { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN }})
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -4018,10 +4018,9 @@ function selectProjectInDropdown(id){
   }
 }
 function fetchProjects(){
-  /* ── Catalyst bearer path (highest priority) ────────────────────────
-     When the user has linked their DTF account, always fetch the
-     personal project list from Catalyst's listProjects function.
-     This shows only THEIR projects, regardless of the host. */
+  /* ── Catalyst bearer path (always used when linked) ─────────────────
+     Fetch the personal project list from Catalyst. If the list is empty
+     the user hasn't created any DTF projects yet — show an import prompt. */
   if (hasBearerToken()){
     fetch(CATALYST_SERVER + '/server/listProjects', {
       headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN },
@@ -4029,17 +4028,22 @@ function fetchProjects(){
     })
     .then(function(r){ return r.json(); })
     .then(function(body){
-      if (body.status === 'success' && Array.isArray(body.data)){
+      if (body.status === 'success' && Array.isArray(body.data) && body.data.length > 0){
         _renderProjectList(body.data.map(function(p){
           return { id: p.id, name: p.name };
         }));
       } else {
-        _renderProjectList([]);
+        /* No Catalyst projects yet — prompt to create one */
+        projectsFetched = true;
+        if (projectSelect) projectSelect.innerHTML = '<option value="">No projects yet — create one below</option>';
+        render();
       }
     })
     .catch(function(err){
-      log('Catalyst listProjects failed (' + err.message + ') — retrying static fallback');
-      _fetchProjectsStatic();
+      log('Catalyst listProjects failed: ' + err.message);
+      projectsFetched = true;
+      if (projectSelect) projectSelect.innerHTML = '<option value="">Could not load projects</option>';
+      render();
     });
     return;
   }
@@ -4051,10 +4055,8 @@ function fetchProjects(){
     projectSelect.innerHTML = '<option value="">Link your DTF account to see projects</option>';
     return;
   }
-  /* ── GitHub PAT path ────────────────────────────────────────────────
-     Authenticated path: list projects directly from the signed-in
-     user's own fork via the GitHub Contents API. Falls back to the
-     static endpoint if the API fails. */
+  /* ── Legacy GitHub PAT path ──────────────────────────────────────────
+     Kept for users who have not yet linked a DTF account. */
   if (GH_PAT && GH_USERNAME){
     var apiBase = 'https://api.github.com/repos/' + GH_USERNAME + '/Design-Token-Forge';
     var hdrs = { 'Authorization':'Bearer ' + GH_PAT, 'Accept':'application/vnd.github+json' };
