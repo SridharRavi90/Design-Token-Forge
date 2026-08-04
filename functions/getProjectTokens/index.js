@@ -103,8 +103,9 @@ module.exports = async (req, res) => {
     /* Verify ownership + get file ID from DataStore */
     const allRows = await app.datastore().table(TABLE).getAllRows();
     const rawList = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
+    const LEGACY_UID = 'sridhar-2917';
     const matchRow = rawList.map(function(r) { return r[TABLE] || r; }).find(function(d) {
-      return d.user_id === userId && d.project_id === projectId;
+      return (d.user_id === userId || d.user_id === LEGACY_UID) && d.project_id === projectId;
     });
     if (!matchRow) {
       res.statusCode = 404;

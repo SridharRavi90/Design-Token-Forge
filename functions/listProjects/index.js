@@ -90,13 +90,38 @@ module.exports = async (req, res) => {
     const allRows  = await app.datastore().table(TABLE).getAllRows();
     const rawList  = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
 
-    const rows = rawList
-      .map(function(r) { return r[TABLE] || r; })
+    const normalised = rawList.map(function(r) { return r[TABLE] || r; });
+
+    let rows = normalised
       .filter(function(row) {
         /* Skip challenge-token rows (project_id starts with __ptk__) */
         return row.user_id === userId && !(row.project_id || '').startsWith('__ptk__');
-      })
-      .map(function(row) {
+      });
+
+    /* One-time migration: the Pearl row was manually seeded with user_id='sridhar-2917'.
+       If this user has a different uid (Figma display name) and gets no results, adopt any
+       rows with the legacy sentinel so the project becomes visible under the real uid. */
+    if (rows.length === 0) {
+      const LEGACY_UID = 'sridhar-2917';
+      const legacyRows = normalised.filter(function(row) {
+        return row.user_id === LEGACY_UID && !(row.project_id || '').startsWith('__ptk__');
+      });
+      if (legacyRows.length > 0) {
+        await Promise.all(legacyRows.map(function(row) {
+          return app.datastore().table(TABLE).updateRow({ ROWID: String(row.ROWID), user_id: userId });
+        }));
+        /* Re-query with updated ownership */
+        const refreshed = await app.datastore().table(TABLE).getAllRows();
+        const freshList  = Array.isArray(refreshed) ? refreshed : (refreshed && refreshed.data ? refreshed.data : []);
+        rows = freshList
+          .map(function(r) { return r[TABLE] || r; })
+          .filter(function(row) {
+            return row.user_id === userId && !(row.project_id || '').startsWith('__ptk__');
+          });
+      }
+    }
+
+    const result = rows.map(function(row) {
         var desc = '';
         try {
           var d = JSON.parse(row.description || '{}');
@@ -113,7 +138,7 @@ module.exports = async (req, res) => {
       });
 
     res.statusCode = 200;
-    res.end(JSON.stringify({ status: 'success', data: rows }));
+    res.end(JSON.stringify({ status: 'success', data: result }));
   } catch (err) {
     const is401 = /unauthorized|not authenticated/i.test(err.message || '');
     res.statusCode = is401 ? 401 : 500;
