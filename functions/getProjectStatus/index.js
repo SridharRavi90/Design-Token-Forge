@@ -41,11 +41,13 @@ function setCors(res) {
 /* Verify a DTF plugin JWT and return the user_id claim.
    Returns null if the token is missing, malformed, expired, or has a bad signature. */
 function verifyBearerJwt(req) {
-  const authHeader = req.headers && req.headers.authorization || '';
-  const match = authHeader.match(/^Bearer\s+(.+)$/i);
-  if (!match) return null;
+  const authHeader = req.headers && (req.headers['x-dtf-token'] || req.headers.authorization) || '';
+  /* X-DTF-Token: <raw-jwt>  OR  Authorization: Bearer <jwt> */
+  const bearerMatch = authHeader.match(/^Bearer\s+(.+)$/i);
+  const rawJwt = bearerMatch ? bearerMatch[1] : authHeader;
+  if (!rawJwt || rawJwt.split('.').length !== 3) return null;
   try {
-    const [header, payload, sig] = match[1].split('.');
+    const [header, payload, sig] = rawJwt.split('.');
     if (!header || !payload || !sig) return null;
     const sigInput = header + '.' + payload;
     const expected = crypto.createHmac('sha256', TOKEN_SECRET).update(sigInput).digest('base64')

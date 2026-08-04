@@ -24,11 +24,13 @@ function setCors(res) {
 
 /* Verify DTF Bearer JWT — identical to getProjectStatus / getProjectTokens */
 function verifyBearerJwt(req) {
-  const auth = (req.headers && req.headers.authorization) || '';
-  const match = auth.match(/^Bearer\s+(.+)$/i);
-  if (!match) return null;
+  const auth = (req.headers && (req.headers['x-dtf-token'] || req.headers.authorization)) || '';
+  /* X-DTF-Token: <raw-jwt>  OR  Authorization: Bearer <jwt> */
+  const bearerMatch = auth.match(/^Bearer\s+(.+)$/i);
+  const rawJwt = bearerMatch ? bearerMatch[1] : auth;
+  if (!rawJwt || rawJwt.split('.').length !== 3) return null;
   try {
-    const [header, payload, sig] = match[1].split('.');
+    const [header, payload, sig] = rawJwt.split('.');
     if (!header || !payload || !sig) return null;
     const expected = crypto.createHmac('sha256', TOKEN_SECRET)
       .update(header + '.' + payload).digest('base64')

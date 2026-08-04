@@ -2962,7 +2962,7 @@ function poll(){
      GitHub PAT users who haven't migrated to DTF use the legacy sync server. */
   if (hasBearerToken() && CURRENT_PROJECT) {
     var catStatusUrl = CATALYST_SERVER + '/server/getProjectStatus?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
-    return fetch(catStatusUrl, { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN }})
+    return fetch(catStatusUrl, { cache: 'no-store', headers: { 'X-DTF-Token': DTF_BEARER_TOKEN }})
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(data){
         lastPollError = '';
@@ -3040,7 +3040,7 @@ function fetchTokenData(){
   /* Catalyst path — always used when bearer token present */
   if (hasBearerToken() && CURRENT_PROJECT) {
     var catTokensUrl = CATALYST_SERVER + '/server/getProjectTokens?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_cb=' + Date.now();
-    fetch(catTokensUrl, { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN }})
+    fetch(catTokensUrl, { cache: 'no-store', headers: { 'X-DTF-Token': DTF_BEARER_TOKEN }})
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(data){
         fetchRetries = 0;
@@ -4023,7 +4023,7 @@ function fetchProjects(){
      the user hasn't created any DTF projects yet — show an import prompt. */
   if (hasBearerToken()){
     fetch(CATALYST_SERVER + '/server/listProjects', {
-      headers: { 'Authorization': 'Bearer ' + DTF_BEARER_TOKEN },
+      headers: { 'X-DTF-Token': DTF_BEARER_TOKEN },
       cache: 'no-store'
     })
     .then(function(r){ return r.json(); })
