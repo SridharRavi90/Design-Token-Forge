@@ -90,6 +90,16 @@ module.exports = async (req, res) => {
     return;
   }
 
+  /* DEBUG — remove after confirming req.query works */
+  if ((req.query && req.query._dbg) || (req.url && req.url.indexOf('_dbg=') !== -1)) {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    var dbg = { url: req.url, query: req.query, params: req.params };
+    try { dbg.keys = Object.keys(req); } catch(_){}
+    res.end(JSON.stringify(dbg));
+    return;
+  }
+
   const rawChallenge = (req.query && req.query.challenge) ? String(req.query.challenge) : '';
   const challenge    = rawChallenge.replace(/[^a-fA-F0-9]/g, '').slice(0, 64);
   if (!challenge || challenge.length < 16) {
