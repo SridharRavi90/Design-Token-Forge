@@ -7,7 +7,7 @@
  * Flow:
  *   1. Plugin opens this URL in the browser with its challenge + uid.
  *   2. Function creates a signed JWT, stores challenge->JWT in DataStore,
- *      returns a "Plugin linked\!" HTML page (no hub.html needed).
+ *      returns a "Plugin linked!" HTML page (no hub.html needed).
  *   3. Plugin polls pollPluginToken until it gets the JWT.
  */
 'use strict';
@@ -37,7 +37,7 @@ function makeJwt(userId) {
 
 function htmlPage(icon, heading, body) {
   return [
-    '<\!DOCTYPE html><html lang="en"><head>',
+    '<!DOCTYPE html><html lang="en"><head>',
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width,initial-scale=1">',
     '<title>DTF \u00b7 ' + heading + '</title>',
@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') { res.statusCode = 204; res.end(''); return; }
-  if (req.method \!== 'GET') {
+  if (req.method !== 'GET') {
     res.statusCode = 405;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ status: 'failure', error: 'Method not allowed' }));
@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
 
   const rawChallenge = (req.query && req.query.challenge) ? String(req.query.challenge) : '';
   const challenge    = rawChallenge.replace(/[^a-fA-F0-9]/g, '').slice(0, 64);
-  if (\!challenge || challenge.length < 16) {
+  if (!challenge || challenge.length < 16) {
     res.statusCode = 400;
     if (isBrowser) {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -126,7 +126,7 @@ module.exports = async (req, res) => {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.end(htmlPage(
         '\u2705',
-        'Plugin linked\!',
+        'Plugin linked!',
         'Your Figma plugin is now connected to DTF. ' +
         'Return to Figma to continue \u2014 your projects will appear in the dropdown.'
       ));
