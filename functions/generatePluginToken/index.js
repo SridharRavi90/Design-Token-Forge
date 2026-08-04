@@ -137,11 +137,10 @@ module.exports = async (req, res) => {
     } catch (_) {}
 
     await app.datastore().table(TABLE).insertRow({
-      user_id:        userId,
-      project_id:     projectId,
-      name:           'plugin_token',
-      description:    jwt,
-      last_hash:      expiresAt
+      user_id:    userId,
+      project_id: projectId,
+      name:       'plugin_token',
+      last_hash:  jwt          /* JWT stored here; exp claim inside handles TTL */
     });
 
     if (isBrowser) {

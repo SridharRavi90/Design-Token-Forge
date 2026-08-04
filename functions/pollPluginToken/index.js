@@ -71,7 +71,7 @@ module.exports = async (req, res) => {
     const projectId = '__ptk__' + challenge.toLowerCase();
     const zcql      = app.zcql();
     const rows      = await zcql.executeZCQLQuery(
-      `SELECT ROWID, user_id, description, last_hash FROM ${TABLE} WHERE project_id = '${projectId}' AND name = 'plugin_token'`
+      `SELECT ROWID, user_id, last_hash FROM ${TABLE} WHERE project_id = '${projectId}' AND name = 'plugin_token'`
     );
 
     if (!rows || rows.length === 0) {
@@ -82,17 +82,28 @@ module.exports = async (req, res) => {
     }
 
     const row      = rows[0][TABLE] || rows[0];
-    const expiresAt = row.last_hash || '';
-    if (expiresAt && new Date(expiresAt) < new Date()) {
-      /* Expired — clean up and reject */
-      try { await app.datastore().table(TABLE).deleteRow(row.ROWID); } catch (_) {}
-      res.statusCode = 410;
-      res.end(JSON.stringify({ status: 'failure', error: 'Challenge expired — start a new link flow' }));
+    const jwt      = row.last_hash || '';
+    const userId   = row.user_id   || '';
+
+    if (!jwt) {
+      res.statusCode = 200;
+      res.end(JSON.stringify({ status: 'pending' }));
       return;
     }
 
-    const jwt    = row.description || '';
-    const userId = row.user_id     || '';
+    /* Decode exp claim from JWT — no separate expiry column needed */
+    try {
+      const parts = jwt.split('.');
+      if (parts.length === 3) {
+        const claims = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+        if (claims.exp && Math.floor(Date.now() / 1000) > claims.exp) {
+          try { await app.datastore().table(TABLE).deleteRow(row.ROWID); } catch (_) {}
+          res.statusCode = 410;
+          res.end(JSON.stringify({ status: 'failure', error: 'Challenge expired — start a new link flow' }));
+          return;
+        }
+      }
+    } catch (_) {}
 
     /* One-time use: delete the challenge row immediately */
     try { await app.datastore().table(TABLE).deleteRow(row.ROWID); } catch (_) {}
