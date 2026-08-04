@@ -1,0 +1,7 @@
+{
+  "name": "getProjects",
+  "version": "1.0.0",
+  "description": "DTF Catalyst Function — serves projects.json list with CORS for Figma plugin",
+  "main": "index.js",
+  "dependencies": {}
+}

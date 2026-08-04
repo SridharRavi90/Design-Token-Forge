@@ -1,6 +1,6 @@
 {
   "functions": {
-    "targets": ["getUser"],
+    "targets": ["getUser", "getTokenStatus", "getTokens", "getProjects"],
     "source": "functions"
   }
 }

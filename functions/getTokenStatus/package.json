@@ -1,0 +1,7 @@
+{
+  "name": "getTokenStatus",
+  "version": "1.0.0",
+  "description": "DTF Catalyst Function — serves token status JSON with CORS for Figma plugin",
+  "main": "index.js",
+  "dependencies": {}
+}

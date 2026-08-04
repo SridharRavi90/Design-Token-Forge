@@ -1,0 +1,7 @@
+{
+  "name": "getTokens",
+  "version": "1.0.0",
+  "description": "DTF Catalyst Function — serves full tokens.json payload with CORS for Figma plugin",
+  "main": "index.js",
+  "dependencies": {}
+}

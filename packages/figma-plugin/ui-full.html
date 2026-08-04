@@ -1452,7 +1452,20 @@ function storageSet(k,v){ try { localStorage.setItem(k,v); } catch(e){ _mem[k]=v
    Username is now exclusively sourced from figma.clientStorage (account-scoped). */
 try { localStorage.removeItem('dtf-gh-username'); } catch(e) {}
 
-var DEFAULT_SERVER = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
+var DEFAULT_SERVER = 'https://raw.githubusercontent.com/sridhar-ravi-2917/Design-Token-Forge/pages';
+/* One-time migration: evict stale server URLs (old GitHub Pages, Slate
+   host where /server/* routing didn't work, or local dev server that is
+   no longer the primary sync path) so the plugin automatically falls
+   through to the GitHub raw default. */
+(function migrateLegacyServer(){
+  var stored = storageGet('dtf-server-url') || '';
+  if (stored.indexOf('github.io') !== -1 ||
+      stored.indexOf('sridhar-ravi-2917.github.io') !== -1 ||
+      stored.indexOf('onslate.in') !== -1 ||
+      stored.indexOf('localhost') !== -1){
+    try { localStorage.removeItem('dtf-server-url'); } catch(e){}
+  }
+})();
 var SERVER        = storageGet('dtf-server-url') || DEFAULT_SERVER;
 var CURRENT_PROJECT = storageGet('dtf-project-id') || '';
 var GH_USERNAME   = '';                /* never seeded from localStorage — always from figma.clientStorage via creds-restored to prevent cross-user leakage */
@@ -1566,7 +1579,8 @@ log('plugin UI build ' + BUILD_VERSION);
   };
 }());
 
-function isStaticHost(){ return SERVER.indexOf('github.io') !== -1 || SERVER.indexOf('.pages.dev') !== -1; }
+function isCatalystHost(){ return SERVER.indexOf('onslate.in') !== -1; }
+function isStaticHost(){ return SERVER.indexOf('github.io') !== -1 || SERVER.indexOf('.pages.dev') !== -1 || SERVER.indexOf('raw.githubusercontent.com') !== -1 || isCatalystHost(); }
 
 /* Mirror the live deploy metadata from serverStatus into the debug
    panel. Called from render() so the rows stay in sync with every poll. */
@@ -1641,8 +1655,18 @@ function formatLastUpdated(status){
   return bits.join(' · ');
 }
 function apiUrl(endpoint){
+  var cb = '_cb=' + Date.now();
+  /* Catalyst/Slate host: route through server-side Functions which add
+     CORS headers and proxy the static files (Figma can't call Slate
+     static files directly — no CORS header on static responses). */
+  if (isCatalystHost()){
+    var proj = CURRENT_PROJECT ? '&project=' + encodeURIComponent(CURRENT_PROJECT) : '';
+    if (endpoint === '/status')   return SERVER + '/server/getTokenStatus?' + cb + proj;
+    if (endpoint === '/tokens')   return SERVER + '/server/getTokens?'      + cb + proj;
+    if (endpoint === '/projects') return SERVER + '/server/getProjects?'    + cb;
+    return null; /* /ack, /changelog: no-op on static/Catalyst hosts */
+  }
   if (isStaticHost()){
-    var cb = '_cb=' + Date.now();
     var base = CURRENT_PROJECT ? SERVER + '/' + CURRENT_PROJECT : SERVER;
     if (endpoint === '/status')  return base + '/status.json?' + cb;
     if (endpoint === '/tokens')  return base + '/tokens.json?' + cb;
@@ -1676,20 +1700,20 @@ function render(){
     return;
   }
   if (!GH_USERNAME){
-    setHero({ glyph:'⚙', glyphClass:'neutral', title:'Connect your GitHub', sub:'DTF needs a personal access token to sync tokens with this file.' });
-    setupForm.hidden = false;
+    /* Identity not yet arrived from Figma — show neutral spinner.
+       figma.currentUser fires quickly; this state is transient. */
+    setHero({ glyph:'…', glyphClass:'neutral', title:'Signing in…', sub:'Connecting with your Figma account.' });
+    setupForm.hidden = true;
     heroEl.style.display = 'flex';
     changesPanel.hidden = true;
     footerSync.hidden = true;
-    /* Hide rebind banners — they paint above the connect hero from
-       a prior signed-in render and stale otherwise. */
     if (mismatchSync)    mismatchSync.hidden    = true;
     if (mismatchBuilder) mismatchBuilder.hidden = true;
     body.dataset.conn = 'off';
     tbAvatar.classList.add('disconnected');
     tbAvatar.textContent = '?';
-    tbAvatar.title = 'Not connected';
-    tbMenuIdentity.textContent = 'Not connected';
+    tbAvatar.title = 'Not signed in';
+    tbMenuIdentity.textContent = 'Not signed in';
     tbMenuIdentity.title = '';
     tbMenuIdentity.style.cursor = 'default';
     if (tbMenuPop) tbMenuPop.classList.add('signed-out');
@@ -1737,7 +1761,8 @@ function render(){
      (see syncBtn click handler). The banner orients the user and
      offers the safe escape hatch (switch back / pick different
      project). hasExistingVars is set by scan-result. */
-  var hasCreds = !!(GH_USERNAME && GH_PAT);
+  /* hasCreds: user is identified (Figma identity, no PAT required). */
+  var hasCreds = !!GH_USERNAME;
   var isBoundMismatch  = hasCreds && !!(documentProject && CURRENT_PROJECT && CURRENT_PROJECT !== documentProject);
   var isUnboundClaim   = hasCreds && !!(hasExistingVars && !documentProject && CURRENT_PROJECT);
   var isMismatch       = isBoundMismatch || isUnboundClaim;
@@ -1801,10 +1826,16 @@ function render(){
   if (!connected){
     var is404 = /HTTP 404/.test(lastPollError);
     var projectMissing = is404 && CURRENT_PROJECT && isStaticHost();
+    /* Static host, no project selected yet: root status.json doesn’t
+       exist by design — show a neutral “pick a project” prompt. */
+    var noProjectStatic = is404 && !CURRENT_PROJECT && isStaticHost();
     var title, sub;
-    if (projectMissing){
+    if (noProjectStatic){
+      title = 'Select a project';
+      sub = 'Choose a project from the dropdown above to begin syncing.';
+    } else if (projectMissing){
       title = 'Project not deployed yet';
-      sub = '<strong>' + esc(projectDisplayName(CURRENT_PROJECT)) + '</strong> hasn’t been published to GitHub Pages yet, or its folder was renamed. Pick a different project from the top bar.';
+      sub = '<strong>' + esc(projectDisplayName(CURRENT_PROJECT)) + '</strong> hasn’t been published yet, or its folder was renamed. Pick a different project from the top bar.';
     } else if (consecutivePollFails > 0){
       title = 'Can’t reach the sync server';
       sub = 'Last error: <code>' + esc(lastPollError || 'unknown') + '</code>. Retrying every ' + (POLL_MS/1000) + 's…';
@@ -1812,7 +1843,7 @@ function render(){
       title = 'Connecting…';
       sub = 'Reaching the sync server.';
     }
-    setHero({ glyph: projectMissing ? '⚠' : '⏻', glyphClass: projectMissing ? 'warn' : 'neutral', title:title, sub:sub });
+    setHero({ glyph: (noProjectStatic ? '⬇' : projectMissing ? '⚠' : '⏻'), glyphClass: (noProjectStatic ? 'neutral' : projectMissing ? 'warn' : 'neutral'), title:title, sub:sub });
     changesPanel.hidden = true;
     footerSync.hidden = true;
     body.dataset.conn = 'error';
@@ -2542,14 +2573,11 @@ function applyFooterForActiveTab(){
 }
 tabSync.addEventListener('click', function(){ setTab('sync', true); });
 tabBuilder.addEventListener('click', function(){
-  /* Components builder writes to the file and depends on a synced
-     token set — pointless (and visually broken: the previous "Build
-     components" CTA was clickable under the "Connect GitHub first"
-     header) when the user is signed out. Bounce back to Sync with
-     a hint. */
-  if (!GH_USERNAME || !GH_PAT){
+  /* Components builder writes to the file — pointless when the user
+     is not yet identified. Bounce back to Sync with a hint. */
+  if (!GH_USERNAME){
     setTab('sync', true);
-    setStatus('Connect GitHub before building components.', 'err');
+    setStatus('Waiting for Figma identity — please try again.', 'err');
     return;
   }
   setTab('builder', true);
@@ -2559,11 +2587,12 @@ tabBuilder.addEventListener('click', function(){
    user understands why the click no-ops. applyAuthGate() is called
    from render() (which fires on every credential change). */
 function applyAuthGate(){
-  var locked = !(GH_USERNAME && GH_PAT);
+  /* Builder tab is available once Figma identity is established (no PAT required). */
+  var locked = !GH_USERNAME;
   if (tabBuilder){
     tabBuilder.disabled = locked;
     tabBuilder.setAttribute('aria-disabled', locked ? 'true' : 'false');
-    tabBuilder.title = locked ? 'Connect GitHub to enable component builder' : '';
+    tabBuilder.title = locked ? 'Waiting for Figma identity…' : '';
   }
   /* INTENTIONALLY no auto-switch back to Sync when locked.
      Past behavior cleared _tabUserLocked and forced setTab('sync') if
@@ -3191,7 +3220,7 @@ syncBtn.addEventListener('click', function(){
      confirm dialog spells out what gets clobbered so the user can't
      accidentally one-click a teammate's pearl file into their own
      project's tokens. */
-  var hasCreds = !!(GH_USERNAME && GH_PAT);
+  var hasCreds = !!GH_USERNAME;
   var isBoundMismatch = hasCreds && !!(documentProject && CURRENT_PROJECT && CURRENT_PROJECT !== documentProject);
   var isUnboundClaim  = hasCreds && !!(hasExistingVars && !documentProject && CURRENT_PROJECT);
   if ((isBoundMismatch || isUnboundClaim) && !destructiveSyncConfirmed){
@@ -3317,6 +3346,15 @@ window.onmessage = function(event){
      (Figma user name match). Owner stays clean. Once dismissed in
      a session, stays dismissed via sessionStorage. */
   if (msg.type === 'user-info'){
+    /* Auto-seed identity from the Figma account — no GitHub PAT required.
+       GH_USERNAME is now just the display name (from figma.currentUser.name).
+       Once set, unblock the splash and start polling + project fetch. */
+    if (msg.name && !GH_USERNAME) {
+      GH_USERNAME = msg.name;
+      credsRestoredYet = true;
+      if (!projectsFetched) fetchProjects();
+      if (!pollTimer && SERVER) startPolling();
+    }
     try {
       var banner = document.getElementById('devBanner');
       var dismissed = false;
@@ -3335,6 +3373,7 @@ window.onmessage = function(event){
         });
       }
     } catch(e){}
+    render();
     return;
   }
 
@@ -3391,14 +3430,33 @@ window.onmessage = function(event){
 
   if (msg.type === 'progress') setStatus(msg.text, 'work');
 
-  if (msg.type === 'set-server-url') setServerUrl(msg.url);
+  if (msg.type === 'set-server-url'){
+    /* Apply the same stale-URL migration as startup: if clientStorage
+       held an old github.io, onslate.in, or localhost URL, discard it
+       and let DEFAULT_SERVER take over.  The user can always set a
+       custom URL via Server URL… in the overflow menu. */
+    var restoredUrl = msg.url || '';
+    var isStaleUrl  = restoredUrl.indexOf('github.io') !== -1 ||
+                      restoredUrl.indexOf('onslate.in') !== -1 ||
+                      restoredUrl.indexOf('localhost') !== -1;
+    if (!isStaleUrl && restoredUrl) {
+      setServerUrl(restoredUrl);
+    } else {
+      /* Discard stale URL: clear from clientStorage too so code.js
+         won't send it again on next open. */
+      parent.postMessage({ pluginMessage:{ type:'save-server-url', url: DEFAULT_SERVER } }, '*');
+      if (SERVER !== DEFAULT_SERVER) setServerUrl(DEFAULT_SERVER);
+      else startPolling();
+    }
+  }
 
   if (msg.type === 'creds-restored'){
     credsRestoredYet = true;
-    if (msg.username) GH_USERNAME = msg.username;
-    if (msg.pat)      GH_PAT = msg.pat;
-    if (GH_USERNAME){
-      projectsFetched = false;
+    /* GH_USERNAME is now set from figma.currentUser via user-info (higher priority).
+       Only fall back to stored GitHub username if Figma identity hasn't arrived yet. */
+    if (!GH_USERNAME && msg.username) GH_USERNAME = msg.username;
+    if (msg.pat) GH_PAT = msg.pat;   /* kept for optional advanced/local-server use */
+    if (GH_USERNAME && !projectsFetched){
       fetchProjects();
     }
     render();
@@ -3734,7 +3792,10 @@ function fetchProjects(){
      Hitting /repos/<user>/Design-Token-Forge/contents/projects always
      reflects the actual project dirs in the fork, with no deploy
      dependency. Falls back to the static endpoint if the API fails. */
-  if (GH_PAT && GH_USERNAME){
+  /* On Catalyst/Slate: use the getProjects Function — no GitHub PAT needed.
+     On GitHub/localhost: use the GitHub API (requires PAT) so each fork
+     shows only its own project directories. */
+  if (!isCatalystHost() && GH_PAT && GH_USERNAME){
     var apiBase = 'https://api.github.com/repos/' + GH_USERNAME + '/Design-Token-Forge';
     var hdrs = { 'Authorization':'Bearer ' + GH_PAT, 'Accept':'application/vnd.github+json' };
     fetch(apiBase + '/contents/projects?ref=main&_cb=' + Date.now(), { headers:hdrs })
@@ -3791,9 +3852,15 @@ function _renderProjectList(list){
          are treated as belonging to the fork's owner (i.e. this
          user) — they predate the schema. */
       var ghUserLc = GH_USERNAME.toLowerCase();
-      var filtered = list.filter(function(p){
-        return !p.owner || p.owner.toLowerCase() === ghUserLc;
-      });
+      /* On any static host (GitHub raw, GitHub Pages, Catalyst/Slate)
+         we serve from a single centrally-managed repo — show all projects.
+         The per-fork owner filter only applies when using the GitHub API
+         with a PAT (self-hosted or local-dev workflows). */
+      var filtered = (isStaticHost() || !GH_PAT)
+        ? list.slice()
+        : list.filter(function(p){
+            return !p.owner || p.owner.toLowerCase() === ghUserLc;
+          });
       projectSelect.innerHTML = '';
       if (filtered.length === 0){
         projectSelect.innerHTML = '<option value="">No projects</option>';
