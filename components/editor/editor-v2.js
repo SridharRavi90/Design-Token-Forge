@@ -5781,7 +5781,9 @@
     sub.textContent = 'Save your changes as the new default for "' + projLabel + '". Figma refreshes automatically within \u00b71 minute.';
     confirmBtn.textContent = n ? ('Publish ' + nextVer) : 'Publish';
     confirmBtn.disabled = false;
-    hint.innerHTML = 'Writes to your GitHub fork. A Personal Access Token with <code>repo</code> scope is required.';
+    hint.innerHTML = _isCatalystHost()
+      ? 'Tokens are saved to Catalyst and synced to Figma automatically.'
+      : 'Writes to your GitHub fork. A Personal Access Token with <code>repo</code> scope is required.';
 
     // Wire metadata form defaults
     var prevEl = document.getElementById('ev2SaveVerPrev');
@@ -5862,8 +5864,46 @@
     document.body.classList.add('ev2-modal-open');
     body.innerHTML = '<div class="ev2-history-empty">Loading version history\u2026</div>';
 
-    // Requires a GH token to list private contents. If user doesn't
-    // have one yet we prompt — same flow as Publish.
+    /* ── Catalyst path — no GitHub PAT required ─────────────────── */
+    if (_isCatalystHost()) {
+      fetch('/server/getProjectVersions?project=' + encodeURIComponent(projId), {
+        credentials: 'include'
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (resp) {
+          if (!resp || resp.status !== 'success') throw new Error((resp && resp.error) || 'Failed to load versions');
+          var versions = (resp.data && resp.data.versions) || [];
+          if (!versions.length) {
+            body.innerHTML = '<div class="ev2-history-empty">No published versions yet. Use <strong>Publish</strong> to create your first release.</div>';
+            return;
+          }
+          // Convert Catalyst version entries to the same snapshot shape
+          // that renderHistoryList already knows how to render.
+          var snapshots = versions.map(function (v) {
+            return {
+              name:   v.version + '.json',
+              fileId: v.fileId,
+              json:   {
+                meta: {
+                  version:     v.version,
+                  name:        v.name,
+                  savedAt:     v.savedAt,
+                  savedBy:     v.savedBy,
+                  description: v.description
+                },
+                files: { _catalyst: true }   // sentinel: restore uses Catalyst API
+              }
+            };
+          });
+          renderHistoryList(null, snapshots);
+        })
+        .catch(function (err) {
+          body.innerHTML = '<div class="ev2-history-empty">Couldn\u2019t load version history.<br><small>' + escapeHTML(String(err && err.message || err)) + '</small></div>';
+        });
+      return;
+    }
+
+    // GitHub path — requires a PAT.
     ensureGhCredentials().then(function (cred) {
       var path = 'projects/' + projId + '/versions';
       return ghFetch('/repos/' + cred.user + '/' + GH_REPO_NAME + '/contents/' + path)
@@ -6002,6 +6042,95 @@
     if (btn) { btn.setAttribute('data-restoring','true'); btn.disabled = true; btn.textContent = 'Restoring\u2026'; }
     var dlg = document.getElementById('ev2HistoryDialog');
     if (dlg) dlg._restoring = true;
+
+    /* ── Catalyst path — fetch snapshot from File Store, re-save as new version ── */
+    if (_isCatalystHost()) {
+      var fileId = snap.fileId;
+      if (!fileId) {
+        historyStatus('No snapshot file found for ' + ver + ' \u2014 cannot restore.', 'err');
+        if (btn) { btn.removeAttribute('data-restoring'); btn.disabled = false; btn.textContent = 'Restore'; }
+        if (dlg) dlg._restoring = false;
+        return;
+      }
+      var restoreProjId = projId; // captured for inner closures
+      fetch('/server/getProjectTokens?project=' + encodeURIComponent(restoreProjId)
+          + '&file_id=' + encodeURIComponent(fileId), { credentials: 'include' })
+        .then(function (r) { return r.json(); })
+        .then(function (snapshot) {
+          var restoreMeta = {
+            version:     nextVer,
+            name:        'Restore of ' + ver,
+            description: 'Restored from ' + ver + (origName && origName !== ver ? ' \u2014 \u201c' + origName + '\u201d' : ''),
+            savedAt:     new Date().toISOString(),
+            savedBy:     (window.DTF_USER && (window.DTF_USER.firstName + ' ' + window.DTF_USER.lastName).trim()) || ''
+          };
+          // Patch config.json so latestVersion reflects the restored version number.
+          var newCfgText = snapshot['config.json'] || '';
+          try {
+            var cfg = JSON.parse(newCfgText);
+            cfg.latestVersion = {
+              version:     restoreMeta.version,
+              name:        restoreMeta.name,
+              description: restoreMeta.description,
+              savedAt:     restoreMeta.savedAt,
+              savedBy:     restoreMeta.savedBy
+            };
+            newCfgText = JSON.stringify(cfg, null, 2) + '\n';
+          } catch (_) { /* leave as-is */ }
+
+          var tokensPayload = {
+            'primitives.css': snapshot['primitives.css'] || '',
+            'semantic.css':   snapshot['semantic.css']   || '',
+            'surfaces.css':   snapshot['surfaces.css']   || '',
+            'config.json':    newCfgText,
+            '_meta':          restoreMeta
+          };
+          if (btn) btn.textContent = 'Saving\u2026';
+          return fetch('/server/saveTokens', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: restoreProjId, tokens: tokensPayload })
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (resp) {
+              if (!resp || resp.status !== 'success') throw new Error((resp && resp.error) || 'Save failed');
+              // Mirror to localStorage (same as normal Publish + Restore GitHub paths).
+              try {
+                var primCss  = tokensPayload['primitives.css'];
+                var semCss   = tokensPayload['semantic.css'];
+                var surfCss  = tokensPayload['surfaces.css'];
+                localStorage.setItem('dtf-project-primitives-' + restoreProjId, primCss);
+                localStorage.setItem('dtf-project-semantic-'   + restoreProjId, semCss);
+                localStorage.setItem('dtf-project-surfaces-'   + restoreProjId, surfCss);
+                localStorage.setItem('dtf-project-config-'     + restoreProjId, newCfgText);
+                localStorage.setItem('dtf-saved-tokens-'       + restoreProjId, primCss + '\n' + semCss + '\n' + surfCss);
+                localStorage.removeItem('dtf-editor-v2-draft-v2--' + restoreProjId);
+                localStorage.removeItem('ev2-live-preview-' + restoreProjId);
+              } catch (_lsErr) { /* non-fatal */ }
+              // Set restore-overlay sentinel before reload.
+              try {
+                sessionStorage.setItem('dtf-restoring-overlay', JSON.stringify({
+                  pid: restoreProjId, from: ver, to: nextVer
+                }));
+              } catch (_ssErr) {}
+              historyStatus('Restored ' + ver + ' as ' + nextVer + '. Reloading\u2026', 'ok', 8000);
+              window.__ev2BypassUnloadGuard = true;
+              requestAnimationFrame(function () {
+                requestAnimationFrame(function () { window.location.reload(); });
+              });
+            });
+        })
+        .catch(function (err) {
+          var emsg = (err && err.message) || String(err);
+          historyStatus('Restore failed: ' + emsg, 'err');
+          if (window.ev2Toast) window.ev2Toast('Restore failed: ' + emsg, 'err');
+          if (btn) { btn.removeAttribute('data-restoring'); btn.disabled = false; btn.textContent = 'Restore'; }
+          if (dlg) dlg._restoring = false;
+          console.error('[restore/catalyst]', err);
+        });
+      return; /* skip GitHub path */
+    }
 
     var creds; // captured for the recover step
     var restoredFiles; // captured for the stash-mirror step (the
@@ -6478,6 +6607,10 @@
       var primCSSC = buildPrimitivesCSS(meta);
       var semCSSC  = buildSemanticCSS(meta);
       var surfCSSC = buildSurfacesCSS(meta);
+      // Populate savedBy from Catalyst user identity (set by catalyst-user.js).
+      meta.savedBy = (window.DTF_USER && (window.DTF_USER.firstName + ' ' + window.DTF_USER.lastName).trim())
+                     || (window.DTF_USER && window.DTF_USER.email)
+                     || '';
       var cfgJSONC = buildConfigJSON(prevCfgC, meta);
       var tokensPayload = {
         'primitives.css': primCSSC,

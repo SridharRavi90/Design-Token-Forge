@@ -150,18 +150,65 @@ module.exports = async (req, res) => {
     });
     const newFileId = String(uploaded.id || uploaded.file_id || uploaded.fileId || '');
 
-    /* Update DataStore: new hash, synced_at, and file ID in description */
+    /* If the payload includes version metadata, save a versioned snapshot so
+       Version History can list and restore it later. Each version snapshot is
+       stored as a separate file; only the last MAX_VERSIONS are kept. */
+    const MAX_VERSIONS = 20;
+    const meta = (body.tokens && body.tokens._meta) || {};
+    const version = (meta.version || '').trim();
+    var snapshotFileId = '';
+
+    if (version) {
+      const snapshotName = `${userId}__${projectId}__${version}__snapshot.json`;
+      try {
+        const snapshotUploaded = await folder.uploadFile({
+          code:     FOLDER_ID,
+          content:  makeReadable(tokensJson),
+          fileName: snapshotName,
+          mimeType: 'application/json'
+        });
+        snapshotFileId = String(snapshotUploaded.id || snapshotUploaded.file_id || snapshotUploaded.fileId || '');
+      } catch (_snapErr) { /* non-fatal — main save already succeeded */ }
+    }
+
+    /* Build the updated versions list (newest first, capped at MAX_VERSIONS). */
+    var existingVersions = Array.isArray(descBlob.versions) ? descBlob.versions : [];
+    if (version && snapshotFileId) {
+      /* Remove any duplicate entry for this version (safe retry idempotency). */
+      existingVersions = existingVersions.filter(function(v) { return v.version !== version; });
+      existingVersions.unshift({
+        version:     version,
+        name:        meta.name        || '',
+        savedAt:     meta.savedAt     || now,
+        savedBy:     meta.savedBy     || '',
+        description: meta.description || '',
+        fileId:      snapshotFileId
+      });
+      /* Evict oldest snapshots and delete their files (best-effort). */
+      if (existingVersions.length > MAX_VERSIONS) {
+        const toRemove = existingVersions.splice(MAX_VERSIONS);
+        await Promise.all(toRemove.map(function(v) {
+          return v.fileId ? folder.deleteFile(v.fileId).catch(function() {}) : Promise.resolve();
+        }));
+      }
+    }
+
+    /* Update DataStore: new hash, synced_at, file ID, and versions list. */
     const datastore = app.datastore();
     const table = datastore.table(TABLE);
     await table.updateRow({
       ROWID:          rowId,
       last_hash:      hash,
       last_synced_at: now,
-      description:    JSON.stringify({ text: descBlob.text || '', tokens_file_id: newFileId })
+      description:    JSON.stringify({
+        text:           descBlob.text || '',
+        tokens_file_id: newFileId,
+        versions:       existingVersions
+      })
     });
 
     res.statusCode = 200;
-    res.end(JSON.stringify({ status: 'success', data: { hash, savedAt: now, fileId: newFileId } }));
+    res.end(JSON.stringify({ status: 'success', data: { hash, savedAt: now, fileId: newFileId, snapshotFileId } }));
   } catch (err) {
     const is401 = /unauthorized|not authenticated/i.test(err.message || '');
     res.statusCode = is401 ? 401 : 500;
