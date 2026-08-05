@@ -8,8 +8,11 @@ on:
       - 'packages/components/src/**'
       - 'packages/sync-server/**'
       - 'packages/figma-plugin/**'
+      - 'components/**'
       - 'demo/**'
       - 'projects/**'
+      - 'functions/**'
+      - 'catalyst.json'
       - '.github/workflows/deploy-tokens.yml'
   workflow_dispatch:
 
@@ -48,6 +51,12 @@ jobs:
         run: |
           mkdir -p dist/plugin
           cp demo/plugin/ui.html dist/plugin/ui.html
+
+      - name: Copy components/ and functions/ to dist/
+        run: |
+          cp -r components dist/components
+          cp -r functions dist/functions
+          cp catalyst.json dist/catalyst.json 2>/dev/null || true
 
       - name: Copy root entry point and demo/ to dist/
         # dist/index.html  → Catalyst Slate entry (reads Zoho user ID, routes to /{userId}/)
