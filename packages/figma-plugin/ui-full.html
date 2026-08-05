@@ -2018,6 +2018,10 @@ function render(){
       sub = 'Last error: <code>' + esc(lastPollError || 'unknown') + '</code>. Retrying every ' + (POLL_MS/1000) + 's…';
     } else {
       title = 'Connecting…';
+      /* Suppress the flash: don't show a hero on the very first poll attempt.
+         The correct state (no-tokens / up-to-date / changes) will show within
+         one poll interval. Only show the connecting hero after the first fail. */
+      if (consecutivePollFails === 0) return;
       sub = 'Reaching the sync server.';
     }
     setHero({ glyph: (noProjectStatic ? '⬇' : projectMissing ? '⚠' : '⏻'), glyphClass: (noProjectStatic ? 'neutral' : projectMissing ? 'warn' : 'neutral'), title:title, sub:sub });
@@ -2977,9 +2981,15 @@ function startPolling(){
 }
 
 function poll(){
-  /* Catalyst path — always used when bearer token present.
-     GitHub PAT users who haven't migrated to DTF use the legacy sync server. */
-  if (hasBearerToken() && CURRENT_PROJECT) {
+  /* Use Catalyst if:
+     (a) bearer token is active AND
+     (b) project is explicitly in the Catalyst list, OR the list hasn't been
+         fetched yet (catalystProjectIds still empty — default to Catalyst so
+         we never flash the legacy-path 404 error while loading). */
+  var catListLoaded = Object.keys(catalystProjectIds).length > 0;
+  var usesCatalyst  = hasBearerToken() && CURRENT_PROJECT &&
+                      (!catListLoaded || catalystProjectIds[CURRENT_PROJECT]);
+  if (usesCatalyst) {
     var catStatusUrl = CATALYST_SERVER + '/server/getProjectStatus?project=' + encodeURIComponent(CURRENT_PROJECT) + '&_auth=' + encodeURIComponent(DTF_BEARER_TOKEN) + '&_cb=' + Date.now();
     return fetch(catStatusUrl, { cache: 'no-store' })
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -4054,16 +4064,29 @@ function fetchProjects(){
     })
     .then(function(r){ return r.json(); })
     .then(function(body){
-      if (body.status === 'success' && Array.isArray(body.data) && body.data.length > 0){
-        _renderProjectList(body.data.map(function(p){
-          return { id: p.id, name: p.name };
-        }));
-      } else {
-        /* No Catalyst projects yet — prompt to create one */
-        projectsFetched = true;
-        if (projectSelect) projectSelect.innerHTML = '<option value="">No projects yet — create one below</option>';
-        render();
-      }
+      var catProjects = (body.status === 'success' && Array.isArray(body.data)) ? body.data : [];
+      /* Record which project IDs are Catalyst-backed */
+      catalystProjectIds = {};
+      catProjects.forEach(function(p){ catalystProjectIds[p.id] = true; });
+      /* Also fetch the static project list and merge (Catalyst wins on id clash) */
+      var staticUrl = (SERVER || DEFAULT_SERVER) + '/projects';
+      fetch(staticUrl, { cache: 'no-store' })
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .catch(function(){ return []; })
+        .then(function(staticList){
+          if (!Array.isArray(staticList)) staticList = [];
+          var merged = catProjects.map(function(p){ return { id: p.id, name: p.name }; });
+          staticList.forEach(function(p){
+            if (!catalystProjectIds[p.id]) merged.push({ id: p.id, name: p.name });
+          });
+          if (merged.length > 0){
+            _renderProjectList(merged);
+          } else {
+            projectsFetched = true;
+            if (projectSelect) projectSelect.innerHTML = '<option value="">No projects yet — create one below</option>';
+            render();
+          }
+        });
     })
     .catch(function(err){
       log('Catalyst listProjects failed: ' + err.message);
