@@ -1813,6 +1813,30 @@ function render(){
      sign-out and creds-restored all flow through here. */
   applyAuthGate();
   updateDebugDeployRows();
+
+  /* ── Always-visible auth controls (run before any early return) ─────── */
+  var _linkBtn    = document.getElementById('dtfLinkBtn');
+  var _linkStatus = document.getElementById('dtfLinkStatus');
+  var _disconnBtn = document.getElementById('menuDisconnect');
+  var _disconnLbl = document.getElementById('menuDisconnectLabel');
+  if (_linkBtn) {
+    var _linked = hasBearerToken();
+    _linkBtn.textContent = _linked ? 'Unlink DTF account' : 'Link DTF account';
+    if (_linkStatus && _linked && !_linkPollTimer) {
+      _linkStatus.textContent = 'Linked as ' + DTF_BEARER_USER_ID;
+      _linkStatus.hidden = false;
+    } else if (_linkStatus && !_linked) {
+      _linkStatus.hidden = true;
+    }
+  }
+  if (_disconnBtn && _disconnLbl) {
+    if (GH_PAT && !hasBearerToken()) {
+      _disconnLbl.textContent = 'Disconnect GitHub';
+      _disconnBtn.style.display = '';
+    } else {
+      _disconnBtn.style.display = 'none';
+    }
+  }
   /* While we’re still waiting for code.js to hand us persisted creds,
      hold the UI on a neutral splash so a saved user doesn’t see the
      “Connect your GitHub” form flash for ~100ms on every plugin open. */
@@ -2143,32 +2167,8 @@ function render(){
   setSyncBadge(0);
   setBuilderBusy(false);
   applyFooterForActiveTab();
-  /* Sync the link button label */
-  var linkBtn    = document.getElementById('dtfLinkBtn');
-  var linkStatus = document.getElementById('dtfLinkStatus');
-  var disconnectBtn   = document.getElementById('menuDisconnect');
-  var disconnectLabel = document.getElementById('menuDisconnectLabel');
-  if (linkBtn) {
-    var linked = hasBearerToken();
-    linkBtn.textContent = linked ? 'Unlink DTF account' : 'Link DTF account';
-    if (linkStatus && linked && !_linkPollTimer) {
-      linkStatus.textContent = 'Linked as ' + DTF_BEARER_USER_ID;
-      linkStatus.hidden = false;
-    } else if (linkStatus && !linked) {
-      linkStatus.hidden = true;
-    }
-  }
-  /* Show/hide "Disconnect" button based on which auth is active */
-  if (disconnectBtn && disconnectLabel) {
-    if (GH_PAT && !hasBearerToken()) {
-      /* Only show GitHub disconnect when the user hasn't migrated to Catalyst.
-         Once a bearer token is active, the Unlink button handles sign-out. */
-      disconnectLabel.textContent = 'Disconnect GitHub';
-      disconnectBtn.style.display = '';
-    } else {
-      disconnectBtn.style.display = 'none';
-    }
-  }
+  /* Link/disconnect buttons are now updated at the top of render().
+     Nothing more to do here. */
 }
 
 function setHero(opts){
