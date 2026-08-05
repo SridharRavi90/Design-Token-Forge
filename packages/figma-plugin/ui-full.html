@@ -4070,7 +4070,7 @@ function fetchProjects(){
       catalystProjectIds = {};
       catProjects.forEach(function(p){ catalystProjectIds[p.id] = true; });
       /* Also fetch the static project list and merge (Catalyst wins on id clash) */
-      var staticUrl = (SERVER || DEFAULT_SERVER) + '/projects';
+      var staticUrl = apiUrl('/projects') || ((SERVER || DEFAULT_SERVER) + '/projects.json');
       fetch(staticUrl, { cache: 'no-store' })
         .then(function(r){ return r.ok ? r.json() : []; })
         .catch(function(){ return []; })
