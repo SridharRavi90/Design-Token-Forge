@@ -1631,6 +1631,7 @@ var lastSeenHash = '', hashStableCount = 0;
 var HASH_SETTLE_POLLS = 2;
 var deploySettling = false;
 var lastPollError = '', consecutivePollFails = 0;
+var catalystProjectIds = {};   /* set id→true for projects backed by Catalyst */
 var documentProject = '', pendingSwitchProject = '';
 var userSwitchedProject = false;   /* true after user picks a new project in the dropdown
                                       so the next scan-result does NOT auto-revert to the
