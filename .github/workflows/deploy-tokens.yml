@@ -59,10 +59,12 @@ jobs:
           cp catalyst.json dist/catalyst.json 2>/dev/null || true
 
       - name: Copy root entry point and demo/ to dist/
-        # dist/index.html  → Catalyst Slate entry (reads Zoho user ID, routes to /{userId}/)
-        # dist/demo/       → hub + component explorer (auth-gate.js v3, catalyst-user.js)
+        # dist/index.html → Catalyst auth splash → /hub.html → editor
         run: |
-          cp scripts/slate-entry.html dist/index.html
+          cp index.html dist/index.html
+          cp hub.html dist/hub.html
+          cp onboard.html dist/onboard.html
+          cp link-plugin.html dist/link-plugin.html 2>/dev/null || true
           cp -r demo/. dist/demo/
 
       - name: Deploy to pages branch (GitHub — used by Zoho Slate)
