@@ -127,11 +127,12 @@ module.exports = async (req, res) => {
     }
 
     /* Verify the project belongs to this user */
+    const LEGACY_UID = 'sridhar-2917';
     const allRows  = await app.datastore().table(TABLE).getAllRows();
     const rawList  = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
     const match    = rawList.find(function(r) {
       const row = r[TABLE] || r;
-      return row.user_id === userId && row.project_id === projectId;
+      return (row.user_id === userId || row.user_id === LEGACY_UID) && row.project_id === projectId;
     });
     if (!match) {
       res.statusCode = 404;

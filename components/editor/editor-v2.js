@@ -6611,28 +6611,31 @@
       var primCSSC = buildPrimitivesCSS(meta);
       var semCSSC  = buildSemanticCSS(meta);
       var surfCSSC = buildSurfacesCSS(meta);
-      // Populate savedBy from Catalyst user identity (set by catalyst-user.js).
-      meta.savedBy = (window.DTF_USER && (window.DTF_USER.firstName + ' ' + window.DTF_USER.lastName).trim())
-                     || (window.DTF_USER && window.DTF_USER.email)
-                     || '';
-      var cfgJSONC = buildConfigJSON(prevCfgC, meta);
-      var tokensPayload = {
-        'primitives.css': primCSSC,
-        'semantic.css':   semCSSC,
-        'surfaces.css':   surfCSSC,
-        'config.json':    cfgJSONC,
-        '_meta': meta
-      };
-      var _uid3 = (window.DTF_USER && window.DTF_USER.userId) || '';
-      fetch(CATALYST_FN_BASE + '/saveTokens?user_id=' + encodeURIComponent(_uid3), {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ project_id: projId, tokens: tokensPayload })
-      })
-      .then(function(r) {
-        return r.json().then(function(body) {
-          if (!r.ok || body.status !== 'success') throw new Error(body.error || ('HTTP ' + r.status));
-          return body.data;
+      /* Wait for DTF_USER_READY in case auth resolves after page load */
+      var _userReadyP = (window.DTF_USER_READY && typeof window.DTF_USER_READY.then === 'function')
+        ? window.DTF_USER_READY : Promise.resolve(window.DTF_USER || null);
+      _userReadyP.then(function(_readyUser) {
+        var _u = _readyUser || window.DTF_USER || null;
+        meta.savedBy = (_u && (_u.firstName + ' ' + _u.lastName).trim()) || (_u && _u.email) || '';
+        var cfgJSONC = buildConfigJSON(prevCfgC, meta);
+        var tokensPayload = {
+          'primitives.css': primCSSC,
+          'semantic.css':   semCSSC,
+          'surfaces.css':   surfCSSC,
+          'config.json':    cfgJSONC,
+          '_meta': meta
+        };
+        var _uid3 = (_u && _u.userId) || '';
+        return fetch(CATALYST_FN_BASE + '/saveTokens?user_id=' + encodeURIComponent(_uid3), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ project_id: projId, tokens: tokensPayload })
+        })
+        .then(function(r) {
+          return r.json().then(function(body) {
+            if (!r.ok || body.status !== 'success') throw new Error(body.error || ('HTTP ' + r.status));
+            return body.data;
+          });
         });
       })
       .then(function(saved) {
