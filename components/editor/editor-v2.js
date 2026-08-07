@@ -6089,7 +6089,7 @@
           var _uid2 = (window.DTF_USER && window.DTF_USER.userId) || '';
           return fetch(CATALYST_FN_BASE + '/saveTokens?user_id=' + encodeURIComponent(_uid2), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({ project_id: restoreProjId, tokens: tokensPayload })
           })
             .then(function (r) { return r.json(); })
@@ -6624,7 +6624,7 @@
       var _uid3 = (window.DTF_USER && window.DTF_USER.userId) || '';
       fetch(CATALYST_FN_BASE + '/saveTokens?user_id=' + encodeURIComponent(_uid3), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({ project_id: projId, tokens: tokensPayload })
       })
       .then(function(r) {
