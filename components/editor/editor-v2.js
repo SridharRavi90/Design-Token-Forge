@@ -6601,6 +6601,8 @@
 
     // Swap form → timeline. Step 1 starts immediately.
     showTimeline();
+    var _saveLabel = document.getElementById('ev2TlSaveLabel');
+    if (_saveLabel) _saveLabel.textContent = _isCatalystHost() ? 'Save to Catalyst' : 'Save to GitHub';
 
     /* ── Catalyst path — no GitHub PAT required ────────────── */
     if (_isCatalystHost()) {
