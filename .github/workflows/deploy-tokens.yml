@@ -52,10 +52,9 @@ jobs:
           mkdir -p dist/plugin
           cp demo/plugin/ui.html dist/plugin/ui.html
 
-      - name: Copy components/ and functions/ to dist/
+      - name: Copy components/ to dist/
         run: |
           cp -r components dist/components
-          cp -r functions dist/functions
           cp catalyst.json dist/catalyst.json 2>/dev/null || true
 
       - name: Copy root entry point and demo/ to dist/
