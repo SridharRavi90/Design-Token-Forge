@@ -5866,9 +5866,8 @@
 
     /* ── Catalyst path — no GitHub PAT required ─────────────────── */
     if (_isCatalystHost()) {
-      fetch('/server/getProjectVersions?project=' + encodeURIComponent(projId), {
-        credentials: 'include'
-      })
+      var _uid0 = (window.DTF_USER && window.DTF_USER.userId) || '';
+      fetch(CATALYST_FN_BASE + '/getProjectVersions?project=' + encodeURIComponent(projId) + '&user_id=' + encodeURIComponent(_uid0), {})
         .then(function (r) { return r.json(); })
         .then(function (resp) {
           if (!resp || resp.status !== 'success') throw new Error((resp && resp.error) || 'Failed to load versions');
@@ -6053,8 +6052,9 @@
         return;
       }
       var restoreProjId = projId; // captured for inner closures
-      fetch('/server/getProjectTokens?project=' + encodeURIComponent(restoreProjId)
-          + '&file_id=' + encodeURIComponent(fileId), { credentials: 'include' })
+      var _uid1 = (window.DTF_USER && window.DTF_USER.userId) || '';
+      fetch(CATALYST_FN_BASE + '/getProjectTokens?project=' + encodeURIComponent(restoreProjId)
+          + '&file_id=' + encodeURIComponent(fileId) + '&user_id=' + encodeURIComponent(_uid1), {})
         .then(function (r) { return r.json(); })
         .then(function (snapshot) {
           var restoreMeta = {
@@ -6086,9 +6086,9 @@
             '_meta':          restoreMeta
           };
           if (btn) btn.textContent = 'Saving\u2026';
-          return fetch('/server/saveTokens', {
+          var _uid2 = (window.DTF_USER && window.DTF_USER.userId) || '';
+          return fetch(CATALYST_FN_BASE + '/saveTokens?user_id=' + encodeURIComponent(_uid2), {
             method: 'POST',
-            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ project_id: restoreProjId, tokens: tokensPayload })
           })
@@ -6428,6 +6428,8 @@
   /* ── GitHub writer for save-as-default ───────────────── */
   var GH_API = 'https://api.github.com';
   var GH_REPO_NAME = 'Design-Token-Forge';
+  /* Direct serverless function URL — Slate static host cannot proxy /server/ */
+  var CATALYST_FN_BASE = 'https://project-rainfall-60080440486.development.catalystserverless.in/server';
   function _isCatalystHost() {
     return window.location.hostname.indexOf('onslate.in') !== -1
         || window.location.hostname.indexOf('catalystappsecure') !== -1;
@@ -6619,9 +6621,9 @@
         'config.json':    cfgJSONC,
         '_meta': meta
       };
-      fetch('/server/saveTokens', {
+      var _uid3 = (window.DTF_USER && window.DTF_USER.userId) || '';
+      fetch(CATALYST_FN_BASE + '/saveTokens?user_id=' + encodeURIComponent(_uid3), {
         method: 'POST',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_id: projId, tokens: tokensPayload })
       })

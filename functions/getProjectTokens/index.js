@@ -63,12 +63,21 @@ async function resolveUserId(req) {
     const app = catalyst.initialize(req, { type: 'applogic' });
     return { app, userId: bearerUserId };
   }
-  const app = catalyst.initialize(req);
-  const user = await app.auth().getCurrentUser();
-  const ud = user && user.user_details ? user.user_details : (user || {});
-  const userId = String(ud.user_id || ud.userId || '');
-  if (!userId) throw new Error('Could not resolve user identity');
-  return { app, userId };
+  // Try Catalyst session (same-origin Slate calls with cookie)
+  try {
+    const app = catalyst.initialize(req);
+    const user = await app.auth().getCurrentUser();
+    const ud = user && user.user_details ? user.user_details : (user || {});
+    const uid = String(ud.user_id || ud.userId || '');
+    if (uid) return { app, userId: uid };
+  } catch (_) {}
+  // Fall back to user_id query param (cross-origin browser call without session cookie)
+  const qUserId = (qs(req).user_id || '').trim();
+  if (qUserId) {
+    const app = catalyst.initialize(req, { type: 'applogic' });
+    return { app, userId: qUserId };
+  }
+  throw new Error('Could not resolve user identity');
 }
 
 function streamToString(stream) {

@@ -21,6 +21,16 @@ const TABLE        = 'dtf_projects';
 const FOLDER_ID    = '38969000000065373';
 const TOKEN_SECRET = process.env.DTF_TOKEN_SECRET || 'dtf-default-dev-secret-change-in-prod';
 
+function qs(req) {
+  var raw = (req.url || '').split('?')[1] || '';
+  var out = {};
+  raw.split('&').forEach(function(p) {
+    var i = p.indexOf('='); if (i < 0) return;
+    try { out[decodeURIComponent(p.slice(0, i))] = decodeURIComponent(p.slice(i + 1)); } catch (_) {}
+  });
+  return out;
+}
+
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -53,12 +63,21 @@ async function resolveUserAndApp(req) {
     const app = catalyst.initialize(req, { type: 'applogic' });
     return { app, userId: bearerUid };
   }
-  const app = catalyst.initialize(req);
-  const user = await app.auth().getCurrentUser();
-  const ud = user && user.user_details ? user.user_details : (user || {});
-  const userId = String(ud.user_id || ud.userId || '');
-  if (!userId) throw new Error('Could not resolve user identity');
-  return { app, userId };
+  // Try Catalyst session (same-origin Slate calls with cookie)
+  try {
+    const app = catalyst.initialize(req);
+    const user = await app.auth().getCurrentUser();
+    const ud = user && user.user_details ? user.user_details : (user || {});
+    const uid = String(ud.user_id || ud.userId || '');
+    if (uid) return { app, userId: uid };
+  } catch (_) {}
+  // Fall back to user_id query param (cross-origin browser call without session cookie)
+  const qUserId = (qs(req).user_id || '').trim();
+  if (qUserId) {
+    const app = catalyst.initialize(req, { type: 'applogic' });
+    return { app, userId: qUserId };
+  }
+  throw new Error('Could not resolve user identity');
 }
 
 function readBody(req) {
