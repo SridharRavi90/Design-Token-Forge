@@ -58,6 +58,12 @@ function verifyBearerJwt(req) {
 }
 
 async function resolveUserId(req) {
+  // Query param first — cross-origin browser calls never have a session cookie
+  const qUserId = (qs(req).user_id || '').trim();
+  if (qUserId) {
+    const app = catalyst.initialize(req, { type: 'applogic' });
+    return { app, userId: qUserId };
+  }
   const bearerUserId = verifyBearerJwt(req);
   if (bearerUserId) {
     const app = catalyst.initialize(req, { type: 'applogic' });
@@ -71,12 +77,6 @@ async function resolveUserId(req) {
     const uid = String(ud.user_id || ud.userId || '');
     if (uid) return { app, userId: uid };
   } catch (_) {}
-  // Fall back to user_id query param (cross-origin browser call without session cookie)
-  const qUserId = (qs(req).user_id || '').trim();
-  if (qUserId) {
-    const app = catalyst.initialize(req, { type: 'applogic' });
-    return { app, userId: qUserId };
-  }
   throw new Error('Could not resolve user identity');
 }
 
