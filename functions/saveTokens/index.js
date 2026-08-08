@@ -58,26 +58,11 @@ function verifyBearerJwt(req) {
 }
 
 async function resolveUserAndApp(req) {
-  // Query param first — cross-origin browser calls never have a session cookie
+  // Always use applogic — cross-origin calls never carry a session cookie
   const qUserId = (qs(req).user_id || '').trim();
-  if (qUserId) {
-    const app = catalyst.initialize(req, { type: 'applogic' });
-    return { app, userId: qUserId };
-  }
-  const bearerUid = verifyBearerJwt(req);
-  if (bearerUid) {
-    const app = catalyst.initialize(req, { type: 'applogic' });
-    return { app, userId: bearerUid };
-  }
-  // Try Catalyst session (same-origin Slate calls with cookie)
-  try {
-    const app = catalyst.initialize(req);
-    const user = await app.auth().getCurrentUser();
-    const ud = user && user.user_details ? user.user_details : (user || {});
-    const uid = String(ud.user_id || ud.userId || '');
-    if (uid) return { app, userId: uid };
-  } catch (_) {}
-  throw new Error('Could not resolve user identity');
+  const userId = qUserId || verifyBearerJwt(req) || '';
+  const app = catalyst.initialize(req, { type: 'applogic' });
+  return { app, userId };
 }
 
 function readBody(req) {
