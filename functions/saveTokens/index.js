@@ -111,7 +111,7 @@ module.exports = async (req, res) => {
       return;
     }
 
-    /* Verify the project belongs to this user */
+    /* Find or create the project row */
     const LEGACY_UID = 'sridhar-2917';
     const allRows  = await app.datastore().table(TABLE).getAllRows();
     const rawList  = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
@@ -119,17 +119,24 @@ module.exports = async (req, res) => {
       const row = r[TABLE] || r;
       return (row.user_id === userId || row.user_id === LEGACY_UID) && row.project_id === projectId;
     });
-    if (!match) {
-      res.statusCode = 404;
-      res.end(JSON.stringify({ status: 'failure', error: 'Project not found' }));
-      return;
-    }
-    const existingRow = match[TABLE] || match;
-    const rowId = existingRow.ROWID;
 
-    /* Parse existing description blob to get existing file ID */
+    var existingRow, rowId;
     var descBlob = {};
-    try { descBlob = JSON.parse(existingRow.description || '{}'); } catch(_) {}
+    if (match) {
+      existingRow = match[TABLE] || match;
+      rowId = existingRow.ROWID;
+      try { descBlob = JSON.parse(existingRow.description || '{}'); } catch(_) {}
+    } else {
+      /* First publish for this project — create the row */
+      const created = await app.datastore().table(TABLE).insertRow({
+        user_id:     userId || LEGACY_UID,
+        project_id:  projectId,
+        description: '{}'
+      });
+      existingRow = created[TABLE] || created;
+      rowId = existingRow.ROWID;
+    }
+
     const existingFileId = descBlob.tokens_file_id || null;
 
     /* Serialise tokens payload */
