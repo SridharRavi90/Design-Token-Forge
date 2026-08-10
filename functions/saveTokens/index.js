@@ -153,7 +153,8 @@ module.exports = async (req, res) => {
       try { await folder.deleteFile(existingFileId); } catch(_) { /* ignore if already gone */ }
     }
 
-    const fileName = `${userId}__${projectId}__tokens.json`;
+    const fileOwner = userId || LEGACY_UID;
+    const fileName = `${fileOwner}__${projectId}__tokens.json`;
     const uploaded = await folder.uploadFile({
       code:     FOLDER_ID,
       content:  makeReadable(tokensJson),
@@ -171,7 +172,7 @@ module.exports = async (req, res) => {
     var snapshotFileId = '';
 
     if (version) {
-      const snapshotName = `${userId}__${projectId}__${version}__snapshot.json`;
+      const snapshotName = `${fileOwner}__${projectId}__${version}__snapshot.json`;
       try {
         const snapshotUploaded = await folder.uploadFile({
           code:     FOLDER_ID,
