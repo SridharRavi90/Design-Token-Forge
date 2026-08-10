@@ -158,7 +158,7 @@ module.exports = async (req, res) => {
     const uploaded = await folder.uploadFile({
       code:     FOLDER_ID,
       content:  makeReadable(tokensJson),
-      fileName: fileName,
+      name:     fileName,
       mimeType: 'application/json'
     });
     const newFileId = String(uploaded.id || uploaded.file_id || uploaded.fileId || '');
@@ -177,7 +177,7 @@ module.exports = async (req, res) => {
         const snapshotUploaded = await folder.uploadFile({
           code:     FOLDER_ID,
           content:  makeReadable(tokensJson),
-          fileName: snapshotName,
+          name:     snapshotName,
           mimeType: 'application/json'
         });
         snapshotFileId = String(snapshotUploaded.id || snapshotUploaded.file_id || snapshotUploaded.fileId || '');
