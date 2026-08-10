@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Color Token Explorer — Design Token Forge</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+/* ════════════════════════════════════════════════════════════
+   Color Token Explorer — page-specific styles
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Palette Strips ────────────────────────────────────────── */
+.palette-section{display:flex;flex-direction:column;gap:24px;padding:24px 32px}
+.palette-row{display:flex;flex-direction:column;gap:8px}
+.palette-name{display:flex;align-items:center;gap:10px;font-size:var(--font-size-12,12px);font-weight:700;color:var(--demo-fg-strong)}
+.palette-key{font-size:var(--font-size-10,10px);font-weight:500;color:var(--demo-fg-faint);font-family:var(--font-family-mono,monospace)}
+.swatch-strip{display:flex;gap:2px;border-radius:var(--radius-lg,10px);overflow:hidden;height:56px;box-shadow:0 1px 3px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04)}
+.swatch-strip--small{height:36px}
+.swatch{flex:1;position:relative;cursor:pointer;transition:transform 150ms ease,box-shadow 150ms ease,border-radius 150ms ease}
+.swatch:hover{transform:scaleY(1.2) scaleX(1.08);z-index:2;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.swatch:active{transform:scaleY(1.12) scaleX(1.04)}
+.swatch[data-key]{outline:2px solid var(--demo-fg-strong);outline-offset:-2px;z-index:1}
+.swatch-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--demo-fg-strong);color:var(--demo-bg);font-size:10px;font-family:var(--font-family-mono,monospace);padding:4px 10px;border-radius:var(--radius-sm,4px);white-space:nowrap;z-index:10;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.15);letter-spacing:.02em}
+.swatch-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--demo-fg-strong)}
+.swatch:hover .swatch-tip{display:block}
+.swatch-step{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;letter-spacing:.02em;opacity:0;transition:opacity 150ms ease;pointer-events:none}
+.swatch:hover .swatch-step{opacity:1}
+
+/* Copy feedback toast */
+.copy-toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--demo-fg-strong);color:var(--demo-bg);font-size:12px;font-weight:600;font-family:var(--font-family-mono,monospace);padding:8px 20px;border-radius:var(--radius-md,6px);box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:9999;opacity:0;transition:opacity 200ms ease,transform 200ms ease;pointer-events:none}
+.copy-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Semantic Role Cards ───────────────────────────────────── */
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;padding:24px 32px}
+.role-card{border:1px solid var(--demo-border);border-radius:var(--radius-md,6px);overflow:hidden}
+.role-card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--demo-border);background:var(--demo-surface-alt)}
+.role-card-title{font-size:var(--font-size-12,12px);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--demo-fg-strong)}
+.role-card-source{font-size:var(--font-size-10,10px);color:var(--demo-fg-faint);font-family:var(--font-family-mono,monospace)}
+.role-group{padding:8px 14px;display:flex;flex-direction:column;gap:2px}
+.role-group-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--demo-fg-faint);padding:4px 0 2px}
+.role-token-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.role-swatch{width:24px;height:16px;border-radius:4px;border:1px solid rgba(128,128,128,.15);flex-shrink:0;cursor:pointer;transition:transform 100ms ease,box-shadow 100ms ease}
+.role-swatch:hover{transform:scale(1.3);box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:1;position:relative}
+.role-token-name{flex:1;font-size:10px;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-subtle);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-token-hex{font-size:10px;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-faint);min-width:56px;text-align:right}
+.role-token-source{font-size:9px;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-faint);opacity:.6;min-width:56px;text-align:right}
+
+/* ── Theme Comparison ──────────────────────────────────────── */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.compare-pane{padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.compare-pane--light{background:var(--surface-base-bg)}
+.compare-pane--dark{background:#141414;color:#E5E5E5}
+.compare-pane-title{font-size:var(--font-size-11,11px);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;opacity:.6}
+.compare-row{display:flex;align-items:center;gap:8px}
+.compare-swatch{width:28px;height:18px;border-radius:4px;border:1px solid rgba(128,128,128,.15);flex-shrink:0;cursor:pointer;transition:transform 100ms ease,box-shadow 100ms ease}
+.compare-swatch:hover{transform:scale(1.25);box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:1;position:relative}
+.compare-label{font-size:10px;font-family:var(--font-family-mono,monospace);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.compare-hex{font-size:10px;font-family:var(--font-family-mono,monospace);opacity:.6}
+
+/* ── Surface Cards ─────────────────────────────────────────── */
+.surface-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding:24px 32px}
+.surface-card{border-radius:var(--radius-md,6px);overflow:hidden;border:1px solid var(--demo-border)}
+.surface-card-head{padding:10px 14px;font-size:var(--font-size-12,12px);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid var(--demo-border)}
+.surface-card-body{padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.surface-token-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.surface-abbrev{width:90px;flex-shrink:0;font-size:9px;font-family:var(--font-family-mono,monospace);color:inherit;opacity:.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.surface-swatch{width:24px;height:14px;border-radius:4px;border:1px solid rgba(128,128,128,.12);flex-shrink:0;cursor:pointer;transition:transform 100ms ease,box-shadow 100ms ease}
+.surface-swatch:hover{transform:scale(1.3);box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:1;position:relative}
+.surface-hex{font-size:9px;font-family:var(--font-family-mono,monospace);opacity:.5}
+
+/* ── Resolution Chain ──────────────────────────────────────── */
+.chain-demo{padding:24px 32px;display:flex;flex-direction:column;gap:16px}
+.chain-controls{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.chain-controls label{font-size:var(--font-size-10,10px);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--demo-fg-subtle)}
+.chain-controls select{font-size:var(--font-size-11,11px);padding:4px 8px;border-radius:var(--radius-sm,4px);border:1px solid var(--demo-border);background:var(--demo-surface);color:var(--demo-fg);cursor:pointer;font-weight:500}
+.chain-visual{display:flex;flex-direction:column;gap:12px}
+.chain-tier{display:flex;align-items:center;gap:12px}
+.chain-tier-label{width:30px;flex-shrink:0;font-size:10px;font-weight:800;color:var(--demo-fg-faint)}
+.chain-block{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--radius-sm,4px);border:1px solid var(--demo-border);font-size:11px;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-subtle)}
+.chain-block .ch-swatch{width:20px;height:14px;border-radius:3px;border:1px solid rgba(128,128,128,.2);flex-shrink:0}
+.chain-arrow{font-size:16px;color:var(--demo-fg-faint);line-height:1}
+
+/* ── Stats Banner ──────────────────────────────────────────── */
+.stats-banner{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:24px 32px}
+.stat-card{padding:16px;border-radius:var(--radius-md,6px);border:1px solid var(--demo-border);text-align:center}
+.stat-num{font-size:var(--font-size-24,24px);font-weight:800;color:var(--demo-fg-strong)}
+.stat-label{font-size:var(--font-size-11,11px);color:var(--demo-fg-subtle);margin-top:2px}
+
+/* ── Developer Handoff ──────────────────────────────────────── */
+.handoff-section{padding:24px 32px;display:flex;flex-direction:column;gap:16px}
+.ho-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ho-tabs{display:flex;gap:0;border:1px solid var(--demo-border);border-radius:var(--radius-sm,4px);overflow:hidden}
+.ho-tab{padding:5px 14px;font-size:var(--font-size-11,11px);font-weight:600;cursor:pointer;border:none;background:var(--demo-surface);color:var(--demo-fg-subtle);transition:all 120ms ease;font-family:inherit;border-right:1px solid var(--demo-border)}
+.ho-tab:last-child{border-right:none}
+.ho-tab:hover{background:var(--demo-surface-alt);color:var(--demo-fg)}
+.ho-tab.on{background:var(--brand-component-bg-default,#286CE5);color:var(--brand-on-component,#FFF)}
+.ho-copy-btn{margin-left:auto;padding:5px 14px;border:1px solid var(--demo-border);border-radius:var(--radius-sm,4px);background:var(--demo-surface);color:var(--demo-fg-subtle);font-size:var(--font-size-11,11px);font-weight:600;cursor:pointer;transition:all 120ms ease;font-family:inherit;display:flex;align-items:center;gap:5px}
+.ho-copy-btn:hover{background:var(--demo-surface-alt);color:var(--demo-fg-strong);border-color:var(--demo-fg-faint)}
+.ho-copy-btn.copied{background:var(--success-container-bg,#DCFCE7);color:var(--success-content-default,#15803D);border-color:var(--success-component-outline-default,#34D269)}
+.ho-code{background:var(--demo-surface-alt);border:1px solid var(--demo-border);border-radius:var(--radius-md,6px);padding:16px 20px;font-family:var(--font-family-mono,monospace);font-size:11px;line-height:1.7;overflow-x:auto;max-height:600px;overflow-y:auto;white-space:pre;color:var(--demo-fg-subtle);tab-size:2}
+.ho-code .cc{color:var(--demo-fg-faint);font-style:italic}
+.ho-code .cv{color:var(--success-content-default,#16A34A)}
+.ho-code .ck{color:var(--brand-content-default,#286CE5)}
+.ho-code .cp{color:var(--brand-content-default,#E53F28)}
+.ho-table{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--font-family-mono,monospace)}
+.ho-table th{text-align:left;padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--demo-fg-faint);border-bottom:2px solid var(--demo-border);position:sticky;top:0;background:var(--demo-surface-alt)}
+.ho-table td{padding:5px 10px;border-bottom:1px solid var(--demo-border);color:var(--demo-fg-subtle);vertical-align:middle}
+.ho-table tr:hover td{background:var(--demo-surface-alt)}
+.ho-table .ho-sw{display:inline-block;width:18px;height:12px;border-radius:3px;border:1px solid rgba(128,128,128,.12);vertical-align:middle;margin-right:4px}
+.ho-table .ho-grp{font-weight:700;color:var(--demo-fg-faint);font-size:9px;text-transform:uppercase;letter-spacing:.04em;padding-top:10px}
+.ho-table td.ho-ref{color:var(--demo-fg-faint);font-size:10px}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media(max-width:900px){
+  .role-grid,.surface-grid{grid-template-columns:1fr}
+  .compare-grid{grid-template-columns:1fr}
+  .stats-banner{grid-template-columns:repeat(2,1fr)}
+  .palette-section,.role-grid,.surface-grid,.chain-demo,.stats-banner,.handoff-section{padding:16px}
+}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<!-- ═══════════════ Explorer Nav ═══════════════ -->
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<!-- ═══════════════ Header ═══════════════ -->
+<header class="demo-header">
+  <div>
+    <h1>Color Token Explorer <span>— Design Token Forge</span></h1>
+  </div>
+  <div class="demo-meta" id="headerBadges">
+    <span class="demo-badge" id="badgePalettes">8 Palettes</span>
+    <span class="demo-badge" id="badgePrimitives">176 Primitives</span>
+    <span class="demo-badge" id="badgeSemantic">216 Semantic</span>
+    <span class="demo-badge" id="badgeSurface">224 Surface</span>
+    <span class="demo-badge" id="badgeTotal">~680 Color Tokens</span>
+  </div>
+</header>
+
+<!-- ═══════════════ Layout ═══════════════ -->
+<div class="page-layout">
+  <aside class="sidebar-nav" id="sidebarNav" aria-label="Page sections">
+    <a href="#overview"><span class="sn-num">0</span> Overview</a>
+    <a href="#primitives"><span class="sn-num">1</span> T0 Primitives</a>
+    <a href="#semantic"><span class="sn-num">2</span> T1 Semantic</a>
+    <a href="#comparison"><span class="sn-num">3</span> Light ↔ Dark</a>
+    <a href="#surfaces"><span class="sn-num">4</span> T2 Surfaces</a>
+    <a href="#utility"><span class="sn-num">5</span> Utility Colors</a>
+    <a href="#chain"><span class="sn-num">6</span> Resolution Chain</a>
+    <a href="#stats"><span class="sn-num">7</span> Token Stats</a>
+    <a href="#handoff"><span class="sn-num">8</span> Developer Handoff</a>
+  </aside>
+
+  <div class="page-content">
+    <main class="demo-main">
+
+      <!-- ═══════════════ 0 · Overview ═══════════════ -->
+      <section class="section" id="overview">
+        <div class="section-header">
+          <h2>System Overview</h2>
+          <span class="section-tag">Architecture</span>
+        </div>
+        <p class="section-desc">
+          The Tokn 4-tier color system flows from raw palette values (T0 Primitives) through
+          themed semantic roles (T1 Semantic) and surface contexts (T2 Surfaces) down to individual
+          component tokens (T3 Component). Each tier adds meaning and context, ensuring consistent
+          theming across light and dark modes.
+        </p>
+        <div class="section-body">
+          <div class="stats-banner">
+            <div class="stat-card">
+              <div class="stat-num">T0</div>
+              <div class="stat-label" id="ovT0">Primitives — 8 palettes × 22 steps</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num">T1</div>
+              <div class="stat-label" id="ovT1">Semantic — 6 roles × 18 tokens × 2 themes</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num">T2</div>
+              <div class="stat-label" id="ovT2">Surfaces — 7 contexts × 16 tokens × 2 themes</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num">T3</div>
+              <div class="stat-label">Components — per-component variables</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ 1 · T0 Primitives ═══════════════ -->
+      <section class="section" id="primitives">
+        <div class="section-header">
+          <h2>T0 — Primitive Palettes</h2>
+          <span class="section-tag" id="tagPrimCount">176 colors</span>
+        </div>
+        <p class="section-desc" id="descPrim">
+          8 handcrafted palettes, each with 22 perceptual steps from white → black.
+          Step 500 is the key color. These raw values never appear in component CSS directly —
+          they feed into T1 semantic roles.
+        </p>
+        <div class="section-body">
+          <div class="palette-section" id="paletteContainer"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ 2 · T1 Semantic Roles ═══════════════ -->
+      <section class="section" id="semantic">
+        <div class="section-header">
+          <h2>T1 — Semantic Roles</h2>
+          <span class="section-tag" id="tagSemCount">216 tokens</span>
+        </div>
+        <p class="section-desc">
+          6 semantic roles, each with 18 purpose-driven tokens divided into Content (4),
+          Component (7), Container (5), and OnComponent Content (2) groups. Values change between
+          light and dark themes while token names stay the same.
+        </p>
+        <div class="section-body">
+          <div class="role-grid" id="roleContainer"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ 3 · Light ↔ Dark Comparison ═══════════════ -->
+      <section class="section" id="comparison">
+        <div class="section-header">
+          <h2>Light ↔ Dark Comparison</h2>
+          <span class="section-tag">Theme</span>
+        </div>
+        <p class="section-desc">
+          Side-by-side comparison of how the same semantic token resolves to different primitive
+          steps depending on the active theme. Light uses darker steps for content, dark inverts.
+        </p>
+        <div class="section-body">
+          <div class="pg-controls">
+            <div class="pg-ctrl">
+              <label for="compareRole">Role</label>
+              <select id="compareRole"></select>
+            </div>
+          </div>
+          <div class="compare-grid" id="compareContainer"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ 4 · T2 Surfaces ═══════════════ -->
+      <section class="section" id="surfaces">
+        <div class="section-header">
+          <h2>T2 — Surface Contexts</h2>
+          <span class="section-tag">224 tokens</span>
+        </div>
+        <p class="section-desc">
+          8 surface contexts define background, content, and component colors for different UI regions.
+          Brightness order: Bright &gt; Base &gt; Dim &gt; Deep.
+          Elevation order: Float &gt; Over-container &gt; Container &gt; Base.
+        </p>
+        <div class="section-body">
+          <div class="surface-grid" id="surfaceContainer"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ 5 · Resolution Chain ═══════════════ -->
+      <section class="section" id="chain">
+        <div class="section-header">
+          <h2>Token Resolution Chain</h2>
+          <span class="section-tag">T0 → T1 → T2 → T3</span>
+        </div>
+        <p class="section-desc">
+          Trace how a single color flows through the 4-tier system — from a raw hex primitive,
+          to a semantic role, to a surface context, and finally to a component token.
+        </p>
+        <div class="section-body">
+          <div class="chain-demo" id="chainContainer">
+            <div class="chain-controls">
+              <div class="pg-ctrl">
+                <label for="chainRole">Role</label>
+                <select id="chainRole"></select>
+              </div>
+              <div class="pg-ctrl">
+                <label for="chainToken">Token</label>
+                <select id="chainToken">
+                  <option value="content-default">content-default</option>
+                  <option value="component-bg-default">component-bg-default</option>
+                  <option value="component-bg-hover">component-bg-hover</option>
+                  <option value="container-bg">container-bg</option>
+                  <option value="on-component">on-component</option>
+                  <option value="on-container">on-container</option>
+                </select>
+              </div>
+            </div>
+            <div class="chain-visual" id="chainVisual"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ 5 · Utility Colors ═══════════════ -->
+      <section class="section" id="utility">
+        <div class="section-header">
+          <h2>Fixed &amp; Utility Colors</h2>
+          <span class="section-tag">4 Tokens</span>
+        </div>
+        <p class="section-desc">Standard UI colors not tied to any role. <strong>Fixed</strong> tokens are theme-immune. <strong>Theme-aware</strong> tokens swap in dark mode.</p>
+        <div class="section-body" style="padding:20px 24px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px" id="utilityGrid"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ 6 · Stats ═══════════════ -->
+      <section class="section" id="stats">
+        <div class="section-header">
+          <h2>Token Statistics</h2>
+          <span class="section-tag">Summary</span>
+        </div>
+        <div class="section-body">
+          <div class="stats-banner" id="statsContainer"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ 7 · Developer Handoff ═══════════════ -->
+      <section class="section" id="handoff">
+        <div class="section-header">
+          <h2>Developer Handoff</h2>
+          <span class="section-tag">Export</span>
+        </div>
+        <p class="section-desc">
+          Copy-ready T1 semantic, T2 surface, and T3 component token references for implementation.
+          All values resolve live from the current theme — switch themes to get dark-mode values.
+        </p>
+        <div class="section-body">
+          <div class="handoff-section">
+            <div class="ho-bar">
+              <div class="ho-tabs" id="hoTierTabs">
+                <button class="ho-tab" data-tier="t1" onclick="setHoTier('t1',this)">T1 Semantic</button>
+                <button class="ho-tab on" data-tier="t2" onclick="setHoTier('t2',this)">T2 Surfaces</button>
+                <button class="ho-tab" data-tier="t3" onclick="setHoTier('t3',this)">T3 Components</button>
+              </div>
+              <div class="ho-tabs" id="hoFormatTabs">
+                <button class="ho-tab on" data-fmt="css" onclick="setHoFormat('css',this)">CSS</button>
+                <button class="ho-tab" data-fmt="json" onclick="setHoFormat('json',this)">JSON</button>
+                <button class="ho-tab" data-fmt="table" onclick="setHoFormat('table',this)">Table</button>
+                <button class="ho-tab" data-fmt="android" onclick="setHoFormat('android',this)">Android</button>
+                <button class="ho-tab" data-fmt="ios" onclick="setHoFormat('ios',this)">iOS</button>
+              </div>
+              <div class="pg-ctrl" id="hoRoleCtrl" style="display:none">
+                <label for="hoRole">Role</label>
+                <select id="hoRole" onchange="renderHandoff()">
+                  <option value="_all">All Roles</option>
+                </select>
+              </div>
+              <div class="pg-ctrl" id="hoCompCtrl" style="display:none">
+                <label for="hoComp">Component</label>
+                <select id="hoComp" onchange="renderHandoff()"></select>
+              </div>
+              <button class="ho-copy-btn" id="hoCopyBtn" onclick="copyHandoff()">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-6A1.5 1.5 0 013.5 2h6A1.5 1.5 0 0111 3.5V5"/></svg>
+                Copy
+              </button>
+            </div>
+            <div id="hoOutput"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="dtf-palette-ladder.js?v=3"></script>
+<script src="nav.js?v=3"></script>
+<script>
+/* Clear stale admin-save flags BEFORE shared.js loads, so it always fetches fresh CSS+config */
+(function(){
+  var pid = localStorage.getItem('dtf-active-project');
+  if (pid) localStorage.removeItem('dtf-saved-ts-' + pid);
+})();
+</script>
+<script src="shared.js?v=1105"></script>
+<script>
+/* ════════════════════════════════════════════════════════════
+   Color Token Explorer — rendering logic
+   ════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+/* ── Data ──────────────────────────────────────────────── */
+var STEPS=['white','25','50','75','100','150','175','200','250','300','350','400','450','500','550','600','700','750','800','850','900','black'];
+
+var PALETTES=[
+  {name:'Brand',       prefix:'prim-brand',        key:'#E53F28'},
+  /* "Monochromatic" used to be listed here with the same prim-brand
+     prefix, so it rendered an exact duplicate of the Brand row with
+     a stale hardcoded key label. There is no separate
+     --prim-monochromatic-* palette in the system, so the row was
+     visual noise. Removed. */
+  {name:'Desaturated', prefix:'prim-desaturated',   key:'#64748B'},
+  {name:'Greyscale',   prefix:'prim-greyscale',     key:'#737373'},
+  {name:'Danger',      prefix:'prim-danger',        key:'#DC2626'},
+  {name:'Warning',     prefix:'prim-warning',       key:'#D97706'},
+  {name:'Info',        prefix:'prim-info',          key:'#0EA5E9'},
+  {name:'Success',     prefix:'prim-success',       key:'#16A34A'}
+];
+
+var ROLES=['brand','danger','success','warning','info'];
+var ROLE_SOURCE={brand:'brand',danger:'danger',success:'success',warning:'warning',info:'info'};
+
+var ROLE_TOKENS=[
+  {group:'Content',tokens:['content-default','content-strong','content-subtle','content-faint']},
+  {group:'Component',tokens:['component-bg-default','component-bg-hover','component-bg-pressed','component-outline-default','component-outline-hover','component-outline-pressed','component-separator']},
+  {group:'Container',tokens:['container-bg','container-hover','container-pressed','container-outline','container-separator']},
+  {group:'OnComponent Content',tokens:['on-component','on-container']}
+];
+
+var SURFACES=['bright','base','container','over-container','float','dim','deep','accent'];
+var SURFACE_TOKENS=['bg','subtle','strong','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+
+var UTILITY_TOKENS=[
+  {token:'color-fixed-white', label:'Fixed White'},
+  {token:'color-fixed-black', label:'Fixed Black'},
+  {token:'color-white', label:'White'},
+  {token:'color-black', label:'Black'}
+];
+
+/* ── Light-theme semantic→primitive mapping (for annotations) ── */
+var LIGHT_MAP={
+  brand:{
+    'content-default':'brand-600','content-strong':'brand-700','content-subtle':'brand-400','content-faint':'brand-200',
+    'component-bg-default':'brand-500','component-bg-hover':'brand-600','component-bg-pressed':'brand-700',
+    'component-outline-default':'brand-300','component-outline-hover':'brand-400','component-outline-pressed':'brand-500',
+    'component-separator':'brand-100',
+    'container-bg':'brand-50','container-hover':'brand-75','container-pressed':'brand-100',
+    'container-outline':'brand-200','container-separator':'brand-100',
+    'on-component':'white','on-container':'brand-700'
+  },
+  brand:{
+    'content-default':'brand-600','content-strong':'brand-700','content-subtle':'brand-400','content-faint':'brand-200',
+    'component-bg-default':'brand-500','component-bg-hover':'brand-600','component-bg-pressed':'brand-700',
+    'component-outline-default':'brand-300','component-outline-hover':'brand-400','component-outline-pressed':'brand-500',
+    'component-separator':'brand-100',
+    'container-bg':'brand-50','container-hover':'brand-75','container-pressed':'brand-100',
+    'container-outline':'brand-200','container-separator':'brand-100',
+    'on-component':'white','on-container':'brand-700'
+  },
+  danger:{
+    'content-default':'danger-600','content-strong':'danger-700','content-subtle':'danger-400','content-faint':'danger-200',
+    'component-bg-default':'danger-500','component-bg-hover':'danger-600','component-bg-pressed':'danger-700',
+    'component-outline-default':'danger-300','component-outline-hover':'danger-400','component-outline-pressed':'danger-500',
+    'component-separator':'danger-100',
+    'container-bg':'danger-50','container-hover':'danger-75','container-pressed':'danger-100',
+    'container-outline':'danger-200','container-separator':'danger-100',
+    'on-component':'white','on-container':'danger-700'
+  },
+  success:{
+    'content-default':'success-600','content-strong':'success-700','content-subtle':'success-400','content-faint':'success-200',
+    'component-bg-default':'success-500','component-bg-hover':'success-600','component-bg-pressed':'success-700',
+    'component-outline-default':'success-300','component-outline-hover':'success-400','component-outline-pressed':'success-500',
+    'component-separator':'success-100',
+    'container-bg':'success-50','container-hover':'success-75','container-pressed':'success-100',
+    'container-outline':'success-200','container-separator':'success-100',
+    'on-component':'white','on-container':'success-700'
+  },
+  warning:{
+    'content-default':'warning-600','content-strong':'warning-700','content-subtle':'warning-400','content-faint':'warning-200',
+    'component-bg-default':'warning-500','component-bg-hover':'warning-600','component-bg-pressed':'warning-700',
+    'component-outline-default':'warning-300','component-outline-hover':'warning-400','component-outline-pressed':'warning-500',
+    'component-separator':'warning-100',
+    'container-bg':'warning-50','container-hover':'warning-75','container-pressed':'warning-100',
+    'container-outline':'warning-200','container-separator':'warning-100',
+    'on-component':'warning-900','on-container':'warning-700'
+  },
+  info:{
+    'content-default':'info-600','content-strong':'info-700','content-subtle':'info-400','content-faint':'info-200',
+    'component-bg-default':'info-500','component-bg-hover':'info-600','component-bg-pressed':'info-700',
+    'component-outline-default':'info-300','component-outline-hover':'info-400','component-outline-pressed':'info-500',
+    'component-separator':'info-100',
+    'container-bg':'info-50','container-hover':'info-75','container-pressed':'info-100',
+    'container-outline':'info-200','container-separator':'info-100',
+    'on-component':'white','on-container':'info-700'
+  }
+};
+
+var DARK_MAP={
+  brand:{
+    'content-default':'brand-150','content-strong':'brand-100','content-subtle':'brand-200','content-faint':'brand-400',
+    'component-bg-default':'brand-400','component-bg-hover':'brand-300','component-bg-pressed':'brand-250',
+    'component-outline-default':'brand-500','component-outline-hover':'brand-400','component-outline-pressed':'brand-300',
+    'component-separator':'brand-800',
+    'container-bg':'brand-850','container-hover':'brand-800','container-pressed':'brand-750',
+    'container-outline':'brand-600','container-separator':'brand-800',
+    'on-component':'white','on-container':'brand-100'
+  },
+  brand:{
+    'content-default':'brand-150','content-strong':'brand-100','content-subtle':'brand-200','content-faint':'brand-400',
+    'component-bg-default':'brand-400','component-bg-hover':'brand-300','component-bg-pressed':'brand-250',
+    'component-outline-default':'brand-500','component-outline-hover':'brand-400','component-outline-pressed':'brand-300',
+    'component-separator':'brand-800',
+    'container-bg':'brand-850','container-hover':'brand-800','container-pressed':'brand-750',
+    'container-outline':'brand-600','container-separator':'brand-800',
+    'on-component':'white','on-container':'brand-100'
+  },
+  danger:{
+    'content-default':'danger-175','content-strong':'danger-100','content-subtle':'danger-200','content-faint':'danger-400',
+    'component-bg-default':'danger-400','component-bg-hover':'danger-300','component-bg-pressed':'danger-250',
+    'component-outline-default':'danger-500','component-outline-hover':'danger-400','component-outline-pressed':'danger-300',
+    'component-separator':'danger-800',
+    'container-bg':'danger-900','container-hover':'danger-850','container-pressed':'danger-800',
+    'container-outline':'danger-600','container-separator':'danger-800',
+    'on-component':'white','on-container':'danger-100'
+  },
+  success:{
+    'content-default':'success-150','content-strong':'success-100','content-subtle':'success-200','content-faint':'success-400',
+    'component-bg-default':'success-400','component-bg-hover':'success-300','component-bg-pressed':'success-250',
+    'component-outline-default':'success-500','component-outline-hover':'success-400','component-outline-pressed':'success-300',
+    'component-separator':'success-800',
+    'container-bg':'success-900','container-hover':'success-850','container-pressed':'success-800',
+    'container-outline':'success-600','container-separator':'success-800',
+    'on-component':'white','on-container':'success-100'
+  },
+  warning:{
+    'content-default':'warning-150','content-strong':'warning-100','content-subtle':'warning-200','content-faint':'warning-400',
+    'component-bg-default':'warning-400','component-bg-hover':'warning-300','component-bg-pressed':'warning-250',
+    'component-outline-default':'warning-500','component-outline-hover':'warning-400','component-outline-pressed':'warning-300',
+    'component-separator':'warning-800',
+    'container-bg':'warning-900','container-hover':'warning-850','container-pressed':'warning-800',
+    'container-outline':'warning-600','container-separator':'warning-800',
+    'on-component':'warning-900','on-container':'warning-100'
+  },
+  info:{
+    'content-default':'info-175','content-strong':'info-100','content-subtle':'info-200','content-faint':'info-400',
+    'component-bg-default':'info-400','component-bg-hover':'info-300','component-bg-pressed':'info-250',
+    'component-outline-default':'info-500','component-outline-hover':'info-400','component-outline-pressed':'info-300',
+    'component-separator':'info-800',
+    'container-bg':'info-900','container-hover':'info-850','container-pressed':'info-800',
+    'container-outline':'info-600','container-separator':'info-800',
+    'on-component':'white','on-container':'info-100'
+  }
+};
+
+/* T3 example: button tokens that reference T1 */
+var T3_EXAMPLES={
+  'content-default':{name:'--btn-label-color',desc:'Button label text'},
+  'component-bg-default':{name:'--btn-bg',desc:'Button background'},
+  'component-bg-hover':{name:'--btn-bg-hover',desc:'Button hover bg'},
+  'container-bg':{name:'--btn-container-bg',desc:'Button in container context'},
+  'on-component':{name:'--btn-label-color (on filled)',desc:'Text on filled button'},
+  'on-container':{name:'--btn-label-color (in container)',desc:'Text in container'}
+};
+
+/* ── Helpers ───────────────────────────────────────────── */
+var cs=getComputedStyle(document.documentElement);
+
+function rv(prop){return cs.getPropertyValue('--'+prop).trim();}
+function hex(prop){
+  var v=rv(prop);
+  if(!v) return '';
+  if(v.charAt(0)==='#') return v.toUpperCase();
+  return v;
+}
+
+function isDark(){return document.documentElement.getAttribute('data-theme')==='dark';}
+
+function contrastText(hexColor){
+  if(!hexColor||hexColor.length<4) return '#000';
+  var c=hexColor.replace('#','');
+  if(c.length===3) c=c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+  var r=parseInt(c.substr(0,2),16);
+  var g=parseInt(c.substr(2,2),16);
+  var b=parseInt(c.substr(4,2),16);
+  var lum=(0.299*r+0.587*g+0.114*b)/255;
+  return lum>0.55?'#000000':'#FFFFFF';
+}
+
+/* ── 1. Render Palettes ────────────────────────────────── */
+function renderPalettes(){
+  var container=document.getElementById('paletteContainer');
+  container.innerHTML='';
+  activePalettes.forEach(function(p){
+    var row=document.createElement('div');
+    row.className='palette-row';
+    /* The hardcoded p.key is just the FILE's default and goes stale
+       the moment a project overrides --prim-<name>-500. Read the live
+       computed step-500 so the label always matches the swatch the
+       user is actually looking at. Falls back to the hardcoded value
+       only if the var isn't defined (e.g. a custom palette without
+       a 500 step). */
+    var liveKey = hex(p.prefix + '-500') || p.key;
+    row.innerHTML='<div class="palette-name">'+p.name+' <span class="palette-key">key: '+liveKey+'</span></div>';
+    /* Shared <dtf-palette-ladder> component — same swatch grid used
+       in the Token Editor. Read-only here (no `interactive` attr) so
+       clicks copy the hex to clipboard. Step 500 is highlighted as
+       the key step via `selected`. */
+    var strip = document.createElement('dtf-palette-ladder');
+    strip.setAttribute('prefix', p.prefix);
+    strip.setAttribute('selected', '500');
+    strip.setAttribute('layout', 'card');
+    row.appendChild(strip);
+    container.appendChild(row);
+  });
+}
+
+/* ── 2. Render Semantic Roles ──────────────────────────── */
+function renderRoles(){
+  var container=document.getElementById('roleContainer');
+  container.innerHTML='';
+  var themeMap=isDark()?DARK_MAP:LIGHT_MAP;
+  activeRoles.forEach(function(role){
+    var card=document.createElement('div');
+    card.className='role-card';
+    var src=ROLE_SOURCE[role];
+    card.innerHTML='<div class="role-card-head"><span class="role-card-title">'+role+'</span><span class="role-card-source">← prim-'+src+'</span></div>';
+    var body=document.createElement('div');
+    body.style.padding='0';
+    ROLE_TOKENS.forEach(function(grp){
+      var g=document.createElement('div');
+      g.className='role-group';
+      g.innerHTML='<div class="role-group-label">'+grp.group+' ('+grp.tokens.length+')</div>';
+      grp.tokens.forEach(function(tok){
+        var fullProp=role+'-'+tok;
+        var color=hex(fullProp);
+        var source=themeMap[role]?themeMap[role][tok]:'';
+        var row=document.createElement('div');
+        row.className='role-token-row';
+        row.innerHTML='<div class="role-swatch" style="background:'+color+'" onclick="copyHex(\''+color+'\')" title="Click to copy"></div>'+
+          '<span class="role-token-name">--'+fullProp+'</span>'+
+          '<span class="role-token-source">'+source+'</span>'+
+          '<span class="role-token-hex">'+color+'</span>';
+        g.appendChild(row);
+      });
+      body.appendChild(g);
+    });
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+/* ── 3. Render Light↔Dark Comparison ───────────────────── */
+function renderComparison(){
+  var container=document.getElementById('compareContainer');
+  container.innerHTML='';
+  var role=document.getElementById('compareRole').value;
+  var allTokens=[];
+  ROLE_TOKENS.forEach(function(g){allTokens=allTokens.concat(g.tokens);});
+
+  /* Read live values for both themes */
+  var lightVals=_readThemeVals(role,'light');
+  var darkVals=_readThemeVals(role,'dark');
+
+  /* Light pane */
+  var lightPane=document.createElement('div');
+  lightPane.className='compare-pane compare-pane--light';
+  lightPane.innerHTML='<div class="compare-pane-title">\u2600 Light Theme</div>';
+  allTokens.forEach(function(tok){
+    var lightColor=lightVals[tok]||'';
+    var row=document.createElement('div');
+    row.className='compare-row';
+    row.innerHTML='<div class="compare-swatch" style="background:'+lightColor+'" onclick="copyHex(\''+lightColor+'\')" title="Click to copy"></div>'+
+      '<span class="compare-label">'+tok+'</span>'+
+      '<span class="compare-hex">'+lightColor+'</span>';
+    lightPane.appendChild(row);
+  });
+  container.appendChild(lightPane);
+
+  /* Dark pane */
+  var darkPane=document.createElement('div');
+  darkPane.className='compare-pane compare-pane--dark';
+  darkPane.innerHTML='<div class="compare-pane-title">\uD83C\uDF19 Dark Theme</div>';
+  allTokens.forEach(function(tok){
+    var darkColor=darkVals[tok]||'';
+    var row=document.createElement('div');
+    row.className='compare-row';
+    row.innerHTML='<div class="compare-swatch" style="background:'+darkColor+'" onclick="copyHex(\''+darkColor+'\')" title="Click to copy"></div>'+
+      '<span class="compare-label">'+tok+'</span>'+
+      '<span class="compare-hex">'+darkColor+'</span>';
+    darkPane.appendChild(row);
+  });
+  container.appendChild(darkPane);
+}
+
+/* ── 4. Render Surfaces ────────────────────────────────── */
+function renderSurfaces(){
+  var container=document.getElementById('surfaceContainer');
+  container.innerHTML='';
+  SURFACES.forEach(function(surf){
+    var card=document.createElement('div');
+    card.className='surface-card';
+    var bgProp='surface-'+surf+'-bg';
+    var bgColor=hex(bgProp);
+    var textColor=contrastText(bgColor);
+    var srcLabel='';
+    if(activeSurfacePaletteSrc&&activeSurfacePaletteSrc[surf]){
+      srcLabel=' <span style="font-weight:400;opacity:.7;font-size:10px">\u2190 '+activeSurfacePaletteSrc[surf]+'</span>';
+    }
+    card.innerHTML='<div class="surface-card-head" style="background:'+bgColor+';color:'+textColor+'">'+surf+srcLabel+'</div>';
+    var body=document.createElement('div');
+    body.className='surface-card-body';
+    body.style.background=bgColor;
+    body.style.color=textColor;
+    SURFACE_TOKENS.forEach(function(tok){
+      var fullProp='surface-'+surf+'-'+tok;
+      var color=hex(fullProp);
+      var row=document.createElement('div');
+      row.className='surface-token-row';
+      row.innerHTML='<span class="surface-abbrev">'+tok+'</span>'+
+        '<div class="surface-swatch" style="background:'+color+'" onclick="copyHex(\''+color+'\')" title="Click to copy"></div>'+
+        '<span class="surface-hex">'+color+'</span>';
+      body.appendChild(row);
+    });
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+/* ── 5. Render Resolution Chain ────────────────────────── */
+function renderChain(){
+  var visual=document.getElementById('chainVisual');
+  visual.innerHTML='';
+  var role=document.getElementById('chainRole').value;
+  var token=document.getElementById('chainToken').value;
+  var themeMap=isDark()?DARK_MAP:LIGHT_MAP;
+  var primStep=themeMap[role]?themeMap[role][token]:'';
+  var primPrefix='prim-'+ROLE_SOURCE[role];
+  var semanticProp=role+'-'+token;
+  var resolvedColor=hex(semanticProp);
+  var t3=T3_EXAMPLES[token]||{name:'--component-*',desc:'Component token'};
+
+  function makeBlock(label,value,color){
+    return '<div class="chain-block"><div class="ch-swatch" style="background:'+(color||'transparent')+'"></div>'+
+      '<span>'+label+'</span></div>';
+  }
+
+  var rows='';
+  /* T0 */
+  var t0Prop=primPrefix+'-'+primStep.split('-').pop();
+  if(primStep==='white') t0Prop=primPrefix+'-white';
+  var t0Color=hex(t0Prop)||resolvedColor;
+  rows+='<div class="chain-tier"><span class="chain-tier-label">T0</span>'+makeBlock('--'+t0Prop+'&nbsp; → &nbsp;'+t0Color,t0Prop,t0Color)+'</div>';
+  rows+='<div class="chain-arrow" style="padding-left:42px">↓</div>';
+  /* T1 */
+  rows+='<div class="chain-tier"><span class="chain-tier-label">T1</span>'+makeBlock('--'+semanticProp+'&nbsp; → &nbsp;'+resolvedColor,semanticProp,resolvedColor)+'</div>';
+  rows+='<div class="chain-arrow" style="padding-left:42px">↓</div>';
+  /* T2 — surface uses the role tokens contextually */
+  rows+='<div class="chain-tier"><span class="chain-tier-label">T2</span>'+makeBlock('surface context applies --'+role+'-* to components','',' resolvedColor')+'</div>';
+  rows+='<div class="chain-arrow" style="padding-left:42px">↓</div>';
+  /* T3 */
+  rows+='<div class="chain-tier"><span class="chain-tier-label">T3</span>'+makeBlock(t3.name+'&nbsp; ('+t3.desc+')&nbsp; → &nbsp;'+resolvedColor,'',resolvedColor)+'</div>';
+
+  visual.innerHTML=rows;
+}
+
+/* ── 6. Render Stats ───────────────────────────────────── */
+function renderUtility(){
+  var grid=document.getElementById('utilityGrid');
+  if(!grid) return;
+  var FIXED=[
+    {token:'color-fixed-white', label:'Fixed White', desc:'Always white — theme-immune'},
+    {token:'color-fixed-black', label:'Fixed Black', desc:'Always black — theme-immune'},
+    {token:'color-white', label:'White', desc:'White in light, near-black in dark'},
+    {token:'color-black', label:'Black', desc:'Black in light, white in dark'}
+  ];
+  grid.innerHTML='';
+  for(var i=0;i<FIXED.length;i++){
+    var c=FIXED[i];
+    var val=hex(c.token);
+    var lum=relLum(val);
+    var fg=lum>0.4?'#000':'#FFF';
+    var card=document.createElement('div');
+    card.style.cssText='border:1px solid var(--demo-border);border-radius:var(--radius-md,6px);overflow:hidden';
+    card.innerHTML=
+      '<div style="height:56px;background:'+val+';display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="copyHex(\''+val+'\')" title="Click to copy">'+
+        '<span style="font-size:13px;font-weight:700;font-family:var(--font-family-mono,monospace);color:'+fg+'">'+val+'</span>'+
+      '</div>'+
+      '<div style="padding:8px 12px">'+
+        '<div style="font-size:12px;font-weight:700;color:var(--demo-fg-strong)">'+c.label+'</div>'+
+        '<div style="font-size:10px;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-subtle);margin-top:2px">--'+c.token+'</div>'+
+        '<div style="font-size:10px;color:var(--demo-fg-faint);margin-top:2px">'+c.desc+'</div>'+
+      '</div>';
+    grid.appendChild(card);
+  }
+}
+function relLum(h){
+  if(!h||h.length<7) return 0;
+  var r=parseInt(h.substr(1,2),16)/255,g=parseInt(h.substr(3,2),16)/255,b=parseInt(h.substr(5,2),16)/255;
+  r=r<=0.03928?r/12.92:Math.pow((r+0.055)/1.055,2.4);
+  g=g<=0.03928?g/12.92:Math.pow((g+0.055)/1.055,2.4);
+  b=b<=0.03928?b/12.92:Math.pow((b+0.055)/1.055,2.4);
+  return 0.2126*r+0.7152*g+0.0722*b;
+}
+function renderStats(){
+  var container=document.getElementById('statsContainer');
+  container.innerHTML='';
+  var nPal=activePalettes.length;
+  var nRoles=activeRoles.length;
+  var t0=nPal*STEPS.length;
+  var t1=nRoles*18*2;
+  var t2=SURFACES.length*SURFACE_TOKENS.length*2;
+  var total=t0+5+t1+t2;
+  var stats=[
+    {num:String(t0),label:'T0 Primitive Colors ('+nPal+'×'+STEPS.length+')'},
+    {num:'5',label:'Utility Colors'},
+    {num:String(t1),label:'T1 Semantic ('+nRoles+'×18×2)'},
+    {num:String(t2),label:'T2 Surface ('+SURFACES.length+'×'+SURFACE_TOKENS.length+'×2)'},
+    {num:'~'+total,label:'Total Color Definitions'}
+  ];
+  stats.forEach(function(s){
+    var card=document.createElement('div');
+    card.className='stat-card';
+    card.innerHTML='<div class="stat-num">'+s.num+'</div><div class="stat-label">'+s.label+'</div>';
+    container.appendChild(card);
+  });
+}
+
+/* ── Read live theme values for comparison ─────────────── */
+function _readThemeVals(role,theme){
+  var root=document.documentElement;
+  var orig=root.getAttribute('data-theme')||'light';
+  root.setAttribute('data-theme',theme);
+  var tcs=getComputedStyle(root);
+  var vals={};
+  ROLE_TOKENS.forEach(function(g){
+    g.tokens.forEach(function(tok){
+      var v=tcs.getPropertyValue('--'+role+'-'+tok).trim();
+      if(v&&v.charAt(0)==='#') v=v.toUpperCase();
+      vals[tok]=v;
+    });
+  });
+  root.setAttribute('data-theme',orig);
+  cs=getComputedStyle(root);
+  return vals;
+}
+
+/* ── Render All ────────────────────────────────────────── */
+
+/* Active palettes & roles derived from the current project's config */
+/* Maps role IDs to palette prefix names (includes non-semantic palette sources for T0 derivation) */
+var ROLE_TO_PALETTE={brand:'brand',danger:'danger',warning:'warning',info:'info',success:'success',greyscale:'greyscale',desaturated:'desaturated'};
+
+function _readProjectConfig(){
+  var activeId=localStorage.getItem('dtf-active-project')||'';
+  var cfgRaw=null;
+  if(activeId) cfgRaw=localStorage.getItem('dtf-color-config-'+activeId);
+  if(!cfgRaw) cfgRaw=localStorage.getItem('dtf-color-config');
+  if(!cfgRaw) return null;
+  try{ return JSON.parse(cfgRaw); }catch(e){ return null; }
+}
+
+function _deriveActivePaletteKeys(cfg){
+  if(!cfg) return null;
+  /* Method 1: paletteKeys object (from GitHub deploy config) */
+  if(cfg.paletteKeys) return Object.keys(cfg.paletteKeys);
+  /* Method 2: roles array (from localStorage save) */
+  if(cfg.roles&&cfg.roles.length){
+    var keys=[];
+    cfg.roles.forEach(function(r){
+      var pk=ROLE_TO_PALETTE[r.id];
+      if(pk&&keys.indexOf(pk)===-1) keys.push(pk);
+    });
+    return keys.length?keys:null;
+  }
+  return null;
+}
+
+var _projCfg=_readProjectConfig();
+var _projKeys=_deriveActivePaletteKeys(_projCfg);
+
+var activePalettes=(_projKeys)?PALETTES.filter(function(p){
+  var pKey=p.prefix.replace('prim-','');
+  return _projKeys.indexOf(pKey)!==-1;
+}):PALETTES.slice();
+
+var activeRoles=(_projKeys)?ROLES.filter(function(role){
+  var src=ROLE_SOURCE[role];
+  return src==='brand'||_projKeys.indexOf(src)!==-1;
+}):ROLES.slice();
+
+/* Surface palette source map: which palette drives each surface context */
+var DEFAULT_SURF_SRC={bright:'greyscale',base:'greyscale',dim:'greyscale',deep:'greyscale',accent:'brand',container:'greyscale','over-container':'greyscale','float':'greyscale',inverse:'greyscale'};
+var activeSurfacePaletteSrc=(_projCfg&&_projCfg.surfacePaletteSrc)?_projCfg.surfacePaletteSrc:DEFAULT_SURF_SRC;
+
+/* Active project name for handoff headers */
+var activeProjectName=localStorage.getItem('dtf-active-project')||'';
+function _projTag(){return activeProjectName?' ['+activeProjectName+']':'';}
+
+function refreshProjectState(){
+  var cfg=_readProjectConfig();
+  var keys=_deriveActivePaletteKeys(cfg);
+  activeSurfacePaletteSrc=(cfg&&cfg.surfacePaletteSrc)?cfg.surfacePaletteSrc:DEFAULT_SURF_SRC;
+  activeProjectName=localStorage.getItem('dtf-active-project')||'';
+  if(keys){
+    activePalettes=PALETTES.filter(function(p){
+      return keys.indexOf(p.prefix.replace('prim-',''))!==-1;
+    });
+    activeRoles=ROLES.filter(function(role){
+      var src=ROLE_SOURCE[role];
+      return src==='brand'||keys.indexOf(src)!==-1;
+    });
+  }else{
+    activePalettes=PALETTES.slice();
+    activeRoles=ROLES.slice();
+  }
+  populateRoleDropdowns();
+  updateDynamicLabels();
+}
+
+function updateDynamicLabels(){
+  var nPal=activePalettes.length;
+  var nRoles=activeRoles.length;
+  var t0=nPal*STEPS.length;
+  var t1=nRoles*18*2;
+  var t2=SURFACES.length*SURFACE_TOKENS.length*2;
+  var total=t0+5+t1+t2;
+  /* Header badges */
+  var el;
+  if((el=document.getElementById('badgePalettes'))) el.textContent=nPal+' Palettes';
+  if((el=document.getElementById('badgePrimitives'))) el.textContent=t0+' Primitives';
+  if((el=document.getElementById('badgeSemantic'))) el.textContent=t1+' Semantic';
+  if((el=document.getElementById('badgeSurface'))) el.textContent=t2+' Surface';
+  if((el=document.getElementById('badgeTotal'))) el.textContent='~'+total+' Color Tokens';
+  /* Overview cards */
+  if((el=document.getElementById('ovT0'))) el.textContent='Primitives \u2014 '+nPal+' palettes \u00d7 '+STEPS.length+' steps';
+  if((el=document.getElementById('ovT1'))) el.textContent='Semantic \u2014 '+nRoles+' roles \u00d7 18 tokens \u00d7 2 themes';
+  if((el=document.getElementById('ovT2'))) el.textContent='Surfaces \u2014 '+SURFACES.length+' contexts \u00d7 '+SURFACE_TOKENS.length+' tokens \u00d7 2 themes';
+  /* Section headers */
+  if((el=document.getElementById('tagPrimCount'))) el.textContent=t0+' colors';
+  if((el=document.getElementById('descPrim'))) el.textContent=nPal+' palettes, each with '+STEPS.length+' perceptual steps from white \u2192 black. Step 500 is the key color. These raw values never appear in component CSS directly \u2014 they feed into T1 semantic roles.';
+  if((el=document.getElementById('tagSemCount'))) el.textContent=t1+' tokens';
+}
+
+function renderAll(){
+  cs=getComputedStyle(document.documentElement);
+  refreshProjectState();
+  renderPalettes();
+  renderRoles();
+  renderComparison();
+  renderSurfaces();
+  renderUtility();
+  renderChain();
+  renderStats();
+  if(activeRoles) renderHandoff();
+}
+
+/* Populate role dropdowns with active roles */
+function populateRoleDropdowns(){
+  var roles=activeRoles||ROLES;
+  ['compareRole','chainRole'].forEach(function(id){
+    var sel=document.getElementById(id);
+    if(!sel) return;
+    var cur=sel.value;
+    sel.innerHTML='';
+    roles.forEach(function(r){
+      var o=document.createElement('option');
+      o.value=r;o.textContent=r.charAt(0).toUpperCase()+r.slice(1);
+      sel.appendChild(o);
+    });
+    if(roles.indexOf(cur)!==-1) sel.value=cur;
+  });
+}
+populateRoleDropdowns();
+
+renderAll();
+
+/* ── Event Listeners ───────────────────────────────────── */
+document.getElementById('compareRole').addEventListener('change',renderComparison);
+document.getElementById('chainRole').addEventListener('change',renderChain);
+document.getElementById('chainToken').addEventListener('change',renderChain);
+
+window.DTF.onThemeChange=renderAll;
+
+/* ── T3 Component Token Map ────────────────────────────── */
+/* Built by scanning actual token CSS var() references */
+var COMPONENTS=[
+  {id:'button',label:'Button',prefix:'btn',refs:[
+    {group:'Filled (primary)',tokens:[
+      {name:'--btn-filled-bg',ref:'--brand-component-bg-default'},
+      {name:'--btn-filled-bg-hover',ref:'--brand-component-bg-hover'},
+      {name:'--btn-filled-bg-pressed',ref:'--brand-component-bg-pressed'},
+      {name:'--btn-filled-fg',ref:'--brand-on-component'},
+      {name:'--btn-filled-border-color',ref:'--brand-component-bg-default'},
+      {name:'--btn-filled-border-color-hover',ref:'--brand-component-bg-hover'}
+    ]},
+    {group:'Outlined (secondary)',tokens:[
+      {name:'--btn-outlined-bg-hover',ref:'--brand-container-bg'},
+      {name:'--btn-outlined-bg-pressed',ref:'--brand-container-pressed'},
+      {name:'--btn-outlined-fg',ref:'--brand-content-default'},
+      {name:'--btn-outlined-border-color',ref:'--brand-component-outline-default'},
+      {name:'--btn-outlined-border-color-hover',ref:'--brand-component-outline-hover'}
+    ]},
+    {group:'Soft (tertiary)',tokens:[
+      {name:'--btn-soft-bg',ref:'--brand-container-bg'},
+      {name:'--btn-soft-bg-hover',ref:'--brand-container-hover'},
+      {name:'--btn-soft-fg',ref:'--brand-content-default'}
+    ]},
+    {group:'Ghost',tokens:[
+      {name:'--btn-ghost-fg',ref:'--brand-content-default'},
+      {name:'--btn-ghost-bg-hover',ref:'--brand-container-bg'},
+      {name:'--btn-ghost-bg-pressed',ref:'--brand-container-pressed'}
+    ]},
+    {group:'Danger role',tokens:[
+      {name:'--btn-danger-bg',ref:'--danger-component-bg-default'},
+      {name:'--btn-danger-fg',ref:'--danger-on-component'},
+      {name:'--btn-danger-border-color',ref:'--danger-component-bg-default'}
+    ]},
+    {group:'Neutral (surface)',tokens:[
+      {name:'--btn-neutral-bg',ref:'--surface-base-cm-bg'},
+      {name:'--btn-neutral-fg',ref:'--surface-base-ct-default'},
+      {name:'--btn-neutral-border-color',ref:'--surface-base-cm-outline'}
+    ]}
+  ]},
+  {id:'input',label:'Input',prefix:'input',refs:[
+    {group:'Outline variant',tokens:[
+      {name:'--input-outlined-fg',ref:'--surface-base-ct-default'},
+      {name:'--input-outlined-border-color',ref:'--surface-base-cm-outline'},
+      {name:'--input-outlined-border-color-hover',ref:'--surface-base-cm-outline-hover'},
+      {name:'--input-outlined-border-color-focus',ref:'--brand-component-outline-default'},
+      {name:'--input-outlined-border-color-invalid',ref:'--danger-component-outline-default'},
+      {name:'--input-outlined-placeholder',ref:'--surface-base-ct-faint'}
+    ]},
+    {group:'Filled variant',tokens:[
+      {name:'--input-filled-bg',ref:'--surface-base-cm-bg'},
+      {name:'--input-filled-bg-hover',ref:'--surface-base-cm-bg-hover'},
+      {name:'--input-filled-fg',ref:'--surface-base-ct-default'},
+      {name:'--input-filled-border-color-focus',ref:'--brand-component-outline-default'}
+    ]},
+    {group:'Labels & helpers',tokens:[
+      {name:'--input-label-color',ref:'--surface-base-ct-default'},
+      {name:'--input-label-color-focus',ref:'--brand-content-default'},
+      {name:'--input-label-color-invalid',ref:'--danger-content-default'},
+      {name:'--input-helper-color',ref:'--surface-base-ct-subtle'},
+      {name:'--input-helper-color-invalid',ref:'--danger-content-default'},
+      {name:'--input-caret-color',ref:'--brand-component-bg-default'}
+    ]}
+  ]},
+  {id:'toggle',label:'Toggle',prefix:'switch',refs:[
+    {group:'Track',tokens:[
+      {name:'--switch-track-bg-off',ref:'--surface-base-cm-bg-pressed'},
+      {name:'--switch-track-bg-on',ref:'--brand-component-bg-default'},
+      {name:'--switch-track-bg-on-hover',ref:'--brand-component-bg-hover'},
+      {name:'--switch-track-border-color-off',ref:'--surface-base-cm-outline'},
+      {name:'--switch-track-border-color-on',ref:'--brand-component-bg-default'}
+    ]},
+    {group:'Thumb',tokens:[
+      {name:'--switch-thumb-bg',ref:'--surface-base-cm-bg'},
+      {name:'--switch-thumb-bg-hover',ref:'--surface-base-cm-bg'}
+    ]},
+    {group:'Danger / Error',tokens:[
+      {name:'--switch-track-bg-on-danger',ref:'--danger-component-bg-default'},
+      {name:'--switch-track-bg-on-danger-hover',ref:'--danger-component-bg-hover'},
+      {name:'--switch-track-border-color-invalid-off',ref:'--danger-component-outline-default'}
+    ]}
+  ]},
+  {id:'checkbox',label:'Checkbox',prefix:'cb',refs:[
+    {group:'Surface',tokens:[
+      {name:'--cb-bg',ref:'--surface-base-cm-bg'},
+      {name:'--cb-bg-hover',ref:'--surface-base-cm-bg-hover'},
+      {name:'--cb-bg-checked',ref:'--brand-component-bg-default'},
+      {name:'--cb-bg-checked-hover',ref:'--brand-component-bg-hover'},
+      {name:'--cb-border-color',ref:'--surface-base-cm-outline'},
+      {name:'--cb-border-color-hover',ref:'--surface-base-cm-outline-hover'},
+      {name:'--cb-check-color',ref:'--brand-on-component'}
+    ]},
+    {group:'Error state',tokens:[
+      {name:'--cb-border-color-invalid',ref:'--danger-component-outline-default'},
+      {name:'--cb-bg-checked-invalid',ref:'--danger-component-bg-default'}
+    ]}
+  ]},
+  {id:'radio',label:'Radio',prefix:'radio',refs:[
+    {group:'Surface',tokens:[
+      {name:'--radio-bg',ref:'--surface-base-cm-bg'},
+      {name:'--radio-bg-checked',ref:'--brand-component-bg-default'},
+      {name:'--radio-border-color',ref:'--surface-base-cm-outline'},
+      {name:'--radio-border-color-hover',ref:'--surface-base-cm-outline-hover'},
+      {name:'--radio-dot-color',ref:'--brand-on-component'}
+    ]}
+  ]},
+  {id:'select',label:'Select',prefix:'select',refs:[
+    {group:'Surface',tokens:[
+      {name:'--select-bg',ref:'--surface-base-cm-bg'},
+      {name:'--select-fg',ref:'--surface-base-ct-default'},
+      {name:'--select-border-color',ref:'--surface-base-cm-outline'},
+      {name:'--select-border-color-hover',ref:'--surface-base-cm-outline-hover'},
+      {name:'--select-border-color-focus',ref:'--brand-component-outline-default'},
+      {name:'--select-icon-color',ref:'--surface-base-ct-subtle'}
+    ]}
+  ]},
+  {id:'alert',label:'Alert',prefix:'alert',refs:[
+    {group:'Info variant',tokens:[
+      {name:'--alert-info-bg',ref:'--info-container-bg'},
+      {name:'--alert-info-fg',ref:'--info-content-default'},
+      {name:'--alert-info-border-color',ref:'--info-container-outline'},
+      {name:'--alert-info-icon-color',ref:'--info-content-default'}
+    ]},
+    {group:'Success variant',tokens:[
+      {name:'--alert-success-bg',ref:'--success-container-bg'},
+      {name:'--alert-success-fg',ref:'--success-content-default'},
+      {name:'--alert-success-icon-color',ref:'--success-content-default'}
+    ]},
+    {group:'Warning variant',tokens:[
+      {name:'--alert-warning-bg',ref:'--warning-container-bg'},
+      {name:'--alert-warning-fg',ref:'--warning-content-default'}
+    ]},
+    {group:'Danger variant',tokens:[
+      {name:'--alert-danger-bg',ref:'--danger-container-bg'},
+      {name:'--alert-danger-fg',ref:'--danger-content-default'}
+    ]}
+  ]},
+  {id:'badge',label:'Badge',prefix:'badge',refs:[
+    {group:'Primary',tokens:[
+      {name:'--badge-primary-bg',ref:'--brand-component-bg-default'},
+      {name:'--badge-primary-fg',ref:'--brand-on-component'}
+    ]},
+    {group:'Danger',tokens:[
+      {name:'--badge-danger-bg',ref:'--danger-component-bg-default'},
+      {name:'--badge-danger-fg',ref:'--danger-on-component'}
+    ]},
+    {group:'Neutral',tokens:[
+      {name:'--badge-neutral-bg',ref:'--surface-base-cm-bg'},
+      {name:'--badge-neutral-fg',ref:'--surface-base-ct-default'},
+      {name:'--badge-neutral-border-color',ref:'--surface-base-cm-outline'}
+    ]}
+  ]},
+  {id:'tooltip',label:'Tooltip',prefix:'tooltip',refs:[
+    {group:'Surface',tokens:[
+      {name:'--tooltip-bg',ref:'--surface-inverse-bg'},
+      {name:'--tooltip-fg',ref:'--surface-inverse-ct-default'}
+    ]}
+  ]},
+  {id:'toast',label:'Toast',prefix:'toast',refs:[
+    {group:'Surface',tokens:[
+      {name:'--toast-bg',ref:'--surface-float-bg'},
+      {name:'--toast-fg',ref:'--surface-float-ct-default'},
+      {name:'--toast-border-color',ref:'--surface-float-outline'}
+    ]},
+    {group:'Status icons',tokens:[
+      {name:'--toast-success-icon',ref:'--success-content-default'},
+      {name:'--toast-danger-icon',ref:'--danger-content-default'},
+      {name:'--toast-warning-icon',ref:'--warning-content-default'},
+      {name:'--toast-info-icon',ref:'--info-content-default'}
+    ]}
+  ]},
+  {id:'progress-bar',label:'Progress Bar',prefix:'pbar',refs:[
+    {group:'Track & fill',tokens:[
+      {name:'--pbar-track-bg',ref:'--surface-base-cm-bg-pressed'},
+      {name:'--pbar-fill-bg',ref:'--brand-component-bg-default'},
+      {name:'--pbar-fill-bg-success',ref:'--success-component-bg-default'},
+      {name:'--pbar-fill-bg-danger',ref:'--danger-component-bg-default'}
+    ]}
+  ]},
+  {id:'slider',label:'Slider',prefix:'slider',refs:[
+    {group:'Track & thumb',tokens:[
+      {name:'--slider-track-bg',ref:'--surface-base-cm-bg-pressed'},
+      {name:'--slider-fill-bg',ref:'--brand-component-bg-default'},
+      {name:'--slider-thumb-bg',ref:'--surface-base-cm-bg'},
+      {name:'--slider-thumb-border-color',ref:'--brand-component-bg-default'}
+    ]}
+  ]}
+];
+
+/* ── Handoff state ─────────────────────────────────────── */
+var hoTier='t2';
+var hoFormat='css';
+
+/* Check whether a token reference belongs to an active role */
+function isActiveRef(ref){
+  if(!ref) return true;
+  for(var i=0;i<activeRoles.length;i++){
+    if(ref.indexOf('--'+activeRoles[i]+'-')===0) return true;
+  }
+  /* Surface / non-role refs are always active */
+  if(ref.indexOf('--surface-')===0) return true;
+  /* If it doesn't match any role pattern, keep it */
+  var isRoleRef=false;
+  for(var j=0;j<ROLES.length;j++){
+    if(ref.indexOf('--'+ROLES[j]+'-')===0){isRoleRef=true;break;}
+  }
+  return !isRoleRef;
+}
+
+function setHoTier(tier,el){
+  hoTier=tier;
+  document.querySelectorAll('#hoTierTabs .ho-tab').forEach(function(t){t.classList.toggle('on',t.dataset.tier===tier);});
+  document.getElementById('hoRoleCtrl').style.display=tier==='t1'?'':'none';
+  document.getElementById('hoCompCtrl').style.display=tier==='t3'?'':'none';
+  renderHandoff();
+}
+function setHoFormat(fmt,el){
+  hoFormat=fmt;
+  document.querySelectorAll('#hoFormatTabs .ho-tab').forEach(function(t){t.classList.toggle('on',t.dataset.fmt===fmt);});
+  renderHandoff();
+}
+
+/* Populate dropdowns */
+(function(){
+  var roleSel=document.getElementById('hoRole');
+  activeRoles.forEach(function(r){
+    var o=document.createElement('option');
+    o.value=r;o.textContent=r.charAt(0).toUpperCase()+r.slice(1);
+    roleSel.appendChild(o);
+  });
+  var sel=document.getElementById('hoComp');
+  COMPONENTS.forEach(function(c){
+    var o=document.createElement('option');
+    o.value=c.id;o.textContent=c.label;
+    sel.appendChild(o);
+  });
+})();
+
+/* ── Render handoff output ─────────────────────────────── */
+function refreshHandoffRoleDropdown(){
+  var roleSel=document.getElementById('hoRole');
+  if(!roleSel) return;
+  var curVal=roleSel.value;
+  roleSel.innerHTML='<option value="_all">All Roles</option>';
+  activeRoles.forEach(function(r){
+    var o=document.createElement('option');
+    o.value=r;o.textContent=r.charAt(0).toUpperCase()+r.slice(1);
+    roleSel.appendChild(o);
+  });
+  if(activeRoles.indexOf(curVal)!==-1) roleSel.value=curVal;
+}
+
+function renderHandoff(){
+  refreshHandoffRoleDropdown();
+  var out=document.getElementById('hoOutput');
+  if(!out) return;
+  if(hoTier==='t1') renderT1Handoff(out);
+  else if(hoTier==='t2') renderT2Handoff(out);
+  else if(hoTier==='t3') renderT3Handoff(out);
+}
+
+/* ── Helpers for platform formats ──────────────────────── */
+function kebabToCamel(s){
+  return s.replace(/^--/,'').replace(/-([a-z0-9])/g,function(_,c){return c.toUpperCase();});
+}
+function hexToArgb(h){
+  h=h.replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  return '0xFF'+h.toUpperCase();
+}
+function hexToRgba(h){
+  h=h.replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var r=parseInt(h.substring(0,2),16)/255;
+  var g=parseInt(h.substring(2,4),16)/255;
+  var b=parseInt(h.substring(4,6),16)/255;
+  return{r:r.toFixed(3),g:g.toFixed(3),b:b.toFixed(3)};
+}
+
+/* ── T1 Semantic Renderers ──────────────────────────────── */
+function renderT1Handoff(out){
+  cs=getComputedStyle(document.documentElement);
+  var selRole=document.getElementById('hoRole').value;
+  var roles=(selRole==='_all')?activeRoles:[selRole];
+  if(hoFormat==='css') renderT1CSS(out,roles);
+  else if(hoFormat==='json') renderT1JSON(out,roles);
+  else if(hoFormat==='android') renderT1Android(out,roles);
+  else if(hoFormat==='ios') renderT1iOS(out,roles);
+  else renderT1Table(out,roles);
+}
+
+function renderT1CSS(out,roles){
+  var theme=isDark()?'dark':'light';
+  var lines=[];
+  lines.push('<span class="cc">/* T1 Semantic Tokens — '+theme+' theme'+_projTag()+' */</span>');
+  lines.push('<span class="cc">/* Generated from Color Token Explorer */</span>');
+  lines.push('');
+  roles.forEach(function(role){
+    lines.push('<span class="cc">/* ── '+role+' (← prim-'+ROLE_SOURCE[role]+') ── */</span>');
+    ROLE_TOKENS.forEach(function(grp){
+      grp.tokens.forEach(function(tok){
+        var prop=role+'-'+tok;
+        var val=hex(prop)||rv(prop);
+        lines.push('<span class="ck">--'+prop+'</span>: <span class="cv">'+val+'</span>;');
+      });
+    });
+    lines.push('');
+  });
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+function renderT1JSON(out,roles){
+  var obj={};
+  roles.forEach(function(role){
+    var tokens={};
+    ROLE_TOKENS.forEach(function(grp){
+      grp.tokens.forEach(function(tok){
+        var prop=role+'-'+tok;
+        tokens[tok]=hex(prop)||rv(prop);
+      });
+    });
+    obj[role]=tokens;
+  });
+  var json=JSON.stringify(obj,null,2);
+  json=json.replace(/"(#[A-Fa-f0-9]{3,8})"/g,'"<span class="cv">$1</span>"');
+  json=json.replace(/"(primary|brand|danger|success|warning|info)"/g,'"<span class="ck">$1</span>"');
+  out.innerHTML='<pre class="ho-code">'+json+'</pre>';
+}
+
+function renderT1Table(out,roles){
+  var html='<div style="overflow-x:auto;border:1px solid var(--demo-border);border-radius:var(--radius-md,6px)"><table class="ho-table"><thead><tr><th>Role</th><th>Group</th><th>Token</th><th style="width:34px"></th><th>Value</th><th>CSS Variable</th></tr></thead><tbody>';
+  roles.forEach(function(role){
+    html+='<tr><td colspan="6" class="ho-grp">'+role+' ← prim-'+ROLE_SOURCE[role]+'</td></tr>';
+    ROLE_TOKENS.forEach(function(grp){
+      grp.tokens.forEach(function(tok){
+        var prop=role+'-'+tok;
+        var val=hex(prop)||rv(prop);
+        html+='<tr>';
+        html+='<td style="color:var(--demo-fg-faint)">'+role+'</td>';
+        html+='<td style="color:var(--demo-fg-faint)">'+grp.group+'</td>';
+        html+='<td>'+tok+'</td>';
+        html+='<td><span class="ho-sw" style="background:'+val+'" onclick="copyHex(\''+val+'\')">' + '</span></td>';
+        html+='<td>'+val+'</td>';
+        html+='<td class="ho-ref">--'+prop+'</td>';
+        html+='</tr>';
+      });
+    });
+  });
+  html+='</tbody></table></div>';
+  out.innerHTML=html;
+}
+
+function renderT1Android(out,roles){
+  var theme=isDark()?'Dark':'Light';
+  var lines=[];
+  lines.push('<span class="cc">// T1 Semantic Tokens — '+theme+' theme'+_projTag()+'</span>');
+  lines.push('<span class="cc">// Generated from Color Token Explorer</span>');
+  lines.push('');
+  lines.push('<span class="ck">package</span> com.app.tokens');
+  lines.push('');
+  lines.push('<span class="ck">import</span> androidx.compose.ui.graphics.<span class="cp">Color</span>');
+  lines.push('');
+  lines.push('<span class="ck">object</span> <span class="cp">SemanticTokens'+theme+'</span> {');
+  roles.forEach(function(role){
+    lines.push('');
+    lines.push('    <span class="cc">// ── '+role+' (\u2190 prim-'+ROLE_SOURCE[role]+') ──</span>');
+    ROLE_TOKENS.forEach(function(grp){
+      grp.tokens.forEach(function(tok){
+        var prop=role+'-'+tok;
+        var val=hex(prop)||rv(prop);
+        var name=kebabToCamel(role+'-'+tok);
+        lines.push('    <span class="ck">val</span> '+name+' = <span class="cp">Color</span>(<span class="cv">'+hexToArgb(val)+'</span>)');
+      });
+    });
+  });
+  lines.push('}');
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+function renderT1iOS(out,roles){
+  var theme=isDark()?'Dark':'Light';
+  var lines=[];
+  lines.push('<span class="cc">// T1 Semantic Tokens — '+theme+' theme'+_projTag()+'</span>');
+  lines.push('<span class="cc">// Generated from Color Token Explorer</span>');
+  lines.push('');
+  lines.push('<span class="ck">import</span> SwiftUI');
+  lines.push('');
+  lines.push('<span class="ck">extension</span> <span class="cp">Color</span> {');
+  roles.forEach(function(role){
+    lines.push('');
+    lines.push('    <span class="cc">// MARK: - '+role+' (\u2190 prim-'+ROLE_SOURCE[role]+')</span>');
+    ROLE_TOKENS.forEach(function(grp){
+      grp.tokens.forEach(function(tok){
+        var prop=role+'-'+tok;
+        var val=hex(prop)||rv(prop);
+        var name=kebabToCamel(role+'-'+tok);
+        var rgb=hexToRgba(val);
+        lines.push('    <span class="ck">static let</span> '+name+' = <span class="cp">Color</span>(red: <span class="cv">'+rgb.r+'</span>, green: <span class="cv">'+rgb.g+'</span>, blue: <span class="cv">'+rgb.b+'</span>)  <span class="cc">// '+val+'</span>');
+      });
+    });
+  });
+  lines.push('}');
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+/* ── T2 Surface Renderers ──────────────────────────────── */
+function renderT2Handoff(out){
+  cs=getComputedStyle(document.documentElement);
+  if(hoFormat==='css') renderT2CSS(out);
+  else if(hoFormat==='json') renderT2JSON(out);
+  else if(hoFormat==='android') renderT2Android(out);
+  else if(hoFormat==='ios') renderT2iOS(out);
+  else renderT2Table(out);
+}
+
+function renderT2CSS(out){
+  var theme=isDark()?'dark':'light';
+  var lines=[];
+  lines.push('<span class="cc">/* T2 Surface Tokens — '+theme+' theme'+_projTag()+' */</span>');
+  lines.push('<span class="cc">/* Generated from Color Token Explorer */</span>');
+  lines.push('');
+  SURFACES.forEach(function(surf){
+    var palSrc=(activeSurfacePaletteSrc&&activeSurfacePaletteSrc[surf])?' ← '+activeSurfacePaletteSrc[surf]:'';
+    lines.push('<span class="cc">/* ── surface-'+surf+palSrc+' ── */</span>');
+    SURFACE_TOKENS.forEach(function(tok){
+      var prop='surface-'+surf+'-'+tok;
+      var val=hex(prop)||rv(prop);
+      lines.push('<span class="ck">--'+prop+'</span>: <span class="cv">'+val+'</span>;');
+    });
+    lines.push('');
+  });
+  lines.push('<span class="cc">/* ── Utility Colors ── */</span>');
+  UTILITY_TOKENS.forEach(function(u){
+    var val=hex(u.token)||rv(u.token);
+    lines.push('<span class="ck">--'+u.token+'</span>: <span class="cv">'+val+'</span>;  <span class="cc">/* '+u.label+' */</span>');
+  });
+  lines.push('');
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+function renderT2JSON(out){
+  var theme=isDark()?'dark':'light';
+  var obj={};
+  SURFACES.forEach(function(surf){
+    var tokens={};
+    if(activeSurfacePaletteSrc&&activeSurfacePaletteSrc[surf]) tokens._paletteSrc=activeSurfacePaletteSrc[surf];
+    SURFACE_TOKENS.forEach(function(tok){
+      var prop='surface-'+surf+'-'+tok;
+      tokens[tok]=hex(prop)||rv(prop);
+    });
+    obj['surface-'+surf]=tokens;
+  });
+  var utilObj={};
+  UTILITY_TOKENS.forEach(function(u){
+    utilObj['--'+u.token]={value:hex(u.token)||rv(u.token),label:u.label};
+  });
+  obj['utility-colors']=utilObj;
+  var json=JSON.stringify(obj,null,2);
+  /* Colorize */
+  json=json.replace(/"(#[A-Fa-f0-9]{3,8})"/g,'"<span class="cv">$1</span>"');
+  json=json.replace(/"(surface-[^"]+)"/g,'"<span class="ck">$1</span>"');
+  out.innerHTML='<pre class="ho-code">'+json+'</pre>';
+}
+
+function renderT2Table(out){
+  var html='<div style="overflow-x:auto;border:1px solid var(--demo-border);border-radius:var(--radius-md,6px)"><table class="ho-table"><thead><tr><th>Surface</th><th>Property</th><th style="width:34px"></th><th>Value</th><th>CSS Variable</th></tr></thead><tbody>';
+  SURFACES.forEach(function(surf){
+    var palSrc=(activeSurfacePaletteSrc&&activeSurfacePaletteSrc[surf])?' <span style="opacity:.6;font-weight:400">← '+activeSurfacePaletteSrc[surf]+'</span>':'';
+    html+='<tr><td colspan="5" class="ho-grp">surface-'+surf+palSrc+'</td></tr>';
+    SURFACE_TOKENS.forEach(function(tok){
+      var prop='surface-'+surf+'-'+tok;
+      var val=hex(prop)||rv(prop);
+      html+='<tr>';
+      html+='<td style="color:var(--demo-fg-faint)">'+surf+'</td>';
+      html+='<td>'+tok+'</td>';
+      html+='<td><span class="ho-sw" style="background:'+val+'" onclick="copyHex(\''+val+'\')"></span></td>';
+      html+='<td>'+val+'</td>';
+      html+='<td class="ho-ref">--'+prop+'</td>';
+      html+='</tr>';
+    });
+  });
+  html+='<tr><td colspan="5" class="ho-grp">Utility Colors</td></tr>';
+  UTILITY_TOKENS.forEach(function(u){
+    var val=hex(u.token)||rv(u.token);
+    html+='<tr>';
+    html+='<td style="color:var(--demo-fg-faint)">utility</td>';
+    html+='<td>'+u.label+'</td>';
+    html+='<td><span class="ho-sw" style="background:'+val+'" onclick="copyHex(\''+val+'\')"></span></td>';
+    html+='<td>'+val+'</td>';
+    html+='<td class="ho-ref">--'+u.token+'</td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  out.innerHTML=html;
+}
+
+function renderT3Handoff(out){
+  cs=getComputedStyle(document.documentElement);
+  var compId=document.getElementById('hoComp').value;
+  var comp=null;
+  if(!COMPONENTS||!COMPONENTS.length){out.innerHTML='';return;}
+  for(var i=0;i<COMPONENTS.length;i++){if(COMPONENTS[i].id===compId){comp=COMPONENTS[i];break;}}
+  if(!comp){out.innerHTML='';return;}
+  /* Filter out token groups that reference inactive roles */
+  var filtered={id:comp.id,label:comp.label,prefix:comp.prefix,refs:[]};
+  comp.refs.forEach(function(grp){
+    var activeToks=grp.tokens.filter(function(tok){return isActiveRef(tok.ref);});
+    if(activeToks.length) filtered.refs.push({group:grp.group,tokens:activeToks});
+  });
+  if(hoFormat==='css') renderT3CSS(out,filtered);
+  else if(hoFormat==='json') renderT3JSON(out,filtered);
+  else if(hoFormat==='android') renderT3Android(out,filtered);
+  else if(hoFormat==='ios') renderT3iOS(out,filtered);
+  else renderT3Table(out,filtered);
+}
+
+function renderT3CSS(out,comp){
+  var theme=isDark()?'dark':'light';
+  var lines=[];
+  lines.push('<span class="cc">/* T3 '+comp.label+' Token Map — '+theme+' theme'+_projTag()+' */</span>');
+  lines.push('<span class="cc">/* Component token → T1/T2 reference → resolved hex */</span>');
+  lines.push('');
+  comp.refs.forEach(function(grp){
+    lines.push('<span class="cc">/* '+grp.group+' */</span>');
+    grp.tokens.forEach(function(tok){
+      var refProp=tok.ref.replace(/^--/,'');
+      var val=hex(refProp)||rv(refProp);
+      lines.push('<span class="ck">'+tok.name+'</span>: var(<span class="cp">'+tok.ref+'</span>);  <span class="cc">/* → '+val+' */</span>');
+    });
+    lines.push('');
+  });
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+function renderT3JSON(out,comp){
+  var obj={component:comp.label,tokens:{}};
+  comp.refs.forEach(function(grp){
+    grp.tokens.forEach(function(tok){
+      var refProp=tok.ref.replace(/^--/,'');
+      var val=hex(refProp)||rv(refProp);
+      obj.tokens[tok.name]={reference:tok.ref,resolved:val,group:grp.group};
+    });
+  });
+  var json=JSON.stringify(obj,null,2);
+  json=json.replace(/"(#[A-Fa-f0-9]{3,8})"/g,'"<span class="cv">$1</span>"');
+  json=json.replace(/"(--[a-z][^"]+)"/g,'"<span class="ck">$1</span>"');
+  out.innerHTML='<pre class="ho-code">'+json+'</pre>';
+}
+
+function renderT3Table(out,comp){
+  var html='<div style="overflow-x:auto;border:1px solid var(--demo-border);border-radius:var(--radius-md,6px)"><table class="ho-table"><thead><tr><th>Component Token</th><th>References</th><th style="width:34px"></th><th>Resolved</th></tr></thead><tbody>';
+  comp.refs.forEach(function(grp){
+    html+='<tr><td colspan="4" class="ho-grp">'+grp.group+'</td></tr>';
+    grp.tokens.forEach(function(tok){
+      var refProp=tok.ref.replace(/^--/,'');
+      var val=hex(refProp)||rv(refProp);
+      html+='<tr>';
+      html+='<td>'+tok.name+'</td>';
+      html+='<td class="ho-ref">'+tok.ref+'</td>';
+      html+='<td><span class="ho-sw" style="background:'+val+'" onclick="copyHex(\''+val+'\')"></span></td>';
+      html+='<td>'+val+'</td>';
+      html+='</tr>';
+    });
+  });
+  html+='</tbody></table></div>';
+  out.innerHTML=html;
+}
+
+/* ── Android (Kotlin) T2 ───────────────────────────────── */
+function renderT2Android(out){
+  var theme=isDark()?'Dark':'Light';
+  var lines=[];
+  lines.push('<span class="cc">// T2 Surface Tokens — '+theme+' theme'+_projTag()+'</span>');
+  lines.push('<span class="cc">// Generated from Color Token Explorer</span>');
+  lines.push('');
+  lines.push('<span class="ck">package</span> com.app.tokens');
+  lines.push('');
+  lines.push('<span class="ck">import</span> androidx.compose.ui.graphics.<span class="cp">Color</span>');
+  lines.push('');
+  lines.push('<span class="ck">object</span> <span class="cp">SurfaceTokens'+theme+'</span> {');
+  SURFACES.forEach(function(surf){
+    var palSrc=(activeSurfacePaletteSrc&&activeSurfacePaletteSrc[surf])?' \u2190 '+activeSurfacePaletteSrc[surf]:'';
+    lines.push('');
+    lines.push('    <span class="cc">// ── surface-'+surf+palSrc+' ──</span>');
+    SURFACE_TOKENS.forEach(function(tok){
+      var prop='surface-'+surf+'-'+tok;
+      var val=hex(prop)||rv(prop);
+      var name=kebabToCamel('surface-'+surf+'-'+tok);
+      lines.push('    <span class="ck">val</span> '+name+' = <span class="cp">Color</span>(<span class="cv">'+hexToArgb(val)+'</span>)');
+    });
+  });
+  lines.push('');
+  lines.push('    <span class="cc">// ── Utility Colors ──</span>');
+  UTILITY_TOKENS.forEach(function(u){
+    var val=hex(u.token)||rv(u.token);
+    var name=kebabToCamel(u.token);
+    lines.push('    <span class="ck">val</span> '+name+' = <span class="cp">Color</span>(<span class="cv">'+hexToArgb(val)+'</span>)  <span class="cc">// '+u.label+'</span>');
+  });
+  lines.push('}');
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+/* ── Android (Kotlin) T3 ───────────────────────────────── */
+function renderT3Android(out,comp){
+  var theme=isDark()?'Dark':'Light';
+  var lines=[];
+  lines.push('<span class="cc">// T3 '+comp.label+' Token Map — '+theme+' theme'+_projTag()+'</span>');
+  lines.push('<span class="cc">// Component token → T1/T2 reference → resolved</span>');
+  lines.push('');
+  lines.push('<span class="ck">package</span> com.app.tokens');
+  lines.push('');
+  lines.push('<span class="ck">import</span> androidx.compose.ui.graphics.<span class="cp">Color</span>');
+  lines.push('');
+  var cls=kebabToCamel(comp.id);cls=cls.charAt(0).toUpperCase()+cls.slice(1);
+  lines.push('<span class="ck">object</span> <span class="cp">'+cls+'Tokens'+theme+'</span> {');
+  comp.refs.forEach(function(grp){
+    lines.push('');
+    lines.push('    <span class="cc">// '+grp.group+'</span>');
+    grp.tokens.forEach(function(tok){
+      var refProp=tok.ref.replace(/^--/,'');
+      var val=hex(refProp)||rv(refProp);
+      var name=kebabToCamel(tok.name);
+      lines.push('    <span class="ck">val</span> '+name+' = <span class="cp">Color</span>(<span class="cv">'+hexToArgb(val)+'</span>)  <span class="cc">// '+tok.ref+'</span>');
+    });
+  });
+  lines.push('}');
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+/* ── iOS (Swift) T2 ────────────────────────────────────── */
+function renderT2iOS(out){
+  var theme=isDark()?'Dark':'Light';
+  var lines=[];
+  lines.push('<span class="cc">// T2 Surface Tokens — '+theme+' theme'+_projTag()+'</span>');
+  lines.push('<span class="cc">// Generated from Color Token Explorer</span>');
+  lines.push('');
+  lines.push('<span class="ck">import</span> SwiftUI');
+  lines.push('');
+  lines.push('<span class="ck">extension</span> <span class="cp">Color</span> {');
+  SURFACES.forEach(function(surf){
+    var palSrc=(activeSurfacePaletteSrc&&activeSurfacePaletteSrc[surf])?' \u2190 '+activeSurfacePaletteSrc[surf]:'';
+    lines.push('');
+    lines.push('    <span class="cc">// MARK: - surface-'+surf+palSrc+'</span>');
+    SURFACE_TOKENS.forEach(function(tok){
+      var prop='surface-'+surf+'-'+tok;
+      var val=hex(prop)||rv(prop);
+      var name=kebabToCamel('surface-'+surf+'-'+tok);
+      var rgb=hexToRgba(val);
+      lines.push('    <span class="ck">static let</span> '+name+' = <span class="cp">Color</span>(red: <span class="cv">'+rgb.r+'</span>, green: <span class="cv">'+rgb.g+'</span>, blue: <span class="cv">'+rgb.b+'</span>)  <span class="cc">// '+val+'</span>');
+    });
+  });
+  lines.push('');
+  lines.push('    <span class="cc">// MARK: - Utility Colors</span>');
+  UTILITY_TOKENS.forEach(function(u){
+    var val=hex(u.token)||rv(u.token);
+    var name=kebabToCamel(u.token);
+    var rgb=hexToRgba(val);
+    lines.push('    <span class="ck">static let</span> '+name+' = <span class="cp">Color</span>(red: <span class="cv">'+rgb.r+'</span>, green: <span class="cv">'+rgb.g+'</span>, blue: <span class="cv">'+rgb.b+'</span>)  <span class="cc">// '+u.label+' '+val+'</span>');
+  });
+  lines.push('}');
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+/* ── iOS (Swift) T3 ────────────────────────────────────── */
+function renderT3iOS(out,comp){
+  var theme=isDark()?'Dark':'Light';
+  var lines=[];
+  lines.push('<span class="cc">// T3 '+comp.label+' Token Map — '+theme+' theme'+_projTag()+'</span>');
+  lines.push('<span class="cc">// Component token → T1/T2 reference → resolved</span>');
+  lines.push('');
+  lines.push('<span class="ck">import</span> SwiftUI');
+  lines.push('');
+  lines.push('<span class="ck">extension</span> <span class="cp">Color</span> {');
+  lines.push('');
+  lines.push('    <span class="cc">// MARK: - '+comp.label+'</span>');
+  comp.refs.forEach(function(grp){
+    lines.push('');
+    lines.push('    <span class="cc">// '+grp.group+'</span>');
+    grp.tokens.forEach(function(tok){
+      var refProp=tok.ref.replace(/^--/,'');
+      var val=hex(refProp)||rv(refProp);
+      var name=kebabToCamel(tok.name);
+      var rgb=hexToRgba(val);
+      lines.push('    <span class="ck">static let</span> '+name+' = <span class="cp">Color</span>(red: <span class="cv">'+rgb.r+'</span>, green: <span class="cv">'+rgb.g+'</span>, blue: <span class="cv">'+rgb.b+'</span>)  <span class="cc">// '+tok.ref+' → '+val+'</span>');
+    });
+  });
+  lines.push('}');
+  out.innerHTML='<pre class="ho-code">'+lines.join('\n')+'</pre>';
+}
+
+/* ── Copy handoff block ────────────────────────────────── */
+function copyHandoff(){
+  var out=document.getElementById('hoOutput');
+  var pre=out.querySelector('.ho-code');
+  var text='';
+  if(pre){
+    /* Strip HTML tags to get plain text */
+    text=pre.textContent;
+  } else {
+    /* Table mode — build tab-separated */
+    var rows=out.querySelectorAll('.ho-table tr');
+    var lines=[];
+    rows.forEach(function(r){
+      var cells=r.querySelectorAll('th,td');
+      var vals=[];
+      cells.forEach(function(c){
+        if(c.querySelector('.ho-sw')) return; /* skip swatch column */
+        vals.push(c.textContent.trim());
+      });
+      if(vals.length) lines.push(vals.join('\t'));
+    });
+    text=lines.join('\n');
+  }
+  if(!text) return;
+  navigator.clipboard.writeText(text).then(function(){
+    var btn=document.getElementById('hoCopyBtn');
+    btn.classList.add('copied');
+    btn.innerHTML='<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Copied!';
+    setTimeout(function(){
+      btn.classList.remove('copied');
+      btn.innerHTML='<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-6A1.5 1.5 0 013.5 2h6A1.5 1.5 0 0111 3.5V5"/></svg> Copy';
+    },2000);
+  });
+}
+
+/* Make handoff functions global for onclick handlers */
+window.setHoTier=setHoTier;
+window.setHoFormat=setHoFormat;
+window.renderHandoff=renderHandoff;
+window.copyHandoff=copyHandoff;
+
+/* Initial render of handoff section */
+renderHandoff();
+
+})();
+</script>
+<script>
+/* ── Copy Hex to Clipboard (global) ────────────────────── */
+var _copyToast=document.getElementById('copyToast');
+var _copyTimer=0;
+function copyHex(hex){
+  if(!hex) return;
+  navigator.clipboard.writeText(hex.toUpperCase()).then(function(){
+    _copyToast.textContent='Copied '+hex.toUpperCase();
+    _copyToast.classList.add('show');
+    clearTimeout(_copyTimer);
+    _copyTimer=setTimeout(function(){_copyToast.classList.remove('show')},1500);
+  });
+}
+</script>
+<div class="copy-toast" id="copyToast"></div>
+</body>
+</html>

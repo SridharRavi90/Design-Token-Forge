@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Toggle / Switch Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/toggle/toggle.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/toggle/toggle.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-density"><span class="sn-num">2</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">3</span>State Matrix</a>
+  <a href="#sec-anatomy"><span class="sn-num">4</span>Slots &amp; Anatomy</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Shape &amp; Shadow</a>
+  <a href="#sec-motion"><span class="sn-num">7</span>Motion</a>
+  <a href="#sec-playground"><span class="sn-num">8</span>Context Playground</a>
+  <a href="#sec-a11y"><span class="sn-num">9</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Toggle / Switch Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">93 CSS Variables</span>
+    <span class="demo-badge">2 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<nav class="global-controls" aria-label="Global toggle preview controls">
+  <div class="control-group">
+    <label>Checked</label>
+    <div class="pill-bar" id="checkedBar" role="radiogroup" aria-label="Checked toggle">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-checked="false" type="button">Off</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-checked="true" type="button">On</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outlined" type="button">Outlined</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- 1. HERO -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Click the switch to toggle. Inspector shows resolved token values for the current state and size.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" style="display:flex;align-items:center;gap:24px">
+          <label class="switch-label">
+            <button class="switch synced-sw" role="switch" aria-checked="false" data-size="base" type="button" id="heroSwitch">
+              <span class="switch__track"><span class="switch__thumb"></span></span>
+            </button>
+            <span class="switch-label__text" id="heroLabel">Off</span>
+          </label>
+        </div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- 2. DENSITY SCALE -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes. Each maps: track width, track height, thumb size. Click any switch to toggle it.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- 3. STATE MATRIX -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every interactive state: unchecked, checked, disabled-off, disabled-on, error, loading.</p>
+    <div class="section-body"><div id="stateMatrix" style="display:flex;flex-direction:column;gap:0"></div></div>
+  </section>
+
+  <!-- 4. ANATOMY -->
+  <section class="section" id="sec-anatomy">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Compound component: track (background rail) + thumb (sliding indicator). Optional label, optional thumb icon.</p>
+    <div class="section-body"><div class="slot-grid" id="slotsDemo"></div></div>
+  </section>
+
+  <!-- 5. SURFACE CONTEXT -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Toggles on three background levels. Track adapts to surface context for unchecked state.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase"><span class="surface-panel-label">surface-base-bg</span></div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt"><span class="surface-panel-label">surface-base-subtle</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep"><span class="surface-panel-label">surface-deep-bg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SHAPE & SHADOW -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Track is always pill-shaped (radius-full). Thumb has depth via shadow token. Custom radius overrides shown below.</p>
+    <div class="section-body">
+      <div class="sub-label">Default (pill) per density</div>
+      <div class="density-strip" id="shapeDefault"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Custom radius override</div>
+      <div class="density-strip" id="shapeCustom"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Shadow presets on thumb</div>
+      <div class="shadow-strip" id="shadowStrip"></div>
+    </div>
+  </section>
+
+  <!-- 7. MOTION -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Thumb uses spring easing for a tactile slide. Track transitions background color smoothly. Active state adds scale for press feedback.</p>
+    <div class="section-body"><div class="motion-strip" id="motionDemo"></div></div>
+  </section>
+
+  <!-- 8. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how toggles adapt across surface contexts and semantic color roles. Two cards with independent surface + role — compare side by side.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <!-- Card A -->
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="error">Error</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option><option value="neutral">Neutral</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA">
+            <div class="pg-variant-row"><span class="pg-variant-label">Off</span>
+              <button class="switch pg-sw" role="switch" aria-checked="false" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">On</span>
+              <button class="switch pg-sw" role="switch" aria-checked="true" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">With label</span>
+              <label class="switch-label"><button class="switch pg-sw" role="switch" aria-checked="true" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button><span class="switch-label__text">Enabled</span></label>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Disabled</span>
+              <button class="switch pg-sw" role="switch" aria-checked="false" data-size="base" type="button" disabled><span class="switch__track"><span class="switch__thumb"></span></span></button>
+            </div>
+          </div>
+        </div>
+        <!-- Card B -->
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="error">Error</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option><option value="neutral">Neutral</option><option value="brand">Brand</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB">
+            <div class="pg-variant-row"><span class="pg-variant-label">Off</span>
+              <button class="switch pg-sw" role="switch" aria-checked="false" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">On</span>
+              <button class="switch pg-sw" role="switch" aria-checked="true" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">With label</span>
+              <label class="switch-label"><button class="switch pg-sw" role="switch" aria-checked="true" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button><span class="switch-label__text">Active</span></label>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Disabled on</span>
+              <button class="switch pg-sw" role="switch" aria-checked="true" data-size="base" type="button" disabled><span class="switch__track"><span class="switch__thumb"></span></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 9. ACCESSIBILITY -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, role="switch", aria-checked, disabled states, and forced-colors handling.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to focus. <code>:focus-visible</code> ring wraps the track.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+            <button class="switch synced-sw" role="switch" aria-checked="false" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>disabled</code> attribute reduces opacity and blocks interaction.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+            <button class="switch synced-sw" role="switch" aria-checked="false" data-size="base" type="button" disabled><span class="switch__track"><span class="switch__thumb"></span></span></button>
+            <button class="switch synced-sw" role="switch" aria-checked="true" data-size="base" type="button" disabled><span class="switch__track"><span class="switch__thumb"></span></span></button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">ARIA Attributes</div>
+          <p class="a11y-card-desc"><code>role="switch"</code> and <code>aria-checked</code> for screen readers.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+            <label class="switch-label">
+              <button class="switch synced-sw" role="switch" aria-checked="false" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button>
+              <span class="switch-label__text">ARIA demo</span>
+            </label>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast uses <code>ButtonText</code>, <code>Highlight</code>, <code>GrayText</code>.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+            <button class="switch synced-sw" role="switch" aria-checked="false" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button>
+            <button class="switch synced-sw" role="switch" aria-checked="true" data-size="base" type="button"><span class="switch__track"><span class="switch__thumb"></span></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Toggle Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-tg">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;label
+  className="switch"
+  data-size={size}
+  data-variant={variant}   {/* omit for filled | "outline" */}
+  data-checked={checked || undefined}
+  data-loading={loading || undefined}
+  data-disabled={disabled || undefined}
+&gt;
+  &lt;input type="checkbox" role="switch" checked={checked} onChange={onChange} disabled={disabled} /&gt;
+  &lt;span className="switch__track"&gt;
+    &lt;span className="switch__thumb" /&gt;
+  &lt;/span&gt;
+  {label &amp;&amp; &lt;span className="switch__label"&gt;{label}&lt;/span&gt;}
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;label
+  class="switch"
+  :data-size="size"
+  :data-variant="variant || undefined"
+  :data-checked="checked || undefined"
+  :data-loading="loading || undefined"
+  :data-disabled="disabled || undefined"
+&gt;
+  &lt;input type="checkbox" role="switch" :checked="checked" @change="$emit('update:checked', $event.target.checked)" :disabled="disabled" /&gt;
+  &lt;span class="switch__track"&gt;
+    &lt;span class="switch__thumb" /&gt;
+  &lt;/span&gt;
+  &lt;span v-if="label" class="switch__label"&gt;{{ label }}&lt;/span&gt;
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;label class="switch" data-size="base"&gt;
+  &lt;input type="checkbox" role="switch"&gt;
+  &lt;span class="switch__track"&gt;&lt;span class="switch__thumb"&gt;&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="switch__label"&gt;Dark mode&lt;/span&gt;
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--switch-track-width-{size} / --switch-track-height-{size}
+--switch-track-radius-{size}
+--switch-thumb-size-{size}
+--switch-thumb-radius-{size}
+--switch-thumb-offset-{size}
+
+/* Surface */
+--switch-track-bg-off / -on / -hover / -disabled
+--switch-track-border-color / -hover
+--switch-thumb-bg / -shadow
+--switch-outlined-track-bg-off / -on
+--switch-outlined-track-border-color
+
+/* Slots */
+--switch-gap-{size}            /* track↔label gap */
+--switch-label-font-size-{size}
+--switch-label-color
+
+/* Motion */
+--switch-transition-duration / -easing / -property
+--switch-animation-loading
+
+/* A11y */
+--switch-focus-outline-width / -offset / -color
+--switch-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfToggle } from '@design-token-forge/slyte';
+
+&lt;dtf-toggle
+  lt-prop-label="Dark mode"
+  lt-prop-color-role="brand"
+  lt-prop-size="base"
+  lt-prop-checked="true"
+  on-change="{{method('onToggle')}}"&gt;
+&lt;/dtf-toggle&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var SIZES=['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var SIZE_DIMS={
+    micro:{w:'28px',h:'16px',t:'12px'},tiny:{w:'32px',h:'18px',t:'14px'},small:{w:'36px',h:'20px',t:'16px'},
+    base:{w:'40px',h:'24px',t:'20px'},medium:{w:'44px',h:'26px',t:'20px'},large:{w:'48px',h:'28px',t:'22px'},
+    big:{w:'52px',h:'32px',t:'26px'},huge:{w:'60px',h:'36px',t:'28px'},mega:{w:'72px',h:'44px',t:'36px'},
+    ultra:{w:'88px',h:'52px',t:'44px'}
+  };
+  var SHADOWS=['none','xs','sm','DEFAULT','md','lg','xl','2xl'];
+
+  var curS='base', curChecked=false, curVariant='';
+
+  function makeSW(s,o){
+    o=o||{};
+    var b=document.createElement('button');
+    b.type='button'; b.className='switch';
+    b.setAttribute('role','switch');
+    var checked=o.checked!==undefined?o.checked:curChecked;
+    b.setAttribute('aria-checked',String(checked));
+    b.dataset.size=s;
+    var variant=o.variant!==undefined?o.variant:curVariant;
+    if(variant) b.dataset.variant=variant;
+    if(o.disabled) b.disabled=true;
+    if(o.loading) b.dataset.loading='';
+    if(o.error) b.setAttribute('aria-invalid', 'true');
+    if(!o.noSync) b.classList.add('synced-sw');
+
+    var track=document.createElement('span');track.className='switch__track';
+    var thumb=document.createElement('span');thumb.className='switch__thumb';
+    track.appendChild(thumb);
+    b.appendChild(track);
+
+    /* Click to toggle */
+    if(!o.disabled && !o.loading && !o.noToggle){
+      b.addEventListener('click',function(){
+        var c=this.getAttribute('aria-checked')==='true';
+        this.setAttribute('aria-checked',String(!c));
+      });
+    }
+
+    if(o.style){for(var k in o.style){if(o.style.hasOwnProperty(k))b.style.setProperty(k,o.style[k])}}
+    return b;
+  }
+
+  function makeSWLabel(s,text,o){
+    o=o||{};
+    var lbl=document.createElement('label');lbl.className='switch-label';
+    lbl.appendChild(makeSW(s,o));
+    var t=document.createElement('span');t.className='switch-label__text';t.textContent=text;
+    lbl.appendChild(t);
+    return lbl;
+  }
+
+  function wrapCard(el,t){var d=document.createElement('div');d.className='variant-card';d.appendChild(el);var l=document.createElement('span');l.className='variant-label';l.textContent=t;d.appendChild(l);return d}
+  function clr(id){var e=document.getElementById(id);e.innerHTML='';return e}
+
+  /* ── Section Renderers ──────────────────────────────── */
+
+  function renderDensity(){
+    var el=clr('densityScale');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeSW(s,{noSync:true,style:{'min-width':'0','min-height':'0'}}));
+      var m=document.createElement('div');m.className='density-meta';
+      var d=SIZE_DIMS[s];m.textContent=d.w+' × '+d.h;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderStates(){
+    var el=clr('stateMatrix');
+    var states=[
+      {label:'Unchecked',opts:{checked:false}},
+      {label:'Checked',opts:{checked:true}},
+      {label:'Disabled Off',opts:{checked:false,disabled:true}},
+      {label:'Disabled On',opts:{checked:true,disabled:true}},
+      {label:'Error Off',opts:{checked:false,error:true}},
+      {label:'Error On',opts:{checked:true,error:true}},
+      {label:'Loading',opts:{loading:true}}
+    ];
+    var variants=[{label:'Filled',variant:''},{label:'Outlined',variant:'outlined'}];
+    variants.forEach(function(v){
+      var row=document.createElement('div');row.style.cssText='display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)';
+      var vLabel=document.createElement('div');vLabel.className='sub-label';vLabel.textContent=v.label+' variant';vLabel.style.cssText='width:100%;padding:0 0 8px';
+      row.appendChild(vLabel);
+      states.forEach(function(st){
+        row.appendChild(wrapCard(makeSW(curS,Object.assign({noSync:true,noToggle:true,variant:v.variant},st.opts)),st.label));
+      });
+      el.appendChild(row);
+    });
+  }
+
+  function renderSlots(){
+    var el=clr('slotsDemo');
+    var combos=[
+      {label:'Track + Thumb only',fn:function(){return makeSW(curS,{noSync:true})}},
+      {label:'With label (off)',fn:function(){return makeSWLabel(curS,'Dark mode',{noSync:true,checked:false})}},
+      {label:'With label (on)',fn:function(){return makeSWLabel(curS,'Notifications',{noSync:true,checked:true})}},
+      {label:'Disabled with label',fn:function(){return makeSWLabel(curS,'Locked',{noSync:true,disabled:true,checked:true})}},
+    ];
+    combos.forEach(function(c){
+      var cd=document.createElement('div');cd.className='slot-card';
+      cd.appendChild(c.fn());
+      var l=document.createElement('span');l.className='slot-label';l.textContent=c.label;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p=document.getElementById(id);
+      while(p.children.length>1)p.removeChild(p.lastChild);
+      if (id === 'surfaceDeep') {
+        applySurface(p, 'deep');
+      }
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;gap:16px;align-items:center;padding:8px 0';
+      wrap.appendChild(makeSW(curS,{noSync:true,checked:false}));
+      wrap.appendChild(makeSW(curS,{noSync:true,checked:true}));
+      wrap.appendChild(makeSWLabel(curS,'Label',{noSync:true,checked:true}));
+      p.appendChild(wrap);
+    });
+  }
+
+  function renderShapeDefault(){
+    var el=clr('shapeDefault');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeSW(s,{noSync:true,checked:true}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent=s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderShapeCustom(){
+    var el=clr('shapeCustom');
+    var radii=[
+      {label:'Pill (default)',val:'var(--radius-full)'},
+      {label:'Rounded',val:'var(--radius-lg)'},
+      {label:'Subtle',val:'var(--radius-md)'},
+      {label:'Square',val:'var(--radius-xs)'},
+    ];
+    radii.forEach(function(r){
+      var it=document.createElement('div');it.className='density-item';
+      var sw=makeSW(curS,{noSync:true,checked:true,style:{'--switch-track-radius':r.val,'--switch-thumb-radius':r.val}});
+      it.appendChild(sw);
+      var m=document.createElement('div');m.className='density-meta';m.textContent=r.label;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderShadows(){
+    var el=clr('shadowStrip');
+    SHADOWS.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeSW(curS,{noSync:true,checked:true,style:{'--switch-thumb-shadow':'var(--shadow-'+s+')'}}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent='--shadow-'+s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderMotion(){
+    var el=clr('motionDemo');
+    var items=[
+      {label:'spring (default)',sub:'easing-spring',opts:{}},
+      {label:'Loading pulse',sub:'1.5s pulse',opts:{loading:true,noToggle:true}},
+      {label:'Fast + linear',sub:'duration-fast',opts:{style:{'--switch-thumb-transition-duration':'var(--duration-fast)','--switch-thumb-transition-easing':'var(--easing-linear)'}}},
+      {label:'Slow + bounce',sub:'duration-slow',opts:{style:{'--switch-thumb-transition-duration':'var(--duration-slow)','--switch-thumb-transition-easing':'var(--easing-bounce)'}}}
+    ];
+    items.forEach(function(it){
+      var cd=document.createElement('div');cd.className='motion-card';
+      cd.appendChild(makeSW(curS,Object.assign({noSync:true},it.opts)));
+      var l=document.createElement('span');l.className='motion-label';l.textContent=it.sub;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  /* ── Inspector ──────────────────────────────────────── */
+  function updateInspector(){
+    var hero=document.getElementById('heroSwitch');
+    if(!hero)return;
+    var cs=getComputedStyle(hero);
+    var track=hero.querySelector('.switch__track');
+    var tcs=track?getComputedStyle(track):{};
+    var thumb=hero.querySelector('.switch__thumb');
+    var thcs=thumb?getComputedStyle(thumb):{};
+    var checked=hero.getAttribute('aria-checked')==='true';
+    var s=curS;
+    var d=SIZE_DIMS[s];
+    var vName=curVariant||'filled';
+    var tokens=[
+      ['--switch-track-w-'+s, d.w, tcs.width||'\u2014'],
+      ['--switch-track-h-'+s, d.h, tcs.height||'\u2014'],
+      ['--switch-thumb-size-'+s, d.t, thcs.width||'\u2014'],
+      ['--switch-track-radius', 'var(--radius-full)', tcs.borderRadius||'\u2014'],
+      [checked?'--switch-track-bg-on':'--switch-track-bg-off', '\u2014', tcs.backgroundColor||'\u2014'],
+      ['border-width', '\u2014', tcs.borderWidth||'\u2014'],
+      ['--switch-thumb-bg', '\u2014', thcs.backgroundColor||'\u2014'],
+      ['--switch-thumb-shadow', '\u2014', thcs.boxShadow||'\u2014'],
+      ['--switch-thumb-inset', '2px', '\u2014'],
+      ['--switch-transition-duration', '--duration-normal', tcs.transitionDuration||'\u2014'],
+    ];
+    var ins=document.getElementById('heroInspector');
+    ins.innerHTML='<div class="inspector-title">Resolved Tokens ('+(checked?'checked':'unchecked')+' / '+s+' / '+vName+')</div>'+
+      tokens.map(function(t){
+        return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+t[2]+(t[1]!=='\u2014'?'<br><span style="opacity:0.5;font-size:9px">\u2192 '+t[1]+'</span>':'')+'</span></div>';
+      }).join('');
+  }
+
+  /* ── Hero Toggle Behavior ───────────────────────────── */
+  document.getElementById('heroSwitch').addEventListener('click',function(){
+    var c=this.getAttribute('aria-checked')==='true';
+    this.setAttribute('aria-checked',String(!c));
+    curChecked=!c;
+    document.getElementById('heroLabel').textContent=!c?'On':'Off';
+    /* sync controls */
+    document.querySelectorAll('#checkedBar .pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    document.querySelector('#checkedBar .pill[data-ctrl-checked="'+(!c)+'"]').setAttribute('aria-pressed','true');
+    requestAnimationFrame(updateInspector);
+  });
+
+  /* ── Apply Globals ──────────────────────────────────── */
+  function applyGlobals(){
+    var hero=document.getElementById('heroSwitch');
+    if(hero){
+      hero.dataset.size=curS;
+      hero.setAttribute('aria-checked',String(curChecked));
+      if(curVariant) hero.dataset.variant=curVariant; else delete hero.dataset.variant;
+      document.getElementById('heroLabel').textContent=curChecked?'On':'Off';
+    }
+    document.querySelectorAll('.a11y-grid .synced-sw').forEach(function(sw){
+      sw.dataset.size=curS;
+      if(curVariant) sw.dataset.variant=curVariant; else delete sw.dataset.variant;
+    });
+    renderDensity();renderStates();renderSlots();renderSurface();
+    renderShapeDefault();renderShapeCustom();renderShadows();renderMotion();
+    requestAnimationFrame(updateInspector);
+  }
+
+  /* ── Global Controls ────────────────────────────────── */
+  document.getElementById('checkedBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');
+    curChecked=pill.dataset.ctrlChecked==='true';
+    applyGlobals();
+  });
+
+  document.getElementById('sizeBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');curS=pill.dataset.ctrlSize;applyGlobals();
+  });
+
+  document.getElementById('variantBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');curVariant=pill.dataset.ctrlVariant;applyGlobals();
+  });
+
+  window.DTF.onThemeChange = updateInspector;
+
+  /* ── Playground toggle behavior ─────────────────────── */
+  document.querySelectorAll('.pg-sw:not([disabled])').forEach(function(sw){
+    sw.addEventListener('click',function(){
+      var c=this.getAttribute('aria-checked')==='true';
+      this.setAttribute('aria-checked',String(!c));
+    });
+  });
+
+  /* ── Context Playground ─────────────────────────────── */
+  var SURFACE_TOKENS=[
+    'bg','hover','pressed','outline','separator',
+    'ct-default','ct-strong','ct-subtle','ct-faint',
+    'cm-bg','cm-bg-hover','cm-bg-pressed',
+    'cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'
+  ];
+  var ROLE_TOKENS=[
+    'content-default','content-strong','content-subtle','content-faint',
+    'component-bg-default','component-bg-hover','component-bg-pressed',
+    'component-outline-default','component-outline-hover','component-outline-pressed',
+    'component-separator',
+    'container-bg','container-hover','container-pressed',
+    'container-outline','container-separator',
+    'on-component','on-container'
+  ];
+
+  function applySurface(bodyEl,surfaceId){
+    if(surfaceId==='base'){
+      SURFACE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--surface-base-'+tok);});
+      bodyEl.style.background='var(--surface-base-bg)';
+      bodyEl.removeAttribute('data-theme');
+    } else {
+      SURFACE_TOKENS.forEach(function(tok){
+        bodyEl.style.setProperty('--surface-base-'+tok,'var(--surface-'+surfaceId+'-'+tok+')');
+      });
+      bodyEl.style.background='var(--surface-'+surfaceId+'-bg)';
+      if(surfaceId==='inverse'){bodyEl.setAttribute('data-theme','dark');}else{bodyEl.removeAttribute('data-theme');}
+    }
+  }
+
+  function applyRole(bodyEl,roleId){
+    if(roleId==='brand'){
+      ROLE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--brand-'+tok);});
+    } else {
+      ROLE_TOKENS.forEach(function(tok){
+        bodyEl.style.setProperty('--brand-'+tok,'var(--'+roleId+'-'+tok+')');
+      });
+    }
+  }
+
+  function pgApplyCard(card){
+    var body=document.getElementById('pgBody'+card);
+    var surfSel=document.querySelector('[data-pg-surface="'+card+'"]');
+    var roleSel=document.querySelector('[data-pg-role="'+card+'"]');
+    applySurface(body,surfSel.value);
+    applyRole(body,roleSel.value);
+  }
+
+  function pgApplyDensity(size){
+    document.querySelectorAll('.pg-sw').forEach(function(sw){sw.dataset.size=size});
+  }
+
+  function pgUpdateChain(){
+    var body=document.getElementById('pgBodyA');
+    var surfSel=document.querySelector('[data-pg-surface="A"]');
+    var roleSel=document.querySelector('[data-pg-role="A"]');
+    var chain=document.getElementById('pgChain');
+    var s=surfSel.value,r=roleSel.value;
+    var rows=[
+      {sec:'Filled \u2014 Track (off)'},
+      {label:'Track BG Off',token:'--switch-track-bg-off',via:'--surface-'+s+'-cm-outline'},
+      {label:'Track BG Off Hover',token:'--switch-track-bg-off-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {label:'Track Border Off',token:'--switch-track-border-color-off',via:'--surface-'+s+'-cm-outline'},
+      {label:'Track Border Off Hover',token:'--switch-track-border-color-off-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {sec:'Filled \u2014 Track (on)'},
+      {label:'Track BG On',token:'--switch-track-bg-on',via:'--'+r+'-component-bg-default'},
+      {label:'Track BG On Hover',token:'--switch-track-bg-on-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Track Border On',token:'--switch-track-border-color-on',via:'--'+r+'-component-bg-default'},
+      {label:'Track Border On Hover',token:'--switch-track-border-color-on-hover',via:'--'+r+'-component-bg-hover'},
+      {sec:'Filled \u2014 Thumb'},
+      {label:'Thumb BG',token:'--switch-thumb-bg',via:'--color-fixed-white'},
+      {label:'Thumb Icon Off',token:'--switch-thumb-icon-color-off',via:'--surface-'+s+'-ct-subtle'},
+      {label:'Thumb Icon On',token:'--switch-thumb-icon-color-on',via:'--'+r+'-component-bg-default'},
+      {sec:'Outlined \u2014 Track (off)'},
+      {label:'Track BG Off Hover',token:'--switch-outlined-track-bg-off-hover',via:'--surface-'+s+'-cm-bg-hover'},
+      {label:'Track Border Off',token:'--switch-outlined-track-border-color-off',via:'--surface-'+s+'-cm-outline'},
+      {label:'Track Border Off Hover',token:'--switch-outlined-track-border-color-off-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {sec:'Outlined \u2014 Track (on)'},
+      {label:'Track BG On',token:'--switch-outlined-track-bg-on',via:'--'+r+'-component-bg-default'},
+      {label:'Track BG On Hover',token:'--switch-outlined-track-bg-on-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Track Border On',token:'--switch-outlined-track-border-color-on',via:'--'+r+'-component-bg-default'},
+      {label:'Track Border On Hover',token:'--switch-outlined-track-border-color-on-hover',via:'--'+r+'-component-bg-hover'},
+      {sec:'Outlined \u2014 Thumb'},
+      {label:'Thumb BG',token:'--switch-outlined-thumb-bg',via:'--color-fixed-white'},
+      {label:'Thumb Border',token:'--switch-outlined-thumb-border-color',via:'--surface-'+s+'-cm-outline'},
+      {sec:'Disabled'},
+      {label:'Track BG Disabled',token:'--switch-track-bg-disabled',via:'--surface-'+s+'-cm-outline'},
+      {label:'Track BG On Disabled',token:'--switch-track-bg-on-disabled',via:'--'+r+'-component-bg-default'},
+      {label:'Track Border Disabled',token:'--switch-track-border-color-disabled',via:'--surface-'+s+'-cm-outline'},
+      {label:'Thumb BG Disabled',token:'--switch-thumb-bg-disabled',via:'--color-fixed-white'},
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring',token:'--switch-focus-outline-color',via:'--'+r+'-component-outline-default'}
+    ];
+    var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row){
+      if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+      h+='<div class="pg-chain-row">';
+      if(row.val){h+='<span class="pg-swatch" style="background:'+row.val+'"></span>';}
+      h+='<span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span>';
+      if(row.val){h+=' <span class="pg-chain-arrow">\u2192</span> <span style="font-weight:600">'+row.val+'</span>';}
+      h+='</div>';
+    });
+    chain.innerHTML=h;
+  }
+
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var card=this.dataset.pgSurface||this.dataset.pgRole;
+      pgApplyCard(card);
+      requestAnimationFrame(pgUpdateChain);
+    });
+  });
+
+  document.getElementById('pgDensityBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');
+    pgApplyDensity(pill.dataset.pgSize);
+    requestAnimationFrame(pgUpdateChain);
+  });
+
+  applyGlobals();
+  pgApplyCard('A');pgApplyCard('B');
+  requestAnimationFrame(pgUpdateChain);
+
+})();
+</script>
+</body>
+</html>

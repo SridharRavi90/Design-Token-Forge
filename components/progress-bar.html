@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Progress Bar Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/progress-bar/progress-bar.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/progress-bar/progress-bar.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+  .progress-stack { display:flex; flex-direction:column; gap:20px; width:100%; }
+  .progress-row { display:flex; align-items:center; gap:12px; }
+  .progress-row-label { width:72px; font-weight:600; font-size:13px; flex-shrink:0; text-transform:capitalize; }
+  .variant-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .variant-card { padding:20px; border-radius:12px; border:1px solid var(--demo-border); background:var(--demo-card-bg); }
+  .variant-card-title { font-weight:600; font-size:13px; margin-bottom:12px; text-transform:capitalize; }
+  .state-grid { display:grid; grid-template-columns:80px repeat(4,1fr); gap:8px; align-items:center; }
+  .state-header { font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.6; text-align:center; padding:8px 4px; }
+  .state-row-label { font-weight:600; font-size:12px; text-transform:capitalize; padding:8px 4px; }
+  .state-cell { padding:8px; display:flex; align-items:center; }
+  .surface-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-radius:12px; overflow:hidden; }
+  .surface-panel { padding:32px 24px; display:flex; flex-direction:column; gap:16px; }
+  .surface-panel--base { background:var(--surface-base-bg); }
+  .surface-panel--alt { background:var(--surface-base-subtle); }
+  .surface-panel--deep { background:var(--surface-deep-bg); }
+  .surface-panel-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; opacity:0.5; margin-bottom:8px; }
+  .shape-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .shape-card { padding:20px; border-radius:12px; border:1px solid var(--demo-border); }
+  .shape-card-title { font-weight:600; font-size:12px; margin-bottom:12px; opacity:0.7; }
+  .anatomy-wrap { display:flex; flex-direction:column; gap:24px; }
+  .anatomy-item { padding:16px; border-radius:12px; border:1px solid var(--demo-border); }
+  .anatomy-label { font-weight:600; font-size:12px; margin-bottom:8px; opacity:0.7; }
+  .motion-demo { display:flex; flex-direction:column; gap:24px; }
+  .motion-card { padding:20px; border-radius:12px; border:1px solid var(--demo-border); }
+  .motion-card-title { font-weight:600; font-size:13px; margin-bottom:12px; }
+  .hero-preview { flex:1; display:flex; flex-direction:column; gap:16px; padding:24px; }
+  .slider-row { display:flex; align-items:center; gap:12px; width:100%; }
+  .slider-row label { font-weight:600; font-size:13px; flex-shrink:0; }
+  .slider-row input[type="range"] { flex:1; }
+  .slider-row span { font-weight:600; min-width:36px; text-align:right; }
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<!-- ═══════════════════ GLOBAL CONTROLS ═══════════════════ -->
+<nav class="global-controls" aria-label="Global progress bar preview controls">
+
+  <div class="control-group">
+    <label>Role</label>
+    <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-role="brand" type="button">Brand</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-variant="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="soft" type="button">Soft</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Shape</label>
+    <div class="pill-bar" id="shapeBar" role="radiogroup" aria-label="Shape selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-shape="default" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-shape="square" type="button">Square</button>
+    </div>
+  </div>
+
+</nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Shape &amp; Shadow</a>
+  <a href="#sec-slots"><span class="sn-num">7</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">8</span>Motion</a>
+  <a href="#sec-a11y"><span class="sn-num">9</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Progress Bar Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~110 CSS Variables</span>
+    <span class="demo-badge">6 Roles</span>
+    <span class="demo-badge">3 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects global controls. Inspector shows resolved computed values for the active size and role.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview">
+          <div class="slider-row">
+            <label for="heroRange">Value:</label>
+            <input type="range" id="heroRange" min="0" max="100" value="60">
+            <span id="heroVal">60%</span>
+          </div>
+          <div id="heroBar"></div>
+        </div>
+        <div class="hero-inspector" id="heroInspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Three structural variants — filled (default), outlined, and soft — crossed with all six semantic roles.</p>
+    <div class="section-body"><div class="variant-grid" id="variantGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 3. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">10 height modes from 2 px (micro) to 24 px (ultra). Gap, font-size, and label width also scale per density.</p>
+    <div class="section-body"><div class="progress-stack" id="densityGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 4. STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every variant in every state: determinate, indeterminate, striped, and disabled.</p>
+    <div class="section-body"><div class="state-grid" id="stateMatrix"></div></div>
+  </section>
+
+  <!-- ═══════════ 5. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Progress bar on three surface background levels to verify contrast and visibility.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase">
+          <span class="surface-panel-label">surface-base-bg</span>
+        </div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt">
+          <span class="surface-panel-label">surface-base-subtle</span>
+        </div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep">
+          <span class="surface-panel-label">surface-deep-bg</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. SHAPE & SHADOW ═══════════ -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Radius per density and shape overrides — default pill, and square.</p>
+    <div class="section-body"><div class="shape-grid" id="shapeGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 7. SLOTS & ANATOMY ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Sub-elements: track, fill, buffer, label, icon, and helper text. Each slot is individually token-driven.</p>
+    <div class="section-body"><div class="anatomy-wrap" id="slotsGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 8. MOTION ═══════════ -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Animated stripe, indeterminate slide, and value transitions. All animation tokens are overridable.</p>
+    <div class="section-body"><div class="motion-demo" id="motionGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 9. ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc"><code>role="progressbar"</code> with <code>aria-valuenow</code>, <code>aria-valuemin</code>, <code>aria-valuemax</code>. Forced-colors and reduced-motion are supported.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">ARIA Attributes</div>
+          <p class="a11y-card-desc">Determinate bars: <code>aria-valuenow</code> + <code>aria-valuemin</code> + <code>aria-valuemax</code>. Indeterminate: omit <code>aria-valuenow</code>.</p>
+          <div id="a11yAria" style="margin-top:12px"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>data-disabled</code> reduces opacity to 50% and removes pointer events.</p>
+          <div id="a11yDisabled" style="margin-top:12px"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Reduced Motion</div>
+          <p class="a11y-card-desc">Stripe and indeterminate animations stop. Static fill only. <code>prefers-reduced-motion: reduce</code>.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">Track gets <code>CanvasText</code> border. Fill uses <code>Highlight</code>. Stripe pattern uses system colors.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 10. FRAMEWORK ═══════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>ProgressBar Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-progress">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false"  data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue"   type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html"  type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css"   type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;div
+  className="progress-bar"
+  data-size={size}
+  data-role={role}
+  data-variant={variant}
+  data-striped={striped || undefined}
+  data-animated={animated || undefined}
+  data-indeterminate={indeterminate || undefined}
+  data-shape={shape !== 'default' ? shape : undefined}
+  data-disabled={disabled || undefined}
+  role="progressbar"
+  aria-valuenow={indeterminate ? undefined : value}
+  aria-valuemin={0}
+  aria-valuemax={max}
+  aria-label={label}
+&gt;
+  &lt;div className="progress-bar__track"&gt;
+    {buffer &gt; 0 &amp;&amp; &lt;div className="progress-bar__buffer" style={{ '--buffer': buffer + '%' }} /&gt;}
+    &lt;div className="progress-bar__fill" style={{ '--progress': value + '%' }} /&gt;
+  &lt;/div&gt;
+  {showLabel &amp;&amp; &lt;span className="progress-bar__label"&gt;{value}%&lt;/span&gt;}
+  {icon &amp;&amp; &lt;span className="progress-bar__icon"&gt;{icon}&lt;/span&gt;}
+&lt;/div&gt;
+{helper &amp;&amp; &lt;span className="progress-bar__helper"&gt;{helper}&lt;/span&gt;}</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;div
+  class="progress-bar"
+  :data-size="size ?? 'base'"
+  :data-role="role ?? 'brand'"
+  :data-variant="variant ?? 'filled'"
+  :data-striped="striped || undefined"
+  :data-animated="animated || undefined"
+  :data-indeterminate="indeterminate || undefined"
+  :data-shape="shape !== 'default' ? shape : undefined"
+  :data-disabled="disabled || undefined"
+  role="progressbar"
+  :aria-valuenow="indeterminate ? undefined : value"
+  :aria-valuemin="0"
+  :aria-valuemax="max"
+  :aria-label="label"
+&gt;
+  &lt;div class="progress-bar__track"&gt;
+    &lt;div v-if="buffer" class="progress-bar__buffer" :style="{ '--buffer': buffer + '%' }" /&gt;
+    &lt;div class="progress-bar__fill" :style="{ '--progress': value + '%' }" /&gt;
+  &lt;/div&gt;
+  &lt;span v-if="showLabel" class="progress-bar__label"&gt;{{ value }}%&lt;/span&gt;
+  &lt;span v-if="icon" class="progress-bar__icon"&gt;&lt;slot name="icon" /&gt;&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;!-- Determinate --&gt;
+&lt;div class="progress-bar" data-size="base" data-role="brand" data-variant="filled"
+     role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar__track"&gt;
+    &lt;div class="progress-bar__fill" style="--progress: 60%"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;span class="progress-bar__label"&gt;60%&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Indeterminate --&gt;
+&lt;div class="progress-bar" data-indeterminate data-role="brand"
+     role="progressbar" aria-label="Loading..."&gt;
+  &lt;div class="progress-bar__track"&gt;
+    &lt;div class="progress-bar__fill"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Striped + Animated --&gt;
+&lt;div class="progress-bar" data-striped data-animated data-role="success"
+     role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar__track"&gt;
+    &lt;div class="progress-bar__fill" style="--progress: 75%"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* ── Shape ── */
+--progress-radius-{size}              /* pill by default */
+--progress-radius-square              /* 0px for sharp corners */
+--progress-border-width / -style
+
+/* ── Dimension ── */
+--progress-height-{size}              /* 2px (micro) → 24px (ultra) */
+--progress-gap-{size}                 /* track-to-label gap per density */
+--progress-label-width-{size}         /* label min-width per density */
+--progress-max-width / -segment-gap
+
+/* ── Surface ── */
+--progress-track-bg / -track-border-color
+--progress-{role}-fill                /* brand | danger | warning | info | success | neutral */
+--progress-{role}-soft-track          /* tinted track for soft variant */
+--progress-{role}-label               /* role-colored label */
+--progress-outlined-track-bg / -border-color / -border-width
+--progress-buffer-bg / -opacity
+--progress-stripe-opacity
+--progress-opacity-disabled
+
+/* ── Typography ── */
+--progress-font-family / -weight / -line-height / -letter-spacing
+--progress-font-size-{size}           /* per-density label font size */
+
+/* ── Slots ── */
+--progress-icon-size-{size}           /* per-density icon size */
+--progress-icon-color
+--progress-helper-font-size / -helper-color
+
+/* ── Motion ── */
+--progress-transition-duration / -easing / -property
+--progress-indeterminate-duration / -stripe-duration / -enter-duration
+
+/* ── A11y ── */
+--progress-focus-outline-width / -color / -offset        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfProgressBar } from '@design-token-forge/slyte';
+
+&lt;!-- Determinate --&gt;
+&lt;dtf-progress-bar lt-prop-value="65" lt-prop-color-role="brand" lt-prop-size="base"&gt;&lt;/dtf-progress-bar&gt;
+
+&lt;!-- Indeterminate --&gt;
+&lt;dtf-progress-bar lt-prop-indeterminate="true" lt-prop-color-role="brand"&gt;&lt;/dtf-progress-bar&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div></div>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  /* ── Constants ── */
+  var SIZES = ['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var ROLES = ['brand','danger','warning','info','success','neutral'];
+  var VARIANTS = ['filled','outlined','soft'];
+  var STATES = ['Determinate','Indeterminate','Striped','Disabled'];
+
+  /* Icons */
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  /* ── Current globals ── */
+  var curRole = 'brand';
+  var curSize = 'base';
+  var curVariant = 'filled';
+  var curShape = 'default';
+  var heroVal = 60;
+
+  /* ── Token alias maps for inspector ── */
+  var PG_TOKENS = {
+    height: {micro:'2px',tiny:'3px',small:'4px',base:'--spacing-6',medium:'--spacing-8',large:'--spacing-10',big:'--spacing-12',huge:'--spacing-16',mega:'--spacing-20',ultra:'--spacing-24'},
+    gap: {micro:'--spacing-2',tiny:'--spacing-3',small:'--spacing-4',base:'--spacing-6',medium:'--spacing-6',large:'--spacing-8',big:'--spacing-10',huge:'--spacing-12',mega:'--spacing-14',ultra:'--spacing-16'},
+    labelW: {micro:'--spacing-16',tiny:'--spacing-20',small:'--spacing-24',base:'--spacing-28',medium:'--spacing-32',large:'--spacing-36',big:'--spacing-40',huge:'--spacing-44',mega:'--spacing-48',ultra:'--spacing-56'},
+    fs: {micro:'--font-size-10',tiny:'--font-size-10',small:'--font-size-10',base:'--font-size-12',medium:'--font-size-13',large:'--font-size-14',big:'--font-size-16',huge:'--font-size-18',mega:'--font-size-20',ultra:'--font-size-24'},
+    iconSize: {micro:'--spacing-10',tiny:'--spacing-12',small:'--spacing-14',base:'--spacing-16',medium:'--spacing-18',large:'--spacing-20',big:'--spacing-22',huge:'--spacing-24',mega:'--spacing-28',ultra:'--spacing-32'}
+  };
+
+  /* ── Helpers ── */
+  function clr(id){ var e = document.getElementById(id); if(e) e.innerHTML = ''; return e; }
+  function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  function cel(tag, cls){ var e = document.createElement(tag); if(cls) e.className = cls; return e; }
+
+  /* ── Factory: makeBar ── */
+  function makeBar(opts){
+    opts = opts || {};
+    var el = cel('div','progress-bar');
+    var s = opts.size || curSize;
+    var r = opts.role || curRole;
+    var v = opts.variant || curVariant;
+    var sh = opts.shape || curShape;
+
+    el.dataset.size = s;
+    el.dataset.role = r;
+    if(v !== 'filled') el.dataset.variant = v;
+    if(sh === 'square') el.dataset.shape = 'square';
+    if(opts.striped) el.dataset.striped = '';
+    if(opts.animated) el.dataset.animated = '';
+    if(opts.indeterminate) el.dataset.indeterminate = '';
+    if(opts.disabled) el.dataset.disabled = '';
+    if(opts.strong) el.dataset.strong = '';
+
+    el.setAttribute('role','progressbar');
+    if(!opts.indeterminate){
+      el.setAttribute('aria-valuenow', opts.value != null ? opts.value : 60);
+      el.setAttribute('aria-valuemin','0');
+      el.setAttribute('aria-valuemax','100');
+    } else {
+      el.setAttribute('aria-label','Loading…');
+    }
+
+    var track = cel('div','progress-bar__track');
+    if(opts.buffer){
+      var buf = cel('div','progress-bar__buffer');
+      buf.style.setProperty('--buffer', opts.buffer + '%');
+      track.appendChild(buf);
+    }
+    var fill = cel('div','progress-bar__fill');
+    if(!opts.indeterminate) fill.style.setProperty('--progress', (opts.value != null ? opts.value : 60) + '%');
+    track.appendChild(fill);
+    el.appendChild(track);
+
+    if(opts.label){
+      var lbl = cel('span','progress-bar__label');
+      lbl.textContent = (opts.value != null ? opts.value : 60) + '%';
+      el.appendChild(lbl);
+    }
+    if(opts.icon){
+      var ico = cel('span','progress-bar__icon');
+      ico.innerHTML = opts.icon;
+      el.appendChild(ico);
+    }
+    return el;
+  }
+
+  function wrapCard(el, label){
+    var c = cel('div','variant-card');
+    if(label){
+      var t = cel('div','variant-card-title');
+      t.textContent = label;
+      c.appendChild(t);
+    }
+    c.appendChild(el);
+    return c;
+  }
+
+  /* ════════════════════ RENDER FUNCTIONS ════════════════════ */
+
+  /* 1. Hero */
+  function renderHero(){
+    var el = clr('heroBar');
+    el.appendChild(makeBar({value:heroVal, label:true}));
+    updateInspector();
+  }
+
+  /* Inspector */
+  function updateInspector(){
+    var bar = document.querySelector('#heroBar .progress-bar');
+    if(!bar) return;
+    var cs = getComputedStyle(bar);
+    var s = curSize;
+    var tokens = [
+      ['--progress-height-'+s, PG_TOKENS.height[s], cs.getPropertyValue('--_pg-h').trim()],
+      ['--progress-gap-'+s, PG_TOKENS.gap[s], cs.gap],
+      ['--progress-font-size-'+s, PG_TOKENS.fs[s], cs.fontSize],
+      ['--progress-label-width-'+s, PG_TOKENS.labelW[s], cs.getPropertyValue('--_pg-label-w').trim()||'—'],
+      ['--progress-icon-size-'+s, PG_TOKENS.iconSize[s], cs.getPropertyValue('--_pg-icon').trim()||'—'],
+      ['--progress-radius-'+s, '--radius-full', cs.getPropertyValue('--_pg-radius').trim()||'—'],
+      ['--progress-'+curRole+'-fill', '—', cs.getPropertyValue('--_pg-fill').trim()||'—'],
+      ['--progress-track-bg', '—', cs.getPropertyValue('--_pg-track-bg').trim()||'—'],
+      ['--progress-font-weight', '--font-weight-semibold', cs.fontWeight],
+      ['--progress-transition-duration', '--duration-normal', cs.transitionDuration||'—']
+    ];
+    var ins = document.getElementById('heroInspector');
+    ins.innerHTML = '<div class="inspector-title">Resolved Tokens (' + curRole + ' / ' + s + ' / ' + curVariant + ')</div>' +
+      tokens.map(function(t){
+        return '<div class="inspector-row"><span class="token-name">' + t[0] + '</span><span class="token-val">' + t[2] +
+          (t[1] !== '—' ? '<br><span style="opacity:0.5;font-size:9px">\u2192 ' + t[1] + '</span>' : '') +
+          '</span></div>';
+      }).join('');
+  }
+
+  /* 2. Variant gallery */
+  function renderVariants(){
+    var el = clr('variantGallery');
+    VARIANTS.forEach(function(v){
+      var stack = cel('div','progress-stack');
+      ROLES.forEach(function(r){
+        var row = cel('div','progress-row');
+        var lbl = cel('span','progress-row-label');
+        lbl.textContent = cap(r);
+        row.appendChild(lbl);
+        row.appendChild(makeBar({value:65, role:r, variant:v, label:true}));
+        stack.appendChild(row);
+      });
+      el.appendChild(wrapCard(stack, cap(v)));
+    });
+  }
+
+  /* 3. Density */
+  function renderDensity(){
+    var el = clr('densityGallery');
+    SIZES.forEach(function(s){
+      var row = cel('div','progress-row');
+      var lbl = cel('span','progress-row-label');
+      lbl.textContent = cap(s);
+      row.appendChild(lbl);
+      row.appendChild(makeBar({value:55, size:s, label:true}));
+      el.appendChild(row);
+    });
+  }
+
+  /* 4. State matrix */
+  function renderStates(){
+    var el = clr('stateMatrix');
+    el.style.gridTemplateColumns = '80px repeat(' + STATES.length + ',1fr)';
+
+    /* Header row */
+    var corner = cel('div','state-header');
+    el.appendChild(corner);
+    STATES.forEach(function(s){
+      var h = cel('div','state-header');
+      h.textContent = s;
+      el.appendChild(h);
+    });
+
+    /* One row per variant */
+    VARIANTS.forEach(function(v){
+      var rl = cel('div','state-row-label');
+      rl.textContent = cap(v);
+      el.appendChild(rl);
+
+      /* Determinate */
+      var c1 = cel('div','state-cell');
+      c1.appendChild(makeBar({value:65, variant:v}));
+      el.appendChild(c1);
+
+      /* Indeterminate */
+      var c2 = cel('div','state-cell');
+      c2.appendChild(makeBar({variant:v, indeterminate:true}));
+      el.appendChild(c2);
+
+      /* Striped */
+      var c3 = cel('div','state-cell');
+      c3.appendChild(makeBar({value:75, variant:v, striped:true, animated:true}));
+      el.appendChild(c3);
+
+      /* Disabled */
+      var c4 = cel('div','state-cell');
+      c4.appendChild(makeBar({value:50, variant:v, disabled:true}));
+      el.appendChild(c4);
+    });
+  }
+
+  /* 5. Surface context */
+  var SURFACE_TOKENS=['bg','hover','pressed','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+  function applySurface(el,sid){
+    if(sid==='base'){SURFACE_TOKENS.forEach(function(t){el.style.removeProperty('--surface-base-'+t);});el.style.background='var(--surface-base-bg)';el.removeAttribute('data-theme');}
+    else{SURFACE_TOKENS.forEach(function(t){el.style.setProperty('--surface-base-'+t,'var(--surface-'+sid+'-'+t+')');});el.style.background='var(--surface-'+sid+'-bg)';if(sid==='inverse'){el.setAttribute('data-theme','dark');}else{el.removeAttribute('data-theme');}}
+  }
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p = document.getElementById(id);
+      while(p.children.length > 1) p.removeChild(p.lastChild);
+      if(id==='surfaceDeep'){applySurface(p,'deep');}
+      VARIANTS.forEach(function(v){
+        p.appendChild(makeBar({value:60, variant:v, label:true}));
+      });
+    });
+  }
+
+  /* 6. Shape */
+  function renderShape(){
+    var el = clr('shapeGallery');
+
+    /* Default (pill) */
+    var c1 = cel('div','shape-card');
+    var t1 = cel('div','shape-card-title'); t1.textContent = 'Default (Pill)';
+    c1.appendChild(t1);
+    var stack1 = cel('div','progress-stack');
+    ['base','large','ultra'].forEach(function(s){
+      stack1.appendChild(makeBar({value:70, size:s, shape:'default'}));
+    });
+    c1.appendChild(stack1);
+    el.appendChild(c1);
+
+    /* Square */
+    var c2 = cel('div','shape-card');
+    var t2 = cel('div','shape-card-title'); t2.textContent = 'Square';
+    c2.appendChild(t2);
+    var stack2 = cel('div','progress-stack');
+    ['base','large','ultra'].forEach(function(s){
+      stack2.appendChild(makeBar({value:70, size:s, shape:'square'}));
+    });
+    c2.appendChild(stack2);
+    el.appendChild(c2);
+
+    /* Outlined + Square */
+    var c3 = cel('div','shape-card');
+    var t3 = cel('div','shape-card-title'); t3.textContent = 'Outlined + Square';
+    c3.appendChild(t3);
+    var stack3 = cel('div','progress-stack');
+    ['base','large','ultra'].forEach(function(s){
+      stack3.appendChild(makeBar({value:70, size:s, shape:'square', variant:'outlined'}));
+    });
+    c3.appendChild(stack3);
+    el.appendChild(c3);
+
+    /* Elevated (shadow) */
+    var c4 = cel('div','shape-card');
+    var t4 = cel('div','shape-card-title'); t4.textContent = 'Elevated (Shadow)';
+    c4.appendChild(t4);
+    var stack4 = cel('div','progress-stack');
+    ['filled','outlined','soft'].forEach(function(v){
+      stack4.appendChild(makeBar({value:70, size:'large', variant:v, strong:true}));
+    });
+    c4.appendChild(stack4);
+    el.appendChild(c4);
+  }
+
+  /* 7. Slots & Anatomy */
+  function renderSlots(){
+    var el = clr('slotsGallery');
+
+    /* Track only */
+    var a1 = cel('div','anatomy-item');
+    var l1 = cel('div','anatomy-label'); l1.textContent = 'Track + Fill (minimal)';
+    a1.appendChild(l1);
+    a1.appendChild(makeBar({value:60, size:'large'}));
+    el.appendChild(a1);
+
+    /* With label */
+    var a2 = cel('div','anatomy-item');
+    var l2 = cel('div','anatomy-label'); l2.textContent = 'Track + Fill + Label';
+    a2.appendChild(l2);
+    a2.appendChild(makeBar({value:75, size:'large', label:true}));
+    el.appendChild(a2);
+
+    /* With icon */
+    var a3 = cel('div','anatomy-item');
+    var l3 = cel('div','anatomy-label'); l3.textContent = 'Track + Fill + Icon (complete)';
+    a3.appendChild(l3);
+    a3.appendChild(makeBar({value:100, size:'large', icon:ICON_CHECK, role:'success'}));
+    el.appendChild(a3);
+
+    /* With buffer */
+    var a4 = cel('div','anatomy-item');
+    var l4 = cel('div','anatomy-label'); l4.textContent = 'Track + Buffer + Fill + Label (streaming)';
+    a4.appendChild(l4);
+    a4.appendChild(makeBar({value:35, size:'large', label:true, buffer:70}));
+    el.appendChild(a4);
+
+    /* With helper */
+    var a5 = cel('div','anatomy-item');
+    var l5 = cel('div','anatomy-label'); l5.textContent = 'Full anatomy: Track + Fill + Label + Helper';
+    a5.appendChild(l5);
+    var wrap = cel('div');
+    wrap.appendChild(makeBar({value:45, size:'large', label:true}));
+    var helper = cel('span','progress-bar__helper');
+    helper.textContent = 'Uploading 3 of 7 files — 2.4 MB remaining';
+    wrap.appendChild(helper);
+    a5.appendChild(wrap);
+    el.appendChild(a5);
+  }
+
+  /* 8. Motion */
+  function renderMotion(){
+    var el = clr('motionGallery');
+
+    /* Striped static */
+    var m1 = cel('div','motion-card');
+    var t1 = cel('div','motion-card-title'); t1.textContent = 'Striped (static)';
+    m1.appendChild(t1);
+    var stack1 = cel('div','progress-stack');
+    ROLES.forEach(function(r){
+      stack1.appendChild(makeBar({value:70, role:r, size:'large', striped:true}));
+    });
+    m1.appendChild(stack1);
+    el.appendChild(m1);
+
+    /* Striped animated */
+    var m2 = cel('div','motion-card');
+    var t2 = cel('div','motion-card-title'); t2.textContent = 'Striped + Animated';
+    m2.appendChild(t2);
+    var stack2 = cel('div','progress-stack');
+    ROLES.forEach(function(r){
+      stack2.appendChild(makeBar({value:70, role:r, size:'large', striped:true, animated:true}));
+    });
+    m2.appendChild(stack2);
+    el.appendChild(m2);
+
+    /* Indeterminate */
+    var m3 = cel('div','motion-card');
+    var t3 = cel('div','motion-card-title'); t3.textContent = 'Indeterminate';
+    m3.appendChild(t3);
+    var stack3 = cel('div','progress-stack');
+    ROLES.forEach(function(r){
+      stack3.appendChild(makeBar({role:r, size:'large', indeterminate:true}));
+    });
+    m3.appendChild(stack3);
+    el.appendChild(m3);
+
+    /* Value transition (interactive) */
+    var m4 = cel('div','motion-card');
+    var t4 = cel('div','motion-card-title'); t4.textContent = 'Value Transition (click to animate)';
+    m4.appendChild(t4);
+    var tBar = makeBar({value:20, size:'huge', label:true});
+    m4.appendChild(tBar);
+    var btnRow = cel('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;margin-top:12px';
+    [0,25,50,75,100].forEach(function(v){
+      var b = cel('button');
+      b.type = 'button';
+      b.textContent = v + '%';
+      b.style.cssText = 'padding:4px 12px;border-radius:6px;border:1px solid var(--demo-border);background:var(--demo-card-bg);cursor:pointer;font-size:12px';
+      b.addEventListener('click', function(){
+        tBar.querySelector('.progress-bar__fill').style.setProperty('--progress', v + '%');
+        tBar.setAttribute('aria-valuenow', v);
+        var lbl = tBar.querySelector('.progress-bar__label');
+        if(lbl) lbl.textContent = v + '%';
+      });
+      btnRow.appendChild(b);
+    });
+    m4.appendChild(btnRow);
+    el.appendChild(m4);
+  }
+
+  /* 9. A11y demos */
+  function renderA11y(){
+    var el1 = document.getElementById('a11yAria');
+    if(el1){ el1.innerHTML = ''; el1.appendChild(makeBar({value:60, size:'medium', label:true})); }
+    var el2 = document.getElementById('a11yDisabled');
+    if(el2){ el2.innerHTML = ''; el2.appendChild(makeBar({value:40, size:'medium', disabled:true})); }
+  }
+
+  /* ════════════════════ MASTER RENDER ════════════════════ */
+  function applyGlobals(){
+    renderHero();
+    renderVariants();
+    renderDensity();
+    renderStates();
+    renderSurface();
+    renderShape();
+    renderSlots();
+    renderMotion();
+    renderA11y();
+  }
+
+  /* ════════════════════ PILL-BAR WIRING ════════════════════ */
+  function wirePillBar(id, attr, setter){
+    var bar = document.getElementById(id);
+    if(!bar) return;
+    bar.addEventListener('click', function(e){
+      var pill = e.target.closest('.pill');
+      if(!pill) return;
+      this.querySelectorAll('.pill').forEach(function(p){ p.setAttribute('aria-pressed','false'); });
+      pill.setAttribute('aria-pressed','true');
+      setter(pill.getAttribute('data-ctrl-' + attr));
+      applyGlobals();
+    });
+  }
+
+  wirePillBar('roleBar', 'role', function(v){ curRole = v; });
+  wirePillBar('sizeBar', 'size', function(v){ curSize = v; });
+  wirePillBar('variantBar', 'variant', function(v){ curVariant = v; });
+  wirePillBar('shapeBar', 'shape', function(v){ curShape = v; });
+
+  /* Hero slider */
+  document.getElementById('heroRange').addEventListener('input', function(){
+    heroVal = +this.value;
+    document.getElementById('heroVal').textContent = heroVal + '%';
+    renderHero();
+  });
+
+  /* ════════════════════ INIT ════════════════════ */
+  applyGlobals();
+  window.DTF.onThemeChange = applyGlobals;
+})();
+</script>
+</body>
+</html>

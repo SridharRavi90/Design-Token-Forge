@@ -1,0 +1,360 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Card Structural CSS
+   Production-ready card with real-world patterns:
+   • Vertical & horizontal layouts
+   • Structured header (avatar + title-group + action)
+   • Overlay-link pattern (full-card click)
+   • Footer actions alignment
+   • Text truncation (line-clamp)
+   • Selection state
+   • Card grid utility
+   Internal bridge vars: --_cd-*
+   ════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════
+   BASE CONTAINER
+   ══════════════════════════════════════════════════════════════ */
+
+.card {
+  --_cd-r:       var(--card-radius-base);
+  --_cd-p:       var(--card-padding-base);
+  --_cd-hp:      var(--card-header-padding-base);
+  --_cd-fp:      var(--card-footer-padding-base);
+  --_cd-gap:     var(--card-gap-base);
+  --_cd-bg:      var(--card-bg);
+  --_cd-border:  var(--card-border-width) solid var(--card-border-color);
+  --_cd-shadow:  var(--card-shadow-raised);
+  --_cd-tfs:     var(--card-title-font-size-base);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--_cd-r);
+  background-color: var(--_cd-bg);
+  border: var(--_cd-border);
+  box-shadow: var(--_cd-shadow);
+  overflow: hidden;
+  transition:
+    box-shadow var(--card-transition-duration) var(--card-transition-easing),
+    transform var(--card-transition-duration) var(--card-transition-easing),
+    background-color var(--card-transition-duration) var(--card-transition-easing);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MEDIA SLOT
+   ══════════════════════════════════════════════════════════════ */
+
+.card__media {
+  position: relative;
+  aspect-ratio: var(--card-media-ratio);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.card__media > img,
+.card__media > video,
+.card__media > picture > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STRUCTURED HEADER
+   avatar + title-group (title + subtitle) + header-action
+   ══════════════════════════════════════════════════════════════ */
+
+.card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--card-header-gap);
+  padding: var(--_cd-hp);
+  border-bottom: 1px solid var(--card-header-border-color);
+}
+
+/* When header has no border (first child or no separator wanted) */
+.card__media + .card__header,
+.card__header:first-child {
+  border-bottom-color: var(--card-header-border-color);
+}
+
+.card__avatar {
+  width: var(--card-avatar-size);
+  height: var(--card-avatar-size);
+  border-radius: var(--card-avatar-radius);
+  overflow: hidden;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.card__avatar > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0; /* allow truncation */
+  flex: 1;
+}
+
+.card__title {
+  font-size: var(--_cd-tfs);
+  font-weight: var(--card-title-font-weight);
+  line-height: 1.3;
+  margin: 0;
+  /* Truncation */
+  display: -webkit-box;
+  -webkit-line-clamp: var(--card-title-line-clamp);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__subtitle {
+  font-size: var(--card-subtitle-font-size);
+  font-weight: var(--card-subtitle-font-weight);
+  color: var(--card-subtitle-color);
+  line-height: 1.4;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card__header-action {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1; /* above overlay-link */
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BODY
+   ══════════════════════════════════════════════════════════════ */
+
+.card__body {
+  padding: var(--_cd-p);
+  flex: 1;
+}
+
+/* Optional body truncation */
+.card__body[data-clamp] {
+  display: -webkit-box;
+  -webkit-line-clamp: var(--card-body-line-clamp);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FOOTER + ACTIONS
+   ══════════════════════════════════════════════════════════════ */
+
+.card__footer {
+  padding: var(--_cd-fp);
+  border-top: 1px solid var(--card-footer-border-color);
+  margin-top: auto; /* push to bottom when body is short */
+}
+
+.card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--card-actions-gap);
+}
+
+.card__actions[data-align="end"] {
+  justify-content: flex-end;
+}
+
+.card__actions[data-align="between"] {
+  justify-content: space-between;
+}
+
+/* Keep actions clickable above overlay-link */
+.card__footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   OVERLAY LINK — full-card clickable area
+   Place an <a class="card__overlay-link" href="..."> inside .card
+   Everything else remains clickable via z-index stacking.
+   ══════════════════════════════════════════════════════════════ */
+
+.card__overlay-link {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  /* Invisible but interactive */
+  opacity: 0;
+  cursor: pointer;
+}
+
+.card__overlay-link:focus-visible {
+  outline: var(--card-focus-outline-width) solid var(--card-focus-outline-color);
+  outline-offset: var(--card-focus-outline-offset);
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HORIZONTAL DIRECTION
+   Image on the left/start, content on the right/end.
+   ══════════════════════════════════════════════════════════════ */
+
+.card[data-direction="horizontal"] {
+  flex-direction: row;
+}
+
+.card[data-direction="horizontal"] > .card__media {
+  aspect-ratio: auto;
+  width: var(--card-horizontal-media-width);
+  min-width: var(--card-horizontal-media-min);
+  max-width: var(--card-horizontal-media-max);
+  height: auto;
+  align-self: stretch;
+}
+
+.card[data-direction="horizontal"] > .card__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VARIANTS
+   ══════════════════════════════════════════════════════════════ */
+
+.card[data-variant="outlined"] {
+  --_cd-shadow: none;
+}
+
+.card[data-variant="flat"] {
+  --_cd-shadow: none;
+  --_cd-border: none;
+}
+
+.card[data-variant="ghost"] {
+  --_cd-shadow: none;
+  --_cd-border: none;
+  --_cd-bg: transparent;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SIZE SELECTORS
+   ══════════════════════════════════════════════════════════════ */
+
+.card[data-size="micro"]  { --_cd-r: var(--card-radius-micro);  --_cd-p: var(--card-padding-micro);  --_cd-hp: var(--card-header-padding-micro);  --_cd-fp: var(--card-footer-padding-micro);  --_cd-gap: var(--card-gap-micro);  --_cd-tfs: var(--card-title-font-size-micro); }
+.card[data-size="tiny"]   { --_cd-r: var(--card-radius-tiny);   --_cd-p: var(--card-padding-tiny);   --_cd-hp: var(--card-header-padding-tiny);   --_cd-fp: var(--card-footer-padding-tiny);   --_cd-gap: var(--card-gap-tiny);   --_cd-tfs: var(--card-title-font-size-tiny); }
+.card[data-size="small"]  { --_cd-r: var(--card-radius-small);  --_cd-p: var(--card-padding-small);  --_cd-hp: var(--card-header-padding-small);  --_cd-fp: var(--card-footer-padding-small);  --_cd-gap: var(--card-gap-small);  --_cd-tfs: var(--card-title-font-size-small); }
+.card[data-size="base"]   { --_cd-r: var(--card-radius-base);   --_cd-p: var(--card-padding-base);   --_cd-hp: var(--card-header-padding-base);   --_cd-fp: var(--card-footer-padding-base);   --_cd-gap: var(--card-gap-base);   --_cd-tfs: var(--card-title-font-size-base); }
+.card[data-size="medium"] { --_cd-r: var(--card-radius-medium); --_cd-p: var(--card-padding-medium); --_cd-hp: var(--card-header-padding-medium); --_cd-fp: var(--card-footer-padding-medium); --_cd-gap: var(--card-gap-medium); --_cd-tfs: var(--card-title-font-size-medium); }
+.card[data-size="large"]  { --_cd-r: var(--card-radius-large);  --_cd-p: var(--card-padding-large);  --_cd-hp: var(--card-header-padding-large);  --_cd-fp: var(--card-footer-padding-large);  --_cd-gap: var(--card-gap-large);  --_cd-tfs: var(--card-title-font-size-large); }
+.card[data-size="big"]    { --_cd-r: var(--card-radius-big);    --_cd-p: var(--card-padding-big);    --_cd-hp: var(--card-header-padding-big);    --_cd-fp: var(--card-footer-padding-big);    --_cd-gap: var(--card-gap-big);    --_cd-tfs: var(--card-title-font-size-big); }
+.card[data-size="huge"]   { --_cd-r: var(--card-radius-huge);   --_cd-p: var(--card-padding-huge);   --_cd-hp: var(--card-header-padding-huge);   --_cd-fp: var(--card-footer-padding-huge);   --_cd-gap: var(--card-gap-huge);   --_cd-tfs: var(--card-title-font-size-huge); }
+.card[data-size="mega"]   { --_cd-r: var(--card-radius-mega);   --_cd-p: var(--card-padding-mega);   --_cd-hp: var(--card-header-padding-mega);   --_cd-fp: var(--card-footer-padding-mega);   --_cd-gap: var(--card-gap-mega);   --_cd-tfs: var(--card-title-font-size-mega); }
+.card[data-size="ultra"]  { --_cd-r: var(--card-radius-ultra);  --_cd-p: var(--card-padding-ultra);  --_cd-hp: var(--card-header-padding-ultra);  --_cd-fp: var(--card-footer-padding-ultra);  --_cd-gap: var(--card-gap-ultra);  --_cd-tfs: var(--card-title-font-size-ultra); }
+
+/* ══════════════════════════════════════════════════════════════
+   INTERACTIVE CARD (clickable)
+   ══════════════════════════════════════════════════════════════ */
+
+a.card,
+button.card,
+.card[data-interactive] {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+a.card:hover,
+button.card:hover,
+.card[data-interactive]:hover,
+.card:has(.card__overlay-link):hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-1px);
+}
+
+a.card:active,
+button.card:active,
+.card[data-interactive]:active,
+.card:has(.card__overlay-link):active {
+  transform: translateY(0);
+  box-shadow: var(--_cd-shadow);
+}
+
+a.card:focus-visible,
+button.card:focus-visible,
+.card[data-interactive]:focus-visible {
+  outline: var(--card-focus-outline-width) solid var(--card-focus-outline-color);
+  outline-offset: var(--card-focus-outline-offset);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SELECTION STATE (multi-select UIs)
+   ══════════════════════════════════════════════════════════════ */
+
+.card[data-selected] {
+  outline: var(--card-selected-ring-width) solid var(--card-selected-ring-color);
+  outline-offset: 0px;
+  background-color: var(--card-selected-bg);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DISABLED
+   ══════════════════════════════════════════════════════════════ */
+
+.card[data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CARD GRID — responsive auto-fit layout utility
+   ══════════════════════════════════════════════════════════════ */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-16);
+}
+
+.card-grid[data-columns="2"] { grid-template-columns: repeat(2, 1fr); }
+.card-grid[data-columns="3"] { grid-template-columns: repeat(3, 1fr); }
+.card-grid[data-columns="4"] { grid-template-columns: repeat(4, 1fr); }
+
+/* ══════════════════════════════════════════════════════════════
+   FORCED COLORS (High Contrast)
+   ══════════════════════════════════════════════════════════════ */
+
+@media (forced-colors: active) {
+  .card {
+    border: 1px solid ButtonText;
+  }
+  .card[data-variant="ghost"],
+  .card[data-variant="flat"] {
+    border: 1px solid GrayText;
+  }
+  .card[data-disabled] {
+    border-color: GrayText;
+  }
+  .card[data-selected] {
+    outline-color: Highlight;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ══════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}

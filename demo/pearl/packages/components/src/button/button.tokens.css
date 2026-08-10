@@ -1,0 +1,411 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Button Token Defaults
+   Layer 0: System defaults for 246 button variables.
+   All values reference global tokens — zero hardcoded visuals.
+
+   ORTHOGONAL MODEL
+   ────────────────
+   Structure (data-variant): filled | outlined | soft | ghost
+   Role (data-role):         brand | danger | warning | info | success | neutral
+
+   Token groups below use legacy names for backward compatibility:
+     primary  ≡ filled   (solid background, role-colored)
+     secondary ≡ outlined (border emphasis, role-colored)
+     tertiary ≡ soft     (tinted container, role-colored)
+     ghost    = ghost    (transparent, neutral by default)
+
+   All primary/secondary/tertiary tokens reference --brand-* semantic palette.
+   CSS role selectors remap --brand-* → --{role}-* at the element level,
+   so every structural variant × every role composes automatically.
+
+   danger/success/warning/neutral/outline/brand token groups below are
+   LEGACY shortcuts for filled+danger, filled+success, etc. They remain
+   for backward compatibility with data-variant="danger" syntax.
+   ════════════════════════════════════════════════════════════════ */
+
+.btn,
+.split-btn {
+  /* NOTE: Selector list includes .split-btn so the --btn-* var chain is
+     re-evaluated on each element where data-role overrides apply.
+     Custom properties resolve var() at the declaring element; declaring
+     only at :root would eagerly substitute against :root scope (where no
+     data-role override exists), defeating role-remapping for sibling
+     components that inherit from --btn-*. See multi-zone-model.md (Q6). */
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (23 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode */
+  --btn-radius-micro: var(--radius-sm);
+  --btn-radius-tiny: var(--radius-sm);
+  --btn-radius-small: var(--radius-md);
+  --btn-radius-base: var(--radius-md);
+  --btn-radius-medium: var(--radius-DEFAULT);
+  --btn-radius-large: var(--radius-DEFAULT);
+  --btn-radius-big: var(--radius-md-lg);
+  --btn-radius-huge: var(--radius-md-lg);
+  --btn-radius-mega: var(--radius-lg);
+  --btn-radius-ultra: var(--radius-lg-xl);
+
+  /* Border width — 4 sides */
+  --btn-border-width-t: 1px;
+  --btn-border-width-r: 1px;
+  --btn-border-width-b: 1px;
+  --btn-border-width-l: 1px;
+  --btn-border-style: solid;
+
+  /* Shadow */
+  --btn-shadow: var(--shadow-none);
+  --btn-shadow-hover: var(--shadow-none);
+  --btn-shadow-pressed: var(--shadow-none);
+  --btn-shadow-strong: var(--shadow-sm);
+
+  /* Outline */
+  --btn-outline-style: solid;
+  --btn-outline-width: 2px;
+
+  /* Rounded (pill) boolean — applied via data-rounded */
+  --btn-radius-rounded: var(--radius-full);
+
+  /* Clip & overflow */
+  --btn-clip-path: none;
+  --btn-overflow: hidden;
+  --btn-white-space: nowrap;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (62 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Height per density mode */
+  --btn-height-micro: var(--spacing-24);
+  --btn-height-tiny: var(--spacing-28);
+  --btn-height-small: var(--spacing-32);
+  --btn-height-base: var(--spacing-36);
+  --btn-height-medium: var(--spacing-40);
+  --btn-height-large: var(--spacing-44);
+  --btn-height-big: var(--spacing-48);
+  --btn-height-huge: var(--spacing-56);
+  --btn-height-mega: var(--spacing-64);
+  --btn-height-ultra: var(--spacing-72);
+
+  /* Horizontal padding per density mode (text-side edge padding) */
+  --btn-padding-x-micro: var(--spacing-4);
+  --btn-padding-x-tiny: var(--spacing-6);
+  --btn-padding-x-small: var(--spacing-8);
+  --btn-padding-x-base: var(--spacing-10);
+  --btn-padding-x-medium: var(--spacing-10);
+  --btn-padding-x-large: var(--spacing-12);
+  --btn-padding-x-big: var(--spacing-14);
+  --btn-padding-x-huge: var(--spacing-14);
+  --btn-padding-x-mega: var(--spacing-16);
+  --btn-padding-x-ultra: var(--spacing-20);
+
+  /* Vertical padding per density mode */
+  --btn-padding-y-micro: var(--spacing-2);
+  --btn-padding-y-tiny: var(--spacing-3);
+  --btn-padding-y-small: var(--spacing-4);
+  --btn-padding-y-base: var(--spacing-6);
+  --btn-padding-y-medium: var(--spacing-8);
+  --btn-padding-y-large: var(--spacing-10);
+  --btn-padding-y-big: var(--spacing-12);
+  --btn-padding-y-huge: var(--spacing-14);
+  --btn-padding-y-mega: var(--spacing-16);
+  --btn-padding-y-ultra: var(--spacing-20);
+
+  /* Min-width per density mode (hug content, but enforce minimum) */
+  --btn-min-width-micro: var(--spacing-40);
+  --btn-min-width-tiny: var(--spacing-48);
+  --btn-min-width-small: var(--spacing-54);
+  --btn-min-width-base: var(--spacing-64);
+  --btn-min-width-medium: var(--spacing-72);
+  --btn-min-width-large: var(--spacing-80);
+  --btn-min-width-big: var(--spacing-80);
+  --btn-min-width-huge: var(--spacing-96);
+  --btn-min-width-mega: var(--spacing-112);
+  --btn-min-width-ultra: var(--spacing-120);
+
+  /* Width model */
+  --btn-max-width: none;
+  --btn-inline-size: fit-content;
+
+  /* Icon-side padding per density mode (edge → icon spacing) */
+  --btn-padding-x-icon-micro: var(--spacing-3);
+  --btn-padding-x-icon-tiny: var(--spacing-4);
+  --btn-padding-x-icon-small: var(--spacing-6);
+  --btn-padding-x-icon-base: var(--spacing-8);
+  --btn-padding-x-icon-medium: var(--spacing-8);
+  --btn-padding-x-icon-large: var(--spacing-8);
+  --btn-padding-x-icon-big: var(--spacing-10);
+  --btn-padding-x-icon-huge: var(--spacing-12);
+  --btn-padding-x-icon-mega: var(--spacing-14);
+  --btn-padding-x-icon-ultra: var(--spacing-16);
+
+  /* Icon-to-text gap per density mode (tighter than edge for visual grouping) */
+  --btn-icon-gap-micro: var(--spacing-2);
+  --btn-icon-gap-tiny: var(--spacing-2);
+  --btn-icon-gap-small: var(--spacing-3);
+  --btn-icon-gap-base: var(--spacing-4);
+  --btn-icon-gap-medium: var(--spacing-4);
+  --btn-icon-gap-large: var(--spacing-5);
+  --btn-icon-gap-big: var(--spacing-6);
+  --btn-icon-gap-huge: var(--spacing-6);
+  --btn-icon-gap-mega: var(--spacing-8);
+  --btn-icon-gap-ultra: var(--spacing-8);
+
+  /* Icon-only symmetric edge padding (used for both L and R in icon-only buttons) */
+  --btn-icon-pad-micro: var(--spacing-3);
+  --btn-icon-pad-tiny: var(--spacing-4);
+  --btn-icon-pad-small: var(--spacing-6);
+  --btn-icon-pad-base: var(--spacing-8);
+  --btn-icon-pad-medium: var(--spacing-8);
+  --btn-icon-pad-large: var(--spacing-8);
+  --btn-icon-pad-big: var(--spacing-10);
+  --btn-icon-pad-huge: var(--spacing-12);
+  --btn-icon-pad-mega: var(--spacing-14);
+  --btn-icon-pad-ultra: var(--spacing-16);
+
+  /* Gap per density mode (between icon / label / loader) */
+  --btn-gap-micro: var(--spacing-2);
+  --btn-gap-tiny: var(--spacing-3);
+  --btn-gap-small: var(--spacing-4);
+  --btn-gap-base: var(--spacing-6);
+  --btn-gap-medium: var(--spacing-6);
+  --btn-gap-large: var(--spacing-8);
+  --btn-gap-big: var(--spacing-10);
+  --btn-gap-huge: var(--spacing-12);
+  --btn-gap-mega: var(--spacing-14);
+  --btn-gap-ultra: var(--spacing-16);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (120 vars = 10 groups × 12 properties)
+     Pattern: --btn-{group}-{property}[-{state}]
+
+     STRUCTURAL GROUPS (read from --brand-* by default):
+       primary  ≡ filled   — solid bg, on-component fg
+       secondary ≡ outlined — transparent bg, colored border
+       tertiary ≡ soft     — container tint bg, content fg
+       ghost               — transparent bg, surface fg
+
+     LEGACY ROLE GROUPS (filled + specific role, backward compat):
+       danger, success, warning, brand — filled treatment
+       neutral — filled + surface context
+       outline — outlined + surface context
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── PRIMARY ≡ FILLED (solid bg, reads --brand-* palette) ─ */
+  --btn-filled-bg: var(--brand-component-bg-default);
+  --btn-filled-bg-hover: var(--brand-component-bg-hover);
+  --btn-filled-bg-pressed: var(--brand-component-bg-pressed);
+  --btn-filled-bg-disabled: var(--brand-component-bg-default);
+  --btn-filled-fg: var(--brand-on-component);
+  --btn-filled-fg-hover: var(--brand-on-component);
+  --btn-filled-fg-disabled: var(--brand-on-component);
+  --btn-filled-border-color: var(--brand-component-bg-default);
+  --btn-filled-border-color-hover: var(--brand-component-bg-hover);
+  --btn-filled-border-color-pressed: var(--brand-component-bg-pressed);
+  --btn-filled-border-color-disabled: var(--brand-component-bg-default);
+  --btn-filled-opacity-disabled: 0.5;
+
+  /* ── SECONDARY ≡ OUTLINED (border emphasis, --brand-* palette) */
+  --btn-outlined-bg: transparent;
+  --btn-outlined-bg-hover: var(--brand-container-bg);
+  --btn-outlined-bg-pressed: var(--brand-container-pressed);
+  --btn-outlined-bg-disabled: transparent;
+  --btn-outlined-fg: var(--brand-content-default);
+  --btn-outlined-fg-hover: var(--brand-content-default);
+  --btn-outlined-fg-disabled: var(--brand-content-default);
+  --btn-outlined-border-color: var(--brand-component-outline-default);
+  --btn-outlined-border-color-hover: var(--brand-component-outline-hover);
+  --btn-outlined-border-color-pressed: var(--brand-component-outline-pressed);
+  --btn-outlined-border-color-disabled: var(--brand-component-outline-default);
+  --btn-outlined-opacity-disabled: 0.5;
+
+  /* ── TERTIARY ≡ SOFT (tinted container, --brand-* palette) */
+  --btn-soft-bg: var(--brand-container-bg);
+  --btn-soft-bg-hover: var(--brand-container-hover);
+  --btn-soft-bg-pressed: var(--brand-container-pressed);
+  --btn-soft-bg-disabled: var(--brand-container-bg);
+  --btn-soft-fg: var(--brand-content-default);
+  --btn-soft-fg-hover: var(--brand-content-default);
+  --btn-soft-fg-disabled: var(--brand-content-default);
+  --btn-soft-border-color: transparent;
+  --btn-soft-border-color-hover: transparent;
+  --btn-soft-border-color-pressed: transparent;
+  --btn-soft-border-color-disabled: transparent;
+  --btn-soft-opacity-disabled: 0.5;
+
+  /* ── GHOST (transparent bg, --surface-* by default) ─────── */
+  --btn-ghost-bg: transparent;
+  --btn-ghost-bg-hover: var(--surface-base-subtle);
+  --btn-ghost-bg-pressed: var(--surface-base-strong);
+  --btn-ghost-bg-disabled: transparent;
+  --btn-ghost-fg: var(--surface-base-ct-default);
+  --btn-ghost-fg-hover: var(--surface-base-ct-default);
+  --btn-ghost-fg-disabled: var(--surface-base-ct-default);
+  --btn-ghost-border-color: transparent;
+  --btn-ghost-border-color-hover: transparent;
+  --btn-ghost-border-color-pressed: transparent;
+  --btn-ghost-border-color-disabled: transparent;
+  --btn-ghost-opacity-disabled: 0.5;
+
+  /* ── DANGER (legacy: filled + danger role) ──────────────── */
+  --btn-danger-bg: var(--danger-component-bg-default);
+  --btn-danger-bg-hover: var(--danger-component-bg-hover);
+  --btn-danger-bg-pressed: var(--danger-component-bg-pressed);
+  --btn-danger-bg-disabled: var(--danger-component-bg-default);
+  --btn-danger-fg: var(--danger-on-component);
+  --btn-danger-fg-hover: var(--danger-on-component);
+  --btn-danger-fg-disabled: var(--danger-on-component);
+  --btn-danger-border-color: var(--danger-component-bg-default);
+  --btn-danger-border-color-hover: var(--danger-component-bg-hover);
+  --btn-danger-border-color-pressed: var(--danger-component-bg-pressed);
+  --btn-danger-border-color-disabled: var(--danger-component-bg-default);
+  --btn-danger-opacity-disabled: 0.5;
+
+  /* ── SUCCESS (legacy: filled + success role) ────────────── */
+  --btn-success-bg: var(--success-component-bg-default);
+  --btn-success-bg-hover: var(--success-component-bg-hover);
+  --btn-success-bg-pressed: var(--success-component-bg-pressed);
+  --btn-success-bg-disabled: var(--success-component-bg-default);
+  --btn-success-fg: var(--success-on-component);
+  --btn-success-fg-hover: var(--success-on-component);
+  --btn-success-fg-disabled: var(--success-on-component);
+  --btn-success-border-color: var(--success-component-bg-default);
+  --btn-success-border-color-hover: var(--success-component-bg-hover);
+  --btn-success-border-color-pressed: var(--success-component-bg-pressed);
+  --btn-success-border-color-disabled: var(--success-component-bg-default);
+  --btn-success-opacity-disabled: 0.5;
+
+  /* ── WARNING (legacy: filled + warning role) ────────────── */
+  --btn-warning-bg: var(--warning-component-bg-default);
+  --btn-warning-bg-hover: var(--warning-component-bg-hover);
+  --btn-warning-bg-pressed: var(--warning-component-bg-pressed);
+  --btn-warning-bg-disabled: var(--warning-component-bg-default);
+  --btn-warning-fg: var(--warning-on-component);
+  --btn-warning-fg-hover: var(--warning-on-component);
+  --btn-warning-fg-disabled: var(--warning-on-component);
+  --btn-warning-border-color: var(--warning-component-bg-default);
+  --btn-warning-border-color-hover: var(--warning-component-bg-hover);
+  --btn-warning-border-color-pressed: var(--warning-component-bg-pressed);
+  --btn-warning-border-color-disabled: var(--warning-component-bg-default);
+  --btn-warning-opacity-disabled: 0.5;
+
+  /* ── NEUTRAL (legacy: filled + neutral/surface context) ──── */
+  --btn-neutral-bg: var(--surface-base-cm-bg);
+  --btn-neutral-bg-hover: var(--surface-base-cm-bg-hover);
+  --btn-neutral-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --btn-neutral-bg-disabled: var(--surface-base-cm-bg);
+  --btn-neutral-fg: var(--surface-base-ct-default);
+  --btn-neutral-fg-hover: var(--surface-base-ct-strong);
+  --btn-neutral-fg-disabled: var(--surface-base-ct-default);
+  --btn-neutral-border-color: var(--surface-base-cm-outline);
+  --btn-neutral-border-color-hover: var(--surface-base-cm-outline-hover);
+  --btn-neutral-border-color-pressed: var(--surface-base-cm-outline-pressed);
+  --btn-neutral-border-color-disabled: var(--surface-base-cm-outline);
+  --btn-neutral-opacity-disabled: 0.5;
+
+
+  /* ── BRAND (legacy: filled + brand role) ────────────────── */
+  --btn-brand-bg: var(--brand-component-bg-default);
+  --btn-brand-bg-hover: var(--brand-component-bg-hover);
+  --btn-brand-bg-pressed: var(--brand-component-bg-pressed);
+  --btn-brand-bg-disabled: var(--brand-component-bg-default);
+  --btn-brand-fg: var(--brand-on-component);
+  --btn-brand-fg-hover: var(--brand-on-component);
+  --btn-brand-fg-disabled: var(--brand-on-component);
+  --btn-brand-border-color: var(--brand-component-bg-default);
+  --btn-brand-border-color-hover: var(--brand-component-bg-hover);
+  --btn-brand-border-color-pressed: var(--brand-component-bg-pressed);
+  --btn-brand-border-color-disabled: var(--brand-component-bg-default);
+  --btn-brand-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --btn-font-family: var(--font-family-sans);
+
+  /* Font size per density mode */
+  --btn-font-size-micro: var(--font-size-10);
+  --btn-font-size-tiny: var(--font-size-11);
+  --btn-font-size-small: var(--font-size-12);
+  --btn-font-size-base: var(--font-size-13);
+  --btn-font-size-medium: var(--font-size-14);
+  --btn-font-size-large: var(--font-size-14);
+  --btn-font-size-big: var(--font-size-16);
+  --btn-font-size-huge: var(--font-size-18);
+  --btn-font-size-mega: var(--font-size-20);
+  --btn-font-size-ultra: var(--font-size-24);
+
+  --btn-font-weight: var(--font-weight-medium);
+  --btn-line-height: var(--line-height-normal);
+  --btn-letter-spacing: var(--letter-spacing-normal);
+  --btn-text-transform: none;
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Icon slot — size per density mode (graduated: 12, 14, 16, 18, 20, 22, 24, 28, 32, 36) */
+  --btn-icon-size-micro: var(--spacing-12);
+  --btn-icon-size-tiny: var(--spacing-14);
+  --btn-icon-size-small: var(--spacing-16);
+  --btn-icon-size-base: var(--spacing-18);
+  --btn-icon-size-medium: var(--spacing-20);
+  --btn-icon-size-large: var(--spacing-22);
+  --btn-icon-size-big: var(--spacing-24);
+  --btn-icon-size-huge: var(--spacing-28);
+  --btn-icon-size-mega: var(--spacing-32);
+  --btn-icon-size-ultra: var(--spacing-36);
+
+  /* Icon DETAIL tier — opt-in larger glyph for icons that need more drawing scope
+     (filters, branded marks, multi-stroke). Apply via:
+       • data-icon-detail="high"   → bumps --_btn-icon-size to --btn-icon-size-detail-high
+       • --btn-icon-size at instance/product level → overrides any size mapping
+     Guardrail: detail="high" is suppressed on sizes ≤ small and ≥ large (standard icon exceeds
+     20px at those sizes; "high" would visually shrink the icon).
+     Padding-side is auto-compensated when detail="high" is active. */
+  --btn-icon-size-detail-default: var(--spacing-16);
+  --btn-icon-size-detail-high: var(--spacing-20);
+
+  --btn-icon-color: currentColor;
+  --btn-icon-color-hover: currentColor;
+
+  /* Loader slot (text shimmer, no spinner icon) */
+  --btn-loader-color: currentColor;
+  --btn-loader-speed: 1.8s;
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --btn-transition-property: background-color, border-color, color, box-shadow, opacity, transform;
+  --btn-transition-duration: var(--duration-normal);
+  --btn-transition-easing: var(--easing-in-out);
+  --btn-animation-enter: none;
+  --btn-animation-exit: none;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+  --btn-focus-outline-width: var(--focus-outline-width);
+  --btn-focus-outline-color: var(--brand-component-outline-default);
+  --btn-focus-outline-offset: var(--focus-outline-offset);
+
+  /* Figma focus ring frame dimensions (HUG ring frame approach) */
+  --btn-focus-ring-gap:   4px;  /* gap between button edge and ring stroke outer edge */
+  --btn-focus-ring-width: 2px;  /* ring stroke weight */
+
+  /* Per-density ring corner radius = btn-radius + focus-ring-gap (concentric curves).
+     Uses var() references so the Figma sync server and plugin both create
+     VARIABLE_ALIAS entries pointing to primitives-numbers (not literal px). */
+  --btn-focus-ring-radius-micro:   var(--spacing-8);  /* radius-sm(4)    + gap(4) */
+  --btn-focus-ring-radius-tiny:    var(--spacing-8);
+  --btn-focus-ring-radius-small:   var(--spacing-10); /* radius-md(6)    + gap(4) */
+  --btn-focus-ring-radius-base:    var(--spacing-10);
+  --btn-focus-ring-radius-medium:  var(--spacing-12); /* radius-DEFAULT(8) + gap(4) */
+  --btn-focus-ring-radius-large:   var(--spacing-12);
+  --btn-focus-ring-radius-big:     var(--spacing-14); /* radius-md-lg(10) + gap(4) */
+  --btn-focus-ring-radius-huge:    var(--spacing-14);
+  --btn-focus-ring-radius-mega:    var(--spacing-16); /* radius-lg(12)   + gap(4) */
+  --btn-focus-ring-radius-ultra:   var(--spacing-18); /* radius-lg-xl(14)+ gap(4) */
+  --btn-min-tap-target: 0px; /* Sizes are intentional — use pseudo-element for a11y tap area if needed */
+}

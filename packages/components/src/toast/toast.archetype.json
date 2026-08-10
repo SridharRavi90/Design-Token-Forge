@@ -1,0 +1,41 @@
+{
+  "archetype": "feedback-banner",
+  "tokenPrefix": "toast",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["entering", "visible", "exiting"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["default", "filled", "outlined", "soft"],
+  "sizesSupported": ["small", "base", "large"],
+  "onComponentTokens": [
+    {
+      "token": "--toast-{role}-filled-fg",
+      "fillStates": ["--toast-{role}-filled-bg"],
+      "derivation": "auto-aa",
+      "wcag": "AA",
+      "notes": "Filled-variant text reads against component fill."
+    }
+  ],
+  "editorExposureOverrides": {
+    "--toast-accent-width": "advanced",
+    "--toast-accent-radius": "advanced",
+    "--toast-min-width": "advanced",
+    "--toast-max-width": "advanced",
+    "--toast-min-height": "advanced",
+    "--toast-container-gap": "advanced",
+    "--toast-container-padding": "advanced",
+    "--toast-container-z-index": "advanced",
+    "--toast-close-opacity": "advanced",
+    "--toast-close-hover-opacity": "advanced",
+    "--toast-close-hover-bg": "advanced"
+  },
+  "figmaBindingPrefix": "toast/",
+  "notes": [
+    "Feedback-banner archetype: time-limited notification banner (peer of alert). Roles brand|danger|warning|info|success|neutral each ship a full 8-var slot bundle (accent/icon-color/title-color/soft-bg/filled-bg/filled-fg/outlined-border).",
+    "Three SIZES (small/base/large) — categorical, not the 10-density ladder. Sizes drive padding-x/y, gap, content-gap, font-size, title-font-size, icon-size, close-size.",
+    "Four variants: default (soft accent bar + tinted bg), filled (solid role bg + on-component fg), outlined (transparent + role border), soft (tinted bg, no accent).",
+    "State machine: entering (fade-in) → visible (static) → exiting (fade+scale-out). Driven by data-state attribute + transition-driven CSS animations.",
+    "Info is a dedicated palette (blue), DISTINCT from brand. Feedback toasts often coexist with banners; info allows color separation.",
+    "Close slot is optional; dismissal is state-driven (.toast[data-state='exiting']), independent of user interaction.",
+    "Portal container constrains z-index stack and container gap for multi-toast queuing."
+  ]
+}

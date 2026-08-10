@@ -1,0 +1,192 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Radio Token Defaults
+   Layer 0: System defaults for ~83 radio variables.
+
+   Anatomy:
+     <label.radio>
+       <input.radio__control type="radio" />
+       <span.radio__circle><span.radio__dot/></span>
+       <span.radio__label/>
+     </label>
+
+   Variants: filled (default) | outlined
+   Roles:    brand (default) | danger | warning | info | success | neutral
+             (applied via [data-role="…"]; remaps --brand-* primitives)
+   States:   unchecked | checked | hover | pressed | disabled
+             focus-visible | invalid (aria-invalid="true")
+
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.radio {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+  --radio-circle-border-width: 2px;
+  --radio-circle-border-style: solid;
+  --radio-circle-shadow: none;
+  --radio-circle-shadow-hover: none;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION — OUTER  (10 vars)
+     ──────────────────────────────────────────────────────────── */
+  --radio-circle-size-micro: 14px;
+  --radio-circle-size-tiny: 16px;
+  --radio-circle-size-small: 18px;
+  --radio-circle-size-base: 20px;
+  --radio-circle-size-medium: 22px;
+  --radio-circle-size-large: 24px;
+  --radio-circle-size-big: 28px;
+  --radio-circle-size-huge: 32px;
+  --radio-circle-size-mega: 36px;
+  --radio-circle-size-ultra: 40px;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION — DOT  (10 vars — ~45% of outer)
+     ──────────────────────────────────────────────────────────── */
+  --radio-dot-size-micro: 6px;
+  --radio-dot-size-tiny: 7px;
+  --radio-dot-size-small: 8px;
+  --radio-dot-size-base: 9px;
+  --radio-dot-size-medium: 10px;
+  --radio-dot-size-large: 11px;
+  --radio-dot-size-big: 13px;
+  --radio-dot-size-huge: 15px;
+  --radio-dot-size-mega: 17px;
+  --radio-dot-size-ultra: 19px;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — FILLED  (16 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── Unchecked (off) ── */
+  --radio-circle-bg-off: var(--surface-base-cm-bg);
+  --radio-circle-bg-off-hover: var(--surface-base-cm-bg-hover);
+  --radio-circle-border-color-off: var(--surface-base-cm-outline);
+  --radio-circle-border-color-off-hover: var(--surface-base-cm-outline-hover);
+
+  /* ── Checked (on) ── */
+  --radio-circle-bg-on: var(--brand-component-bg-default);
+  --radio-circle-bg-on-hover: var(--brand-component-bg-hover);
+  --radio-circle-border-color-on: var(--brand-component-bg-default);
+  --radio-circle-border-color-on-hover: var(--brand-component-bg-hover);
+
+  /* ── Dot ── */
+  --radio-dot-color: var(--color-fixed-white);
+
+  /* ── Disabled ── */
+  --radio-circle-bg-on-disabled: var(--brand-component-bg-default);
+  --radio-circle-border-color-disabled: var(--surface-base-cm-outline);
+  --radio-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — OUTLINED VARIANT  (13 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── Outline unchecked (off) — transparent + border ── */
+  --radio-outlined-circle-bg-off: transparent;
+  --radio-outlined-circle-bg-off-hover: var(--surface-base-cm-bg-hover);
+  --radio-outlined-circle-border-color-off: var(--surface-base-cm-outline);
+  --radio-outlined-circle-border-color-off-hover: var(--surface-base-cm-outline-hover);
+
+  /* ── Outline checked (on) — filled with semantic role ── */
+  --radio-outlined-circle-bg-on: var(--brand-component-bg-default);
+  --radio-outlined-circle-bg-on-hover: var(--brand-component-bg-hover);
+  --radio-outlined-circle-border-color-on: var(--brand-component-bg-default);
+  --radio-outlined-circle-border-color-on-hover: var(--brand-component-bg-hover);
+
+  /* ── Outline dot ── */
+  --radio-outlined-dot-color: var(--color-fixed-white);
+
+  /* ── Outline disabled ── */
+  --radio-outlined-circle-bg-on-disabled: var(--brand-component-bg-default);
+  --radio-outlined-circle-border-color-disabled: var(--surface-base-cm-outline);
+  --radio-outlined-opacity-disabled: 0.5;
+
+  /* ── Outline border ── */
+  --radio-outlined-circle-border-width: 2px;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — INVALID STATE  (8 vars)
+     Shared across variants. INVALID is a STATE (triggered by
+     aria-invalid="true"), not a role — it always paints with
+     danger-* primitives regardless of the active data-role.
+     ──────────────────────────────────────────────────────────── */
+  --radio-circle-border-color-invalid: var(--danger-component-outline-default);
+  --radio-circle-border-color-invalid-hover: var(--danger-component-outline-hover);
+  --radio-circle-bg-on-invalid: var(--danger-component-bg-default);
+  --radio-circle-bg-on-invalid-hover: var(--danger-component-bg-hover);
+  /* Compat aliases — older snippets used -danger naming; canonical = -invalid */
+  --radio-circle-border-color-danger: var(--radio-circle-border-color-invalid);
+  --radio-circle-border-color-danger-hover: var(--radio-circle-border-color-invalid-hover);
+  --radio-circle-bg-on-danger: var(--radio-circle-bg-on-invalid);
+  --radio-circle-bg-on-danger-hover: var(--radio-circle-bg-on-invalid-hover);
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+  --radio-label-font-family: var(--font-family-sans);
+  --radio-label-font-size: var(--font-size-14);
+  --radio-label-font-weight: var(--font-weight-regular);
+  --radio-label-line-height: var(--line-height-normal);
+
+  /* Per-density label font sizes */
+  --radio-label-font-size-micro: var(--font-size-10);
+  --radio-label-font-size-tiny: var(--font-size-11);
+  --radio-label-font-size-small: var(--font-size-12);
+  --radio-label-font-size-base: var(--font-size-14);
+  --radio-label-font-size-medium: var(--font-size-14);
+  --radio-label-font-size-large: var(--font-size-16);
+  --radio-label-font-size-big: var(--font-size-16);
+  --radio-label-font-size-huge: var(--font-size-18);
+  --radio-label-font-size-mega: var(--font-size-20);
+  --radio-label-font-size-ultra: var(--font-size-24);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+  --radio-gap: var(--spacing-8);
+  --radio-gap-micro: var(--spacing-4);
+  --radio-gap-tiny: var(--spacing-4);
+  --radio-gap-small: var(--spacing-6);
+  --radio-gap-base: var(--spacing-8);
+  --radio-gap-medium: var(--spacing-8);
+  --radio-gap-large: var(--spacing-10);
+  --radio-gap-big: var(--spacing-10);
+  --radio-gap-huge: var(--spacing-12);
+  --radio-gap-mega: var(--spacing-14);
+  --radio-gap-ultra: var(--spacing-16);
+  --radio-circle-scale-pressed: 0.92;
+  --radio-group-gap: var(--spacing-8);
+  --radio-group-gap-horizontal: var(--spacing-16);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --radio-transition-property: background-color, border-color, box-shadow, opacity;
+  --radio-transition-duration: var(--duration-fast);
+  --radio-transition-easing: var(--easing-in-out);
+  --radio-dot-transition-duration: var(--duration-fast);
+  --radio-dot-transition-easing: var(--easing-out);
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+  --radio-focus-outline-width: var(--focus-outline-width);
+  --radio-focus-outline-color: var(--brand-component-outline-default);
+  --radio-focus-outline-offset: var(--focus-outline-offset);
+  --radio-min-tap-target: 44px;
+  --radio-required-indicator: '*';
+  --radio-required-color: var(--danger-content-default);
+  --radio-label-color: var(--surface-base-ct-default);
+  --radio-label-color-disabled: var(--surface-base-ct-subtle);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Radio Group
+   ──────────────────────────────────────────────────────────── */
+.radio-group {
+  --radio-group-gap: var(--spacing-8);
+  --radio-group-gap-horizontal: var(--spacing-16);
+}

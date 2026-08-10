@@ -1,0 +1,293 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Badge / Tag
+   Variable-driven rendering — reads only from --badge-* tokens.
+
+   Markup:
+   <span class="badge" data-variant="filled" data-size="base" data-role="brand">
+     <span class="badge__icon"><svg>…</svg></span>
+     <span class="badge__label">Label</span>
+     <button class="badge__dismiss" aria-label="Remove">×</button>
+   </span>
+
+   Dot variant:
+   <span class="badge badge--dot" data-role="success"></span>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────
+   1.  BASE — Internal active variables (default = base + filled)
+   ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  font-family: var(--badge-font-family);
+  font-weight: var(--badge-font-weight);
+  letter-spacing: var(--badge-letter-spacing);
+  line-height: var(--badge-line-height);
+
+  /* Dimension active vars */
+  --_bd-height: var(--badge-height-base);
+  --_bd-px: var(--badge-padding-x-base);
+  --_bd-gap: var(--badge-gap-base);
+  --_bd-fs: var(--badge-font-size-base);
+  --_bd-radius: var(--badge-radius-base);
+  --_bd-icon-size: var(--badge-icon-size-base);
+
+  /* Surface active vars (filled default) */
+  --_bd-bg: var(--badge-filled-bg);
+  --_bd-fg: var(--badge-filled-fg);
+  --_bd-border-color: var(--badge-filled-border-color);
+
+  height: var(--_bd-height);
+  padding: 0 var(--_bd-px);
+  gap: var(--_bd-gap);
+  font-size: var(--_bd-fs);
+  border-radius: var(--_bd-radius);
+  background: var(--_bd-bg);
+  color: var(--_bd-fg);
+  border: var(--badge-border-width) var(--badge-border-style) var(--_bd-border-color);
+  transition-property: var(--badge-transition-property);
+  transition-duration: var(--badge-transition-duration);
+  transition-timing-function: var(--badge-transition-easing);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   2.  SIZE SELECTORS
+   ──────────────────────────────────────────────────────────────── */
+.badge[data-size="micro"]{--_bd-height:var(--badge-height-micro);--_bd-px:var(--badge-padding-x-micro);--_bd-gap:var(--badge-gap-micro);--_bd-fs:var(--badge-font-size-micro);--_bd-radius:var(--badge-radius-micro);--_bd-icon-size:var(--badge-icon-size-micro)}
+.badge[data-size="tiny"]{--_bd-height:var(--badge-height-tiny);--_bd-px:var(--badge-padding-x-tiny);--_bd-gap:var(--badge-gap-tiny);--_bd-fs:var(--badge-font-size-tiny);--_bd-radius:var(--badge-radius-tiny);--_bd-icon-size:var(--badge-icon-size-tiny)}
+.badge[data-size="small"]{--_bd-height:var(--badge-height-small);--_bd-px:var(--badge-padding-x-small);--_bd-gap:var(--badge-gap-small);--_bd-fs:var(--badge-font-size-small);--_bd-radius:var(--badge-radius-small);--_bd-icon-size:var(--badge-icon-size-small)}
+.badge[data-size="base"]{--_bd-height:var(--badge-height-base);--_bd-px:var(--badge-padding-x-base);--_bd-gap:var(--badge-gap-base);--_bd-fs:var(--badge-font-size-base);--_bd-radius:var(--badge-radius-base);--_bd-icon-size:var(--badge-icon-size-base)}
+.badge[data-size="medium"]{--_bd-height:var(--badge-height-medium);--_bd-px:var(--badge-padding-x-medium);--_bd-gap:var(--badge-gap-medium);--_bd-fs:var(--badge-font-size-medium);--_bd-radius:var(--badge-radius-medium);--_bd-icon-size:var(--badge-icon-size-medium)}
+.badge[data-size="large"]{--_bd-height:var(--badge-height-large);--_bd-px:var(--badge-padding-x-large);--_bd-gap:var(--badge-gap-large);--_bd-fs:var(--badge-font-size-large);--_bd-radius:var(--badge-radius-large);--_bd-icon-size:var(--badge-icon-size-large)}
+.badge[data-size="big"]{--_bd-height:var(--badge-height-big);--_bd-px:var(--badge-padding-x-big);--_bd-gap:var(--badge-gap-big);--_bd-fs:var(--badge-font-size-big);--_bd-radius:var(--badge-radius-big);--_bd-icon-size:var(--badge-icon-size-big)}
+.badge[data-size="huge"]{--_bd-height:var(--badge-height-huge);--_bd-px:var(--badge-padding-x-huge);--_bd-gap:var(--badge-gap-huge);--_bd-fs:var(--badge-font-size-huge);--_bd-radius:var(--badge-radius-huge);--_bd-icon-size:var(--badge-icon-size-huge)}
+.badge[data-size="mega"]{--_bd-height:var(--badge-height-mega);--_bd-px:var(--badge-padding-x-mega);--_bd-gap:var(--badge-gap-mega);--_bd-fs:var(--badge-font-size-mega);--_bd-radius:var(--badge-radius-mega);--_bd-icon-size:var(--badge-icon-size-mega)}
+.badge[data-size="ultra"]{--_bd-height:var(--badge-height-ultra);--_bd-px:var(--badge-padding-x-ultra);--_bd-gap:var(--badge-gap-ultra);--_bd-fs:var(--badge-font-size-ultra);--_bd-radius:var(--badge-radius-ultra);--_bd-icon-size:var(--badge-icon-size-ultra)}
+
+/* ────────────────────────────────────────────────────────────────
+   3.  VARIANT SELECTORS
+   ──────────────────────────────────────────────────────────────── */
+.badge[data-variant="outlined"]{--_bd-bg:var(--badge-outlined-bg);--_bd-fg:var(--badge-outlined-fg);--_bd-border-color:var(--badge-outlined-border-color)}
+.badge[data-variant="soft"]{--_bd-bg:var(--badge-soft-bg);--_bd-fg:var(--badge-soft-fg);--_bd-border-color:var(--badge-soft-border-color)}
+
+/* ────────────────────────────────────────────────────────────────
+   4.  SHAPE SELECTORS
+   ──────────────────────────────────────────────────────────────── */
+.badge[data-shape="rounded"]{--_bd-radius:var(--badge-radius-rounded)}
+.badge[data-shape="square"]{--_bd-radius:var(--badge-radius-square)}
+
+/* ────────────────────────────────────────────────────────────────
+   5.  ROLE COLOR OVERRIDES (brand | info | danger | success | warning | neutral)
+   ──────────────────────────────────────────────────────────────── */
+/* Brand */
+.badge[data-role="brand"]{--_bd-bg:var(--badge-brand-filled-bg);--_bd-fg:var(--badge-brand-filled-fg)}
+.badge[data-role="brand"][data-variant="outlined"]{--_bd-bg:transparent;--_bd-fg:var(--badge-brand-outlined-fg);--_bd-border-color:var(--badge-brand-outlined-border)}
+.badge[data-role="brand"][data-variant="soft"]{--_bd-bg:var(--badge-brand-soft-bg);--_bd-fg:var(--badge-brand-soft-fg);--_bd-border-color:transparent}
+
+/* Info */
+.badge[data-role="info"]{--_bd-bg:var(--badge-info-filled-bg);--_bd-fg:var(--badge-info-filled-fg)}
+.badge[data-role="info"][data-variant="outlined"]{--_bd-bg:transparent;--_bd-fg:var(--badge-info-outlined-fg);--_bd-border-color:var(--badge-info-outlined-border)}
+.badge[data-role="info"][data-variant="soft"]{--_bd-bg:var(--badge-info-soft-bg);--_bd-fg:var(--badge-info-soft-fg);--_bd-border-color:transparent}
+
+/* Danger */
+.badge[data-role="danger"]{--_bd-bg:var(--badge-danger-filled-bg);--_bd-fg:var(--badge-danger-filled-fg)}
+.badge[data-role="danger"][data-variant="outlined"]{--_bd-bg:transparent;--_bd-fg:var(--badge-danger-outlined-fg);--_bd-border-color:var(--badge-danger-outlined-border)}
+.badge[data-role="danger"][data-variant="soft"]{--_bd-bg:var(--badge-danger-soft-bg);--_bd-fg:var(--badge-danger-soft-fg);--_bd-border-color:transparent}
+
+/* Success */
+.badge[data-role="success"]{--_bd-bg:var(--badge-success-filled-bg);--_bd-fg:var(--badge-success-filled-fg)}
+.badge[data-role="success"][data-variant="outlined"]{--_bd-bg:transparent;--_bd-fg:var(--badge-success-outlined-fg);--_bd-border-color:var(--badge-success-outlined-border)}
+.badge[data-role="success"][data-variant="soft"]{--_bd-bg:var(--badge-success-soft-bg);--_bd-fg:var(--badge-success-soft-fg);--_bd-border-color:transparent}
+
+/* Warning */
+.badge[data-role="warning"]{--_bd-bg:var(--badge-warning-filled-bg);--_bd-fg:var(--badge-warning-filled-fg)}
+.badge[data-role="warning"][data-variant="outlined"]{--_bd-bg:transparent;--_bd-fg:var(--badge-warning-outlined-fg);--_bd-border-color:var(--badge-warning-outlined-border)}
+.badge[data-role="warning"][data-variant="soft"]{--_bd-bg:var(--badge-warning-soft-bg);--_bd-fg:var(--badge-warning-soft-fg);--_bd-border-color:transparent}
+
+/* Neutral */
+.badge[data-role="neutral"]{--_bd-bg:var(--badge-neutral-filled-bg);--_bd-fg:var(--badge-neutral-filled-fg)}
+.badge[data-role="neutral"][data-variant="outlined"]{--_bd-bg:transparent;--_bd-fg:var(--badge-neutral-outlined-fg);--_bd-border-color:var(--badge-neutral-outlined-border)}
+.badge[data-role="neutral"][data-variant="soft"]{--_bd-bg:var(--badge-neutral-soft-bg);--_bd-fg:var(--badge-neutral-soft-fg);--_bd-border-color:transparent}
+
+/* ────────────────────────────────────────────────────────────────
+   6.  ICON
+   ──────────────────────────────────────────────────────────────── */
+.badge__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.badge__icon svg {
+  width: var(--_bd-icon-size);
+  height: var(--_bd-icon-size);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   7.  LABEL
+   ──────────────────────────────────────────────────────────────── */
+.badge__label {
+  white-space: nowrap;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   8.  DISMISS BUTTON
+   ──────────────────────────────────────────────────────────────── */
+.badge__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--badge-dismiss-size);
+  height: var(--badge-dismiss-size);
+  padding: 0;
+  border: none;
+  border-radius: var(--badge-dismiss-radius);
+  background: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: inherit;
+  line-height: 1;
+  transition: opacity var(--badge-transition-duration) var(--badge-transition-easing);
+}
+.badge__dismiss:hover {
+  opacity: 1;
+}
+.badge__dismiss svg {
+  width: calc(var(--badge-dismiss-size) - 4px);
+  height: calc(var(--badge-dismiss-size) - 4px);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   9.  DOT VARIANT (indicator only, no content)
+   ──────────────────────────────────────────────────────────────── */
+.badge--dot {
+  width: var(--badge-dot-size);
+  height: var(--badge-dot-size);
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border-radius: var(--radius-full);
+  background: var(--badge-dot-color);
+}
+.badge--dot[data-role="danger"] { background: var(--badge-danger-filled-bg); }
+.badge--dot[data-role="success"] { background: var(--badge-success-filled-bg); }
+.badge--dot[data-role="warning"] { background: var(--badge-warning-filled-bg); }
+.badge--dot[data-role="neutral"] { background: var(--badge-neutral-filled-bg); }
+
+/* ────────────────────────────────────────────────────────────────
+   10. INTERACTIVE (clickable / dismissible)
+   ──────────────────────────────────────────────────────────────── */
+.badge[data-interactive]:hover {
+  cursor: pointer;
+}
+.badge[data-interactive][data-variant="filled"]:hover,
+.badge[data-interactive]:not([data-variant]):hover {
+  background: var(--badge-filled-bg-hover);
+  color: var(--badge-filled-fg-hover);
+}
+.badge[data-interactive][data-variant="outlined"]:hover {
+  background: var(--badge-outlined-bg-hover);
+  color: var(--badge-outlined-fg-hover);
+}
+.badge[data-interactive][data-variant="soft"]:hover {
+  background: var(--badge-soft-bg-hover);
+  color: var(--badge-soft-fg-hover);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   11. DISABLED
+   ──────────────────────────────────────────────────────────────── */
+.badge[data-disabled] {
+  opacity: var(--badge-disabled-opacity);
+  pointer-events: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12. FOCUS
+   ──────────────────────────────────────────────────────────────── */
+.badge:focus-visible {
+  outline: var(--badge-focus-outline-width) solid var(--badge-focus-outline-color);
+  outline-offset: var(--badge-focus-outline-offset);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12b. ELEVATED (shadow)
+   ──────────────────────────────────────────────────────────────── */
+.badge[data-strong] {
+  box-shadow: var(--badge-shadow-strong);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12c. LOADING (skeleton shimmer)
+   ──────────────────────────────────────────────────────────────── */
+.badge[data-loading] {
+  pointer-events: none;
+  color: transparent;
+  background: linear-gradient(
+    90deg,
+    var(--badge-loading-bg) 0%,
+    var(--badge-loading-shimmer) 50%,
+    var(--badge-loading-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: var(--badge-animation-skeleton);
+}
+.badge[data-loading] > * {
+  visibility: hidden;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12d. PULSE (count update pop animation)
+   ──────────────────────────────────────────────────────────────── */
+.badge[data-pulse] {
+  animation: var(--badge-animation-pulse);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12e. ICON-ONLY via :has() — equal padding when no label
+   ──────────────────────────────────────────────────────────────── */
+.badge:has(> .badge__icon:first-child:last-child) {
+  padding-inline: var(--_bd-gap);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12f. KEYFRAMES
+   ──────────────────────────────────────────────────────────────── */
+@keyframes badge-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes badge-skeleton {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   13. FORCED COLORS
+   ──────────────────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .badge {
+    border: 1px solid ButtonText;
+  }
+  .badge--dot {
+    background: ButtonText;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   14. REDUCED MOTION
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .badge, .badge__dismiss {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

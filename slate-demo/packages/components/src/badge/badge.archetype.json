@@ -1,0 +1,47 @@
+{
+  "archetype": "label-indicator",
+  "tokenPrefix": "badge",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": [],
+  "rolesSupported": ["brand", "info", "danger", "success", "warning", "neutral"],
+  "variantsSupported": ["default", "outlined", "soft"],
+  "sizesSupported": ["micro", "tiny", "small", "base", "medium", "large", "big", "huge", "mega", "ultra"],
+  "densityModes": ["micro", "tiny", "small", "base", "medium", "large", "big", "huge", "mega", "ultra"],
+  "onComponentTokens": [
+    {
+      "token": "--badge-{role}-filled-fg",
+      "fillStates": ["--badge-{role}-filled-bg"],
+      "derivation": "auto-aa",
+      "wcag": "AA",
+      "notes": "Filled-variant text reads against role bg."
+    }
+  ],
+  "editorExposureOverrides": {
+    "--badge-height-*": "core",
+    "--badge-padding-*": "core",
+    "--badge-font-size-*": "core",
+    "--badge-gap-*": "core",
+    "--badge-icon-size-*": "core",
+    "--badge-radius-*": "advanced",
+    "--badge-border-*": "advanced",
+    "--badge-dot-*": "advanced"
+  },
+  "figmaBindingPrefix": "badge/",
+  "compSizeProps": [
+    { "propCSS": "height", "propFigma": "Height" },
+    { "propCSS": "padding-x", "propFigma": "Padding X" },
+    { "propCSS": "gap", "propFigma": "Gap" },
+    { "propCSS": "font-size", "propFigma": "Font Size" },
+    { "propCSS": "icon-size", "propFigma": "Icon Size" },
+    { "propCSS": "radius", "propFigma": "Radius" }
+  ],
+  "notes": [
+    "Label-indicator archetype: compact status badge with 10-density sizing (micro...ultra). Supports 6 semantic roles (brand/info/danger/success/warning/neutral) × 3 structural variants (filled/outlined/soft).",
+    "10-density sizing ladder: micro/tiny/small/base/medium/large/big/huge/mega/ultra. Each density sets height, padding, gap, font-size, icon-size, radius. COMP-SIZE eligible for Figma multi-mode binding.",
+    "Three variants: filled (solid role bg + on-component fg), outlined (transparent + role border + role text), soft (role container bg + role text).",
+    "Shape variants: rounded (default, radii from tokens) and square (radius: 0). Orthogonal to density and role.",
+    "Dot indicator: minimal dot-only badge (no text). Uses --badge-dot-size and --badge-dot-color.",
+    "No states — badge is stateless. Motion is inherited from parent (e.g. fade-in with container).",
+    "aa-AA on-component derivation auto-picks white or black text for max contrast on each role's filled bg. Manually override with --badge-{role}-filled-fg."
+  ]
+}

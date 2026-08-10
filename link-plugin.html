@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Link Figma Plugin — Design Token Forge</title>
+  <link rel="stylesheet" href="/packages/tokens/src/index.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--surface-base-bg, #F8FAFC);
+      color: var(--neutral-content-default, #1E293B);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: var(--surface-base-bg, #fff);
+      border: 1px solid var(--neutral-container-outline, #E2E8F0);
+      border-radius: 12px;
+      padding: 40px 48px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon { font-size: 40px; margin-bottom: 16px; }
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .sub { font-size: 14px; color: var(--neutral-content-subtle, #64748B); line-height: 1.5; }
+    .status-ok    { color: var(--success-content-default, #15803D); }
+    .status-err   { color: var(--danger-content-default, #B91C1C); }
+    .status-spin  { color: var(--brand-content-default, #286CE5); }
+    .spinner { display: inline-block; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="icon" id="icon">⏳</div>
+  <h1 id="headline">Linking your plugin…</h1>
+  <p class="sub" id="sub">Connecting your Figma plugin to your Design Token Forge account. You can close this tab once it's done.</p>
+</div>
+
+<script>
+(function () {
+  var icon     = document.getElementById('icon');
+  var headline = document.getElementById('headline');
+  var sub      = document.getElementById('sub');
+
+  function setOk(msg) {
+    icon.textContent = '✅';
+    headline.textContent = 'Plugin linked!';
+    sub.textContent = msg || 'Your Figma plugin is now connected. You can close this tab.';
+    sub.className = 'sub status-ok';
+  }
+
+  function setErr(msg) {
+    icon.textContent = '❌';
+    headline.textContent = 'Linking failed';
+    sub.textContent = msg || 'Something went wrong. Close this tab and try again from the plugin.';
+    sub.className = 'sub status-err';
+  }
+
+  /* Read challenge from URL query string */
+  function getParam(name) {
+    var search = window.location.search.slice(1).split('&');
+    for (var i = 0; i < search.length; i++) {
+      var pair = search[i].split('=');
+      if (decodeURIComponent(pair[0]) === name) return decodeURIComponent(pair[1] || '');
+    }
+    return '';
+  }
+
+  var challenge = getParam('challenge');
+  if (!challenge || challenge.replace(/[^a-fA-F0-9]/g, '').length < 16) {
+    setErr('Missing or invalid challenge code. Please start the link flow from the Figma plugin again.');
+    return;
+  }
+
+  /* Call generatePluginToken — must use the full Catalyst serverless URL
+     so the request reaches the function (not the Slate SPA router).
+     The Zoho session is cross-domain within Catalyst, so credentials work. */
+  var SERVERLESS = 'https://project-rainfall-60080440486.development.catalystserverless.in';
+  fetch(SERVERLESS + '/server/generatePluginToken?challenge=' + encodeURIComponent(challenge), {
+    credentials: 'include',
+    cache: 'no-store'
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (body) {
+    if (body.status === 'success') {
+      setOk('Your Figma plugin will update automatically in a moment.');
+    } else {
+      /* 401 = not signed in to DTF yet */
+      if (body.error && /unauthorized|not auth/i.test(body.error)) {
+        setErr('You need to be signed in to Design Token Forge first. Sign in and try linking again.');
+      } else {
+        setErr(body.error || 'Server error. Please try again.');
+      }
+    }
+  })
+  .catch(function (err) {
+    setErr('Network error: ' + (err.message || err));
+  });
+}());
+</script>
+</body>
+</html>

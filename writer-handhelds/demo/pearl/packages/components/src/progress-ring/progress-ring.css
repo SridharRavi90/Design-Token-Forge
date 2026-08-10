@@ -1,0 +1,339 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Progress Ring Component CSS
+   Variable-driven SVG circular progress indicator.
+   Uses internal (--_rg-*) vars set by role/size selectors.
+
+   Markup:
+   <div class="progress-ring" data-size="base" data-role="brand"
+        data-variant="filled"
+        role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+     <svg class="progress-ring__svg" viewBox="0 0 36 36">
+       <circle class="progress-ring__track" cx="18" cy="18" r="16"/>
+       <circle class="progress-ring__fill" cx="18" cy="18" r="16"
+               style="--progress: 60"/>
+     </svg>
+     <span class="progress-ring__label">60%</span>
+   </div>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ──────────────────────────────────────────────── */
+@keyframes ring-rotate {
+  to { transform: rotate(calc(var(--ring-rotation) + 360deg)); }
+}
+
+@keyframes ring-dash {
+  0%   { stroke-dashoffset: 88; }
+  50%  { stroke-dashoffset: 25; }
+  100% { stroke-dashoffset: 88; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   1.  BASE STRUCTURE
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0px;
+  font-family: var(--ring-font-family);
+  font-weight: var(--ring-font-weight);
+  line-height: var(--ring-line-height);
+  letter-spacing: var(--ring-letter-spacing);
+  color: var(--ring-label-color);
+
+  /* Internal vars — set by size/role/variant selectors */
+  --_rg-size: var(--ring-size-base);
+  --_rg-stroke: var(--ring-stroke-base);
+  --_rg-gap: var(--ring-gap-base);
+  --_rg-fs: var(--ring-font-size-base);
+  --_rg-icon: var(--ring-icon-size-base);
+  --_rg-fill: var(--ring-brand-fill);
+  --_rg-track: var(--ring-track-color);
+  --_rg-track-opacity: var(--ring-bg-opacity);
+
+  width: var(--_rg-size);
+  height: var(--_rg-size);
+  font-size: var(--_rg-fs);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   2.  SIZE SELECTORS — map stored tokens → active vars
+   ════════════════════════════════════════════════════════════════ */
+
+.progress-ring:not([data-size]),
+.progress-ring[data-size="base"] {
+  --_rg-size: var(--ring-size-base);
+  --_rg-stroke: var(--ring-stroke-base);
+  --_rg-gap: var(--ring-gap-base);
+  --_rg-fs: var(--ring-font-size-base);
+  --_rg-icon: var(--ring-icon-size-base);
+}
+
+.progress-ring[data-size="micro"] {
+  --_rg-size: var(--ring-size-micro);
+  --_rg-stroke: var(--ring-stroke-micro);
+  --_rg-gap: var(--ring-gap-micro);
+  --_rg-fs: var(--ring-font-size-micro);
+  --_rg-icon: var(--ring-icon-size-micro);
+}
+
+.progress-ring[data-size="tiny"] {
+  --_rg-size: var(--ring-size-tiny);
+  --_rg-stroke: var(--ring-stroke-tiny);
+  --_rg-gap: var(--ring-gap-tiny);
+  --_rg-fs: var(--ring-font-size-tiny);
+  --_rg-icon: var(--ring-icon-size-tiny);
+}
+
+.progress-ring[data-size="small"] {
+  --_rg-size: var(--ring-size-small);
+  --_rg-stroke: var(--ring-stroke-small);
+  --_rg-gap: var(--ring-gap-small);
+  --_rg-fs: var(--ring-font-size-small);
+  --_rg-icon: var(--ring-icon-size-small);
+}
+
+.progress-ring[data-size="medium"] {
+  --_rg-size: var(--ring-size-medium);
+  --_rg-stroke: var(--ring-stroke-medium);
+  --_rg-gap: var(--ring-gap-medium);
+  --_rg-fs: var(--ring-font-size-medium);
+  --_rg-icon: var(--ring-icon-size-medium);
+}
+
+.progress-ring[data-size="large"] {
+  --_rg-size: var(--ring-size-large);
+  --_rg-stroke: var(--ring-stroke-large);
+  --_rg-gap: var(--ring-gap-large);
+  --_rg-fs: var(--ring-font-size-large);
+  --_rg-icon: var(--ring-icon-size-large);
+}
+
+.progress-ring[data-size="big"] {
+  --_rg-size: var(--ring-size-big);
+  --_rg-stroke: var(--ring-stroke-big);
+  --_rg-gap: var(--ring-gap-big);
+  --_rg-fs: var(--ring-font-size-big);
+  --_rg-icon: var(--ring-icon-size-big);
+}
+
+.progress-ring[data-size="huge"] {
+  --_rg-size: var(--ring-size-huge);
+  --_rg-stroke: var(--ring-stroke-huge);
+  --_rg-gap: var(--ring-gap-huge);
+  --_rg-fs: var(--ring-font-size-huge);
+  --_rg-icon: var(--ring-icon-size-huge);
+}
+
+.progress-ring[data-size="mega"] {
+  --_rg-size: var(--ring-size-mega);
+  --_rg-stroke: var(--ring-stroke-mega);
+  --_rg-gap: var(--ring-gap-mega);
+  --_rg-fs: var(--ring-font-size-mega);
+  --_rg-icon: var(--ring-icon-size-mega);
+}
+
+.progress-ring[data-size="ultra"] {
+  --_rg-size: var(--ring-size-ultra);
+  --_rg-stroke: var(--ring-stroke-ultra);
+  --_rg-gap: var(--ring-gap-ultra);
+  --_rg-fs: var(--ring-font-size-ultra);
+  --_rg-icon: var(--ring-icon-size-ultra);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   3.  ROLE SELECTORS — set fill color per semantic role
+   ════════════════════════════════════════════════════════════════ */
+
+.progress-ring:not([data-role]),
+.progress-ring[data-role="brand"] {
+  --_rg-fill: var(--ring-brand-fill);
+  --_rg-soft-track: var(--ring-brand-soft-track);
+}
+
+.progress-ring[data-role="success"] {
+  --_rg-fill: var(--ring-success-fill);
+  --_rg-soft-track: var(--ring-success-soft-track);
+}
+
+.progress-ring[data-role="warning"] {
+  --_rg-fill: var(--ring-warning-fill);
+  --_rg-soft-track: var(--ring-warning-soft-track);
+}
+
+.progress-ring[data-role="danger"] {
+  --_rg-fill: var(--ring-danger-fill);
+  --_rg-soft-track: var(--ring-danger-soft-track);
+}
+
+.progress-ring[data-role="info"] {
+  --_rg-fill: var(--ring-info-fill);
+  --_rg-soft-track: var(--ring-info-soft-track);
+}
+
+.progress-ring[data-role="neutral"] {
+  --_rg-fill: var(--ring-neutral-fill);
+  --_rg-soft-track: var(--ring-neutral-soft-track);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   4.  VARIANT SELECTORS — structural surface treatment
+   ════════════════════════════════════════════════════════════════ */
+
+/* Filled (default) — solid ring on muted track */
+.progress-ring:not([data-variant]),
+.progress-ring[data-variant="filled"] {
+  --_rg-track: var(--ring-track-color);
+  --_rg-track-opacity: var(--ring-bg-opacity);
+}
+
+/* Soft — tinted track matching role */
+.progress-ring[data-variant="soft"] {
+  --_rg-track: var(--_rg-soft-track);
+  --_rg-track-opacity: 1;
+}
+
+/* Outline — low-opacity track ring, no extra stroke */
+.progress-ring[data-variant="outlined"] {
+  --_rg-track: var(--_rg-fill);
+  --_rg-track-opacity: var(--ring-outlined-track-opacity);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   5.  DISABLED STATE
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring[data-disabled] {
+  opacity: var(--ring-opacity-disabled);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   6.  SVG CONTAINER
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring__svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(var(--ring-rotation));
+}
+
+/* ════════════════════════════════════════════════════════════════
+   7.  TRACK CIRCLE
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring__track {
+  fill: none;
+  stroke: var(--_rg-track);
+  stroke-width: var(--_rg-stroke);
+  opacity: var(--_rg-track-opacity);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   8.  FILL CIRCLE
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring__fill {
+  fill: none;
+  stroke: var(--_rg-fill);
+  stroke-width: var(--_rg-stroke);
+  stroke-linecap: var(--ring-stroke-linecap);
+  /* circumference = 2 * PI * r(16) ≈ 100.53 */
+  stroke-dasharray: 100.53;
+  stroke-dashoffset: calc(100.53 - (100.53 * var(--progress, 0) / 100));
+  transition: stroke-dashoffset var(--ring-transition-duration) var(--ring-transition-easing);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   9.  LABEL (centered inside ring)
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   10. ICON (centered inside ring, alternative to label)
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ring-icon-color);
+}
+
+.progress-ring__icon svg {
+  width: var(--_rg-icon);
+  height: var(--_rg-icon);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   11. HELPER TEXT (below the ring)
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring__helper {
+  display: block;
+  font-size: var(--ring-helper-font-size);
+  color: var(--ring-helper-color);
+  text-align: center;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   12. LINECAP OVERRIDE — butt for sharp ends
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring[data-linecap="butt"] .progress-ring__fill {
+  stroke-linecap: butt;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   13. INDETERMINATE
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring[data-indeterminate] .progress-ring__svg {
+  animation: ring-rotate var(--ring-indeterminate-duration) var(--ring-indeterminate-easing) infinite;
+}
+
+.progress-ring[data-indeterminate] .progress-ring__fill {
+  stroke-dashoffset: 75;
+  stroke: var(--ring-indeterminate-fill);
+  animation: ring-dash var(--ring-indeterminate-duration) ease-in-out infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   14. FOCUS
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring:focus-visible {
+  outline: var(--ring-focus-outline-width) solid var(--ring-focus-outline-color);
+  outline-offset: var(--ring-focus-outline-offset);
+  border-radius: 50%;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   15. ELEVATED / SHADOW
+   ════════════════════════════════════════════════════════════════ */
+.progress-ring[data-strong] {
+  box-shadow: var(--ring-shadow-strong);
+  border-radius: 50%;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   16. FORCED COLORS
+   ════════════════════════════════════════════════════════════════ */
+@media (forced-colors: active) {
+  .progress-ring__track { stroke: CanvasText; }
+  .progress-ring__fill  { stroke: Highlight; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   16. REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .progress-ring__fill {
+    transition-duration: 0.01ms !important;
+  }
+  .progress-ring[data-indeterminate] .progress-ring__svg,
+  .progress-ring[data-indeterminate] .progress-ring__fill {
+    animation: none !important;
+  }
+}

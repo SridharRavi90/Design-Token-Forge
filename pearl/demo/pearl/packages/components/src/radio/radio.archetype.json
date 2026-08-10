@@ -1,0 +1,40 @@
+{
+  "archetype": "form-binary",
+  "tokenPrefix": "radio",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["unchecked", "checked", "hover", "pressed", "disabled", "focus-visible", "invalid"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined"],
+  "onComponentTokens": [
+    {
+      "token": "--radio-dot-color",
+      "fillStates": ["--radio-circle-bg-on", "--radio-circle-bg-on-hover"],
+      "derivation": "auto-aa",
+      "wcag": "AA-non-text"
+    },
+    {
+      "token": "--radio-outlined-dot-color",
+      "fillStates": ["--radio-outlined-circle-bg-on", "--radio-outlined-circle-bg-on-hover"],
+      "derivation": "auto-aa",
+      "wcag": "AA-non-text"
+    }
+  ],
+  "editorExposureOverrides": {
+    "--radio-min-tap-target": "required",
+    "--radio-required-indicator": "required",
+    "--radio-required-color": "required",
+    "--radio-circle-scale-pressed": "advanced",
+    "--radio-focus-outline-offset": "advanced",
+    "--radio-group-gap": "advanced",
+    "--radio-group-gap-horizontal": "advanced"
+  },
+  "figmaBindingPrefix": "radio/",
+  "notes": [
+    "Form-binary archetype peer of checkbox + toggle. Always circular (border-radius:50%) — no progressive radius axis. Indicator is an inner dot rather than a checkmark glyph.",
+    "Variant pair is filled (solid circle-on) + outlined (transparent off, filled on). No soft/ghost — the indicator surface must always render.",
+    "Two dimension axes: circle-size (outer) and dot-size (inner, ~45% of outer). Both scale across the 10 density modes.",
+    "Roles brand|danger|warning|info|success|neutral remap via [data-role=...] overriding --brand-* palette vars at the component scope (see radio.css).",
+    "aria-invalid='true' forces danger-coloured border and (when checked) danger-coloured fill, regardless of role. Invalid is a STATE, not a role.",
+    "Companion .radio-group wraps multiple radios with vertical/horizontal layout via [data-direction]. Group-gap tokens are non-density (single value per orientation)."
+  ]
+}

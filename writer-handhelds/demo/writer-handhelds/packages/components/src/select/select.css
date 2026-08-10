@@ -1,0 +1,484 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Select Component CSS
+   Variable-driven rendering — reads only from --select-* tokens.
+   Uses internal (--_sel-*) vars set by size & variant selectors.
+
+   Markup:
+   <div class="select-group" data-variant="outlined" data-size="base">
+     <label class="select__label" for="sel1">Label</label>
+     <div class="select-field">
+       <select id="sel1">
+         <option value="" disabled selected>Choose…</option>
+         <option value="a">Option A</option>
+       </select>
+       <span class="select__chevron" aria-hidden="true">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+       </span>
+     </div>
+     <span class="select__helper">Helper text</span>
+   </div>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────
+   1.  BASE — Internal active variables (default = base + outlined)
+   ──────────────────────────────────────────────────────────────── */
+.select-group {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--select-max-width);
+  font-family: var(--select-font-family);
+  min-height: var(--select-min-tap-target);
+
+  /* Dimension active vars (base density) */
+  --_sel-height: var(--select-height-base);
+  --_sel-px: var(--select-padding-x-base);
+  --_sel-py: var(--select-padding-y-base);
+  --_sel-fs: var(--select-font-size-base);
+  --_sel-radius: var(--select-radius-base);
+  --_sel-chevron: var(--select-chevron-size-base);
+
+  /* Surface active vars (outlined default) */
+  --_sel-bg: var(--select-outlined-bg);
+  --_sel-fg: var(--select-outlined-fg);
+  --_sel-border-color: var(--select-outlined-border-color);
+  --_sel-placeholder: var(--select-outlined-placeholder);
+  --_sel-shadow: var(--select-shadow);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   2.  SIZE SELECTORS — map density tokens → active vars
+   ──────────────────────────────────────────────────────────────── */
+.select-group[data-size="micro"] {
+  --_sel-height: var(--select-height-micro);
+  --_sel-px: var(--select-padding-x-micro);
+  --_sel-py: var(--select-padding-y-micro);
+  --_sel-fs: var(--select-font-size-micro);
+  --_sel-radius: var(--select-radius-micro);
+  --_sel-chevron: var(--select-chevron-size-micro);
+}
+.select-group[data-size="tiny"] {
+  --_sel-height: var(--select-height-tiny);
+  --_sel-px: var(--select-padding-x-tiny);
+  --_sel-py: var(--select-padding-y-tiny);
+  --_sel-fs: var(--select-font-size-tiny);
+  --_sel-radius: var(--select-radius-tiny);
+  --_sel-chevron: var(--select-chevron-size-tiny);
+}
+.select-group[data-size="small"] {
+  --_sel-height: var(--select-height-small);
+  --_sel-px: var(--select-padding-x-small);
+  --_sel-py: var(--select-padding-y-small);
+  --_sel-fs: var(--select-font-size-small);
+  --_sel-radius: var(--select-radius-small);
+  --_sel-chevron: var(--select-chevron-size-small);
+}
+.select-group[data-size="base"] {
+  --_sel-height: var(--select-height-base);
+  --_sel-px: var(--select-padding-x-base);
+  --_sel-py: var(--select-padding-y-base);
+  --_sel-fs: var(--select-font-size-base);
+  --_sel-radius: var(--select-radius-base);
+  --_sel-chevron: var(--select-chevron-size-base);
+}
+.select-group[data-size="medium"] {
+  --_sel-height: var(--select-height-medium);
+  --_sel-px: var(--select-padding-x-medium);
+  --_sel-py: var(--select-padding-y-medium);
+  --_sel-fs: var(--select-font-size-medium);
+  --_sel-radius: var(--select-radius-medium);
+  --_sel-chevron: var(--select-chevron-size-medium);
+}
+.select-group[data-size="large"] {
+  --_sel-height: var(--select-height-large);
+  --_sel-px: var(--select-padding-x-large);
+  --_sel-py: var(--select-padding-y-large);
+  --_sel-fs: var(--select-font-size-large);
+  --_sel-radius: var(--select-radius-large);
+  --_sel-chevron: var(--select-chevron-size-large);
+}
+.select-group[data-size="big"] {
+  --_sel-height: var(--select-height-big);
+  --_sel-px: var(--select-padding-x-big);
+  --_sel-py: var(--select-padding-y-big);
+  --_sel-fs: var(--select-font-size-big);
+  --_sel-radius: var(--select-radius-big);
+  --_sel-chevron: var(--select-chevron-size-big);
+}
+.select-group[data-size="huge"] {
+  --_sel-height: var(--select-height-huge);
+  --_sel-px: var(--select-padding-x-huge);
+  --_sel-py: var(--select-padding-y-huge);
+  --_sel-fs: var(--select-font-size-huge);
+  --_sel-radius: var(--select-radius-huge);
+  --_sel-chevron: var(--select-chevron-size-huge);
+}
+.select-group[data-size="mega"] {
+  --_sel-height: var(--select-height-mega);
+  --_sel-px: var(--select-padding-x-mega);
+  --_sel-py: var(--select-padding-y-mega);
+  --_sel-fs: var(--select-font-size-mega);
+  --_sel-radius: var(--select-radius-mega);
+  --_sel-chevron: var(--select-chevron-size-mega);
+}
+.select-group[data-size="ultra"] {
+  --_sel-height: var(--select-height-ultra);
+  --_sel-px: var(--select-padding-x-ultra);
+  --_sel-py: var(--select-padding-y-ultra);
+  --_sel-fs: var(--select-font-size-ultra);
+  --_sel-radius: var(--select-radius-ultra);
+  --_sel-chevron: var(--select-chevron-size-ultra);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   3.  VARIANT SELECTORS — map surface tokens → active vars
+   ──────────────────────────────────────────────────────────────── */
+
+/* Outlined (default) */
+.select-group,
+.select-group[data-variant="outlined"] {
+  --_sel-bg: var(--select-outlined-bg);
+  --_sel-fg: var(--select-outlined-fg);
+  --_sel-border-color: var(--select-outlined-border-color);
+  --_sel-placeholder: var(--select-outlined-placeholder);
+}
+
+/* Filled */
+.select-group[data-variant="filled"] {
+  --_sel-bg: var(--select-filled-bg);
+  --_sel-fg: var(--select-filled-fg);
+  --_sel-border-color: var(--select-filled-border-color);
+  --_sel-placeholder: var(--select-filled-placeholder);
+}
+
+/* Underline */
+.select-group[data-variant="underline"] {
+  --_sel-bg: var(--select-underline-bg);
+  --_sel-fg: var(--select-underline-fg);
+  --_sel-border-color: var(--select-underline-border-color);
+  --_sel-placeholder: var(--select-underline-placeholder);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   ROLE SELECTORS — palette-level remapping (affects focus border,
+   focus label color). data-role="brand" is the default.
+   Invalid state (aria-invalid) always overrides role.
+   ───────────────────────────────────────────────────────────────── */
+
+.select-group[data-role="danger"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+  --brand-content-default: var(--danger-content-default);
+}
+.select-group[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-outline-default: var(--success-component-outline-default);
+  --brand-content-default: var(--success-content-default);
+}
+.select-group[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+  --brand-content-default: var(--warning-content-default);
+}
+.select-group[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-outline-default: var(--info-component-outline-default);
+  --brand-content-default: var(--info-content-default);
+}
+.select-group[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg-pressed);
+  --brand-component-outline-default: var(--surface-base-cm-outline-hover);
+  --brand-content-default: var(--surface-base-ct-default);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   4.  STATE OVERRIDES — hover, focus, invalid, disabled
+   ───────────────────────────────────────────────────────────────── */
+
+/* ── Hover (outlined) ───────────────────────────────────── */
+.select-group:not([data-disabled]):not([data-variant]):has(.select-field:hover),
+.select-group[data-variant="outlined"]:not([data-disabled]):has(.select-field:hover) {
+  --_sel-bg: var(--select-outlined-bg-hover);
+  --_sel-border-color: var(--select-outlined-border-color-hover);
+}
+
+/* ── Hover (filled) ───────────────────────────────────────── */
+.select-group[data-variant="filled"]:not([data-disabled]):has(.select-field:hover) {
+  --_sel-bg: var(--select-filled-bg-hover);
+  --_sel-border-color: var(--select-filled-border-color-hover);
+}
+
+/* ── Hover (underline) ────────────────────────────────────── */
+.select-group[data-variant="underline"]:not([data-disabled]):has(.select-field:hover) {
+  --_sel-bg: var(--select-underline-bg-hover);
+  --_sel-border-color: var(--select-underline-border-color-hover);
+}
+
+/* ── Focus (outlined) ───────────────────────────────────── */
+.select-group:not([data-disabled]):not([data-variant]):has(.select-field:focus-visible),
+.select-group[data-variant="outlined"]:not([data-disabled]):has(.select-field:focus-visible) {
+  --_sel-bg: var(--select-outlined-bg-focus);
+  --_sel-border-color: var(--select-outlined-border-color-focus);
+  --_sel-shadow: var(--select-shadow-focus);
+}
+
+/* ── Focus (filled) ───────────────────────────────────────── */
+.select-group[data-variant="filled"]:not([data-disabled]):has(.select-field:focus-visible) {
+  --_sel-bg: var(--select-filled-bg-focus);
+  --_sel-border-color: var(--select-filled-border-color-focus);
+  --_sel-shadow: var(--select-shadow-focus);
+}
+
+/* ── Focus (underline) ────────────────────────────────────── */
+.select-group[data-variant="underline"]:not([data-disabled]):has(.select-field:focus-visible) {
+  --_sel-bg: var(--select-underline-bg-focus);
+  --_sel-border-color: var(--select-underline-border-color-focus);
+  --_sel-shadow: var(--select-shadow-focus);
+}
+
+/* ── Invalid (outlined) ──────────────────────────────────────── */
+.select-group[aria-invalid="true"]:not([data-variant]),
+.select-group[aria-invalid="true"][data-variant="outlined"] {
+  --_sel-bg: var(--select-outlined-bg-invalid);
+  --_sel-border-color: var(--select-outlined-border-color-invalid);
+}
+
+/* ── Invalid (filled) ───────────────────────────────────────── */
+.select-group[aria-invalid="true"][data-variant="filled"] {
+  --_sel-bg: var(--select-filled-bg-invalid);
+  --_sel-border-color: var(--select-filled-border-color-invalid);
+}
+
+/* ── Invalid (underline) ────────────────────────────────────── */
+.select-group[aria-invalid="true"][data-variant="underline"] {
+  --_sel-bg: var(--select-underline-bg-invalid);
+  --_sel-border-color: var(--select-underline-border-color-invalid);
+}
+
+/* Invalid + Focus keeps invalid border */
+.select-group[aria-invalid="true"]:has(.select-field:focus-visible) {
+  --_sel-shadow: var(--select-shadow-focus);
+}
+
+/* ── Disabled (outlined) ───────────────────────────────────── */
+.select-group[data-disabled]:not([data-variant]),
+.select-group[data-disabled][data-variant="outlined"] {
+  --_sel-bg: var(--select-outlined-bg-disabled);
+  --_sel-fg: var(--select-outlined-fg-disabled);
+  --_sel-border-color: var(--select-outlined-border-color-disabled);
+  --_sel-placeholder: var(--select-outlined-placeholder-disabled);
+}
+
+/* ── Disabled (filled) ────────────────────────────────────── */
+.select-group[data-disabled][data-variant="filled"] {
+  --_sel-bg: var(--select-filled-bg-disabled);
+  --_sel-fg: var(--select-filled-fg-disabled);
+  --_sel-border-color: var(--select-filled-border-color-disabled);
+  --_sel-placeholder: var(--select-filled-placeholder-disabled);
+}
+
+/* ── Disabled (underline) ─────────────────────────────────── */
+.select-group[data-disabled][data-variant="underline"] {
+  --_sel-bg: var(--select-underline-bg-disabled);
+  --_sel-fg: var(--select-underline-fg-disabled);
+  --_sel-border-color: var(--select-underline-border-color-disabled);
+  --_sel-placeholder: var(--select-underline-placeholder-disabled);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   5.  FIELD RENDERING — .select-field reads active vars
+   ──────────────────────────────────────────────────────────────── */
+.select-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: var(--select-min-width);
+  height: var(--_sel-height);
+
+  background: var(--_sel-bg);
+  color: var(--_sel-fg);
+  border-width: var(--select-border-width);
+  border-style: var(--select-border-style);
+  border-color: var(--_sel-border-color);
+  border-radius: var(--_sel-radius);
+  box-shadow: var(--_sel-shadow);
+
+  font-family: var(--select-font-family);
+  font-size: var(--_sel-fs);
+  font-weight: var(--select-font-weight);
+  line-height: var(--select-line-height);
+
+  transition-property: var(--select-transition-property);
+  transition-duration: var(--select-transition-duration);
+  transition-timing-function: var(--select-transition-easing);
+}
+
+/* Underline variant shape override — only bottom border */
+.select-group[data-variant="underline"] .select-field {
+  border-width: 0 0 var(--select-border-width) 0;
+  border-radius: 0;
+}
+.select-group[data-variant="underline"]:not([data-disabled]):has(.select-field:focus-visible) .select-field {
+  border-bottom-width: 2px;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   6.  NATIVE SELECT — reset + sizing
+   ──────────────────────────────────────────────────────────────── */
+.select-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: var(--_sel-py) var(--_sel-px);
+  padding-inline-end: calc(var(--_sel-px) + var(--_sel-chevron) + var(--_sel-px));
+  outline: none;
+  cursor: pointer;
+}
+
+/* Placeholder style (disabled first option) */
+.select-field select:invalid,
+.select-field select option[value=""][disabled] {
+  color: var(--_sel-placeholder);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   7.  CHEVRON INDICATOR — .select__chevron
+   ──────────────────────────────────────────────────────────────── */
+.select__chevron {
+  position: absolute;
+  right: var(--_sel-px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--_sel-chevron);
+  height: var(--_sel-chevron);
+  color: var(--select-chevron-color);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--select-transition-duration) var(--select-transition-easing);
+}
+
+.select__chevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   8.  FOCUS RING — on :focus-visible
+   ──────────────────────────────────────────────────────────────── */
+.select-group:not([data-disabled]):has(.select-field:focus-visible) .select-field {
+  outline: var(--select-focus-outline-width) var(--select-outline-style) var(--select-focus-outline-color);
+  outline-offset: var(--select-focus-outline-offset);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   9.  DISABLED STATE — opacity + cursor
+   ──────────────────────────────────────────────────────────────── */
+.select-group[data-disabled] .select-field {
+
+}
+.select-group[data-disabled]:not([data-variant]) .select-field,
+.select-group[data-disabled][data-variant="outlined"] .select-field {
+  opacity: var(--select-outlined-opacity-disabled);
+}
+.select-group[data-disabled][data-variant="filled"] .select-field {
+  opacity: var(--select-filled-opacity-disabled);
+}
+.select-group[data-disabled][data-variant="underline"] .select-field {
+  opacity: var(--select-underline-opacity-disabled);
+}
+
+.select-group[data-disabled] .select-field select {
+
+  pointer-events: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   10.  LABEL SLOT — .select__label
+   ──────────────────────────────────────────────────────────────── */
+.select__label {
+  font-size: var(--select-label-font-size);
+  font-weight: var(--select-label-font-weight);
+  line-height: var(--select-line-height);
+  color: var(--select-label-color);
+  margin-bottom: var(--select-label-gap);
+}
+
+.select-group:has(.select-field:focus-visible) .select__label {
+  color: var(--select-label-color-focus);
+}
+.select-group[aria-invalid="true"] .select__label {
+  color: var(--select-label-color-invalid);
+}
+.select-group[data-disabled] .select__label {
+  color: var(--select-label-color-disabled);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   11.  HELPER SLOT — .select__helper
+   ──────────────────────────────────────────────────────────────── */
+.select__helper {
+  font-size: var(--select-helper-font-size);
+  font-weight: var(--select-helper-font-weight);
+  line-height: var(--select-line-height);
+  color: var(--select-helper-color);
+  margin-top: var(--select-helper-gap);
+}
+
+.select-group[aria-invalid="true"] .select__helper {
+  color: var(--select-helper-color-invalid);
+}
+.select-group[data-disabled] .select__helper {
+  color: var(--select-label-color-disabled);
+}
+
+/* Rounded (pill) override */
+.select-group[data-rounded] .select-field {
+  --_sel-radius: var(--select-radius-rounded);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12.  ACCESSIBILITY — Forced colors
+   ──────────────────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .select-field {
+    border-color: ButtonText;
+  }
+  .select-group:has(.select-field:focus-visible) .select-field {
+    outline-color: Highlight;
+    border-color: Highlight;
+  }
+  .select-group[data-disabled] .select-field {
+    border-color: GrayText;
+    color: GrayText;
+  }
+  .select-group[aria-invalid="true"] .select-field {
+    border-color: LinkText;
+  }
+  .select__chevron {
+    color: ButtonText;
+  }
+  .select-group[data-disabled] .select__chevron {
+    color: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .select-field,
+  .select__chevron {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

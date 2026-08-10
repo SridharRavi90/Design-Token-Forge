@@ -1,0 +1,293 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Input Token Defaults
+   Layer 0: System defaults for ~172 input variables.
+
+   Anatomy:
+     <div.input-group>
+       <label.input-label/>             (optional)
+       <div.input-field>
+         <span.input-prefix/>           (optional — icon/text)
+         <input.input-control/>
+         <span.input-suffix/>           (optional — icon/clear)
+       </div>
+       <div.input-helper/>              (optional — helper or invalid msg)
+     </div>
+
+   Variants: outlined (default) | filled | underline
+   Roles:    brand (default) | danger | warning | info | success | neutral
+             (applied via [data-role="…"]; remaps --brand-* primitives
+              that drive focus ring + caret + focus border)
+   States:   default | hover | focus-visible | disabled | readonly
+             | invalid (aria-invalid="true")
+
+   Invalid is a STATE (triggered by aria-invalid="true"), not a role —
+   it always paints danger surfaces regardless of the active role.
+
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.input-group {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (21 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode — one step ahead of button scale, capped at xl */
+  --input-radius-micro: var(--radius-sm);     /* 4px  — same as btn-micro */
+  --input-radius-tiny: var(--radius-sm);      /* 4px  — same as btn-tiny */
+  --input-radius-small: var(--radius-md);     /* 6px  — same as btn-small */
+  --input-radius-base: var(--radius-DEFAULT); /* 8px  — one step above btn-base */
+  --input-radius-medium: var(--radius-DEFAULT); /* 8px */
+  --input-radius-large: var(--radius-md-lg);  /* 10px — one step above btn-large */
+  --input-radius-big: var(--radius-md-lg);    /* 10px — same as btn-big */
+  --input-radius-huge: var(--radius-lg);      /* 12px — one step above btn-huge */
+  --input-radius-mega: var(--radius-lg);      /* 12px — same as btn-mega */
+  --input-radius-ultra: var(--radius-xl);     /* 16px — two steps above btn-ultra, capped */
+  --input-radius-rounded: var(--radius-full);
+
+  /* Border width — 4 sides */
+  --input-border-width-t: 1px;
+  --input-border-width-r: 1px;
+  --input-border-width-b: 1px;
+  --input-border-width-l: 1px;
+  --input-border-style: solid;
+
+  /* Shadow */
+  --input-shadow: var(--shadow-none);
+  --input-shadow-focus: var(--shadow-none);
+
+  /* Outline */
+  --input-outline-style: solid;
+  --input-outline-width: 2px;
+
+  /* Clip & overflow */
+  --input-clip-path: none;
+  --input-overflow: visible;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (52 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Height per density mode */
+  --input-height-micro: var(--spacing-24);
+  --input-height-tiny: var(--spacing-28);
+  --input-height-small: var(--spacing-32);
+  --input-height-base: var(--spacing-36);
+  --input-height-medium: var(--spacing-40);
+  --input-height-large: var(--spacing-44);
+  --input-height-big: var(--spacing-48);
+  --input-height-huge: var(--spacing-56);
+  --input-height-mega: var(--spacing-64);
+  --input-height-ultra: var(--spacing-72);
+
+  /* Horizontal padding per density mode */
+  --input-padding-x-micro: var(--spacing-6);
+  --input-padding-x-tiny: var(--spacing-8);
+  --input-padding-x-small: var(--spacing-10);
+  --input-padding-x-base: var(--spacing-12);
+  --input-padding-x-medium: var(--spacing-14);
+  --input-padding-x-large: var(--spacing-16);
+  --input-padding-x-big: var(--spacing-16);
+  --input-padding-x-huge: var(--spacing-18);
+  --input-padding-x-mega: var(--spacing-20);
+  --input-padding-x-ultra: var(--spacing-20);
+
+  /* Vertical padding per density mode */
+  --input-padding-y-micro: var(--spacing-2);
+  --input-padding-y-tiny: var(--spacing-3);
+  --input-padding-y-small: var(--spacing-4);
+  --input-padding-y-base: var(--spacing-6);
+  --input-padding-y-medium: var(--spacing-8);
+  --input-padding-y-large: var(--spacing-10);
+  --input-padding-y-big: var(--spacing-12);
+  --input-padding-y-huge: var(--spacing-14);
+  --input-padding-y-mega: var(--spacing-16);
+  --input-padding-y-ultra: var(--spacing-20);
+
+  /* Min-width per density mode */
+  --input-min-width-micro: var(--spacing-80);
+  --input-min-width-tiny: var(--spacing-96);
+  --input-min-width-small: var(--spacing-112);
+  --input-min-width-base: var(--spacing-120);
+  --input-min-width-medium: var(--spacing-120);
+  --input-min-width-large: var(--spacing-120);
+  --input-min-width-big: var(--spacing-120);
+  --input-min-width-huge: var(--spacing-120);
+  --input-min-width-mega: var(--spacing-120);
+  --input-min-width-ultra: var(--spacing-120);
+
+  /* Gap per density mode (between prefix / text / suffix) */
+  --input-gap-micro: var(--spacing-2);
+  --input-gap-tiny: var(--spacing-3);
+  --input-gap-small: var(--spacing-4);
+  --input-gap-base: var(--spacing-6);
+  --input-gap-medium: var(--spacing-6);
+  --input-gap-large: var(--spacing-8);
+  --input-gap-big: var(--spacing-10);
+  --input-gap-huge: var(--spacing-12);
+  --input-gap-mega: var(--spacing-14);
+  --input-gap-ultra: var(--spacing-16);
+
+  /* Icon-side padding per density mode (tighter than label-side for visual balance) */
+  --input-padding-x-icon-micro: var(--spacing-6);
+  --input-padding-x-icon-tiny: var(--spacing-6);
+  --input-padding-x-icon-small: var(--spacing-8);
+  --input-padding-x-icon-base: var(--spacing-10);
+  --input-padding-x-icon-medium: var(--spacing-10);
+  --input-padding-x-icon-large: var(--spacing-12);
+  --input-padding-x-icon-big: var(--spacing-14);
+  --input-padding-x-icon-huge: var(--spacing-14);
+  --input-padding-x-icon-mega: var(--spacing-18);
+  --input-padding-x-icon-ultra: var(--spacing-20);
+
+  /* Width model */
+  --input-max-width: none;
+  --input-inline-size: 100%;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (52 vars = 3 variants × 15 + 7 shared)
+     Pattern: --input-{variant}-{property}[-{state}]
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── OUTLINE (bordered, transparent bg) ─────────────────── */
+  --input-outlined-bg: transparent;
+  --input-outlined-bg-hover: transparent;
+  --input-outlined-bg-focus: transparent;
+  --input-outlined-bg-disabled: transparent;
+  --input-outlined-bg-invalid: transparent;
+  --input-outlined-fg: var(--surface-base-ct-default);
+  --input-outlined-fg-disabled: var(--surface-base-ct-faint);
+  --input-outlined-border-color: var(--surface-base-cm-outline);
+  --input-outlined-border-color-hover: var(--surface-base-cm-outline-hover);
+  --input-outlined-border-color-focus: var(--brand-component-outline-default);
+  --input-outlined-border-color-disabled: var(--surface-base-cm-outline);
+  --input-outlined-border-color-invalid: var(--danger-component-outline-default);
+  --input-outlined-placeholder: var(--surface-base-ct-faint);
+  --input-outlined-placeholder-disabled: var(--surface-base-ct-faint);
+  --input-outlined-opacity-disabled: 0.5;
+
+  /* ── FILLED (tinted bg + full outline border) ──────────── */
+  --input-filled-bg: var(--surface-base-cm-bg);
+  --input-filled-bg-hover: var(--surface-base-cm-bg-hover);
+  --input-filled-bg-focus: var(--surface-base-cm-bg);
+  --input-filled-bg-disabled: var(--surface-base-cm-bg);
+  --input-filled-bg-invalid: var(--surface-base-cm-bg);
+  --input-filled-fg: var(--surface-base-ct-default);
+  --input-filled-fg-disabled: var(--surface-base-ct-faint);
+  --input-filled-border-color: var(--surface-base-cm-outline);
+  --input-filled-border-color-hover: var(--surface-base-cm-outline-hover);
+  --input-filled-border-color-focus: var(--brand-component-outline-default);
+  --input-filled-border-color-disabled: var(--surface-base-cm-outline);
+  --input-filled-border-color-invalid: var(--danger-component-outline-default);
+  --input-filled-placeholder: var(--surface-base-ct-faint);
+  --input-filled-placeholder-disabled: var(--surface-base-ct-faint);
+  --input-filled-opacity-disabled: 0.5;
+
+  /* ── UNDERLINE (bottom border only, Material-style) ─────── */
+  --input-underline-bg: transparent;
+  --input-underline-bg-hover: transparent;
+  --input-underline-bg-focus: transparent;
+  --input-underline-bg-disabled: transparent;
+  --input-underline-bg-invalid: transparent;
+  --input-underline-fg: var(--surface-base-ct-default);
+  --input-underline-fg-disabled: var(--surface-base-ct-faint);
+  --input-underline-border-color: var(--surface-base-cm-outline);
+  --input-underline-border-color-hover: var(--surface-base-ct-subtle);
+  --input-underline-border-color-focus: var(--brand-component-outline-default);
+  --input-underline-border-color-disabled: var(--surface-base-cm-outline);
+  --input-underline-border-color-invalid: var(--danger-component-outline-default);
+  --input-underline-placeholder: var(--surface-base-ct-faint);
+  --input-underline-placeholder-disabled: var(--surface-base-ct-faint);
+  --input-underline-opacity-disabled: 0.5;
+
+  /* ── Shared surface tokens ──────────────────────────────── */
+  --input-label-color: var(--surface-base-ct-subtle);
+  --input-label-color-focus: var(--brand-content-default);
+  --input-label-color-invalid: var(--danger-content-default);
+  --input-label-color-disabled: var(--surface-base-ct-faint);
+  --input-helper-color: var(--surface-base-ct-subtle);
+  --input-helper-color-invalid: var(--danger-content-default);
+  --input-caret-color: var(--brand-component-bg-default);
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --input-font-family: var(--font-family-sans);
+
+  /* Font size per density mode */
+  --input-font-size-micro: var(--font-size-10);
+  --input-font-size-tiny: var(--font-size-11);
+  --input-font-size-small: var(--font-size-12);
+  --input-font-size-base: var(--font-size-14);
+  --input-font-size-medium: var(--font-size-14);
+  --input-font-size-large: var(--font-size-16);
+  --input-font-size-big: var(--font-size-16);
+  --input-font-size-huge: var(--font-size-18);
+  --input-font-size-mega: var(--font-size-20);
+  --input-font-size-ultra: var(--font-size-24);
+
+  --input-font-weight: var(--font-weight-regular);
+  --input-line-height: var(--line-height-normal);
+  --input-letter-spacing: var(--letter-spacing-normal);
+  --input-placeholder-style: normal;
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (20 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Prefix / Suffix icon — size per density mode */
+  --input-affix-size-micro: var(--spacing-10);
+  --input-affix-size-tiny: var(--spacing-12);
+  --input-affix-size-small: var(--spacing-14);
+  --input-affix-size-base: var(--spacing-16);
+  --input-affix-size-medium: var(--spacing-16);
+  --input-affix-size-large: var(--spacing-18);
+  --input-affix-size-big: var(--spacing-18);
+  --input-affix-size-huge: var(--spacing-20);
+  --input-affix-size-mega: var(--spacing-24);
+  --input-affix-size-ultra: var(--spacing-28);
+  --input-affix-color: var(--surface-base-ct-subtle);
+  --input-affix-color-disabled: var(--surface-base-ct-faint);
+
+  /* Prefix / Suffix wrapper — internal padding per density mode */
+  --input-affix-px-micro: var(--spacing-2);
+  --input-affix-px-tiny: var(--spacing-2);
+  --input-affix-px-small: var(--spacing-3);
+  --input-affix-px-base: var(--spacing-4);
+  --input-affix-px-medium: var(--spacing-4);
+  --input-affix-px-large: var(--spacing-5);
+  --input-affix-px-big: var(--spacing-6);
+  --input-affix-px-huge: var(--spacing-6);
+  --input-affix-px-mega: var(--spacing-8);
+  --input-affix-px-ultra: var(--spacing-10);
+
+  /* Label slot */
+  --input-label-font-size: var(--font-size-13);
+  --input-label-font-weight: var(--font-weight-medium);
+  --input-label-gap: var(--spacing-6);
+
+  /* Helper slot */
+  --input-helper-font-size: var(--font-size-12);
+  --input-helper-font-weight: var(--font-weight-regular);
+  --input-helper-gap: var(--spacing-4);
+  --input-helper-letter-spacing: var(--letter-spacing-normal);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --input-transition-property: border-color, background-color, box-shadow, color, opacity;
+  --input-transition-duration: var(--duration-normal);
+  --input-transition-easing: var(--easing-in-out);
+  --input-animation-enter: none;
+  --input-animation-exit: none;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --input-focus-outline-width: var(--focus-outline-width);
+  --input-focus-outline-color: var(--brand-component-outline-default);
+  --input-focus-outline-offset: var(--focus-outline-offset);
+  --input-min-tap-target: 44px;
+  --input-required-indicator: '*';
+  --input-required-color: var(--danger-content-default);
+}

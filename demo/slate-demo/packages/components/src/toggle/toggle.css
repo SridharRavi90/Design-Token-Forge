@@ -1,0 +1,584 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Toggle / Switch Component CSS
+   Variable-driven rendering. All visual values tokenized.
+   Compound component: track (rail) + thumb (sliding indicator).
+   Uses internal (--_sw-*) vars set by size selectors.
+   Checked state via [aria-checked="true"].
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Loading pulse animation ────────────────────────────────── */
+@keyframes switch-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BASE STRUCTURE — the <button> itself is the switch
+   ════════════════════════════════════════════════════════════════ */
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+
+  /* Reset button styles */
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+
+  /* Ensure tap target meets a11y */
+  min-width: var(--switch-min-tap-target);
+  min-height: var(--switch-min-tap-target);
+
+  /* Motion */
+  transition-property: var(--switch-transition-property);
+  transition-duration: var(--switch-transition-duration);
+  transition-timing-function: var(--switch-transition-easing);
+
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  vertical-align: middle;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TRACK — the background rail
+   ════════════════════════════════════════════════════════════════ */
+
+.switch__track {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative;
+
+  width: var(--_sw-track-w);
+  height: var(--_sw-track-h);
+  border-radius: var(--switch-track-radius);
+  border-width: var(--_sw-border-w);
+  border-style: var(--switch-track-border-style);
+
+  /* Surface via internal vars (set by variant selector) */
+  background-color: var(--_sw-track-bg-off);
+  border-color: var(--_sw-track-border-off);
+
+  /* Motion */
+  transition-property: var(--switch-track-transition-property);
+  transition-duration: var(--switch-transition-duration);
+  transition-timing-function: var(--switch-transition-easing);
+
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   THUMB — the sliding indicator
+   ════════════════════════════════════════════════════════════════ */
+
+.switch__thumb {
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+
+  width: var(--_sw-thumb-size);
+  height: var(--_sw-thumb-size);
+  border-radius: var(--switch-thumb-radius);
+
+  background-color: var(--_sw-thumb-bg);
+  border: var(--switch-thumb-border-width) solid var(--_sw-thumb-border);
+  box-shadow: var(--switch-thumb-shadow);
+
+  /* ── Perfect centering ──
+     Vertical: top/bottom auto-margin centers in content box.
+     Horizontal: inset from left edge (variant-aware). */
+  top: 0;
+  bottom: 0;
+  margin-block: auto;
+  left: var(--_sw-inset);
+
+  /* Motion — thumb slides with spring easing */
+  transition-property: var(--switch-thumb-transition-property);
+  transition-duration: var(--switch-thumb-transition-duration);
+  transition-timing-function: var(--switch-thumb-transition-easing);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIZE SELECTORS — map tokens → active vars
+   ════════════════════════════════════════════════════════════════ */
+
+.switch:not([data-size]),
+.switch[data-size="base"] {
+  --_sw-track-w: var(--switch-track-w-base);
+  --_sw-track-h: var(--switch-track-h-base);
+  --_sw-thumb-size: var(--switch-thumb-size-base);
+  --switch-label-font-size: var(--switch-label-font-size-base);
+}
+
+.switch[data-size="micro"] {
+  --_sw-track-w: var(--switch-track-w-micro);
+  --_sw-track-h: var(--switch-track-h-micro);
+  --_sw-thumb-size: var(--switch-thumb-size-micro);
+  --switch-label-font-size: var(--switch-label-font-size-micro);
+}
+
+.switch[data-size="tiny"] {
+  --_sw-track-w: var(--switch-track-w-tiny);
+  --_sw-track-h: var(--switch-track-h-tiny);
+  --_sw-thumb-size: var(--switch-thumb-size-tiny);
+  --switch-label-font-size: var(--switch-label-font-size-tiny);
+}
+
+.switch[data-size="small"] {
+  --_sw-track-w: var(--switch-track-w-small);
+  --_sw-track-h: var(--switch-track-h-small);
+  --_sw-thumb-size: var(--switch-thumb-size-small);
+  --switch-label-font-size: var(--switch-label-font-size-small);
+}
+
+.switch[data-size="medium"] {
+  --_sw-track-w: var(--switch-track-w-medium);
+  --_sw-track-h: var(--switch-track-h-medium);
+  --_sw-thumb-size: var(--switch-thumb-size-medium);
+  --switch-label-font-size: var(--switch-label-font-size-medium);
+}
+
+.switch[data-size="large"] {
+  --_sw-track-w: var(--switch-track-w-large);
+  --_sw-track-h: var(--switch-track-h-large);
+  --_sw-thumb-size: var(--switch-thumb-size-large);
+  --switch-label-font-size: var(--switch-label-font-size-large);
+}
+
+.switch[data-size="big"] {
+  --_sw-track-w: var(--switch-track-w-big);
+  --_sw-track-h: var(--switch-track-h-big);
+  --_sw-thumb-size: var(--switch-thumb-size-big);
+  --switch-label-font-size: var(--switch-label-font-size-big);
+}
+
+.switch[data-size="huge"] {
+  --_sw-track-w: var(--switch-track-w-huge);
+  --_sw-track-h: var(--switch-track-h-huge);
+  --_sw-thumb-size: var(--switch-thumb-size-huge);
+  --switch-label-font-size: var(--switch-label-font-size-huge);
+}
+
+.switch[data-size="mega"] {
+  --_sw-track-w: var(--switch-track-w-mega);
+  --_sw-track-h: var(--switch-track-h-mega);
+  --_sw-thumb-size: var(--switch-thumb-size-mega);
+  --switch-label-font-size: var(--switch-label-font-size-mega);
+}
+
+.switch[data-size="ultra"] {
+  --_sw-track-w: var(--switch-track-w-ultra);
+  --_sw-track-h: var(--switch-track-h-ultra);
+  --_sw-thumb-size: var(--switch-thumb-size-ultra);
+  --switch-label-font-size: var(--switch-label-font-size-ultra);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT SELECTORS — map tokens → active surface vars
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── FILLED (solid fill track, no border) ────────────────────── */
+.switch:not([data-variant]),
+.switch[data-variant="filled"] {
+  --_sw-border-w: var(--switch-track-border-width);
+  --_sw-inset: calc((var(--_sw-track-h) - var(--_sw-thumb-size)) / 2);
+
+  --_sw-track-bg-off: var(--switch-track-bg-off);
+  --_sw-track-bg-off-hover: var(--switch-track-bg-off-hover);
+  --_sw-track-bg-on: var(--switch-track-bg-on);
+  --_sw-track-bg-on-hover: var(--switch-track-bg-on-hover);
+  --_sw-track-border-off: transparent;
+  --_sw-track-border-off-hover: transparent;
+  --_sw-track-border-on: transparent;
+  --_sw-track-border-on-hover: transparent;
+
+  --_sw-thumb-bg: var(--switch-thumb-bg);
+  --_sw-thumb-bg-hover: var(--switch-thumb-bg-hover);
+  --_sw-thumb-border: transparent;
+  --_sw-thumb-border-checked: transparent;
+
+  --_sw-opacity-disabled: var(--switch-opacity-disabled);
+  --_sw-track-bg-disabled: var(--switch-track-bg-disabled);
+  --_sw-track-bg-on-disabled: var(--switch-track-bg-on-disabled);
+  --_sw-thumb-bg-disabled: var(--switch-thumb-bg-disabled);
+}
+
+/* ── OUTLINE (border track when off, filled when on) ────────── */
+.switch[data-variant="outlined"] {
+  --_sw-border-w: var(--switch-outlined-track-border-width);
+  --_sw-inset: calc((var(--_sw-track-h) - var(--_sw-thumb-size) - var(--switch-outlined-track-border-width) * 2) / 2);
+
+  --_sw-track-bg-off: var(--switch-outlined-track-bg-off);
+  --_sw-track-bg-off-hover: var(--switch-outlined-track-bg-off-hover);
+  --_sw-track-bg-on: var(--switch-outlined-track-bg-on);
+  --_sw-track-bg-on-hover: var(--switch-outlined-track-bg-on-hover);
+  --_sw-track-border-off: var(--switch-outlined-track-border-color-off);
+  --_sw-track-border-off-hover: var(--switch-outlined-track-border-color-off-hover);
+  --_sw-track-border-on: var(--switch-outlined-track-border-color-on);
+  --_sw-track-border-on-hover: var(--switch-outlined-track-border-color-on-hover);
+
+  --_sw-thumb-bg: var(--switch-outlined-thumb-bg);
+  --_sw-thumb-bg-hover: var(--switch-outlined-thumb-bg-hover);
+  --_sw-thumb-border: var(--switch-outlined-thumb-border-color);
+  --_sw-thumb-border-checked: var(--switch-outlined-thumb-border-color-checked);
+
+  --_sw-opacity-disabled: var(--switch-outlined-opacity-disabled);
+  --_sw-track-bg-disabled: var(--switch-outlined-track-bg-disabled);
+  --_sw-track-bg-on-disabled: var(--switch-outlined-track-bg-on-disabled);
+  --_sw-thumb-bg-disabled: var(--switch-outlined-thumb-bg-disabled);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ROLE SELECTORS — palette-level remapping
+   data-role="brand" is the default (no remap needed).
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── data-role="danger" / "error" alias ─────────────────── */
+.switch[data-role="danger"],
+.switch[data-role="error"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-bg-hover: var(--danger-component-bg-hover);
+  --brand-component-bg-pressed: var(--danger-component-bg-pressed);
+  --brand-on-component: var(--danger-on-component);
+  --brand-content-default: var(--danger-content-default);
+  --brand-container-bg: var(--danger-container-bg);
+  --brand-container-hover: var(--danger-container-hover);
+  --brand-container-pressed: var(--danger-container-pressed);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+}
+
+/* ── data-role="success" ────────────────────────────────── */
+.switch[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-bg-hover: var(--success-component-bg-hover);
+  --brand-component-bg-pressed: var(--success-component-bg-pressed);
+  --brand-on-component: var(--success-on-component);
+  --brand-content-default: var(--success-content-default);
+  --brand-container-bg: var(--success-container-bg);
+  --brand-container-hover: var(--success-container-hover);
+  --brand-container-pressed: var(--success-container-pressed);
+  --brand-component-outline-default: var(--success-component-outline-default);
+}
+
+/* ── data-role="warning" ────────────────────────────────── */
+.switch[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-bg-hover: var(--warning-component-bg-hover);
+  --brand-component-bg-pressed: var(--warning-component-bg-pressed);
+  --brand-on-component: var(--warning-on-component);
+  --brand-content-default: var(--warning-content-default);
+  --brand-container-bg: var(--warning-container-bg);
+  --brand-container-hover: var(--warning-container-hover);
+  --brand-container-pressed: var(--warning-container-pressed);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+}
+
+/* ── data-role="info" ───────────────────────────────────── */
+.switch[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-bg-hover: var(--info-component-bg-hover);
+  --brand-component-bg-pressed: var(--info-component-bg-pressed);
+  --brand-on-component: var(--info-on-component);
+  --brand-content-default: var(--info-content-default);
+  --brand-container-bg: var(--info-container-bg);
+  --brand-container-hover: var(--info-container-hover);
+  --brand-container-pressed: var(--info-container-pressed);
+  --brand-component-outline-default: var(--info-component-outline-default);
+}
+
+/* ── data-role="neutral" ────────────────────────────────── */
+.switch[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg);
+  --brand-component-bg-hover: var(--surface-base-cm-bg-hover);
+  --brand-component-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --brand-on-component: var(--surface-base-ct-default);
+  --brand-content-default: var(--surface-base-ct-default);
+  --brand-container-bg: var(--surface-base-subtle);
+  --brand-container-hover: var(--surface-base-strong);
+  --brand-container-pressed: var(--surface-base-strong);
+  --brand-component-outline-default: var(--surface-base-cm-outline);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CHECKED STATE — [aria-checked="true"]
+   ════════════════════════════════════════════════════════════════ */
+
+.switch[aria-checked="true"] .switch__track {
+  background-color: var(--_sw-track-bg-on);
+  border-color: var(--_sw-track-border-on);
+}
+
+.switch[aria-checked="true"] .switch__thumb {
+  /* Slide right: content-width − thumb − inset */
+  left: calc(var(--_sw-track-w) - var(--_sw-thumb-size) - var(--_sw-inset) - var(--_sw-border-w) * 2);
+  border-color: var(--_sw-thumb-border-checked);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HOVER
+   ════════════════════════════════════════════════════════════════ */
+
+.switch:hover .switch__track {
+  background-color: var(--_sw-track-bg-off-hover);
+  border-color: var(--_sw-track-border-off-hover);
+}
+.switch:hover .switch__thumb {
+  background-color: var(--_sw-thumb-bg-hover);
+}
+
+.switch[aria-checked="true"]:hover .switch__track {
+  background-color: var(--_sw-track-bg-on-hover);
+  border-color: var(--_sw-track-border-on-hover);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ACTIVE — thumb scale for tactile feedback
+   ════════════════════════════════════════════════════════════════ */
+
+.switch:active .switch__thumb {
+  transform: scale(var(--switch-thumb-scale-pressed));
+  box-shadow: var(--switch-thumb-shadow-pressed);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   STATES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Focus-visible — keyboard focus ring on the button */
+.switch:focus-visible {
+  outline: var(--switch-focus-outline-width) solid var(--switch-focus-outline-color);
+  outline-offset: var(--switch-focus-outline-offset);
+  border-radius: var(--switch-track-radius);
+}
+
+/* Disabled */
+.switch:disabled,
+.switch[data-disabled] {
+  pointer-events: none;
+  opacity: var(--_sw-opacity-disabled);
+}
+
+.switch:disabled .switch__track,
+.switch[data-disabled] .switch__track {
+  background-color: var(--_sw-track-bg-disabled);
+}
+
+.switch[aria-checked="true"]:disabled .switch__track,
+.switch[aria-checked="true"][data-disabled] .switch__track {
+  background-color: var(--_sw-track-bg-on-disabled);
+}
+
+.switch:disabled .switch__thumb,
+.switch[data-disabled] .switch__thumb {
+  background-color: var(--_sw-thumb-bg-disabled);
+  box-shadow: var(--switch-thumb-shadow-disabled);
+}
+
+/* Error — [aria-invalid="true"] or [aria-invalid] */
+/* Force visible border even on filled variant (which has border-width: 0) */
+.switch[aria-invalid="true"] .switch__track,
+.switch[aria-invalid="true"] .switch__track {
+  border-width: var(--switch-outlined-track-border-width);
+  border-color: var(--switch-track-border-color-invalid-off);
+}
+.switch[aria-invalid="true"],
+.switch[aria-invalid="true"] {
+  /* Recalculate thumb inset to account for forced border */
+  --_sw-inset: calc((var(--_sw-track-h) - var(--_sw-thumb-size) - var(--switch-outlined-track-border-width) * 2) / 2);
+}
+.switch[aria-invalid="true"]:hover .switch__track,
+.switch[aria-invalid="true"]:hover .switch__track {
+  border-color: var(--switch-track-border-color-invalid-off-hover);
+}
+.switch[aria-invalid="true"][aria-checked="true"] .switch__track,
+.switch[aria-invalid="true"][aria-checked="true"] .switch__track {
+  background-color: var(--switch-track-bg-on-invalid);
+  border-color: var(--switch-track-border-color-on-invalid);
+}
+.switch[aria-invalid="true"][aria-checked="true"]:hover .switch__track,
+.switch[aria-invalid="true"][aria-checked="true"]:hover .switch__track {
+  background-color: var(--switch-track-bg-on-invalid-hover);
+  border-color: var(--switch-track-border-color-on-invalid-hover);
+}
+
+/* Loading — pulse on track */
+.switch[data-loading] {
+  cursor: wait;
+  pointer-events: none;
+  animation: switch-pulse var(--switch-loader-speed) ease-in-out infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   LABEL WRAPPER — switch + text side by side
+   ════════════════════════════════════════════════════════════════ */
+
+.switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--switch-gap, var(--spacing-8));
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.switch-label__text {
+  font-family: var(--switch-label-font-family);
+  font-size: var(--switch-label-font-size);
+  font-weight: var(--switch-label-font-weight);
+  line-height: var(--switch-label-line-height);
+  color: var(--switch-label-color);
+}
+
+.switch-label:has(.switch:disabled) .switch-label__text {
+  color: var(--switch-label-color-disabled);
+}
+
+/* Per-size label gap via :has() */
+.switch-label:has(.switch:not([data-size])),
+.switch-label:has(.switch[data-size="base"])    { gap: var(--switch-gap-base, var(--spacing-8)); }
+.switch-label:has(.switch[data-size="micro"])   { gap: var(--switch-gap-micro, var(--spacing-4)); }
+.switch-label:has(.switch[data-size="tiny"])    { gap: var(--switch-gap-tiny, var(--spacing-4)); }
+.switch-label:has(.switch[data-size="small"])   { gap: var(--switch-gap-small, var(--spacing-6)); }
+.switch-label:has(.switch[data-size="medium"])  { gap: var(--switch-gap-medium, var(--spacing-8)); }
+.switch-label:has(.switch[data-size="large"])   { gap: var(--switch-gap-large, var(--spacing-10)); }
+.switch-label:has(.switch[data-size="big"])     { gap: var(--switch-gap-big, var(--spacing-10)); }
+.switch-label:has(.switch[data-size="huge"])    { gap: var(--switch-gap-huge, var(--spacing-12)); }
+.switch-label:has(.switch[data-size="mega"])    { gap: var(--switch-gap-mega, var(--spacing-14)); }
+.switch-label:has(.switch[data-size="ultra"])   { gap: var(--switch-gap-ultra, var(--spacing-16)); }
+
+/* ════════════════════════════════════════════════════════════════
+   THUMB ICON SLOT (optional ✓/✕ inside thumb)
+   ════════════════════════════════════════════════════════════════ */
+
+.switch__thumb-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--switch-thumb-icon-color-off);
+  font-size: var(--switch-thumb-icon-size);
+}
+.switch__thumb-icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+.switch[aria-checked="true"] .switch__thumb-icon {
+  color: var(--switch-thumb-icon-color-on);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TRACK LABELS — ON/OFF text inside the track rail
+   Layout: [ON label] [Thumb] [OFF label] in a flex row.
+   Track expands (width: max-content) to fit all three elements.
+   Thumb is static (centered between labels) — state is conveyed
+   by track fill change + label opacity swap, not thumb position.
+
+   Usage:
+     <button class="switch" data-track-labels aria-checked="false">
+       <span class="switch__track">
+         <span class="switch__track-label switch__track-label--on">ON</span>
+         <span class="switch__track-label switch__track-label--off">OFF</span>
+         <span class="switch__thumb"></span>
+       </span>
+     </button>
+   ════════════════════════════════════════════════════════════════ */
+
+/* Track: unchanged width — labels are absolutely positioned inside the track.
+   Thumb slides left ↔ right via the standard left: var(--_sw-inset) / calc rule.
+   OFF state: ● thumb at left | OFF text in right zone
+   ON  state: ON text in left zone | ● thumb at right                           */
+.switch[data-track-labels] .switch__track {
+  /* No width or layout change — standard fixed-width track */
+}
+
+/* Shared label base — absolutely fills its zone from top to bottom */
+.switch[data-track-labels] .switch__track-label {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+  line-height: 1;
+  font-family: var(--switch-label-font-family, inherit);
+  font-size: calc(var(--_sw-track-h) * 0.38);
+  font-weight: var(--switch-track-label-font-weight);
+  letter-spacing: var(--switch-track-label-letter-spacing);
+  transition: opacity var(--switch-transition-duration) var(--switch-transition-easing);
+}
+
+/* OFF label — RIGHT zone (after thumb in OFF position): visible by default */
+.switch[data-track-labels] .switch__track-label--off {
+  left: calc(var(--_sw-thumb-size) + var(--_sw-inset) * 2);
+  right: var(--_sw-inset);
+  color: var(--switch-track-label-color-off);
+  opacity: 1;
+}
+
+/* ON label — LEFT zone (behind thumb in OFF state, revealed when thumb slides right) */
+.switch[data-track-labels] .switch__track-label--on {
+  left: var(--_sw-inset);
+  right: calc(var(--_sw-thumb-size) + var(--_sw-inset) * 2);
+  color: var(--switch-track-label-color-on);
+  opacity: 0;
+}
+
+/* ON state: thumb has slid to right zone — swap label visibility */
+.switch[data-track-labels][aria-checked="true"] .switch__track-label--on  { opacity: 1; }
+.switch[data-track-labels][aria-checked="true"] .switch__track-label--off { opacity: 0; }
+
+/* ════════════════════════════════════════════════════════════════
+   FORCED COLORS (Windows High Contrast)
+   ════════════════════════════════════════════════════════════════ */
+
+@media (forced-colors: active) {
+  .switch__track {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+  }
+  .switch[aria-checked="true"] .switch__track {
+    background: Highlight;
+    border-color: Highlight;
+  }
+  .switch__thumb {
+    background: ButtonText;
+    border-color: ButtonText;
+  }
+  .switch[aria-checked="true"] .switch__thumb {
+    background: HighlightText;
+  }
+  .switch:disabled .switch__track,
+  .switch[data-disabled] .switch__track {
+    border-color: GrayText;
+  }
+  .switch:disabled .switch__thumb,
+  .switch[data-disabled] .switch__thumb {
+    background: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch__track,
+  .switch__thumb {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

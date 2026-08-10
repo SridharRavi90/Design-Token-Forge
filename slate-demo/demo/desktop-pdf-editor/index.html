@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #0f172a; --fg-sub: #475569; --fg-faint: #64748b;
+    --border: #e2e8f0; --surface: #f8fafc; --brand: #286CE5; --brand-hover: #1e54b8;
+    --danger: #dc2626; --success: #16a34a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0b0d11; --fg:#f1f5f9; --fg-sub:#cbd5e1; --fg-faint:#94a3b8;
+            --border:#1e293b; --surface:#111827; --brand:#5b8def; --brand-hover:#7aa3f3; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; height:100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased; }
+  .lp-wrap { min-height:100%; display:grid; place-items:center; padding:40px 24px; }
+  .lp-card { width:100%; max-width:460px; }
+  .lp-brand { display:flex; align-items:center; gap:10px; margin-bottom:32px; }
+  .lp-logo { width:36px; height:36px; border-radius:8px;
+    background: linear-gradient(135deg, var(--brand) 0%, #8b5cf6 100%);
+    display:grid; place-items:center; color:#fff; font-weight:800; font-size:18px; }
+  .lp-brand-name { font-size:14px; font-weight:700; letter-spacing:-0.01em; }
+  .lp-title { font-size:24px; font-weight:800; letter-spacing:-0.02em; margin:0 0 8px; }
+  .lp-sub   { font-size:14px; color: var(--fg-sub); line-height:1.5; margin:0 0 24px; }
+
+  .lp-field { margin-bottom:14px; }
+  .lp-label { display:flex; justify-content:space-between; align-items:baseline;
+    font-size:12px; font-weight:700; color:var(--fg); margin-bottom:6px; }
+  .lp-help-link { font-size:11px; font-weight:500; color:var(--brand); text-decoration:none; }
+  .lp-help-link:hover { text-decoration:underline; }
+  .lp-input { width:100%; padding:10px 12px; border:1px solid var(--border);
+    border-radius:6px; background: var(--surface); color: var(--fg); font-size:13px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .lp-input:focus { outline:2px solid var(--brand); outline-offset:-1px; border-color:transparent; }
+  .lp-btn { width:100%; padding:11px 16px; border-radius:6px; border:none;
+    background: var(--brand); color:#fff; font-weight:600; font-size:13px;
+    cursor:pointer; transition: background 0.15s; }
+  .lp-btn:hover:not(:disabled) { background: var(--brand-hover); }
+  .lp-btn:disabled { opacity:0.55; cursor:not-allowed; }
+  .lp-status { margin-top:12px; font-size:12px; min-height:18px; }
+  .lp-status.err { color: var(--danger); }
+  .lp-status.ok  { color: var(--success); }
+  .lp-status.loading { color: var(--fg-faint); }
+  .lp-foot { margin-top:24px; padding-top:16px; border-top:1px solid var(--border);
+    font-size:11px; color: var(--fg-faint); line-height:1.5; }
+
+  /* Project picker */
+  .lp-userrow { display:flex; align-items:center; gap:10px; padding:10px 12px;
+    background:var(--surface); border:1px solid var(--border); border-radius:6px;
+    margin-bottom:16px; font-size:13px; }
+  .lp-userrow strong { font-weight:700; }
+  .lp-signout { margin-left:auto; background:none; border:none; color:var(--fg-faint);
+    font-size:11px; cursor:pointer; padding:2px 6px; border-radius:4px; }
+  .lp-signout:hover { color:var(--danger); background:rgba(220,38,38,0.08); }
+  .lp-projlist { display:flex; flex-direction:column; gap:6px; margin-bottom:16px;
+    max-height:280px; overflow-y:auto; }
+  .lp-projitem { display:flex; align-items:center; gap:10px; padding:11px 14px;
+    border:1px solid var(--border); border-radius:6px; background:var(--surface);
+    cursor:pointer; text-align:left; font-family:inherit; color:var(--fg); width:100%; }
+  .lp-projitem:hover { border-color: var(--brand); background: rgba(40,108,229,0.05); }
+  .lp-projitem-name { font-weight:600; font-size:13px; }
+  .lp-projitem-meta { font-size:11px; color:var(--fg-faint); margin-left:auto; }
+  .lp-divider { display:flex; align-items:center; gap:10px; margin:14px 0;
+    color:var(--fg-faint); font-size:11px; }
+  .lp-divider::before, .lp-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .lp-btn-secondary { background:transparent; color:var(--brand);
+    border:1px solid var(--border); }
+  .lp-btn-secondary:hover:not(:disabled) { background:var(--surface); border-color:var(--brand); }
+
+  .lp-spinner { display:inline-block; width:12px; height:12px; border:2px solid currentColor;
+    border-top-color:transparent; border-radius:50%; animation:lp-spin 0.7s linear infinite;
+    vertical-align:middle; margin-right:6px; }
+  @keyframes lp-spin { to { transform: rotate(360deg); } }
+
+  .lp-hidden { display:none !important; }
+</style>
+</head>
+<body>
+<div class="lp-wrap">
+  <div class="lp-card">
+    <div class="lp-brand">
+      <div class="lp-logo">DT</div>
+      <div class="lp-brand-name">Design Token Forge</div>
+    </div>
+
+    <!-- Phase 1: PAT entry -->
+    <div id="lp-auth">
+      <h1 class="lp-title">Welcome</h1>
+      <p class="lp-sub">Connect your GitHub account to access your design token projects. We'll route you straight to your work.</p>
+
+      <div class="lp-field">
+        <div class="lp-label">
+          <span>GitHub Personal Access Token</span>
+          <a class="lp-help-link" href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=Design+Token+Forge" target="_blank" rel="noopener">Create one →</a>
+        </div>
+        <input id="lp-pat" type="password" class="lp-input" placeholder="ghp_..." autocomplete="off" spellcheck="false">
+      </div>
+
+      <button id="lp-connect" class="lp-btn">Connect</button>
+      <div id="lp-status" class="lp-status"></div>
+
+      <div class="lp-foot">
+        Token needs <strong>repo</strong> + <strong>workflow</strong> scopes. It is stored only in your browser.
+      </div>
+    </div>
+
+    <!-- Phase 2: Project picker (shown after auth) -->
+    <div id="lp-pick" class="lp-hidden">
+      <h1 class="lp-title">Choose a project</h1>
+      <p class="lp-sub">Pick a project to open, or create a new one.</p>
+
+      <div class="lp-userrow">
+        <span>Signed in as <strong id="lp-user"></strong></span>
+        <button id="lp-signout" class="lp-signout" type="button">Sign out</button>
+      </div>
+
+      <div id="lp-projlist" class="lp-projlist"></div>
+
+      <div class="lp-divider">or</div>
+
+      <button id="lp-new" class="lp-btn lp-btn-secondary" type="button">+ Create new project</button>
+      <div id="lp-status2" class="lp-status"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var REPO_OWNER = 'sridhar-ravi-2917';
+  var REPO_NAME = 'Design-Token-Forge';
+  var GH_API = 'https://api.github.com';
+  var FORCE = location.search.indexOf('force') !== -1;  // ?force = always show launchpad
+
+  var $auth = document.getElementById('lp-auth');
+  var $pick = document.getElementById('lp-pick');
+  var $patInput = document.getElementById('lp-pat');
+  var $connect = document.getElementById('lp-connect');
+  var $status = document.getElementById('lp-status');
+  var $status2 = document.getElementById('lp-status2');
+  var $user = document.getElementById('lp-user');
+  var $signout = document.getElementById('lp-signout');
+  var $list = document.getElementById('lp-projlist');
+  var $new = document.getElementById('lp-new');
+
+  function setStatus(el, msg, kind) {
+    el.className = 'lp-status' + (kind ? ' ' + kind : '');
+    el.innerHTML = msg || '';
+  }
+
+  function showAuth() { $auth.classList.remove('lp-hidden'); $pick.classList.add('lp-hidden'); }
+  function showPick() { $auth.classList.add('lp-hidden'); $pick.classList.remove('lp-hidden'); }
+
+  function go(path) { location.href = path; }
+
+  /* Fetch projects.json (CDN-cached static file, no auth needed) and filter to user */
+  function fetchUserProjects(user) {
+    return fetch('projects.json?_cb=' + Date.now(), { cache: 'no-cache' })
+      .then(function(r) { return r.ok ? r.json() : []; })
+      .then(function(list) {
+        if (!Array.isArray(list)) return [];
+        var userLower = (user || '').toLowerCase();
+        return list.filter(function(p) {
+          // Show projects the user owns. Projects with no owner are legacy
+          // (only visible to admin / unrestricted) — do NOT default-show them.
+          return p.owner && p.owner.toLowerCase() === userLower;
+        });
+      })
+      .catch(function() { return []; });
+  }
+
+  /* Source-of-truth: hit the GitHub API directly for the user's projects.
+     The static projects.json is CDN-cached and lags ~10 minutes after a
+     fresh project is created, so we always try the API first when a PAT
+     is available. Falls back to the static file on 401/403/rate-limit. */
+  function fetchUserProjectsLive(user, pat) {
+    if (!pat) return fetchUserProjects(user);
+    var headers = { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json' };
+    var apiBase = GH_API + '/repos/' + REPO_OWNER + '/' + REPO_NAME;
+    return fetch(apiBase + '/contents/projects?ref=main&_cb=' + Date.now(), { headers: headers })
+      .then(function(r) { if (!r.ok) throw new Error('list_' + r.status); return r.json(); })
+      .then(function(dirs) {
+        if (!Array.isArray(dirs)) throw new Error('not-array');
+        var dirsOnly = dirs.filter(function(d) { return d.type === 'dir'; });
+        if (!dirsOnly.length) return [];
+        return Promise.all(dirsOnly.map(function(dir) {
+          return fetch(apiBase + '/contents/projects/' + dir.name + '/config.json?ref=main', { headers: headers })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(file) {
+              if (!file || !file.content) return null;
+              try {
+                var cfg = JSON.parse(atob(file.content.replace(/\n/g, '')));
+                return { id: cfg.id || dir.name, name: cfg.name || dir.name,
+                         owner: cfg.owner || '', description: cfg.description || '' };
+              } catch (e) { return null; }
+            })
+            .catch(function() { return null; });
+        })).then(function(items) {
+          var userLower = (user || '').toLowerCase();
+          return items.filter(function(p) {
+            return p && p.owner && p.owner.toLowerCase() === userLower;
+          });
+        });
+      })
+      .catch(function() { return fetchUserProjects(user); });
+  }
+
+  function renderProjects(projects) {
+    $list.innerHTML = '';
+    if (!projects.length) {
+      var empty = document.createElement('div');
+      empty.style.cssText = 'padding:14px;font-size:12px;color:var(--fg-faint);text-align:center;border:1px dashed var(--border);border-radius:6px';
+      empty.textContent = 'No projects yet. Create your first one below.';
+      $list.appendChild(empty);
+      return;
+    }
+    projects.forEach(function(p) {
+      var btn = document.createElement('button');
+      btn.className = 'lp-projitem';
+      btn.type = 'button';
+      var nm = document.createElement('span');
+      nm.className = 'lp-projitem-name';
+      nm.textContent = p.name || p.id;
+      btn.appendChild(nm);
+      if (p.description) {
+        var meta = document.createElement('span');
+        meta.className = 'lp-projitem-meta';
+        meta.textContent = p.id;
+        btn.appendChild(meta);
+      }
+      btn.addEventListener('click', function() {
+        localStorage.setItem('dtf-active-project', p.id);
+        go('demo/editor-v2/index.html');
+      });
+      $list.appendChild(btn);
+    });
+  }
+
+  /* Route: with a valid token + user, decide where to land */
+  function routeAuthenticated(user, projects) {
+    if (!projects.length) {
+      // No projects → onboard wizard
+      go('demo/onboard.html');
+      return;
+    }
+    var active = localStorage.getItem('dtf-active-project') || '';
+    var match = projects.find(function(p) { return p.id === active; });
+    if (match && !FORCE) {
+      // Active project still belongs to this user → go straight in
+      go('demo/editor-v2/index.html');
+      return;
+    }
+    // Otherwise show picker
+    $user.textContent = user;
+    renderProjects(projects);
+    showPick();
+  }
+
+  /* Validate a PAT against /user — returns username or throws */
+  function validatePat(pat) {
+    return fetch(GH_API + '/user', {
+      headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json' }
+    }).then(function(r) {
+      if (!r.ok) {
+        return r.json().then(function(d) { throw new Error(d.message || 'HTTP ' + r.status); });
+      }
+      return r.json();
+    }).then(function(u) { return u.login; });
+  }
+
+  $connect.addEventListener('click', function() {
+    var pat = ($patInput.value || '').trim();
+    if (!pat) { setStatus($status, 'Enter a token to continue.', 'err'); return; }
+    $connect.disabled = true;
+    $connect.innerHTML = '<span class="lp-spinner"></span>Connecting…';
+    setStatus($status, '');
+    validatePat(pat).then(function(login) {
+      localStorage.setItem('dtf-gh-pat', pat);
+      localStorage.setItem('dtf-gh-user', login);
+      localStorage.setItem('dtf-gh-owner', login);
+      /* Mark this session as verified so auth-gate.js on subsequent
+         pages (editor, hub) skips the PAT prompt. Without this the
+         gate re-prompts on every navigation because sessionStorage is
+         not set until explicitly done here. */
+      try { sessionStorage.setItem('dtf-auth-ok', '1'); } catch(_se) {}
+      setStatus($status, '✓ Connected as ' + login + '. Loading your projects…', 'ok');
+      return fetchUserProjectsLive(login, pat).then(function(projects) {
+        routeAuthenticated(login, projects);
+      });
+    }).catch(function(e) {
+      setStatus($status, '✗ ' + (e.message || 'Authentication failed'), 'err');
+    }).finally(function() {
+      $connect.disabled = false;
+      $connect.textContent = 'Connect';
+    });
+  });
+  $patInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') $connect.click();
+  });
+
+  $signout.addEventListener('click', function() {
+    localStorage.removeItem('dtf-gh-pat');
+    localStorage.removeItem('dtf-gh-user');
+    localStorage.removeItem('dtf-gh-owner');
+    localStorage.removeItem('dtf-active-project');
+    $patInput.value = '';
+    setStatus($status, '');
+    showAuth();
+    setTimeout(function() { $patInput.focus(); }, 50);
+  });
+
+  $new.addEventListener('click', function() { go('demo/onboard.html'); });
+
+  /* ── Auto-route on load if already authenticated ── */
+  (function init() {
+    var pat = localStorage.getItem('dtf-gh-pat') || '';
+    var user = localStorage.getItem('dtf-gh-user') || '';
+    if (pat && user && !FORCE) {
+      // Silent route — no UI flash
+      document.body.style.opacity = '0';
+      fetchUserProjectsLive(user, pat).then(function(projects) {
+        document.body.style.opacity = '1';
+        routeAuthenticated(user, projects);
+      });
+      return;
+    }
+    if (pat && user && FORCE) {
+      // ?force was used — show picker, don't auto-redirect
+      $user.textContent = user;
+      fetchUserProjectsLive(user, pat).then(function(projects) {
+        renderProjects(projects);
+        showPick();
+      });
+      return;
+    }
+    showAuth();
+    setTimeout(function() { $patInput.focus(); }, 100);
+  })();
+})();
+</script>
+</body>
+</html>

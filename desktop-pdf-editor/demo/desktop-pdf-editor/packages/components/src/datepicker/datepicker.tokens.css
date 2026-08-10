@@ -1,0 +1,312 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — DatePicker Token Defaults
+   Layer 0: System defaults for ~190 datepicker variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.datepicker {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (18 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Popover container */
+  --datepicker-radius: var(--radius-lg);
+  --datepicker-border-width: 1px;
+  --datepicker-border-style: solid;
+  --datepicker-shadow: var(--shadow-lg);
+
+  /* Day cell */
+  --datepicker-day-radius: var(--radius-full);
+  --datepicker-day-border-width: 0px;
+  --datepicker-day-border-style: solid;
+
+  /* Today indicator */
+  --datepicker-today-radius: var(--datepicker-day-radius);
+  --datepicker-today-border-width: 2px;
+
+  /* Selected */
+  --datepicker-selected-radius: var(--datepicker-day-radius);
+
+  /* Range */
+  --datepicker-range-radius: 0px;
+  --datepicker-range-end-radius: var(--datepicker-day-radius);
+
+  /* Header nav buttons */
+  --datepicker-nav-radius: var(--radius-full);
+  --datepicker-radius-rounded: var(--radius-full);
+
+  /* Footer */
+  --datepicker-footer-border-width: 1px;
+  --datepicker-footer-border-style: solid;
+
+  --datepicker-outline-style: solid;
+  --datepicker-outline-width: 2px;
+
+  /* Clip */
+  --datepicker-clip-path: none;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (36 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Popover */
+  --datepicker-width: auto;
+  --datepicker-z-index: auto;
+  --datepicker-padding: var(--spacing-16);
+  --datepicker-gap: var(--spacing-8);
+
+  /* Day cell size per density */
+  --datepicker-day-size-micro: var(--spacing-16);
+  --datepicker-day-size-tiny: var(--spacing-20);
+  --datepicker-day-size-small: var(--spacing-28);
+  --datepicker-day-size-base: var(--spacing-36);
+  --datepicker-day-size-medium: var(--spacing-40);
+  --datepicker-day-size-large: var(--spacing-48);
+  --datepicker-day-size-big: var(--spacing-54);
+  --datepicker-day-size-huge: var(--spacing-60);
+  --datepicker-day-size-mega: var(--spacing-72);
+  --datepicker-day-size-ultra: var(--spacing-80);
+
+  /* Grid gaps */
+  --datepicker-grid-gap-x: var(--spacing-2);
+  --datepicker-grid-gap-y: var(--spacing-2);
+
+  /* Header height per density */
+  --datepicker-header-h-micro: var(--spacing-20);
+  --datepicker-header-h-tiny: var(--spacing-24);
+  --datepicker-header-h-small: var(--spacing-32);
+  --datepicker-header-h-base: var(--spacing-36);
+  --datepicker-header-h-medium: var(--spacing-40);
+  --datepicker-header-h-large: var(--spacing-48);
+  --datepicker-header-h-big: var(--spacing-54);
+  --datepicker-header-h-huge: var(--spacing-60);
+  --datepicker-header-h-mega: var(--spacing-72);
+  --datepicker-header-h-ultra: var(--spacing-80);
+  --datepicker-header-gap: var(--spacing-8);
+
+  /* Nav button size per density */
+  --datepicker-nav-size-micro: var(--spacing-16);
+  --datepicker-nav-size-tiny: var(--spacing-18);
+  --datepicker-nav-size-small: var(--spacing-22);
+  --datepicker-nav-size-base: var(--spacing-28);
+  --datepicker-nav-size-medium: var(--spacing-32);
+  --datepicker-nav-size-large: var(--spacing-36);
+  --datepicker-nav-size-big: var(--spacing-40);
+  --datepicker-nav-size-huge: var(--spacing-44);
+  --datepicker-nav-size-mega: var(--spacing-50);
+  --datepicker-nav-size-ultra: var(--spacing-56);
+
+  /* Weekday row height per density */
+  --datepicker-weekday-h-micro: var(--spacing-16);
+  --datepicker-weekday-h-tiny: var(--spacing-20);
+  --datepicker-weekday-h-small: var(--spacing-24);
+  --datepicker-weekday-h-base: var(--spacing-28);
+  --datepicker-weekday-h-medium: var(--spacing-32);
+  --datepicker-weekday-h-large: var(--spacing-36);
+  --datepicker-weekday-h-big: var(--spacing-40);
+  --datepicker-weekday-h-huge: var(--spacing-44);
+  --datepicker-weekday-h-mega: var(--spacing-50);
+  --datepicker-weekday-h-ultra: var(--spacing-56);
+
+  /* Footer */
+  --datepicker-footer-height: var(--spacing-40);
+  --datepicker-footer-padding-x: var(--spacing-8);
+  --datepicker-footer-padding-y: var(--spacing-8);
+  --datepicker-footer-gap: var(--spacing-8);
+
+  /* A11y tap target */
+  --datepicker-min-tap-target: var(--spacing-44);
+
+  /* Range band height */
+  --datepicker-range-height: 100%;
+
+  /* Popover offset from trigger */
+  --datepicker-offset: var(--spacing-4);
+
+  /* Week number column */
+  --datepicker-weeknum-width: var(--spacing-28);
+
+  /* Day font size per density */
+  --datepicker-day-font-size-micro: var(--font-size-10);
+  --datepicker-day-font-size-tiny: var(--font-size-10);
+  --datepicker-day-font-size-small: var(--font-size-11);
+  --datepicker-day-font-size-base: var(--font-size-13);
+  --datepicker-day-font-size-medium: var(--font-size-14);
+  --datepicker-day-font-size-large: var(--font-size-16);
+  --datepicker-day-font-size-big: var(--font-size-18);
+  --datepicker-day-font-size-huge: var(--font-size-20);
+  --datepicker-day-font-size-mega: var(--font-size-24);
+  --datepicker-day-font-size-ultra: var(--font-size-28);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (50 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Popover — uses float surface (highest elevation context) */
+  --datepicker-bg: var(--surface-float-bg);
+  --datepicker-border-color: var(--surface-float-outline);
+  --datepicker-fg: var(--surface-float-ct-default);
+
+  /* Day — default */
+  --datepicker-day-bg: transparent;
+  --datepicker-day-fg: var(--surface-float-ct-default);
+  --datepicker-day-bg-hover: var(--brand-container-bg);
+  --datepicker-day-fg-hover: var(--brand-on-container);
+  --datepicker-day-border-color: transparent;
+
+  /* Today (unselected) */
+  --datepicker-today-bg: transparent;
+  --datepicker-today-fg: var(--brand-component-bg-default);
+  --datepicker-today-border-color: var(--brand-component-outline-default);
+  --datepicker-today-font-weight: var(--font-weight-bold);
+
+  /* Selected */
+  --datepicker-selected-bg: var(--brand-component-bg-default);
+  --datepicker-selected-fg: var(--brand-on-component);
+  --datepicker-selected-bg-hover: var(--brand-component-bg-hover);
+  --datepicker-selected-fg-hover: var(--brand-on-component);
+  --datepicker-selected-bg-pressed: var(--brand-component-bg-pressed);
+  --datepicker-selected-fg-pressed: var(--brand-on-component);
+  --datepicker-selected-border-color: transparent;
+  --datepicker-selected-shadow: var(--shadow-xs);
+
+  /* Range */
+  --datepicker-range-bg: var(--brand-container-bg);
+  --datepicker-range-fg: var(--surface-float-ct-default);
+  --datepicker-range-start-bg: var(--brand-component-bg-default);
+  --datepicker-range-start-fg: var(--brand-on-component);
+  --datepicker-range-end-bg: var(--brand-component-bg-default);
+  --datepicker-range-end-fg: var(--brand-on-component);
+
+  /* Outside month */
+  --datepicker-outside-fg: var(--surface-float-ct-faint);
+  --datepicker-outside-bg: transparent;
+  --datepicker-outside-opacity: 0.5;
+
+  /* Disabled */
+  --datepicker-disabled-fg: var(--surface-float-ct-faint);
+  --datepicker-disabled-bg: transparent;
+  --datepicker-disabled-opacity: 0.4;
+
+  /* Weekend */
+  --datepicker-weekend-fg: var(--surface-float-ct-default);
+
+  /* Header */
+  --datepicker-header-bg: transparent;
+  --datepicker-header-fg: var(--surface-float-ct-strong);
+  --datepicker-nav-bg: transparent;
+  --datepicker-nav-fg: var(--surface-float-ct-subtle);
+  --datepicker-nav-bg-hover: var(--brand-container-bg);
+  --datepicker-nav-fg-hover: var(--brand-on-container);
+
+  /* Weekday labels */
+  --datepicker-weekday-fg: var(--surface-float-ct-faint);
+  --datepicker-weekday-bg: transparent;
+
+  /* Footer */
+  --datepicker-footer-bg: var(--surface-float-cm-bg);
+  --datepicker-footer-fg: var(--surface-float-ct-subtle);
+  --datepicker-footer-border-color: var(--surface-float-separator);
+
+  /* Week numbers */
+  --datepicker-weeknum-fg: var(--surface-float-ct-faint);
+  --datepicker-weeknum-bg: transparent;
+
+  /* Separator */
+  --datepicker-separator-color: var(--surface-float-separator);
+
+  /* Focus ring */
+  --datepicker-focus-outline-color: var(--brand-component-outline-default);
+  --datepicker-focus-outline-width: var(--focus-outline-width);
+  --datepicker-focus-outline-offset: var(--focus-outline-offset);
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (19 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Day */
+  --datepicker-day-font-family: var(--font-family-sans);
+  --datepicker-day-font-weight: var(--font-weight-regular);
+
+  /* Header (month/year label) */
+  --datepicker-header-font-family: var(--font-family-sans);
+  --datepicker-header-font-size-micro: var(--font-size-10);
+  --datepicker-header-font-size-tiny: var(--font-size-11);
+  --datepicker-header-font-size-small: var(--font-size-12);
+  --datepicker-header-font-size-base: var(--font-size-14);
+  --datepicker-header-font-size-medium: var(--font-size-16);
+  --datepicker-header-font-size-large: var(--font-size-18);
+  --datepicker-header-font-size-big: var(--font-size-20);
+  --datepicker-header-font-size-huge: var(--font-size-24);
+  --datepicker-header-font-size-mega: var(--font-size-28);
+  --datepicker-header-font-size-ultra: var(--font-size-32);
+  --datepicker-header-font-weight: var(--font-weight-semibold);
+
+  /* Weekday labels */
+  --datepicker-weekday-font-family: var(--font-family-sans);
+  --datepicker-weekday-font-size-micro: var(--font-size-10);
+  --datepicker-weekday-font-size-tiny: var(--font-size-10);
+  --datepicker-weekday-font-size-small: var(--font-size-10);
+  --datepicker-weekday-font-size-base: var(--font-size-11);
+  --datepicker-weekday-font-size-medium: var(--font-size-12);
+  --datepicker-weekday-font-size-large: var(--font-size-13);
+  --datepicker-weekday-font-size-big: var(--font-size-14);
+  --datepicker-weekday-font-size-huge: var(--font-size-16);
+  --datepicker-weekday-font-size-mega: var(--font-size-18);
+  --datepicker-weekday-font-size-ultra: var(--font-size-20);
+  --datepicker-weekday-font-weight: var(--font-weight-semibold);
+  --datepicker-weekday-text-transform: uppercase;
+  --datepicker-weekday-letter-spacing: 0.04em;
+
+  /* Footer */
+  --datepicker-footer-font-size: var(--font-size-12);
+  --datepicker-footer-font-weight: var(--font-weight-medium);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (11 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --datepicker-footer-display: none;
+  --datepicker-weeknum-display: none;
+  --datepicker-separator-display: none;
+   --datepicker-nav-icon-size-micro: var(--font-size-16);
+   --datepicker-nav-icon-size-tiny: var(--font-size-16);
+   --datepicker-nav-icon-size-small: var(--font-size-16);
+   --datepicker-nav-icon-size-base: var(--font-size-16);
+   --datepicker-nav-icon-size-medium: var(--font-size-16);
+   --datepicker-nav-icon-size-large: var(--font-size-16);
+   --datepicker-nav-icon-size-big: var(--font-size-16);
+   --datepicker-nav-icon-size-huge: var(--font-size-16);
+   --datepicker-nav-icon-size-mega: var(--font-size-16);
+   --datepicker-nav-icon-size-ultra: var(--font-size-16);
+  --datepicker-nav-icon-size: 1em;
+  --datepicker-nav-icon-color: currentColor;
+  --datepicker-today-dot-display: none;
+  --datepicker-today-dot-size: 4px;
+  --datepicker-today-dot-color: var(--brand-component-bg-default);
+  --datepicker-nav-label-gap: var(--spacing-4);
+  --datepicker-day-line-height: 1;
+  --datepicker-day-content: none;
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --datepicker-day-transition-property: background-color, color, border-color, box-shadow;
+  --datepicker-day-transition-duration: var(--duration-fast);
+  --datepicker-day-transition-easing: var(--easing-in-out);
+  --datepicker-popover-transition-duration: var(--duration-normal);
+  --datepicker-popover-transition-easing: var(--easing-out);
+  --datepicker-month-transition-duration: var(--duration-normal);
+  --datepicker-month-transition-easing: var(--easing-in-out);
+  --datepicker-nav-transition-duration: var(--duration-fast);
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* focus-outline-width, -color, -offset already in Surface section */
+  /* min-tap-target already in Dimension section */
+  --datepicker-forced-colors-selected: Highlight;
+}

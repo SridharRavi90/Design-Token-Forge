@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Avatar Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/avatar/avatar.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/avatar/avatar.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+  .avatar-stage{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;justify-content:center;padding:24px}
+  .av-card{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .av-label{font-size:11px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.04em}
+  .density-strip{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;padding:24px}
+  .density-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .density-meta{font-size:10px;opacity:.5;font-weight:600;font-variant-numeric:tabular-nums}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">01</span>Hero Inspector</a>
+  <a href="#sec-content"><span class="sn-num">02</span>Content Modes</a>
+  <a href="#sec-shapes"><span class="sn-num">03</span>Shape Gallery</a>
+  <a href="#sec-density"><span class="sn-num">04</span>Density Scale</a>
+  <a href="#sec-roles"><span class="sn-num">05</span>Role Colors</a>
+  <a href="#sec-state"><span class="sn-num">06</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">07</span>Surface Context</a>
+  <a href="#sec-badges"><span class="sn-num">08</span>Status Badges</a>
+  <a href="#sec-group"><span class="sn-num">09</span>Avatar Group</a>
+  <a href="#sec-slots"><span class="sn-num">10</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">11</span>Motion</a>
+  <a href="#sec-a11y"><span class="sn-num">12</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">13</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Avatar Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~97 CSS Variables</span>
+    <span class="demo-badge">3 Shapes</span>
+    <span class="demo-badge">3 Content Modes</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">6 Roles</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<!-- ─── GLOBAL CONTROLS ─────────────────────────────────── -->
+<nav class="global-controls" aria-label="Global avatar preview controls">
+  <div class="control-group">
+    <label>Shape</label>
+    <div class="pill-bar" id="shapeBar" role="radiogroup" aria-label="Shape selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-shape="circle" type="button">Circle</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-shape="squircle" type="button">Squircle</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-shape="rounded-square" type="button">Rounded Sq</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Role</label>
+    <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="brand" type="button">Brand</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- ─── 1. HERO + INSPECTOR ─────────────────────────── -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">All three content modes reflecting global controls. Inspector shows resolved token → alias → computed value.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" id="heroPreview" style="gap:24px"></div>
+        <div class="hero-inspector" id="heroInspector"></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- ─── 2. CONTENT MODES ────────────────────────────── -->
+  <section class="section" id="sec-content">
+    <div class="section-header"><h2>Content Modes</h2><span class="section-tag">3 Modes</span></div>
+    <p class="section-desc">Image, initials, and icon fallback. Each mode inherits shape, size, and role identically.</p>
+    <div class="section-body"><div class="avatar-stage" id="contentModes"></div></div>
+  </section>
+
+  <!-- ─── 3. SHAPE GALLERY ────────────────────────────── -->
+  <section class="section" id="sec-shapes">
+    <div class="section-header"><h2>Shape Gallery</h2><span class="section-tag">3 Shapes</span></div>
+    <p class="section-desc">Circle (default), squircle (25% radius), and rounded-square. Each shown with image, initials, and icon.</p>
+    <div class="section-body"><div class="avatar-stage" id="shapeGallery"></div></div>
+  </section>
+
+  <!-- ─── 4. DENSITY SCALE ────────────────────────────── -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">10 Sizes</span></div>
+    <p class="section-desc">Micro (20px) → Ultra (80px). Size, font-size, icon-size, and group-offset all scale per density.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- ─── 5. ROLE COLORS ──────────────────────────────── -->
+  <section class="section" id="sec-roles">
+    <div class="section-header"><h2>Role Colors</h2><span class="section-tag">6 Roles</span></div>
+    <p class="section-desc">Default neutral + 5 semantic roles. Applied via <code>data-role</code>, affects initials/icon background.</p>
+    <div class="section-body"><div class="avatar-stage" id="roleGallery"></div></div>
+  </section>
+
+  <!-- ─── 6. STATE MATRIX ─────────────────────────────── -->
+  <section class="section" id="sec-state">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">Content × State</span></div>
+    <p class="section-desc">Each content mode shown in default and disabled states across all shapes.</p>
+    <div class="section-body" id="stateMatrix"></div>
+  </section>
+
+  <!-- ─── 7. SURFACE CONTEXT ──────────────────────────── -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">3 BG Levels</span></div>
+    <p class="section-desc">Avatars on base, strong, and sunken backgrounds to verify contrast and ring visibility.</p>
+    <div class="section-body"><div class="surface-strip" id="surfaceStrip"></div></div>
+  </section>
+
+  <!-- ─── 8. STATUS BADGES ────────────────────────────── -->
+  <section class="section" id="sec-badges">
+    <div class="section-header"><h2>Status Badges</h2><span class="section-tag">4 Statuses</span></div>
+    <p class="section-desc">Online, offline, busy, and away indicators. Badge scales proportionally with avatar size (25%).</p>
+    <div class="section-body"><div class="avatar-stage" id="badgeDemo"></div></div>
+  </section>
+
+  <!-- ─── 9. AVATAR GROUP ─────────────────────────────── -->
+  <section class="section" id="sec-group">
+    <div class="section-header"><h2>Avatar Group</h2><span class="section-tag">Composition</span></div>
+    <p class="section-desc">Overlapping avatars with ring border. Offset = -25% of avatar size. Includes count overflow.</p>
+    <div class="section-body" id="groupDemo"></div>
+  </section>
+
+  <!-- ─── 10. SLOTS & ANATOMY ───────────────────────── -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">4 Layers</span></div>
+    <p class="section-desc">Image, initials, icon fallback, and status badge. Each layer fills the container. Badge positions bottom-right.</p>
+    <div class="section-body"><div class="avatar-stage" id="slotsDemo"></div></div>
+  </section>
+
+  <!-- ─── 11. MOTION ────────────────────────────────── -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">2 Animations</span></div>
+    <p class="section-desc">Skeleton loading shimmer and online badge pulse. Reduced motion disables all animations.</p>
+    <div class="section-body"><div class="avatar-stage" id="motionDemo"></div></div>
+  </section>
+
+  <!-- ─── 12. ACCESSIBILITY ────────────────────────── -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Image alt, ARIA labeling, focus ring, and high contrast support.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Image Alt</div>
+          <p class="a11y-card-desc">Image avatars require <code>alt</code> with user's name. Screen readers announce the image content.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Initials ARIA</div>
+          <p class="a11y-card-desc">Use <code>role="img"</code> and <code>aria-label="Full Name"</code> on the avatar container. Initials alone aren't meaningful to assistive tech.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Interactive avatars (links, buttons) show <code>focus-visible</code> outline. Width and color are tokenised.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast shows <code>ButtonText</code> border on all avatars. Badge border uses <code>Canvas</code> for cutout effect.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 13. FRAMEWORK ─────────────────────────────── -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Avatar Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;div
+  className="avatar"
+  data-size={size}           {/* micro … ultra */}
+  data-shape={shape}         {/* circle | squircle | rounded-square */}
+  data-role={role}           {/* brand | info | danger | success | warning | neutral */}
+  data-disabled={disabled ? '' : undefined}
+  role="img"
+  aria-label={name}
+&gt;
+  {src ? (
+    &lt;img className="avatar__image" src={src} alt={name} /&gt;
+  ) : initials ? (
+    &lt;span className="avatar__initials"&gt;{initials}&lt;/span&gt;
+  ) : (
+    &lt;span className="avatar__icon"&gt;{icon}&lt;/span&gt;
+  )}
+  {status &amp;&amp; &lt;span className="avatar__badge" data-status={status} /&gt;}
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;div
+  class="avatar"
+  :data-size="size ?? 'base'"
+  :data-shape="shape ?? 'circle'"
+  :data-role="role || undefined"
+  :data-disabled="disabled ? '' : undefined"
+  role="img"
+  :aria-label="name"
+&gt;
+  &lt;img v-if="src" class="avatar__image" :src="src" :alt="name" /&gt;
+  &lt;span v-else-if="initials" class="avatar__initials"&gt;{{ initials }}&lt;/span&gt;
+  &lt;span v-else class="avatar__icon"&gt;&lt;slot name="icon" /&gt;&lt;/span&gt;
+  &lt;span v-if="status" class="avatar__badge" :data-status="status" /&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;!-- Image avatar with status badge --&gt;
+&lt;div class="avatar" data-size="base" data-shape="circle"
+     role="img" aria-label="Jane Doe"&gt;
+  &lt;img class="avatar__image" src="photo.jpg" alt="Jane Doe"&gt;
+  &lt;span class="avatar__badge" data-status="online"&gt;&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Initials avatar --&gt;
+&lt;div class="avatar" data-size="large" data-role="brand"
+     role="img" aria-label="Jane Doe"&gt;
+  &lt;span class="avatar__initials"&gt;JD&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Avatar group --&gt;
+&lt;div class="avatar-group" data-size="base"&gt;
+  &lt;div class="avatar"&gt;&lt;img class="avatar__image" …&gt;&lt;/div&gt;
+  &lt;div class="avatar"&gt;&lt;img class="avatar__image" …&gt;&lt;/div&gt;
+  &lt;div class="avatar avatar--count"&gt;
+    &lt;span class="avatar__initials"&gt;+3&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* ── Shape ── */
+--avatar-radius-{size}          /* per-density radius (circle by default) */
+--avatar-radius-squircle        /* 25% for squircle shape */
+--avatar-radius-rounded-square  /* rounded-square shape */
+--avatar-border-width / -style / -color
+
+/* ── Dimension ── */
+--avatar-size-{size}            /* width & height: micro(20px) … ultra(80px) */
+--avatar-group-offset-{size}    /* overlap offset for groups (-25% of size) */
+
+/* ── Surface ── */
+--avatar-bg / -bg-hover / -fg   /* neutral fallback */
+--avatar-{role}-bg / -fg        /* brand, info, danger, success, warning, neutral */
+--avatar-ring-width / -color / -offset
+
+/* ── Typography ── */
+--avatar-font-family / -weight / -letter-spacing
+--avatar-font-size-{size}       /* initials font per density */
+
+/* ── Slots ── */
+--avatar-icon-size-{size}       /* icon fallback per density */
+--avatar-badge-size / -border-width / -border-color
+--avatar-badge-online / -offline / -busy / -away
+
+/* ── Motion ── */
+--avatar-transition-property / -duration / -easing
+
+/* ── State ── */
+--avatar-disabled-opacity
+
+/* ── A11y ── */
+--avatar-focus-outline-width / -color        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfAvatar } from '@design-token-forge/slyte';
+
+&lt;!-- Image --&gt;
+&lt;dtf-avatar lt-prop-src="/avatar.jpg" lt-prop-alt="Jane Doe" lt-prop-size="base" lt-prop-status="online"&gt;&lt;/dtf-avatar&gt;
+
+&lt;!-- Initials fallback --&gt;
+&lt;dtf-avatar lt-prop-initials="JD" lt-prop-size="base"&gt;&lt;/dtf-avatar&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div></div>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var SHAPES = ['circle','squircle','rounded-square'];
+  var SIZES  = ['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var SIZE_PX = {micro:20,tiny:24,small:28,base:32,medium:36,large:40,big:48,huge:56,mega:64,ultra:80};
+  var ROLES  = [{key:'',label:'Default'},{key:'brand',label:'Brand'},{key:'info',label:'Info'},{key:'danger',label:'Danger'},{key:'success',label:'Success'},{key:'warning',label:'Warning'},{key:'neutral',label:'Neutral'}];
+  var STATUSES = ['online','offline','busy','away'];
+  var NAMES  = ['Alice Chen','Bob Rivera','Carla Kim','David Park','Eva Singh'];
+  var HUES   = [220,340,160,30,280];
+  var ICON   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+
+  var G = { shape:'circle', size:'base', role:'' };
+
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1) }
+  function initials(name){ return name.split(' ').map(function(w){return w[0]}).join('') }
+  function clr(id){ var e=document.getElementById(id); if(e) e.innerHTML=''; return e }
+
+  function fakeImg(text, hue){
+    return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="hsl('+(hue||200)+',50%,60%)"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" fill="white" font-size="28" font-family="system-ui" font-weight="600">'+text+'</text></svg>');
+  }
+
+  function makeAvatar(opts){
+    opts = opts || {};
+    var av = document.createElement('div');
+    av.className = 'avatar';
+    av.dataset.size = opts.size || G.size;
+    if (opts.shape && opts.shape !== 'circle') av.dataset.shape = opts.shape;
+    else if (!opts.forceDefault && G.shape !== 'circle') av.dataset.shape = G.shape;
+    if (opts.role) av.dataset.role = opts.role;
+    else if (!opts.noGlobalRole && G.role) av.dataset.role = G.role;
+    if (opts.disabled) av.dataset.disabled = '';
+    if (opts.loading) av.dataset.loading = '';
+    if (opts.strong) av.dataset.strong = '';
+    av.setAttribute('role','img');
+    av.setAttribute('aria-label', opts.name || 'User');
+
+    if (opts.image) {
+      var img = document.createElement('img');
+      img.className = 'avatar__image';
+      img.src = fakeImg(opts.initials || '?', opts.hue || 200);
+      img.alt = opts.name || 'User';
+      av.appendChild(img);
+    } else if (opts.initials) {
+      var sp = document.createElement('span');
+      sp.className = 'avatar__initials';
+      sp.textContent = opts.initials;
+      av.appendChild(sp);
+    } else {
+      var ic = document.createElement('span');
+      ic.className = 'avatar__icon';
+      ic.innerHTML = ICON;
+      av.appendChild(ic);
+    }
+
+    if (opts.status) {
+      var badge = document.createElement('span');
+      badge.className = 'avatar__badge';
+      badge.dataset.status = opts.status;
+      av.appendChild(badge);
+    }
+    return av;
+  }
+
+  function card(el, label){
+    var d = document.createElement('div');
+    d.className = 'av-card';
+    d.appendChild(el);
+    if (label) {
+      var l = document.createElement('span');
+      l.className = 'av-label';
+      l.textContent = label;
+      d.appendChild(l);
+    }
+    return d;
+  }
+
+  /* ── Inspector tokens ─────────────────────────────── */
+  function getInspectRows(){
+    return [
+      ['--avatar-size-'+G.size,      '--spacing-'+(SIZE_PX[G.size]||32)],
+      ['--avatar-radius-'+G.size,    '--radius-full'],
+      ['--avatar-font-size-'+G.size, '—'],
+      ['--avatar-icon-size-'+G.size, '—'],
+      ['--avatar-bg',                '--surface-base-cm-bg'],
+      ['--avatar-fg',                '--surface-base-ct-default'],
+      ['--avatar-border-width',      '0px'],
+      ['--avatar-badge-size',        '25%'],
+      ['--avatar-ring-width',        '2px'],
+      ['--avatar-transition-duration','--duration-normal'],
+      ['--avatar-disabled-opacity',  '0.5'],
+      ['--avatar-focus-outline-width','2px']
+    ];
+  }
+
+  function renderInspector(){
+    var el = clr('heroInspector');
+    var target = document.querySelector('#heroPreview .avatar');
+    if (!el || !target) return;
+    var cs = getComputedStyle(target);
+    getInspectRows().forEach(function(row){
+      var r = document.createElement('div');
+      r.className = 'inspector-row';
+      var v = cs.getPropertyValue(row[0]).trim() || '—';
+      r.innerHTML = '<span class="inspector-token">'+row[0]+'</span>'+
+                    '<span class="inspector-alias">'+row[1]+'</span>'+
+                    '<span class="inspector-computed">'+v+'</span>';
+      el.appendChild(r);
+    });
+  }
+
+  /* ── Section Renderers ────────────────────────────── */
+
+  function renderHero(){
+    var el = clr('heroPreview');
+    el.appendChild(makeAvatar({name:'Alice Chen',image:true,initials:'AC',hue:220}));
+    el.appendChild(makeAvatar({name:'Bob Rivera',initials:'BR',noGlobalRole:true,role:'brand'}));
+    el.appendChild(makeAvatar({name:'User'}));
+    renderInspector();
+  }
+
+  function renderContent(){
+    var el = clr('contentModes');
+    el.appendChild(card(makeAvatar({name:'Alice',image:true,initials:'AC',hue:220,size:'large'}),'Image'));
+    el.appendChild(card(makeAvatar({name:'Bob',initials:'BR',role:'brand',size:'large'}),'Initials'));
+    el.appendChild(card(makeAvatar({name:'User',size:'large'}),'Icon Fallback'));
+  }
+
+  function renderShapes(){
+    var el = clr('shapeGallery');
+    SHAPES.forEach(function(sh){
+      el.appendChild(card(makeAvatar({shape:sh,forceDefault:true,name:'User',image:true,initials:'JD',hue:220,size:'large'}),cap(sh)));
+      el.appendChild(card(makeAvatar({shape:sh,forceDefault:true,name:'User',initials:'JD',role:'brand',size:'large'}),cap(sh)+' Initials'));
+      el.appendChild(card(makeAvatar({shape:sh,forceDefault:true,name:'User',size:'large'}),cap(sh)+' Icon'));
+    });
+  }
+
+  function renderDensity(){
+    var el = clr('densityScale');
+    SIZES.forEach(function(s){
+      var item = document.createElement('div');
+      item.className = 'density-item';
+      item.appendChild(makeAvatar({size:s,name:'User',initials:'JD',role:'brand',noGlobalRole:true}));
+      var m = document.createElement('div');
+      m.className = 'density-meta';
+      m.textContent = SIZE_PX[s]+'px';
+      item.appendChild(m);
+      el.appendChild(item);
+    });
+  }
+
+  function renderRoles(){
+    var el = clr('roleGallery');
+    ROLES.forEach(function(r){
+      el.appendChild(card(makeAvatar({
+        name:r.label,initials:r.key?r.key.substring(0,2).toUpperCase():'NU',
+        role:r.key||undefined,noGlobalRole:true,size:'large'
+      }),r.label));
+    });
+  }
+
+  function renderStateMatrix(){
+    var el = clr('stateMatrix');
+    var modes = [
+      {label:'Image',    fn:function(o){o.image=true;o.initials='AC';o.hue=220;return o}},
+      {label:'Initials', fn:function(o){o.initials='JD';o.role='brand';o.noGlobalRole=true;return o}},
+      {label:'Icon',     fn:function(o){return o}}
+    ];
+    var states = [{label:'Default',st:{}},{label:'Disabled',st:{disabled:true}},{label:'Loading',st:{loading:true}},{label:'Elevated',st:{strong:true}}];
+
+    var hdr = document.createElement('div');
+    hdr.style.cssText = 'display:grid;grid-template-columns:90px repeat('+states.length+',1fr);gap:12px;margin-bottom:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;opacity:.6';
+    hdr.innerHTML = '<span></span>';
+    states.forEach(function(s){ hdr.innerHTML += '<span>'+s.label+'</span>' });
+    el.appendChild(hdr);
+
+    modes.forEach(function(mode){
+      SHAPES.forEach(function(sh){
+        var row = document.createElement('div');
+        row.style.cssText = 'display:grid;grid-template-columns:90px repeat('+states.length+',1fr);gap:12px;align-items:center;margin-bottom:8px;padding:8px 0';
+        var rl = document.createElement('span');
+        rl.style.cssText = 'font-size:11px;font-weight:600';
+        rl.textContent = mode.label+' / '+cap(sh);
+        row.appendChild(rl);
+        states.forEach(function(s){
+          var cell = document.createElement('div');
+          var opts = mode.fn({name:'User',size:'large',shape:sh,forceDefault:true});
+          if (s.st.disabled) opts.disabled = true;
+          if (s.st.loading) opts.loading = true;
+          if (s.st.strong) opts.strong = true;
+          cell.appendChild(makeAvatar(opts));
+          row.appendChild(cell);
+        });
+        el.appendChild(row);
+      });
+    });
+  }
+
+  var SURFACE_TOKENS=['bg','hover','pressed','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+  function applySurface(el,sid){
+    if(sid==='base'){SURFACE_TOKENS.forEach(function(t){el.style.removeProperty('--surface-base-'+t);});el.style.background='var(--surface-base-bg)';el.removeAttribute('data-theme');}
+    else{SURFACE_TOKENS.forEach(function(t){el.style.setProperty('--surface-base-'+t,'var(--surface-'+sid+'-'+t+')');});el.style.background='var(--surface-'+sid+'-bg)';if(sid==='inverse'){el.setAttribute('data-theme','dark');}else{el.removeAttribute('data-theme');}}
+  }
+
+  function renderSurface(){
+    var el = clr('surfaceStrip');
+    var surfaces = [
+      {label:'surface-base-bg',      cls:'surface-panel--base', sid:'base'},
+      {label:'surface-base-subtle',   cls:'surface-panel--alt', sid:'alt'},
+      {label:'surface-deep-bg', cls:'surface-panel--deep', sid:'deep'}
+    ];
+    surfaces.forEach(function(s){
+      var panel = document.createElement('div');
+      panel.className = 'surface-panel ' + s.cls;
+      if(s.sid === 'deep'){ applySurface(panel, 'deep'); }
+      var lbl = document.createElement('span');
+      lbl.className = 'surface-panel-label';
+      lbl.textContent = s.label;
+      panel.appendChild(lbl);
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:12px;align-items:center';
+      row.appendChild(makeAvatar({name:'Alice',image:true,initials:'AC',hue:220}));
+      row.appendChild(makeAvatar({name:'Bob',initials:'BR'}));
+      row.appendChild(makeAvatar({name:'User'}));
+      row.appendChild(makeAvatar({name:'User',initials:'JD',status:'online'}));
+      panel.appendChild(row);
+      el.appendChild(panel);
+    });
+  }
+
+  function renderBadges(){
+    var el = clr('badgeDemo');
+    STATUSES.forEach(function(st){
+      el.appendChild(card(makeAvatar({name:'User',initials:'JD',role:'brand',noGlobalRole:true,status:st,size:'large'}),cap(st)));
+    });
+    // Also show at different sizes
+    ['small','base','big','huge'].forEach(function(sz){
+      el.appendChild(card(makeAvatar({name:'User',initials:'JD',role:'brand',noGlobalRole:true,status:'online',size:sz}),cap(sz)));
+    });
+  }
+
+  function renderGroup(){
+    var el = clr('groupDemo');
+    ['base','large','huge'].forEach(function(sz){
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin-bottom:16px';
+      var lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:11px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.04em';
+      lbl.textContent = 'Group — '+cap(sz);
+      row.appendChild(lbl);
+      var grp = document.createElement('div');
+      grp.className = 'avatar-group';
+      grp.dataset.size = sz;
+      NAMES.slice(0,4).forEach(function(name,i){
+        grp.appendChild(makeAvatar({size:sz,name:name,image:true,initials:initials(name),hue:HUES[i],noGlobalRole:true}));
+      });
+      var more = makeAvatar({size:sz,name:'3 more',initials:'+3',noGlobalRole:true});
+      more.classList.add('avatar--count');
+      grp.appendChild(more);
+      row.appendChild(grp);
+      el.appendChild(row);
+    });
+  }
+
+  /* ── Master render ─────────────────────────────────── */
+  function renderSlots(){
+    var el = clr('slotsDemo');
+    // Image layer
+    el.appendChild(card(makeAvatar({name:'Image Layer',image:true,initials:'AC',hue:220,size:'huge'}),'Image'));
+    // Initials layer
+    el.appendChild(card(makeAvatar({name:'Initials',initials:'BR',role:'brand',noGlobalRole:true,size:'huge'}),'Initials'));
+    // Icon fallback layer
+    el.appendChild(card(makeAvatar({name:'Icon',size:'huge'}),'Icon Fallback'));
+    // Badge positioned
+    el.appendChild(card(makeAvatar({name:'With Badge',image:true,initials:'JD',hue:160,status:'online',size:'huge'}),'+ Badge'));
+    // Elevated with shadow
+    el.appendChild(card(makeAvatar({name:'Elevated',image:true,initials:'EP',hue:30,strong:true,size:'huge'}),'Elevated'));
+    // Count overflow
+    var countAv = makeAvatar({name:'3 more',initials:'+3',noGlobalRole:true,size:'huge'});
+    countAv.classList.add('avatar--count');
+    el.appendChild(card(countAv,'Count'));
+  }
+
+  function renderMotion(){
+    var el = clr('motionDemo');
+    // Loading skeleton
+    ['small','base','large','huge'].forEach(function(sz){
+      el.appendChild(card(makeAvatar({name:'Loading',loading:true,size:sz}),cap(sz)+' Loading'));
+    });
+    // Badge pulse (online)
+    ['small','base','large','huge'].forEach(function(sz){
+      el.appendChild(card(makeAvatar({name:'User',initials:'JD',role:'brand',noGlobalRole:true,status:'online',size:sz}),cap(sz)+' Pulse'));
+    });
+  }
+
+  function applyGlobals(){
+    renderHero();
+    renderContent();
+    renderShapes();
+    renderDensity();
+    renderRoles();
+    renderStateMatrix();
+    renderSurface();
+    renderBadges();
+    renderGroup();
+    renderSlots();
+    renderMotion();
+  }
+
+  function wirePillBar(id, cb){
+    var bar = document.getElementById(id);
+    if(!bar) return;
+    bar.addEventListener('click', function(e){
+      var pill = e.target.closest('.pill');
+      if(!pill) return;
+      this.querySelectorAll('.pill').forEach(function(p){ p.setAttribute('aria-pressed','false') });
+      pill.setAttribute('aria-pressed','true');
+      cb(pill);
+    });
+  }
+  wirePillBar('shapeBar', function(p){ G.shape=p.dataset.ctrlShape; applyGlobals() });
+  wirePillBar('sizeBar',  function(p){ G.size=p.dataset.ctrlSize;   applyGlobals() });
+  wirePillBar('roleBar',  function(p){ G.role=p.dataset.ctrlRole;   applyGlobals() });
+
+  document.querySelectorAll('.fw-snippet-tabs').forEach(function(tabs){
+    tabs.addEventListener('click',function(e){
+      var btn=e.target.closest('.fw-snippet-tab');if(!btn)return;
+      var panel=btn.dataset.tab;
+      var snippet=tabs.closest('.fw-snippet');
+      snippet.querySelectorAll('.fw-snippet-tab').forEach(function(t){t.setAttribute('aria-selected','false')});
+      btn.setAttribute('aria-selected','true');
+      snippet.querySelectorAll('.fw-snippet-code').forEach(function(c){delete c.dataset.active});
+      var target=snippet.querySelector('[data-panel="'+panel+'"]');
+      if(target)target.dataset.active='';
+    });
+  });
+
+  applyGlobals();
+  window.DTF.onThemeChange = function(){ applyGlobals() };
+})();
+</script>
+</body>
+</html>

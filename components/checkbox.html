@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Checkbox Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/checkbox/checkbox.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/checkbox/checkbox.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-density"><span class="sn-num">2</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">3</span>State Matrix</a>
+  <a href="#sec-anatomy"><span class="sn-num">4</span>Slots &amp; Anatomy</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Shape &amp; Shadow</a>
+  <a href="#sec-motion"><span class="sn-num">7</span>Motion</a>
+  <a href="#sec-playground"><span class="sn-num">8</span>Context Playground</a>
+  <a href="#sec-a11y"><span class="sn-num">9</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Checkbox Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">74 CSS Variables</span>
+    <span class="demo-badge">2 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<nav class="global-controls" aria-label="Global checkbox preview controls">
+  <div class="control-group">
+    <label>State</label>
+    <div class="pill-bar" id="stateBar" role="radiogroup" aria-label="Checked state">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-state="unchecked" type="button">Unchecked</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-state="checked" type="button">Checked</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-state="indeterminate" type="button">Indeterminate</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outlined" type="button">Outlined</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- 1. HERO -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Click the checkbox to toggle. Inspector shows resolved token values for the current state and size.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" style="display:flex;align-items:center;gap:24px">
+          <label class="checkbox synced-cb" data-size="base" id="heroCB">
+            <input type="checkbox" class="checkbox__control">
+            <span class="checkbox__box">
+              <svg class="checkbox__check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8.5 6.5 13 14 3"/></svg>
+              <svg class="checkbox__dash" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="2" y1="8" x2="14" y2="8"/></svg>
+            </span>
+            <span class="checkbox__label" id="heroLabel">Accept terms</span>
+          </label>
+        </div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- 2. DENSITY SCALE -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes. Each maps: box size (square). Click any checkbox to toggle it.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- 3. STATE MATRIX -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every interactive state: unchecked, checked, indeterminate, disabled-off, disabled-on, error-off, error-on.</p>
+    <div class="section-body"><div id="stateMatrix" style="display:flex;flex-direction:column;gap:0"></div></div>
+  </section>
+
+  <!-- 4. ANATOMY -->
+  <section class="section" id="sec-anatomy">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Compound component: label wrapper &gt; hidden native input + styled box (with check/dash SVGs) + label text. Optional required indicator.</p>
+    <div class="section-body"><div class="slot-grid" id="slotsDemo"></div></div>
+  </section>
+
+  <!-- 5. SURFACE CONTEXT -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Checkboxes on three background levels. Box and label adapt to surface context.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase"><span class="surface-panel-label">surface-base-bg</span></div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt"><span class="surface-panel-label">surface-base-subtle</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep"><span class="surface-panel-label">surface-deep-bg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SHAPE & SHADOW -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Box radius scales progressively: xs (3px) at micro/tiny, sm (4px) at small/base, md (6px) at medium/large, 8px at big/huge, lg (12px) at mega/ultra. Override with custom values below.</p>
+    <div class="section-body">
+      <div class="sub-label">Default (radius-sm) per density</div>
+      <div class="density-strip" id="shapeDefault"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Custom radius overrides</div>
+      <div class="density-strip" id="shapeCustom"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Shadow presets on box</div>
+      <div class="shadow-strip" id="shadowStrip"></div>
+    </div>
+  </section>
+
+  <!-- 7. MOTION -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Box transitions background-color and border-color. Check mark enters with scale + opacity. Active state adds press-scale feedback.</p>
+    <div class="section-body"><div class="motion-strip" id="motionDemo"></div></div>
+  </section>
+
+  <!-- 8. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how checkboxes adapt across surface contexts and semantic color roles. Two cards with independent surface + role.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <!-- Card A -->
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="warning">Warning</option><option value="info">Info</option><option value="success">Success</option><option value="neutral">Neutral</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA"></div>
+        </div>
+        <!-- Card B -->
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="warning">Warning</option><option value="info">Info</option><option value="success">Success</option><option value="brand">Brand</option><option value="neutral">Neutral</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB"></div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 9. ACCESSIBILITY -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, native &lt;input type="checkbox"&gt;, aria-invalid, disabled states, and forced-colors handling.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to focus. <code>:focus-visible</code> ring wraps the box.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" id="a11yFocus"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>disabled</code> attribute reduces opacity and blocks interaction.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" id="a11yDisabled"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Invalid</div>
+          <p class="a11y-card-desc"><code>aria-invalid="true"</code> for form validation. Hooks the invalid surface tokens.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" id="a11yError"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast uses <code>ButtonText</code>, <code>Highlight</code>, <code>GrayText</code>.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" id="a11yForced"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Checkbox Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-cb">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;label
+  className="checkbox"
+  data-size={size}
+  data-variant={variant}   {/* omit for filled | "outlined" */}
+  aria-invalid={error || undefined}
+  data-disabled={disabled || undefined}
+&gt;
+  &lt;input type="checkbox" checked={checked} onChange={onChange} disabled={disabled} /&gt;
+  &lt;span className="checkbox__box"&gt;
+    &lt;svg className="checkbox__check" viewBox="0 0 12 12"&gt;&lt;polyline points="2.5 6 5 8.5 9.5 3.5" /&gt;&lt;/svg&gt;
+  &lt;/span&gt;
+  {label &amp;&amp; &lt;span className="checkbox__label"&gt;{label}&lt;/span&gt;}
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;label
+  class="checkbox"
+  :data-size="size"
+  :data-variant="variant || undefined"
+  :aria-invalid="error || undefined"
+  :data-disabled="disabled || undefined"
+&gt;
+  &lt;input type="checkbox" :checked="checked" @change="$emit('update:checked', $event.target.checked)" :disabled="disabled" /&gt;
+  &lt;span class="checkbox__box"&gt;
+    &lt;svg class="checkbox__check" viewBox="0 0 12 12"&gt;&lt;polyline points="2.5 6 5 8.5 9.5 3.5" /&gt;&lt;/svg&gt;
+  &lt;/span&gt;
+  &lt;span v-if="label" class="checkbox__label"&gt;{{ label }}&lt;/span&gt;
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;label class="checkbox" data-size="base"&gt;
+  &lt;input type="checkbox"&gt;
+  &lt;span class="checkbox__box"&gt;&lt;svg class="checkbox__check" viewBox="0 0 12 12"&gt;&lt;polyline points="2.5 6 5 8.5 9.5 3.5"/&gt;&lt;/svg&gt;&lt;/span&gt;
+  &lt;span class="checkbox__label"&gt;Accept terms&lt;/span&gt;
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--checkbox-box-size-{size}
+--checkbox-box-radius-{size}
+--checkbox-check-size-{size}   /* inner checkmark */
+
+/* Surface */
+--checkbox-box-bg / -hover / -checked / -disabled
+--checkbox-box-border-color / -hover / -checked
+--checkbox-check-color
+--checkbox-outlined-box-bg / -border-color
+--checkbox-invalid-border-color
+
+/* Slots */
+--checkbox-gap-{size}          /* box↔label gap */
+--checkbox-label-font-size-{size}
+--checkbox-label-color
+
+/* Motion */
+--checkbox-transition-duration / -easing / -property
+
+/* A11y */
+--checkbox-focus-outline-width / -offset / -color
+--checkbox-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfCheckbox } from '@design-token-forge/slyte';
+
+&lt;dtf-checkbox
+  lt-prop-label="Accept terms"
+  lt-prop-color-role="brand"
+  lt-prop-size="base"
+  lt-prop-checked="false"
+  on-change="{{method('onChange')}}"&gt;
+&lt;/dtf-checkbox&gt;
+
+&lt;!-- Indeterminate --&gt;
+&lt;dtf-checkbox lt-prop-label="Select all" lt-prop-indeterminate="true"&gt;&lt;/dtf-checkbox&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var SIZES=['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var BOX_DIMS={
+    micro:'14px',tiny:'16px',small:'18px',base:'20px',medium:'22px',
+    large:'24px',big:'28px',huge:'32px',mega:'36px',ultra:'40px'
+  };
+  var BOX_RADII={
+    micro:'3px (xs)',tiny:'3px (xs)',small:'4px (sm)',base:'4px (sm)',medium:'6px (md)',
+    large:'6px (md)',big:'8px',huge:'8px',mega:'12px (lg)',ultra:'12px (lg)'
+  };
+  var SHADOWS=['none','xs','sm','DEFAULT','md','lg','xl','2xl'];
+
+  var curS='base', curState='unchecked', curVariant='';
+
+  /* ── Factory ──────────────────────────────────────── */
+  function makeCB(size,o){
+    o=o||{};
+    var lbl=document.createElement('label');
+    lbl.className='checkbox';
+    var s=size||curS;
+    lbl.dataset.size=s;
+    var variant=o.variant!==undefined?o.variant:curVariant;
+    if(variant) lbl.dataset.variant=variant;
+    if(o.error) lbl.setAttribute('aria-invalid', 'true');
+    if(o.disabled) lbl.dataset.disabled='';
+    if(!o.noSync) lbl.classList.add('synced-cb');
+
+    var inp=document.createElement('input');
+    inp.type='checkbox';
+    inp.className='checkbox__control';
+    if(o.checked) inp.checked=true;
+    if(o.indeterminate) inp.indeterminate=true;
+    if(o.disabled) inp.disabled=true;
+    if(o.error) inp.setAttribute('aria-invalid','true');
+
+    var box=document.createElement('span');
+    box.className='checkbox__box';
+    box.innerHTML='<svg class="checkbox__check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8.5 6.5 13 14 3"/></svg>'
+      +'<svg class="checkbox__dash" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="2" y1="8" x2="14" y2="8"/></svg>';
+
+    lbl.appendChild(inp);
+    lbl.appendChild(box);
+
+    if(o.label){
+      var sp=document.createElement('span');sp.className='checkbox__label';sp.textContent=o.label;
+      if(o.required){var req=document.createElement('span');req.className='checkbox__required';req.textContent='*';sp.appendChild(req);}
+      lbl.appendChild(sp);
+    }
+
+    if(o.style){for(var k in o.style){if(o.style.hasOwnProperty(k))lbl.style.setProperty(k,o.style[k])}}
+    return lbl;
+  }
+
+  function wrapCard(el,t){var d=document.createElement('div');d.className='variant-card';d.appendChild(el);var l=document.createElement('span');l.className='variant-label';l.textContent=t;d.appendChild(l);return d}
+  function clr(id){var e=document.getElementById(id);e.innerHTML='';return e}
+
+  function applyState(inp,state){
+    inp.checked=state==='checked';
+    inp.indeterminate=state==='indeterminate';
+  }
+
+  /* ── Section Renderers ──────────────────────────────── */
+
+  function renderDensity(){
+    var el=clr('densityScale');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      var cb=makeCB(s,{checked:true,noSync:true,label:s,style:{'min-height':'0'}});
+      it.appendChild(cb);
+      var m=document.createElement('div');m.className='density-meta';
+      requestAnimationFrame(function(){
+        var bcs=getComputedStyle(cb.querySelector('.checkbox__box')||cb);
+        var sz=getComputedStyle(cb).getPropertyValue('--checkbox-box-size-'+s).trim()||bcs.width;
+        var r=getComputedStyle(cb).getPropertyValue('--checkbox-box-radius-'+s).trim()||bcs.borderRadius;
+        m.textContent=sz+' \u00D7 '+sz+' r'+r;
+      });
+      m.textContent='\u2026';
+      it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderStates(){
+    var el=clr('stateMatrix');
+    var states=[
+      {label:'Unchecked',opts:{}},
+      {label:'Checked',opts:{checked:true}},
+      {label:'Indeterminate',opts:{indeterminate:true}},
+      {label:'Disabled Off',opts:{disabled:true}},
+      {label:'Disabled On',opts:{checked:true,disabled:true}},
+      {label:'Error Off',opts:{error:true}},
+      {label:'Error On',opts:{checked:true,error:true}}
+    ];
+    var variants=[{label:'Filled',variant:''},{label:'Outlined',variant:'outlined'}];
+    variants.forEach(function(v){
+      var row=document.createElement('div');row.style.cssText='display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)';
+      var vLabel=document.createElement('div');vLabel.className='sub-label';vLabel.textContent=v.label+' variant';vLabel.style.cssText='width:100%;padding:0 0 8px';
+      row.appendChild(vLabel);
+      states.forEach(function(st){
+        row.appendChild(wrapCard(makeCB(curS,Object.assign({noSync:true,variant:v.variant,label:st.label},st.opts)),st.label));
+      });
+      el.appendChild(row);
+    });
+  }
+
+  function renderSlots(){
+    var el=clr('slotsDemo');
+    var combos=[
+      {label:'Box only (no label)',fn:function(){return makeCB(curS,{noSync:true,checked:true})}},
+      {label:'With label',fn:function(){return makeCB(curS,{noSync:true,checked:false,label:'Enable notifications'})}},
+      {label:'Checked with label',fn:function(){return makeCB(curS,{noSync:true,checked:true,label:'Subscribe to newsletter'})}},
+      {label:'Required',fn:function(){return makeCB(curS,{noSync:true,checked:false,label:'Accept terms',required:true})}},
+      {label:'Disabled with label',fn:function(){return makeCB(curS,{noSync:true,disabled:true,checked:true,label:'Locked option'})}},
+      {label:'Indeterminate',fn:function(){return makeCB(curS,{noSync:true,indeterminate:true,label:'Select all'})}},
+    ];
+    combos.forEach(function(c){
+      var cd=document.createElement('div');cd.className='slot-card';
+      cd.appendChild(c.fn());
+      var l=document.createElement('span');l.className='slot-label';l.textContent=c.label;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p=document.getElementById(id);
+      while(p.children.length>1)p.removeChild(p.lastChild);
+      if (id === 'surfaceDeep') {
+        applySurface(p, 'deep');
+      }
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;gap:16px;align-items:center;padding:8px 0;flex-wrap:wrap';
+      wrap.appendChild(makeCB(curS,{noSync:true,checked:false,label:'Unchecked'}));
+      wrap.appendChild(makeCB(curS,{noSync:true,checked:true,label:'Checked'}));
+      wrap.appendChild(makeCB(curS,{noSync:true,indeterminate:true,label:'Indeterminate'}));
+      p.appendChild(wrap);
+    });
+  }
+
+  function renderShapeDefault(){
+    var el=clr('shapeDefault');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeCB(s,{noSync:true,checked:true}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent=s+' r'+BOX_RADII[s].split(' ')[0];it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderShapeCustom(){
+    var el=clr('shapeCustom');
+    var radii=[
+      {label:'None (sharp)',val:'var(--radius-none)'},
+      {label:'XS (3px)',val:'var(--radius-xs)'},
+      {label:'SM (4px)',val:'var(--radius-sm)'},
+      {label:'MD (6px)',val:'var(--radius-md)'},
+      {label:'LG (12px)',val:'var(--radius-lg)'},
+      {label:'Circle',val:'var(--radius-full)'},
+    ];
+    radii.forEach(function(r){
+      var it=document.createElement('div');it.className='density-item';
+      /* Override all per-size radius tokens to a uniform value */
+      var overrides={};
+      SIZES.forEach(function(sz){overrides['--checkbox-box-radius-'+sz]=r.val;});
+      var cb=makeCB(curS,{noSync:true,checked:true,style:overrides});
+      it.appendChild(cb);
+      var m=document.createElement('div');m.className='density-meta';m.textContent=r.label;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderShadows(){
+    var el=clr('shadowStrip');
+    SHADOWS.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeCB(curS,{noSync:true,checked:true,style:{'--checkbox-box-shadow':'var(--shadow-'+s+')'}}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent='--shadow-'+s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderMotion(){
+    var el=clr('motionDemo');
+    var items=[
+      {label:'Default (fast + ease-in-out)',sub:'duration-fast',opts:{}},
+      {label:'Slow + linear',sub:'duration-slow',opts:{style:{'--checkbox-transition-duration':'var(--duration-slow)','--checkbox-transition-easing':'var(--easing-linear)','--checkbox-check-transition-duration':'var(--duration-slow)'}}},
+      {label:'Fast + bounce',sub:'easing-bounce',opts:{style:{'--checkbox-check-transition-easing':'var(--easing-bounce)','--checkbox-check-transition-duration':'var(--duration-normal)'}}},
+      {label:'No motion',sub:'0ms',opts:{style:{'--checkbox-transition-duration':'0ms','--checkbox-check-transition-duration':'0ms'}}}
+    ];
+    items.forEach(function(it){
+      var cd=document.createElement('div');cd.className='motion-card';
+      cd.appendChild(makeCB(curS,Object.assign({noSync:true,label:'Toggle me'},it.opts)));
+      var l=document.createElement('span');l.className='motion-label';l.textContent=it.sub;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  function renderA11y(){
+    /* Focus */
+    var af=clr('a11yFocus');
+    af.appendChild(makeCB(curS,{noSync:true,label:'Tab to focus'}));
+
+    /* Disabled */
+    var ad=clr('a11yDisabled');
+    ad.appendChild(makeCB(curS,{noSync:true,disabled:true,label:'Disabled off'}));
+    ad.appendChild(makeCB(curS,{noSync:true,disabled:true,checked:true,label:'Disabled on'}));
+
+    /* Error */
+    var ae=clr('a11yError');
+    ae.appendChild(makeCB(curS,{noSync:true,error:true,label:'Error unchecked'}));
+    ae.appendChild(makeCB(curS,{noSync:true,error:true,checked:true,label:'Error checked'}));
+
+    /* Forced */
+    var afc=clr('a11yForced');
+    afc.appendChild(makeCB(curS,{noSync:true,label:'Off'}));
+    afc.appendChild(makeCB(curS,{noSync:true,checked:true,label:'On'}));
+  }
+
+  /* ── Inspector ──────────────────────────────────────── */
+  function updateInspector(){
+    var hero=document.getElementById('heroCB');
+    if(!hero)return;
+    var inp=hero.querySelector('.checkbox__control');
+    var box=hero.querySelector('.checkbox__box');
+    var bcs=box?getComputedStyle(box):{};
+    var checked=inp.checked;
+    var indet=inp.indeterminate;
+    var stateLabel=indet?'indeterminate':checked?'checked':'unchecked';
+    var s=curS;
+    var vName=curVariant||'filled';
+    var tokens=[
+      ['--checkbox-box-size-'+s, BOX_DIMS[s], bcs.width||'\u2014'],
+      ['--checkbox-box-radius-'+s, BOX_RADII[s], bcs.borderRadius||'\u2014'],
+      ['--checkbox-check-size', '75%', '\u2014'],
+      [checked||indet?'bg-on':'bg-off', '\u2014', bcs.backgroundColor||'\u2014'],
+      [checked||indet?'border-on':'border-off', '\u2014', bcs.borderColor||'\u2014'],
+      ['border-width', '\u2014', bcs.borderWidth||'\u2014'],
+      ['box-shadow', '\u2014', bcs.boxShadow||'\u2014'],
+      ['--checkbox-transition-duration', '--duration-fast', bcs.transitionDuration||'\u2014'],
+    ];
+    var ins=document.getElementById('heroInspector');
+    ins.innerHTML='<div class="inspector-title">Resolved Tokens ('+stateLabel+' / '+s+' / '+vName+')</div>'+
+      tokens.map(function(t){
+        return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+t[2]+(t[1]!=='\u2014'?'<br><span style="opacity:0.5;font-size:9px">\u2192 '+t[1]+'</span>':'')+'</span></div>';
+      }).join('');
+  }
+
+  /* ── Hero Change Listener ───────────────────────────── */
+  var heroInp=document.querySelector('#heroCB .checkbox__control');
+  heroInp.addEventListener('change',function(){
+    if(this.checked){curState='checked';}else{curState='unchecked';}
+    /* sync controls */
+    document.querySelectorAll('#stateBar .pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    var sel=document.querySelector('#stateBar .pill[data-ctrl-state="'+curState+'"]');
+    if(sel) sel.setAttribute('aria-pressed','true');
+    requestAnimationFrame(updateInspector);
+  });
+
+  /* ── Apply Globals ──────────────────────────────── */
+  function applyGlobals(){
+    var hero=document.getElementById('heroCB');
+    if(hero){
+      hero.dataset.size=curS;
+      if(curVariant) hero.dataset.variant=curVariant; else delete hero.dataset.variant;
+      var inp=hero.querySelector('.checkbox__control');
+      applyState(inp,curState);
+    }
+    document.querySelectorAll('.a11y-grid .synced-cb').forEach(function(cb){
+      cb.dataset.size=curS;
+      if(curVariant) cb.dataset.variant=curVariant; else delete cb.dataset.variant;
+    });
+    renderDensity();renderStates();renderSlots();renderSurface();
+    renderShapeDefault();renderShapeCustom();renderShadows();renderMotion();
+    renderA11y();renderPlayground();
+    requestAnimationFrame(updateInspector);
+  }
+
+  /* ── Global Controls ────────────────────────────────── */
+  document.getElementById('stateBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');
+    curState=pill.dataset.ctrlState;
+    applyGlobals();
+  });
+
+  document.getElementById('sizeBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');curS=pill.dataset.ctrlSize;applyGlobals();
+  });
+
+  document.getElementById('variantBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');curVariant=pill.dataset.ctrlVariant;applyGlobals();
+  });
+
+  window.DTF.onThemeChange = updateInspector;
+
+  /* ── Context Playground ─────────────────────────────── */
+  var SURFACE_TOKENS=[
+    'bg','hover','pressed','outline','separator',
+    'ct-default','ct-strong','ct-subtle','ct-faint',
+    'cm-bg','cm-bg-hover','cm-bg-pressed',
+    'cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'
+  ];
+  var ROLE_TOKENS=[
+    'content-default','content-strong','content-subtle','content-faint',
+    'component-bg-default','component-bg-hover','component-bg-pressed',
+    'component-outline-default','component-outline-hover','component-outline-pressed',
+    'component-separator',
+    'container-bg','container-hover','container-pressed',
+    'container-outline','container-separator',
+    'on-component','on-container'
+  ];
+
+  function applySurface(bodyEl,surfaceId){
+    if(surfaceId==='base'){
+      SURFACE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--surface-base-'+tok);});
+      bodyEl.style.background='var(--surface-base-bg)';
+      bodyEl.removeAttribute('data-theme');
+    } else {
+      SURFACE_TOKENS.forEach(function(tok){
+        bodyEl.style.setProperty('--surface-base-'+tok,'var(--surface-'+surfaceId+'-'+tok+')');
+      });
+      bodyEl.style.background='var(--surface-'+surfaceId+'-bg)';
+      if(surfaceId==='inverse'){bodyEl.setAttribute('data-theme','dark');}else{bodyEl.removeAttribute('data-theme');}
+    }
+  }
+
+  function applyRole(bodyEl,roleId){
+    if(roleId==='brand'){
+      ROLE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--brand-'+tok);});
+    } else {
+      ROLE_TOKENS.forEach(function(tok){
+        bodyEl.style.setProperty('--brand-'+tok,'var(--'+roleId+'-'+tok+')');
+      });
+    }
+  }
+
+  function renderPlayground(){
+    ['A','B'].forEach(function(card){
+      var body=document.getElementById('pgBody'+card);
+      body.innerHTML='';
+      var rows=[
+        {label:'Unchecked',opts:{checked:false}},
+        {label:'Checked',opts:{checked:true}},
+        {label:'Indeterminate',opts:{indeterminate:true}},
+        {label:'With label',opts:{checked:true,label:'Enabled'}},
+        {label:'Disabled',opts:{disabled:true,checked:false,label:'Locked'}},
+      ];
+      rows.forEach(function(r){
+        var row=document.createElement('div');row.className='pg-variant-row';
+        var sp=document.createElement('span');sp.className='pg-variant-label';sp.textContent=r.label;
+        row.appendChild(sp);
+        row.appendChild(makeCB(curS,Object.assign({noSync:true,variant:curVariant},r.opts)));
+        body.appendChild(row);
+      });
+      pgApplyCard(card);
+    });
+    requestAnimationFrame(pgUpdateChain);
+  }
+
+  function pgApplyCard(card){
+    var body=document.getElementById('pgBody'+card);
+    var surfSel=document.querySelector('[data-pg-surface="'+card+'"]');
+    var roleSel=document.querySelector('[data-pg-role="'+card+'"]');
+    applySurface(body,surfSel.value);
+    applyRole(body,roleSel.value);
+  }
+
+  function pgUpdateChain(){
+    var surfSel=document.querySelector('[data-pg-surface="A"]');
+    var roleSel=document.querySelector('[data-pg-role="A"]');
+    var chain=document.getElementById('pgChain');
+    var s=surfSel.value,r=roleSel.value;
+    var rows=[
+      {sec:'Filled Variant (off)'},
+      {label:'Box BG Off',token:'--checkbox-box-bg-off',via:'--surface-'+s+'-cm-bg'},
+      {label:'Box BG Off Hover',token:'--checkbox-box-bg-off-hover',via:'--surface-'+s+'-cm-bg-hover'},
+      {label:'Box Border Off',token:'--checkbox-box-border-color-off',via:'--surface-'+s+'-cm-outline'},
+      {label:'Box Border Off Hover',token:'--checkbox-box-border-color-off-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {sec:'Filled Variant (on)'},
+      {label:'Box BG On',token:'--checkbox-box-bg-on',via:'--'+r+'-component-bg-default'},
+      {label:'Box BG On Hover',token:'--checkbox-box-bg-on-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Box Border On',token:'--checkbox-box-border-color-on',via:'--'+r+'-component-bg-default'},
+      {label:'Box Border On Hover',token:'--checkbox-box-border-color-on-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Check Color',token:'--checkbox-check-color',via:'--color-fixed-white'},
+      {sec:'Outlined Variant (off)'},
+      {label:'Box BG Off Hover',token:'--checkbox-outlined-box-bg-off-hover',via:'--surface-'+s+'-cm-bg-hover'},
+      {label:'Box Border Off',token:'--checkbox-outlined-box-border-color-off',via:'--surface-'+s+'-cm-outline'},
+      {label:'Box Border Off Hover',token:'--checkbox-outlined-box-border-color-off-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {sec:'Outlined Variant (on)'},
+      {label:'Box BG On',token:'--checkbox-outlined-box-bg-on',via:'--'+r+'-component-bg-default'},
+      {label:'Box BG On Hover',token:'--checkbox-outlined-box-bg-on-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Box Border On',token:'--checkbox-outlined-box-border-color-on',via:'--'+r+'-component-bg-default'},
+      {label:'Check Color',token:'--checkbox-outlined-check-color',via:'--color-fixed-white'},
+      {sec:'Error States'},
+      {label:'Border Error',token:'--checkbox-box-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Border Error Hover',token:'--checkbox-box-border-color-invalid-hover',via:'--danger-component-outline-hover'},
+      {label:'BG On Error',token:'--checkbox-box-bg-on-invalid',via:'--danger-component-bg-default'},
+      {label:'BG On Error Hover',token:'--checkbox-box-bg-on-invalid-hover',via:'--danger-component-bg-hover'},
+      {sec:'Disabled'},
+      {label:'Border Disabled',token:'--checkbox-box-border-color-disabled',via:'--surface-'+s+'-cm-outline'},
+      {label:'BG On Disabled',token:'--checkbox-box-bg-on-disabled',via:'--'+r+'-component-bg-default'},
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring',token:'--checkbox-focus-outline-color',via:'--'+r+'-component-outline-default'}
+    ];
+    var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row){
+      if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+      h+='<div class="pg-chain-row">';
+      h+='<span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span>';
+      h+='</div>';
+    });
+    chain.innerHTML=h;
+  }
+
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var card=this.dataset.pgSurface||this.dataset.pgRole;
+      pgApplyCard(card);
+      requestAnimationFrame(pgUpdateChain);
+    });
+  });
+
+  document.getElementById('pgDensityBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');
+    var sz=pill.dataset.pgSize;
+    document.querySelectorAll('#pgCardA .checkbox, #pgCardB .checkbox').forEach(function(cb){cb.dataset.size=sz});
+    requestAnimationFrame(pgUpdateChain);
+  });
+
+  applyGlobals();
+})();
+</script>
+</body>
+</html>

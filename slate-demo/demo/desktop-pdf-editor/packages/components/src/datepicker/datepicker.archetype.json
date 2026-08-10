@@ -1,0 +1,39 @@
+{
+  "archetype": "calendar-input",
+  "tokenPrefix": "datepicker",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "selected", "focused", "disabled", "today"],
+  "rolesSupported": [],
+  "variantsSupported": [],
+  "sizesSupported": ["micro", "tiny", "small", "base", "medium", "large", "big", "huge", "mega", "ultra"],
+  "densityModes": ["micro", "tiny", "small", "base", "medium", "large", "big", "huge", "mega", "ultra"],
+  "onComponentTokens": [],
+  "editorExposureOverrides": {
+    "--datepicker-day-size-*": "core",
+    "--datepicker-nav-size-*": "core",
+    "--datepicker-header-height-*": "core",
+    "--datepicker-header-font-size-*": "core",
+    "--datepicker-padding": "advanced",
+    "--datepicker-gap": "advanced",
+    "--datepicker-radius": "advanced"
+  },
+  "figmaBindingPrefix": "datepicker/",
+  "compSizeProps": [
+    { "propCSS": "day-size",          "propFigma": "day-size" },
+    { "propCSS": "nav-size",          "propFigma": "nav-size" },
+    { "propCSS": "header-height",     "propFigma": "header-height" },
+    { "propCSS": "header-font-size",  "propFigma": "header-font-size" },
+    { "propCSS": "day-font-size",     "propFigma": "day-font-size" },
+    { "propCSS": "weekday-font-size", "propFigma": "weekday-font-size" },
+    { "propCSS": "nav-icon-size",     "propFigma": "nav-icon-size" }
+  ],
+  "notes": [
+    "Calendar input archetype: popover-based date picker with header, calendar grid (day cells, week numbers), footer (today button). Role-less and variant-less — purely positional/informational UI.",
+    "10-density sizing ladder: micro/tiny/small/base/medium/large/big/huge/mega/ultra. Each density sets day cell size, header height, nav button size, and font sizes for header/weekday/day text. COMP-SIZE eligible for Figma multi-mode binding.",
+    "Subcomponents: header (month/year selector + prev/next nav buttons), calendar grid (day cells, today indicator, selected highlight, range highlight), footer (today button).",
+    "States: default (idle), hover (over day), selected (date picked), focused (keyboard), disabled (non-selectable), today (current date indicator).",
+    "Surface tokens reference surfaces.neutral (not component or semantic roles). All day/nav/header/footer backgrounds use surface-base context. No role colors.",
+    "No AA on-component needed: background is always neutral surface, text is always surface-context-text (no auto-derivation required).",
+    "Min-tap-target enforced on day cells and nav buttons (44px minimum for accessibility)."
+  ]
+}

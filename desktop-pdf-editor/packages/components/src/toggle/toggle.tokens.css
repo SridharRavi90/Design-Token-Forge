@@ -1,0 +1,310 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Toggle / Switch Token Defaults
+   Layer 0: System defaults for 128 toggle variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.switch {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (6 vars)      ─ 6 total
+     ──────────────────────────────────────────────────────────── */
+
+  /* Track + Thumb radii */
+  --switch-track-radius: var(--radius-full);
+  --switch-thumb-radius: var(--radius-full);
+
+  /* Track border */
+  --switch-track-border-width: 0px;
+  --switch-track-border-style: solid;
+
+  /* Thumb shadows */
+  --switch-thumb-shadow: var(--shadow-sm);
+  --switch-thumb-shadow-pressed: var(--shadow-md);
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (30 vars)   ─ 36 cumulative
+     ──────────────────────────────────────────────────────────── */
+
+  /* Track width per density (~1.75× height) */
+  --switch-track-w-micro: 28px;
+  --switch-track-w-tiny: 32px;
+  --switch-track-w-small: 36px;
+  --switch-track-w-base: 40px;
+  --switch-track-w-medium: 44px;
+  --switch-track-w-large: 48px;
+  --switch-track-w-big: 52px;
+  --switch-track-w-huge: 60px;
+  --switch-track-w-mega: 72px;
+  --switch-track-w-ultra: 88px;
+
+  /* Track height per density */
+  --switch-track-h-micro: 16px;
+  --switch-track-h-tiny: 18px;
+  --switch-track-h-small: 20px;
+  --switch-track-h-base: 24px;
+  --switch-track-h-medium: 26px;
+  --switch-track-h-large: 28px;
+  --switch-track-h-big: 32px;
+  --switch-track-h-huge: 36px;
+  --switch-track-h-mega: 44px;
+  --switch-track-h-ultra: 52px;
+
+  /* Thumb diameter per density — progressive gap:
+     micro→base: 2px inset (track-h − 4)
+     medium→big:  3px inset (track-h − 6)
+     huge→ultra:  4px inset (track-h − 8) */
+  --switch-thumb-size-micro: 12px;
+  --switch-thumb-size-tiny: 14px;
+  --switch-thumb-size-small: 16px;
+  --switch-thumb-size-base: 20px;
+  --switch-thumb-size-medium: 20px;
+  --switch-thumb-size-large: 22px;
+  --switch-thumb-size-big: 26px;
+  --switch-thumb-size-huge: 28px;
+  --switch-thumb-size-mega: 36px;
+  --switch-thumb-size-ultra: 44px;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (21 vars)    ─ 57 cumulative
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── Track: unchecked (off) ── */
+  /* neutral-component-bg-default=#6B7680 (4.64:1 vs white) — passes WCAG 1.4.11 3:1.
+     surface-base-cm-outline=#CFCFCF was only 1.56:1 (fail). */
+  --switch-track-bg-off: var(--neutral-component-bg-default);
+  --switch-track-bg-off-hover: var(--neutral-component-bg-hover);
+  --switch-track-border-color-off: var(--neutral-component-bg-default);
+  --switch-track-border-color-off-hover: var(--neutral-component-bg-hover);
+
+  /* ── Track: checked (on) ── */
+  --switch-track-bg-on: var(--brand-component-bg-default);
+  --switch-track-bg-on-hover: var(--brand-component-bg-hover);
+  --switch-track-border-color-on: var(--brand-component-bg-default);
+  --switch-track-border-color-on-hover: var(--brand-component-bg-hover);
+
+  /* ── Thumb ── */
+  --switch-thumb-bg: var(--color-fixed-white);
+  --switch-thumb-bg-hover: var(--color-fixed-white);
+  --switch-thumb-border-color: transparent;
+  --switch-thumb-border-color-checked: transparent;
+
+  /* ── Disabled ── */
+  --switch-track-bg-disabled: var(--surface-base-cm-outline);
+  --switch-track-bg-on-disabled: var(--brand-component-bg-default);
+  --switch-track-border-color-disabled: var(--surface-base-cm-outline);
+  --switch-thumb-bg-disabled: var(--color-fixed-white);
+  --switch-thumb-shadow-disabled: none;
+  --switch-opacity-disabled: 0.5;
+
+  /* ── Thumb icon (optional check / x) ── */
+  --switch-thumb-icon-color-off: var(--surface-base-ct-subtle);
+  --switch-thumb-icon-color-on: var(--brand-component-bg-default);
+  --switch-thumb-icon-size: 0.65em;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — DANGER / ERROR  (10 vars) ─ 67 cumulative
+     ──────────────────────────────────────────────────────────── */
+
+  /* danger — canonical name */
+  --switch-track-bg-on-danger: var(--danger-component-bg-default);
+  --switch-track-bg-on-danger-hover: var(--danger-component-bg-hover);
+  --switch-track-border-color-on-danger: var(--danger-component-bg-default);
+  --switch-track-border-color-on-danger-hover: var(--danger-component-bg-hover);
+
+  /* error — backward-compatible alias */
+  --switch-track-bg-on-invalid: var(--switch-track-bg-on-danger);
+  --switch-track-bg-on-invalid-hover: var(--switch-track-bg-on-danger-hover);
+  --switch-track-border-color-on-invalid: var(--switch-track-border-color-on-danger);
+  --switch-track-border-color-on-invalid-hover: var(--switch-track-border-color-on-danger-hover);
+
+  /* error off-state: unchecked + invalid (border treatment) */
+  --switch-track-border-color-invalid-off: var(--danger-component-outline-default);
+  --switch-track-border-color-invalid-off-hover: var(--danger-component-outline-hover);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — OUTLINE VARIANT  (17 vars) ─ 84 cumulative
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── Outline track: unchecked (off) — transparent + outline ── */
+  --switch-outlined-track-bg-off: transparent;
+  --switch-outlined-track-bg-off-hover: var(--surface-base-cm-bg-hover);
+  --switch-outlined-track-border-color-off: var(--surface-base-cm-outline);
+  --switch-outlined-track-border-color-off-hover: var(--surface-base-cm-outline-hover);
+
+  /* ── Outline track: checked (on) — filled with semantic role ── */
+  --switch-outlined-track-bg-on: var(--brand-component-bg-default);
+  --switch-outlined-track-bg-on-hover: var(--brand-component-bg-hover);
+  --switch-outlined-track-border-color-on: var(--brand-component-bg-default);
+  --switch-outlined-track-border-color-on-hover: var(--brand-component-bg-hover);
+
+  /* ── Outline thumb ── */
+  --switch-outlined-thumb-bg: var(--color-fixed-white);
+  --switch-outlined-thumb-bg-hover: var(--color-fixed-white);
+  --switch-outlined-thumb-border-color: var(--surface-base-cm-outline);
+  --switch-outlined-thumb-border-color-checked: transparent;
+
+  /* ── Outline disabled + border ── */
+  --switch-outlined-track-border-width: 2px;
+  --switch-outlined-track-bg-disabled: transparent;
+  --switch-outlined-track-bg-on-disabled: var(--brand-component-bg-default);
+  --switch-outlined-thumb-bg-disabled: var(--color-fixed-white);
+  --switch-outlined-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (14 vars)  ─ 98 cumulative
+     ──────────────────────────────────────────────────────────── */
+  --switch-label-font-family: var(--font-family-sans);
+  --switch-label-font-size: var(--font-size-14);
+  --switch-label-font-weight: var(--font-weight-regular);
+  --switch-label-line-height: var(--line-height-normal);
+
+  /* Per-density label font sizes */
+  --switch-label-font-size-micro: var(--font-size-10);
+  --switch-label-font-size-tiny: var(--font-size-11);
+  --switch-label-font-size-small: var(--font-size-12);
+  --switch-label-font-size-base: var(--font-size-14);
+  --switch-label-font-size-medium: var(--font-size-14);
+  --switch-label-font-size-large: var(--font-size-16);
+  --switch-label-font-size-big: var(--font-size-16);
+  --switch-label-font-size-huge: var(--font-size-18);
+  --switch-label-font-size-mega: var(--font-size-20);
+  --switch-label-font-size-ultra: var(--font-size-24);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (13 vars)     ─ 111 cumulative
+     ──────────────────────────────────────────────────────────── */
+  --switch-gap: var(--spacing-8);
+
+  /* Per-size label gap — consumed by .switch-label :has() selectors;
+     to override, set on .switch-label or any ancestor */
+  --switch-gap-micro: var(--spacing-4);
+  --switch-gap-tiny: var(--spacing-4);
+  --switch-gap-small: var(--spacing-6);
+  --switch-gap-base: var(--spacing-8);
+  --switch-gap-medium: var(--spacing-8);
+  --switch-gap-large: var(--spacing-10);
+  --switch-gap-big: var(--spacing-10);
+  --switch-gap-huge: var(--spacing-12);
+  --switch-gap-mega: var(--spacing-14);
+  --switch-gap-ultra: var(--spacing-16);
+
+  /* Per-density thumb inset — (track-h − thumb-size) / 2.
+     micro→base: 2px; medium→big: 3px; huge→ultra: 4px. */
+  --switch-thumb-inset-micro: 2;
+  --switch-thumb-inset-tiny: 2;
+  --switch-thumb-inset-small: 2;
+  --switch-thumb-inset-base: 2;
+  --switch-thumb-inset-medium: 3;
+  --switch-thumb-inset-large: 3;
+  --switch-thumb-inset-big: 3;
+  --switch-thumb-inset-huge: 4;
+  --switch-thumb-inset-mega: 4;
+  --switch-thumb-inset-ultra: 4;
+
+  /* Per-density track corner radius for the Square variant.
+     Progressive ~20% of track-h so the rounded-rect scales naturally.
+     Small sizes: 3-5px (clearly square vs pill). Large sizes: 9-10px
+     (nicely designed, not accidentally flat). All values < the old
+     constant 8px at sizes where that felt too round (micro-base). */
+  --switch-radius-square-micro: 3;
+  --switch-radius-square-tiny: 4;
+  --switch-radius-square-small: 4;
+  --switch-radius-square-base: 5;
+  --switch-radius-square-medium: 5;
+  --switch-radius-square-large: 6;
+  --switch-radius-square-big: 7;
+  --switch-radius-square-huge: 8;
+  --switch-radius-square-mega: 9;
+  --switch-radius-square-ultra: 10;
+
+  /* Per-density thumb corner radius for Square variant = track-radius − thumb-inset.
+     Concentric: thumb arc aligns visually inside the track arc. */
+  --switch-thumb-radius-square-micro: 1;
+  --switch-thumb-radius-square-tiny: 2;
+  --switch-thumb-radius-square-small: 2;
+  --switch-thumb-radius-square-base: 3;
+  --switch-thumb-radius-square-medium: 2;
+  --switch-thumb-radius-square-large: 3;
+  --switch-thumb-radius-square-big: 4;
+  --switch-thumb-radius-square-huge: 4;
+  --switch-thumb-radius-square-mega: 5;
+  --switch-thumb-radius-square-ultra: 6;
+
+  /* Per-density text-side padding for labeled track variants.
+     Thumb side uses thumb-inset; text side needs slightly more breathing room. */
+  --switch-label-text-pad-micro: 3;
+  --switch-label-text-pad-tiny: 4;
+  --switch-label-text-pad-small: 4;
+  --switch-label-text-pad-base: 6;
+  --switch-label-text-pad-medium: 6;
+  --switch-label-text-pad-large: 8;
+  --switch-label-text-pad-big: 8;
+  --switch-label-text-pad-huge: 10;
+  --switch-label-text-pad-mega: 12;
+  --switch-label-text-pad-ultra: 14;
+
+  /* Per-density font size for the ON/OFF text drawn INSIDE the labeled track.
+     Separate from label-font-size (which sizes the external label beside the track).
+     Values are ~35–45% of track-h so the text reads clearly without crowding the thumb.
+     8px minimum keeps micro legible; 18px caps ultra so it doesn’t outsize the thumb. */
+  --switch-track-label-font-size-micro: 8;
+  --switch-track-label-font-size-tiny: 9;
+  --switch-track-label-font-size-small: 9;
+  --switch-track-label-font-size-base: 10;
+  --switch-track-label-font-size-medium: 10;
+  --switch-track-label-font-size-large: 11;
+  --switch-track-label-font-size-big: 12;
+  --switch-track-label-font-size-huge: 13;
+  --switch-track-label-font-size-mega: 15;
+  --switch-track-label-font-size-ultra: 18;
+
+  /* Per-density ON-position — track-w − thumb-size − thumb-inset.
+     Determines where the thumb sits when toggled ON. */
+  --switch-thumb-x-on-micro: 14;
+  --switch-thumb-x-on-tiny: 16;
+  --switch-thumb-x-on-small: 18;
+  --switch-thumb-x-on-base: 18;
+  --switch-thumb-x-on-medium: 21;
+  --switch-thumb-x-on-large: 23;
+  --switch-thumb-x-on-big: 23;
+  --switch-thumb-x-on-huge: 28;
+  --switch-thumb-x-on-mega: 32;
+  --switch-thumb-x-on-ultra: 40;
+
+  --switch-thumb-scale-pressed: 1.1;
+  --switch-thumb-border-width: 0px;
+
+  /* Track labels — text inside track, activated with [data-track-labels].
+     OFF label: rendered on the right zone (grey track); needs dark text for contrast.
+     ON  label: rendered on the left zone (colored track); on-component white text. */
+  --switch-track-label-color-off: var(--surface-base-ct-default);
+  --switch-track-label-color-on: var(--brand-on-component);
+  --switch-track-label-font-weight: var(--font-weight-bold);
+  --switch-track-label-letter-spacing: 0.03em;
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (9 vars)      ─ 124 cumulative
+     ──────────────────────────────────────────────────────────── */
+  --switch-transition-property: background-color, border-color, box-shadow, opacity;
+  --switch-transition-duration: var(--duration-normal);
+  --switch-transition-easing: var(--easing-in-out);
+  --switch-thumb-transition-duration: var(--duration-normal);
+  --switch-thumb-transition-easing: var(--easing-spring);
+  --switch-track-transition-property: background-color, border-color;
+  --switch-thumb-transition-property: left, transform, box-shadow, background-color, border-color;
+  --switch-loader-speed: 1.5s;
+  --switch-animation-loading: none;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (8 vars) ─ 128 total
+     ──────────────────────────────────────────────────────────── */
+  --switch-focus-outline-width: var(--focus-outline-width);
+  --switch-focus-outline-color: var(--brand-component-outline-default);
+  --switch-focus-outline-offset: var(--focus-outline-offset);
+  --switch-min-tap-target: 44px;
+  --switch-required-indicator: '*';
+  --switch-required-color: var(--danger-content-default);
+  --switch-label-color: var(--surface-base-ct-default);
+  --switch-label-color-disabled: var(--surface-base-ct-subtle);
+}

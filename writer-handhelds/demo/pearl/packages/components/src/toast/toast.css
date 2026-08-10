@@ -1,0 +1,406 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Toast
+   Variable-driven rendering — reads only from --toast-* tokens.
+   Internal vars (--_ts-*) enable one-selector switching for
+   size / role / variant without compound selectors.
+
+   Markup:
+   <div class="toast-container" data-position="top-right">
+     <div class="toast" data-role="success" data-size="base"
+          data-variant="soft" role="status">
+       <span class="toast__accent"></span>
+       <span class="toast__icon"><svg>…</svg></span>
+       <div class="toast__content">
+         <div class="toast__title">Title</div>
+         <div class="toast__body">Description</div>
+       </div>
+       <div class="toast__actions">
+         <button class="toast__action">Undo</button>
+       </div>
+       <button class="toast__close" aria-label="Dismiss">×</button>
+       <div class="toast__progress"></div>
+     </div>
+   </div>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────
+   0.  KEYFRAMES
+   ──────────────────────────────────────────────────────────────── */
+@keyframes toast-progress {
+  from { transform: scaleX(1) }
+  to   { transform: scaleX(0) }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   1.  CONTAINER (fixed positioning for stacking)
+   ──────────────────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: var(--toast-container-gap);
+  padding: var(--toast-container-padding);
+  z-index: var(--toast-container-z-index);
+  pointer-events: none;
+}
+.toast-container[data-position="top-right"]    { top:0; right:0 }
+.toast-container[data-position="top-left"]     { top:0; left:0 }
+.toast-container[data-position="top-center"]   { top:0; left:50%; transform:translateX(-50%) }
+.toast-container[data-position="bottom-right"] { bottom:0; right:0 }
+.toast-container[data-position="bottom-left"]  { bottom:0; left:0 }
+.toast-container[data-position="bottom-center"]{ bottom:0; left:50%; transform:translateX(-50%) }
+
+/* Demo mode — relative positioning for showcase */
+.toast-container[data-demo] {
+  position: relative;
+  padding: 0;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   2.  BASE TOAST — internal active variables (default = md + info)
+   ──────────────────────────────────────────────────────────────── */
+.toast {
+  /* — size active vars — */
+  --_ts-py:          var(--toast-padding-y-base);
+  --_ts-px:          var(--toast-padding-x-base);
+  --_ts-gap:         var(--toast-gap-base);
+  --_ts-content-gap: var(--toast-content-gap-base);
+  --_ts-font-size:   var(--toast-font-size-base);
+  --_ts-title-fs:    var(--toast-title-font-size-base);
+  --_ts-icon-size:   var(--toast-icon-size-base);
+  --_ts-close-size:  var(--toast-close-size-base);
+
+  /* — role active vars (info default) — */
+  --_ts-accent:         var(--toast-info-accent);
+  --_ts-icon-color:     var(--toast-info-icon-color);
+  --_ts-title-color:    var(--toast-info-title-color);
+  --_ts-soft-bg:        var(--toast-info-soft-bg);
+  --_ts-filled-bg:      var(--toast-info-filled-bg);
+  --_ts-filled-fg:      var(--toast-info-filled-fg);
+  --_ts-outlined-border: var(--toast-info-outlined-border);
+
+  /* — variant active vars (default = neutral surface) — */
+  --_ts-bg:           var(--toast-bg);
+  --_ts-fg:           var(--toast-fg);
+  --_ts-border-color: var(--toast-border-color);
+
+  /* — rendering — */
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  min-width: var(--toast-min-width);
+  max-width: var(--toast-max-width);
+  min-height: var(--toast-min-height);
+  padding: var(--_ts-py) var(--_ts-px);
+  gap: var(--_ts-gap);
+  font-family: var(--toast-font-family);
+  font-size: var(--_ts-font-size);
+  font-weight: var(--toast-font-weight);
+  line-height: var(--toast-line-height);
+  pointer-events: auto;
+  overflow: hidden;
+  color: var(--_ts-fg);
+  background: var(--_ts-bg);
+  border: var(--toast-border-width) var(--toast-border-style) var(--_ts-border-color);
+  border-radius: var(--toast-radius);
+  box-shadow: var(--toast-shadow);
+  transition-property: var(--toast-transition-property);
+  transition-duration: var(--toast-transition-duration);
+  transition-timing-function: var(--toast-transition-easing);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   3.  SIZE SELECTORS
+   ──────────────────────────────────────────────────────────────── */
+.toast[data-size="small"] {
+  --_ts-py:          var(--toast-padding-y-small);
+  --_ts-px:          var(--toast-padding-x-small);
+  --_ts-gap:         var(--toast-gap-small);
+  --_ts-content-gap: var(--toast-content-gap-small);
+  --_ts-font-size:   var(--toast-font-size-small);
+  --_ts-title-fs:    var(--toast-title-font-size-small);
+  --_ts-icon-size:   var(--toast-icon-size-small);
+  --_ts-close-size:  var(--toast-close-size-small);
+}
+.toast[data-size="large"] {
+  --_ts-py:          var(--toast-padding-y-large);
+  --_ts-px:          var(--toast-padding-x-large);
+  --_ts-gap:         var(--toast-gap-large);
+  --_ts-content-gap: var(--toast-content-gap-large);
+  --_ts-font-size:   var(--toast-font-size-large);
+  --_ts-title-fs:    var(--toast-title-font-size-large);
+  --_ts-icon-size:   var(--toast-icon-size-large);
+  --_ts-close-size:  var(--toast-close-size-large);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   4.  ROLE SELECTORS (brand | info | success | warning | danger | neutral)
+   ──────────────────────────────────────────────────────────────── */
+/* brand — primary alias for feedback consistency */
+.toast[data-role="brand"] {
+  --_ts-accent:         var(--toast-brand-accent);
+  --_ts-icon-color:     var(--toast-brand-icon-color);
+  --_ts-title-color:    var(--toast-brand-title-color);
+  --_ts-soft-bg:        var(--toast-brand-soft-bg);
+  --_ts-filled-bg:      var(--toast-brand-filled-bg);
+  --_ts-filled-fg:      var(--toast-brand-filled-fg);
+  --_ts-outlined-border: var(--toast-brand-outlined-border);
+}
+/* info — dedicated palette (blue) */
+.toast[data-role="info"] {
+  --_ts-accent:         var(--toast-info-accent);
+  --_ts-icon-color:     var(--toast-info-icon-color);
+  --_ts-title-color:    var(--toast-info-title-color);
+  --_ts-soft-bg:        var(--toast-info-soft-bg);
+  --_ts-filled-bg:      var(--toast-info-filled-bg);
+  --_ts-filled-fg:      var(--toast-info-filled-fg);
+  --_ts-outlined-border: var(--toast-info-outlined-border);
+}
+.toast[data-role="success"] {
+  --_ts-accent:         var(--toast-success-accent);
+  --_ts-icon-color:     var(--toast-success-icon-color);
+  --_ts-title-color:    var(--toast-success-title-color);
+  --_ts-soft-bg:        var(--toast-success-soft-bg);
+  --_ts-filled-bg:      var(--toast-success-filled-bg);
+  --_ts-filled-fg:      var(--toast-success-filled-fg);
+  --_ts-outlined-border: var(--toast-success-outlined-border);
+}
+.toast[data-role="warning"] {
+  --_ts-accent:         var(--toast-warning-accent);
+  --_ts-icon-color:     var(--toast-warning-icon-color);
+  --_ts-title-color:    var(--toast-warning-title-color);
+  --_ts-soft-bg:        var(--toast-warning-soft-bg);
+  --_ts-filled-bg:      var(--toast-warning-filled-bg);
+  --_ts-filled-fg:      var(--toast-warning-filled-fg);
+  --_ts-outlined-border: var(--toast-warning-outlined-border);
+}
+.toast[data-role="danger"] {
+  --_ts-accent:         var(--toast-danger-accent);
+  --_ts-icon-color:     var(--toast-danger-icon-color);
+  --_ts-title-color:    var(--toast-danger-title-color);
+  --_ts-soft-bg:        var(--toast-danger-soft-bg);
+  --_ts-filled-bg:      var(--toast-danger-filled-bg);
+  --_ts-filled-fg:      var(--toast-danger-filled-fg);
+  --_ts-outlined-border: var(--toast-danger-outlined-border);
+}
+.toast[data-role="neutral"] {
+  --_ts-accent:         var(--toast-neutral-accent);
+  --_ts-icon-color:     var(--toast-neutral-icon-color);
+  --_ts-title-color:    var(--toast-neutral-title-color);
+  --_ts-soft-bg:        var(--toast-neutral-soft-bg);
+  --_ts-filled-bg:      var(--toast-neutral-filled-bg);
+  --_ts-filled-fg:      var(--toast-neutral-filled-fg);
+  --_ts-outlined-border: var(--toast-neutral-outlined-border);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   5.  VARIANT: SOFT (tinted role bg)
+   ──────────────────────────────────────────────────────────────── */
+.toast[data-variant="soft"] {
+  --_ts-bg: var(--_ts-soft-bg);
+  --_ts-border-color: transparent;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   6.  VARIANT: FILLED (solid role bg)
+   ──────────────────────────────────────────────────────────────── */
+.toast[data-variant="filled"] {
+  --_ts-bg: var(--_ts-filled-bg);
+  --_ts-fg: var(--_ts-filled-fg);
+  --_ts-icon-color: currentColor;
+  --_ts-title-color: currentColor;
+  --_ts-border-color: transparent;
+  box-shadow: none;
+}
+/* hide accent bar on filled — the bg IS the role color */
+.toast[data-variant="filled"] .toast__accent { display:none }
+
+/* ────────────────────────────────────────────────────────────────
+   7.  VARIANT: OUTLINED (transparent + role border)
+   ──────────────────────────────────────────────────────────────── */
+.toast[data-variant="outlined"] {
+  --_ts-bg: transparent;
+  --_ts-border-color: var(--_ts-outlined-border);
+  box-shadow: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   8.  ACCENT BAR
+   ──────────────────────────────────────────────────────────────── */
+.toast__accent {
+  position: absolute;
+  left: 0;
+  top: var(--_ts-py);
+  bottom: var(--_ts-py);
+  width: var(--toast-accent-width);
+  border-radius: var(--toast-accent-radius);
+  background: var(--_ts-accent);
+}
+.toast:has(.toast__accent) {
+  padding-inline-start: calc(var(--_ts-px) + var(--toast-accent-width) + 4px);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   9.  ICON
+   ──────────────────────────────────────────────────────────────── */
+.toast__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--_ts-icon-color);
+  margin-top: 2px;
+}
+.toast__icon svg {
+  width: var(--_ts-icon-size);
+  height: var(--_ts-icon-size);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   10. CONTENT (title + body)
+   ──────────────────────────────────────────────────────────────── */
+.toast__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--_ts-content-gap);
+}
+.toast__title {
+  font-size: var(--_ts-title-fs);
+  font-weight: var(--toast-title-font-weight);
+  color: var(--_ts-title-color);
+}
+.toast__body {
+  color: var(--_ts-fg);
+  opacity: 0.8;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   11. ACTIONS
+   ──────────────────────────────────────────────────────────────── */
+.toast__actions {
+  display: flex;
+  gap: var(--spacing-8);
+  align-items: center;
+  margin-top: 2px;
+}
+.toast__action {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: var(--toast-action-font-size);
+  font-weight: var(--toast-action-font-weight);
+  color: var(--_ts-accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  opacity: 0.85;
+  transition: opacity 150ms ease;
+}
+.toast__action:hover {
+  opacity: 1;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12. CLOSE BUTTON
+   ──────────────────────────────────────────────────────────────── */
+.toast__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--_ts-close-size);
+  height: var(--_ts-close-size);
+  padding: 0;
+  border: none;
+  border-radius: var(--toast-close-radius);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: var(--toast-close-opacity);
+  font-size: inherit;
+  line-height: 1;
+  transition: opacity 150ms ease, background 150ms ease;
+}
+.toast__close:hover {
+  opacity: var(--toast-close-hover-opacity);
+  background: var(--toast-close-hover-bg);
+}
+.toast__close:focus-visible {
+  outline: var(--toast-focus-outline-width) solid var(--toast-focus-outline-color);
+  outline-offset: var(--toast-focus-outline-offset);
+}
+.toast__close svg {
+  width: calc(var(--_ts-close-size) - 4px);
+  height: calc(var(--_ts-close-size) - 4px);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   13. PROGRESS BAR (auto-dismiss timer visual)
+   ──────────────────────────────────────────────────────────────── */
+.toast__progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: var(--toast-progress-height);
+  border-radius: var(--toast-progress-radius);
+  background: var(--_ts-accent);
+  opacity: 0.4;
+  width: 100%;
+  transform-origin: left;
+}
+.toast__progress[data-animate] {
+  animation: toast-progress var(--toast-auto-dismiss) linear forwards;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   14. DISABLED
+   ──────────────────────────────────────────────────────────────── */
+.toast[data-disabled] {
+  opacity: var(--toast-disabled-opacity);
+  pointer-events: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   15. ENTER / EXIT STATES (transition-driven)
+   ──────────────────────────────────────────────────────────────── */
+.toast[data-state="entering"] {
+  opacity: 0;
+  transform: translateY(var(--toast-enter-translate-y)) scale(var(--toast-enter-scale));
+}
+.toast[data-state="visible"] {
+  opacity: 1;
+  transform: none;
+}
+.toast[data-state="exiting"] {
+  opacity: 0;
+  transform: translateY(var(--toast-exit-translate-y));
+}
+
+/* ────────────────────────────────────────────────────────────────
+   16. FORCED COLORS
+   ──────────────────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .toast {
+    border: 1px solid CanvasText;
+  }
+  .toast__accent, .toast__progress {
+    background: Highlight;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   17. REDUCED MOTION
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .toast, .toast__close, .toast__action {
+    transition-duration: 0.01ms !important;
+  }
+  .toast__progress[data-animate] {
+    animation-duration: 0.01ms !important;
+  }
+}

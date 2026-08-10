@@ -1,0 +1,181 @@
+{
+  "id": "pearl",
+  "name": "Pearl",
+  "owner": "sridhar-ravi-2917",
+  "description": "Design tokens for Pearl",
+  "created": "2026-05-16",
+  "schemaVersion": 2,
+  "paletteKeys": {
+    "brand": "#D2016E",
+    "danger": "#D61D20",
+    "warning": "#9A6A08",
+    "info": "#2177C7",
+    "success": "#3C8A03",
+    "greyscale": "#747474",
+    "desaturated": "#71747C"
+  },
+  "semanticMap": {
+    "light": {
+      "content-default": "550",
+      "content-strong": "600",
+      "content-subtle": "350",
+      "content-faint": "200",
+      "component-bg-default": "500",
+      "component-bg-hover": "550",
+      "component-bg-pressed": "600",
+      "component-outline-default": "300",
+      "component-outline-hover": "350",
+      "component-outline-pressed": "450",
+      "component-separator": "100",
+      "container-bg": "50",
+      "container-hover": "75",
+      "container-pressed": "100",
+      "container-outline": "200",
+      "container-separator": "100",
+      "on-component": "fixed-white",
+      "on-container": "600"
+    },
+    "dark": {
+      "content-default": "150",
+      "content-strong": "100",
+      "content-subtle": "200",
+      "content-faint": "350",
+      "component-bg-default": "450",
+      "component-bg-hover": "350",
+      "component-bg-pressed": "300",
+      "component-outline-default": "450",
+      "component-outline-hover": "350",
+      "component-outline-pressed": "300",
+      "component-separator": "750",
+      "container-bg": "800",
+      "container-hover": "750",
+      "container-pressed": "700",
+      "container-outline": "550",
+      "container-separator": "750",
+      "on-component": "fixed-white",
+      "on-container": "100"
+    }
+  },
+  "surfacePaletteSrc": {
+    "bright": "greyscale",
+    "base": "greyscale",
+    "dim": "greyscale",
+    "deep": "greyscale",
+    "accent": "brand",
+    "card": "greyscale",
+    "modal": "greyscale",
+    "float": "greyscale",
+    "inverse": "greyscale"
+  },
+  "typographyConfig": {
+    "preset": "custom",
+    "custom": {
+      "headline": "Zoho Puvi",
+      "body": "Zoho Puvi",
+      "code": "Zoho Puvi"
+    }
+  },
+  "latestVersion": {
+    "version": "v0.0.42",
+    "name": "Jun25 10:41",
+    "description": "",
+    "savedAt": "2026-06-25T05:11:22.279Z",
+    "savedBy": "sridhar-ravi-2917"
+  },
+  "t1Picks": {
+    "light": {
+      "brand": {
+        "fill": "600",
+        "content": "750",
+        "container": "50",
+        "borderStep": "500",
+        "separatorStep": "400",
+        "onComponent": "white",
+        "onContainerStep": "600"
+      },
+      "danger": {
+        "fill": "550",
+        "content": "550",
+        "container": "75",
+        "borderStep": "450",
+        "separatorStep": "350",
+        "onComponent": "white",
+        "onContainerStep": "550"
+      },
+      "success": {
+        "fill": "600",
+        "content": "700",
+        "container": "50",
+        "borderStep": "500",
+        "separatorStep": "400",
+        "onComponent": "white",
+        "onContainerStep": "700"
+      },
+      "warning": {
+        "fill": "600",
+        "content": "750",
+        "container": "75",
+        "borderStep": "500",
+        "separatorStep": "400",
+        "onComponent": "white",
+        "onContainerStep": "750"
+      },
+      "info": {
+        "fill": "550",
+        "content": "700",
+        "container": "50",
+        "borderStep": "450",
+        "separatorStep": "350",
+        "onComponent": "black",
+        "onContainerStep": "700"
+      }
+    },
+    "dark": {
+      "brand": {
+        "fill": "450",
+        "content": "200",
+        "container": "850",
+        "borderStep": "350",
+        "separatorStep": "250",
+        "onComponent": "white",
+        "onContainerStep": "200"
+      },
+      "danger": {
+        "fill": "450",
+        "content": "200",
+        "container": "850",
+        "borderStep": "350",
+        "separatorStep": "250",
+        "onComponent": "white",
+        "onContainerStep": "200"
+      },
+      "success": {
+        "fill": "550",
+        "content": "200",
+        "container": "850",
+        "borderStep": "400",
+        "separatorStep": "300",
+        "onComponent": "black",
+        "onContainerStep": "200"
+      },
+      "warning": {
+        "fill": "550",
+        "content": "200",
+        "container": "850",
+        "borderStep": "450",
+        "separatorStep": "350",
+        "onComponent": "white",
+        "onContainerStep": "200"
+      },
+      "info": {
+        "fill": "450",
+        "content": "200",
+        "container": "850",
+        "borderStep": "350",
+        "separatorStep": "250",
+        "onComponent": "black",
+        "onContainerStep": "200"
+      }
+    }
+  }
+}

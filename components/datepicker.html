@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — DatePicker Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/datepicker/datepicker.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/datepicker/datepicker.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+/* DatePicker demo-specific styles */
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;max-width:100%}
+.preset-card{padding:20px 24px;border:1px solid var(--demo-border);border-radius:10px;display:flex;flex-direction:column;gap:12px}
+.preset-card .preset-title{font-size:13px;font-weight:600;color:var(--demo-fg)}
+.preset-card .preset-desc{font-size:11px;color:var(--demo-fg-faint);margin-bottom:4px}
+.design-tokens-note{font-size:11px;color:var(--demo-fg-faint);line-height:1.5;padding:8px 12px;border-left:3px solid var(--demo-border);margin-top:12px}
+.design-tokens-note code{font-size:10px;background:var(--demo-cm-bg);padding:1px 4px;border-radius:3px}
+.state-row{display:flex;flex-wrap:wrap;gap:24px;padding:24px 32px;border-bottom:1px solid var(--demo-border)}
+.state-row:last-child{border-bottom:none}
+.state-card{display:flex;flex-direction:column;align-items:center;gap:8px}
+.state-label{font-size:11px;color:var(--demo-fg-faint);font-weight:600;text-transform:uppercase}
+/* A11y grid: calendars need more room than default 200px min-width */
+.a11y-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.a11y-card{overflow:hidden}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-styles"><span class="sn-num">2</span>Design Styles</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>Day States</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Shape &amp; Shadow</a>
+  <a href="#sec-slots"><span class="sn-num">7</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">8</span>Motion</a>
+  <a href="#sec-playground"><span class="sn-num">9</span>Context Playground</a>
+  <a href="#sec-a11y"><span class="sn-num">10</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>DatePicker Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~182 CSS Variables</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+    <span class="demo-badge">Range Mode</span>
+  </div>
+</header>
+
+<nav class="global-controls" aria-label="Global datepicker preview controls">
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- 1. HERO -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Click any day to select it. Inspector shows resolved token values for the current size.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" id="heroPreview" style="display:flex;align-items:center;justify-content:center;padding:32px">
+          <!-- Calendar injected by JS -->
+        </div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- 2. DESIGN STYLES -->
+  <section class="section" id="sec-styles">
+    <div class="section-header"><h2>Design Styles</h2><span class="section-tag">Presets</span></div>
+    <p class="section-desc">Every calendar below is the <em>same component</em> — only CSS custom properties differ. Material, Apple, Airbnb-range, enterprise — all one component.</p>
+    <div class="section-body">
+      <div class="preset-grid" id="presetGrid" style="padding:24px"></div>
+      <div class="design-tokens-note">All presets achieved by overriding <code>--datepicker-day-radius</code>, <code>--datepicker-day-size-*</code>, <code>--datepicker-shadow</code>, <code>--datepicker-selected-bg</code> and surface tokens. No class changes needed.</div>
+    </div>
+  </section>
+
+  <!-- 3. DENSITY SCALE -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">Three size modes: small → base (default) → large. Day cell size, fonts, and header all scale independently.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale" style="flex-direction:column;align-items:center;gap:32px;padding:32px"></div></div>
+  </section>
+
+  <!-- 4. DAY STATES -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>Day States</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every cell state: default, hover, today, selected, range, outside-month, weekend, disabled.</p>
+    <div class="section-body"><div id="stateMatrix" style="padding:24px;display:flex;flex-wrap:wrap;gap:32px;justify-content:center"></div></div>
+  </section>
+
+  <!-- 5. SURFACE CONTEXT -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Calendar popover uses <code>surface-float</code> tokens — the highest elevation context for menus, dropdowns, and popups, rendering above all other surfaces.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase" style="align-items:center"><span class="surface-panel-label">parent: surface-base</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceAlt" style="align-items:center"><span class="surface-panel-label">parent: surface-deep</span></div>
+        <div class="surface-panel" id="surfaceDeep" style="align-items:center;background:var(--surface-accent-bg)"><span class="surface-panel-label">parent: surface-accent</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SHAPE & SHADOW -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Day cell radius and popover shadow — two key shape variables that define the calendar's character.</p>
+    <div class="section-body" style="padding:24px">
+      <div class="sub-label">Day cell radius</div>
+      <div id="dayRadiusRow" style="display:flex;flex-wrap:wrap;gap:24px;padding:16px 0;justify-content:center"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Popover shadow</div>
+      <div id="shadowRow" style="display:flex;flex-wrap:wrap;gap:24px;padding:16px 0;justify-content:center"></div>
+    </div>
+  </section>
+
+  <!-- 7. SLOTS & ANATOMY -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Optional layers: footer (Today/Clear), week numbers, separator line, today dot indicator. All toggled by CSS custom properties.</p>
+    <div class="section-body"><div id="slotsDemo" style="display:flex;flex-wrap:wrap;gap:24px;padding:24px;justify-content:center"></div></div>
+  </section>
+
+  <!-- 8. MOTION -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Day hover uses fast transition. Click prev/next to see month navigation. Configurable duration and easing for all animations.</p>
+    <div class="section-body"><div id="motionDemo" style="display:flex;flex-wrap:wrap;gap:24px;padding:24px;justify-content:center"></div></div>
+  </section>
+
+  <!-- 9. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">The calendar popover always renders on <code>surface-float</code> — switch the page surface below to see how it floats above different backgrounds.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">Small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">Base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">Large</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option><option value="dim">Dim</option><option value="deep">Deep</option><option value="accent">Accent</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA" style="align-items:center;justify-content:center"></div>
+        </div>
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option><option value="dim">Dim</option><option value="deep" selected>Deep</option><option value="accent">Accent</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB" style="align-items:center;justify-content:center"></div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 10. ACCESSIBILITY -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring on day cells, keyboard navigation (arrows, Home, End), disabled days, and forced-colors support.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab into the grid. <code>:focus-visible</code> ring wraps each day cell.</p>
+          <div id="a11yFocus" style="padding:8px 0;display:flex;justify-content:center"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Keyboard Nav</div>
+          <p class="a11y-card-desc">← → ↑ ↓ arrows move focus. Home = first day, End = last day.</p>
+          <div id="a11yKeyboard" style="padding:8px 0;display:flex;justify-content:center"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled Days</div>
+          <p class="a11y-card-desc"><code>data-disabled</code> reduces opacity, blocks interaction.</p>
+          <div id="a11yDisabled" style="padding:8px 0;display:flex;justify-content:center"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast: <code>Highlight</code>, <code>ButtonText</code>, <code>GrayText</code>.</p>
+          <div id="a11yForced" style="padding:8px 0;display:flex;justify-content:center"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>DatePicker Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-dp">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">export function DatePicker({ value, month, year, size = 'base', onSelect }) {
+  const [current, setCurrent] = useState({ month, year });
+  const days = useMemo(() =&gt; buildCalendar(current.month, current.year), [current]);
+  const today = new Date();
+
+  return (
+    &lt;div className="datepicker" data-size={size}&gt;
+      &lt;div className="datepicker__header"&gt;
+        &lt;button className="datepicker__nav datepicker__nav--prev"
+          onClick={() =&gt; setCurrent(prev(current))} aria-label="Previous month"&gt;&amp;lsaquo;&lt;/button&gt;
+        &lt;span className="datepicker__title"&gt;
+          {MONTHS[current.month]} {current.year}
+        &lt;/span&gt;
+        &lt;button className="datepicker__nav datepicker__nav--next"
+          onClick={() =&gt; setCurrent(next(current))} aria-label="Next month"&gt;&amp;rsaquo;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div className="datepicker__weekdays"&gt;
+        {DAYS.map(d =&gt; &lt;span key={d}&gt;{d}&lt;/span&gt;)}
+      &lt;/div&gt;
+      &lt;div className="datepicker__grid" role="grid"&gt;
+        {days.map(d =&gt; (
+          &lt;button key={d.key} className="datepicker__day"
+            data-today={isToday(d, today) || undefined}
+            data-selected={isSame(d, value) || undefined}
+            data-outside={d.outside || undefined}
+            data-weekend={d.weekend || undefined}
+            onClick={() =&gt; onSelect(d.date)}&gt;
+            {d.day}
+          &lt;/button&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;template&gt;
+  &lt;div class="datepicker" :data-size="size ?? 'base'"&gt;
+    &lt;div class="datepicker__header"&gt;
+      &lt;button class="datepicker__nav datepicker__nav--prev"
+        @click="prevMonth" aria-label="Previous month"&gt;&amp;lsaquo;&lt;/button&gt;
+      &lt;span class="datepicker__title"&gt;{{ monthLabel }} {{ current.year }}&lt;/span&gt;
+      &lt;button class="datepicker__nav datepicker__nav--next"
+        @click="nextMonth" aria-label="Next month"&gt;&amp;rsaquo;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="datepicker__weekdays"&gt;
+      &lt;span v-for="d in weekdays" :key="d"&gt;{{ d }}&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="datepicker__grid" role="grid"&gt;
+      &lt;button v-for="d in days" :key="d.key" class="datepicker__day"
+        :data-today="d.isToday || undefined"
+        :data-selected="d.isSelected || undefined"
+        :data-outside="d.outside || undefined"
+        :data-weekend="d.weekend || undefined"
+        @click="$emit('select', d.date)"&gt;
+        {{ d.day }}
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;div class="datepicker" data-size="base"&gt;
+  &lt;div class="datepicker__header"&gt;
+    &lt;button class="datepicker__nav datepicker__nav--prev" aria-label="Previous month"&gt;&amp;lsaquo;&lt;/button&gt;
+    &lt;span class="datepicker__title"&gt;March 2026&lt;/span&gt;
+    &lt;button class="datepicker__nav datepicker__nav--next" aria-label="Next month"&gt;&amp;rsaquo;&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="datepicker__weekdays"&gt;
+    &lt;span&gt;Su&lt;/span&gt;&lt;span&gt;Mo&lt;/span&gt;&lt;span&gt;Tu&lt;/span&gt;
+    &lt;span&gt;We&lt;/span&gt;&lt;span&gt;Th&lt;/span&gt;&lt;span&gt;Fr&lt;/span&gt;&lt;span&gt;Sa&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="datepicker__grid" role="grid"&gt;
+    &lt;button class="datepicker__day" data-outside&gt;1&lt;/button&gt;
+    &lt;!-- ... 42 day cells ... --&gt;
+    &lt;button class="datepicker__day" data-today&gt;20&lt;/button&gt;
+    &lt;button class="datepicker__day" data-selected&gt;15&lt;/button&gt;
+    &lt;button class="datepicker__day" data-weekend&gt;21&lt;/button&gt;
+    &lt;button class="datepicker__day" data-disabled&gt;5&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="datepicker__footer"&gt;
+    &lt;button class="datepicker__footer-btn"&gt;Today&lt;/button&gt;
+    &lt;button class="datepicker__footer-btn"&gt;Clear&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* ── Shape ── */
+--datepicker-radius                /* popover corners */
+--datepicker-day-radius            /* day cell shape (full=circle, md=rounded) */
+--datepicker-today-radius          /* today cell radius */
+--datepicker-selected-radius       /* selected cell radius */
+--datepicker-nav-radius            /* prev/next button radius */
+--datepicker-range-radius          /* in-range band radius */
+--datepicker-range-end-radius      /* range start/end cap radius */
+--datepicker-shadow                /* popover shadow */
+--datepicker-today-border-width    /* today ring stroke */
+
+/* ── Dimension ── */
+--datepicker-day-size-{size}       /* day cell width/height per density */
+--datepicker-header-height-{size}  /* header row height per density */
+--datepicker-nav-size-{size}       /* prev/next button size per density */
+--datepicker-weekday-height-{size} /* weekday label row height per density */
+--datepicker-grid-gap-x / -y      /* gaps between day cells */
+--datepicker-padding               /* popover internal padding */
+--datepicker-footer-height / -padding-x / -padding-y / -gap
+
+/* ── Surface ── */
+--datepicker-bg / -border-color / -fg
+--datepicker-day-bg / -fg / -bg-hover / -fg-hover
+--datepicker-today-bg / -fg / -border-color / -font-weight
+--datepicker-selected-bg / -fg / -bg-hover / -fg-hover / -shadow
+--datepicker-range-bg / -fg / -start-bg / -start-fg / -end-bg / -end-fg
+--datepicker-outside-fg / -bg / -opacity
+--datepicker-disabled-fg / -bg / -opacity
+--datepicker-weekend-fg
+--datepicker-header-bg / -fg / -nav-bg / -nav-fg / -nav-bg-hover / -nav-fg-hover
+--datepicker-weekday-fg / -bg
+--datepicker-footer-bg / -fg / -border-color
+
+/* ── Typography ── */
+--datepicker-day-font-family / -font-weight / -font-size-{size}
+--datepicker-header-font-family / -font-size-{size} / -font-weight
+--datepicker-weekday-font-family / -font-size-{size} / -font-weight / -text-transform / -letter-spacing
+--datepicker-footer-font-size / -font-weight
+
+/* ── Slots ── */
+--datepicker-footer-display        /* none | flex */
+--datepicker-weeknum-display       /* none | block */
+--datepicker-separator-display     /* none | block */
+--datepicker-today-dot-display     /* none | block (dot below today) */
+--datepicker-today-dot-size / -color
+
+/* ── Motion ── */
+--datepicker-day-transition-property / -duration / -easing
+--datepicker-popover-transition-duration / -easing
+--datepicker-month-transition-duration / -easing
+--datepicker-nav-transition-duration
+
+/* ── A11y ── */
+--datepicker-focus-outline-width / -color / -offset
+--datepicker-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfDatepicker } from '@design-token-forge/slyte';
+
+&lt;dtf-datepicker
+  lt-prop-label="Start date"
+  lt-prop-placeholder="Pick a date"
+  lt-prop-size="base"
+  lt-prop-mode="popup"
+  on-change="{{method('onDate')}}"&gt;
+&lt;/dtf-datepicker&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var WDAYS=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  var SIZES=['small','base','large'];
+  var DAY_SIZES={small:'28px',base:'36px',large:'48px'};
+  var curS='base';
+  var IS_VISUAL_SNAPSHOT=false;
+
+  // Keep visual-regression screenshots stable while preserving real-time behavior for normal demo use.
+  function getDemoNow(){
+    try {
+      if(localStorage.getItem('dtf-gh-user')==='visual-snapshot'){
+        IS_VISUAL_SNAPSHOT=true;
+        return new Date(2026,4,26,12,0,0,0); // May 26, 2026 (local noon)
+      }
+    } catch(_e) {}
+    return new Date();
+  }
+
+  var TODAY=getDemoNow();
+  var CUR_YEAR=TODAY.getFullYear();
+  var CUR_MONTH=TODAY.getMonth();
+  var CUR_DAY=TODAY.getDate();
+
+  /* ═══════ Calendar Builder ═══════ */
+
+  function daysInMonth(y,m){return new Date(y,m+1,0).getDate()}
+  function dayOfWeek(y,m,d){return new Date(y,m,d).getDay()}
+
+  function buildDays(year,month,opts){
+    opts=opts||{};
+    var selectedDay=opts.selected||0;
+    var rangeStart=opts.rangeStart||0;
+    var rangeEnd=opts.rangeEnd||0;
+    var disabledDays=opts.disabled||[];
+    var todayYear=opts.todayYear!==undefined?opts.todayYear:CUR_YEAR;
+    var todayMonth=opts.todayMonth!==undefined?opts.todayMonth:CUR_MONTH;
+    var todayDay=opts.todayDay!==undefined?opts.todayDay:CUR_DAY;
+    var firstDow=dayOfWeek(year,month,1);
+    var totalDays=daysInMonth(year,month);
+    var prevMonthDays=daysInMonth(year,month===0?11:month-1);
+    var cells=[];
+
+    // Previous month trailing days
+    for(var i=firstDow-1;i>=0;i--){
+      cells.push({day:prevMonthDays-i,outside:true});
+    }
+    // Current month
+    for(var d=1;d<=totalDays;d++){
+      var cell={day:d};
+      var dow=dayOfWeek(year,month,d);
+      if(dow===0||dow===6) cell.weekend=true;
+      if(d===todayDay&&month===todayMonth&&year===todayYear) cell.today=true;
+      if(d===selectedDay) cell.selected=true;
+      if(rangeStart&&rangeEnd){
+        if(d===rangeStart) cell.rangeStart=true;
+        else if(d===rangeEnd) cell.rangeEnd=true;
+        else if(d>rangeStart&&d<rangeEnd) cell.inRange=true;
+      }
+      if(disabledDays.indexOf(d)!==-1) cell.disabled=true;
+      cells.push(cell);
+    }
+    // Next month leading days (fill to 42)
+    var remaining=42-cells.length;
+    for(var n=1;n<=remaining;n++){
+      cells.push({day:n,outside:true});
+    }
+    return cells;
+  }
+
+  /* ═══════ Calendar Factory ═══════ */
+
+  function makeCalendar(size,opts){
+    opts=opts||{};
+    var year=opts.year!==undefined?opts.year:CUR_YEAR;
+    var month=opts.month!==undefined?opts.month:CUR_MONTH;
+    if(IS_VISUAL_SNAPSHOT){
+      if(opts.todayYear===undefined) opts.todayYear=year;
+      if(opts.todayMonth===undefined) opts.todayMonth=month;
+      if(opts.todayDay===undefined) opts.todayDay=29;
+    }
+    var root=document.createElement('div');
+    root.className='datepicker';
+    root.dataset.size=size;
+
+    // Header
+    var header=document.createElement('div');header.className='datepicker__header';
+    var prevBtn=document.createElement('button');prevBtn.className='datepicker__nav datepicker__nav--prev';prevBtn.type='button';prevBtn.setAttribute('aria-label','Previous month');prevBtn.textContent='\u2039';
+    var title=document.createElement('span');title.className='datepicker__title';title.textContent=MONTHS[month]+' '+year;
+    var nextBtn=document.createElement('button');nextBtn.className='datepicker__nav datepicker__nav--next';nextBtn.type='button';nextBtn.setAttribute('aria-label','Next month');nextBtn.textContent='\u203A';
+    header.appendChild(prevBtn);header.appendChild(title);header.appendChild(nextBtn);
+    root.appendChild(header);
+
+    // Separator (optional)
+    var sep=document.createElement('div');sep.className='datepicker__separator';root.appendChild(sep);
+
+    // Weekdays
+    var weekdays=document.createElement('div');weekdays.className='datepicker__weekdays';
+    WDAYS.forEach(function(w){var s=document.createElement('span');s.textContent=w;weekdays.appendChild(s)});
+    root.appendChild(weekdays);
+
+    // Grid
+    var grid=document.createElement('div');grid.className='datepicker__grid';grid.setAttribute('role','grid');
+    var days=buildDays(year,month,opts);
+    days.forEach(function(d){
+      var btn=document.createElement('button');btn.className='datepicker__day';btn.type='button';btn.textContent=d.day;
+      if(d.today) btn.dataset.today='';
+      if(d.selected) btn.dataset.selected='';
+      if(d.outside) btn.dataset.outside='';
+      if(d.weekend) btn.dataset.weekend='';
+      if(d.disabled){btn.dataset.disabled='';btn.setAttribute('aria-disabled','true')}
+      if(d.rangeStart) btn.dataset.rangeStart='';
+      if(d.rangeEnd) btn.dataset.rangeEnd='';
+      if(d.inRange) btn.dataset.inRange='';
+      grid.appendChild(btn);
+    });
+    root.appendChild(grid);
+
+    // Footer (optional)
+    var footer=document.createElement('div');footer.className='datepicker__footer';
+    var todayBtn=document.createElement('button');todayBtn.className='datepicker__footer-btn';todayBtn.type='button';todayBtn.textContent='Today';
+    var clearBtn=document.createElement('button');clearBtn.className='datepicker__footer-btn';clearBtn.type='button';clearBtn.textContent='Clear';
+    footer.appendChild(todayBtn);footer.appendChild(clearBtn);
+    root.appendChild(footer);
+
+    // Apply custom style overrides
+    if(opts.style){for(var k in opts.style){if(opts.style.hasOwnProperty(k))root.style.setProperty(k,opts.style[k])}}
+
+    // Interactive nav
+    var state={year:year,month:month};
+    function updateCal(dir){
+      state.month+=dir;
+      if(state.month>11){state.month=0;state.year++}
+      if(state.month<0){state.month=11;state.year--}
+      title.textContent=MONTHS[state.month]+' '+state.year;
+      var newDays=buildDays(state.year,state.month,opts);
+      grid.innerHTML='';
+      newDays.forEach(function(d){
+        var btn=document.createElement('button');btn.className='datepicker__day';btn.type='button';btn.textContent=d.day;
+        if(d.today) btn.dataset.today='';
+        if(d.selected) btn.dataset.selected='';
+        if(d.outside) btn.dataset.outside='';
+        if(d.weekend) btn.dataset.weekend='';
+        if(d.disabled){btn.dataset.disabled='';btn.setAttribute('aria-disabled','true')}
+        if(d.rangeStart) btn.dataset.rangeStart='';
+        if(d.rangeEnd) btn.dataset.rangeEnd='';
+        if(d.inRange) btn.dataset.inRange='';
+        grid.appendChild(btn);
+      });
+      // Day click handler for interactive calendars
+      if(!opts.noClick) initDayClick(grid);
+    }
+    prevBtn.addEventListener('click',function(){updateCal(-1)});
+    nextBtn.addEventListener('click',function(){updateCal(1)});
+
+    // Day click selection
+    if(!opts.noClick) initDayClick(grid);
+
+    // Today button
+    todayBtn.addEventListener('click',function(){
+      state.year=CUR_YEAR;state.month=CUR_MONTH;
+      opts.selected=CUR_DAY;
+      title.textContent=MONTHS[state.month]+' '+state.year;
+      var nd=buildDays(state.year,state.month,opts);
+      grid.innerHTML='';
+      nd.forEach(function(d){
+        var btn=document.createElement('button');btn.className='datepicker__day';btn.type='button';btn.textContent=d.day;
+        if(d.today) btn.dataset.today='';
+        if(d.selected) btn.dataset.selected='';
+        if(d.outside) btn.dataset.outside='';
+        if(d.weekend) btn.dataset.weekend='';
+        grid.appendChild(btn);
+      });
+      initDayClick(grid);
+    });
+    // Clear button
+    clearBtn.addEventListener('click',function(){
+      opts.selected=0;
+      updateCal(0);
+    });
+
+    return root;
+  }
+
+  function initDayClick(grid){
+    grid.querySelectorAll('.datepicker__day').forEach(function(btn){
+      if(btn.dataset.disabled!==undefined||btn.dataset.outside!==undefined) return;
+      btn.addEventListener('click',function(){
+        grid.querySelectorAll('.datepicker__day[data-selected]').forEach(function(s){delete s.dataset.selected});
+        btn.dataset.selected='';
+        // Update inspector if hero
+        requestAnimationFrame(updateInspector);
+      });
+    });
+  }
+
+  function clr(id){var e=document.getElementById(id);if(e)e.innerHTML='';return e}
+
+  /* ═══════ Section Renderers ═══════ */
+
+  function renderHero(){
+    var el=clr('heroPreview');
+    var heroOpts={selected:15};
+    if(IS_VISUAL_SNAPSHOT){
+      heroOpts.todayYear=2026;
+      heroOpts.todayMonth=4;
+      heroOpts.todayDay=26;
+    }
+    var cal=makeCalendar(curS,heroOpts);
+    cal.id='heroCal';
+    el.appendChild(cal);
+  }
+
+  function renderPresets(){
+    var el=clr('presetGrid');
+    var presets=[
+      {
+        title:'Standard (Material)',
+        desc:'Circular day cells, subtle shadow, branded selection.',
+        opts:{selected:15,noClick:true,style:{'--datepicker-day-radius':'var(--radius-full)','--datepicker-shadow':'var(--shadow-lg)'}}
+      },
+      {
+        title:'Compact (Apple)',
+        desc:'Small rounded-square cells, minimal shadow, tight grid.',
+        opts:{selected:20,noClick:true,style:{'--datepicker-day-radius':'var(--radius-DEFAULT)','--datepicker-shadow':'var(--shadow-md)','--datepicker-grid-gap-x':'0px','--datepicker-grid-gap-y':'0px','--datepicker-padding':'var(--spacing-12)'}}
+      },
+      {
+        title:'Range (Airbnb)',
+        desc:'Range selection with continuous band and circular caps.',
+        opts:{rangeStart:10,rangeEnd:18,noClick:true,style:{'--datepicker-day-radius':'var(--radius-full)','--datepicker-range-radius':'0px','--datepicker-range-end-radius':'var(--radius-full)'}}
+      },
+      {
+        title:'Enterprise (Square)',
+        desc:'Square cells, no shadow, bordered container. Maximum density.',
+        opts:{selected:5,noClick:true,style:{'--datepicker-day-radius':'var(--radius-xs)','--datepicker-radius':'var(--radius-sm)','--datepicker-shadow':'var(--shadow-none)','--datepicker-border-width':'2px'}}
+      },
+      {
+        title:'Outlined',
+        desc:'Selected day uses a border ring instead of filled background.',
+        opts:{selected:12,noClick:true,style:{'--datepicker-selected-bg':'transparent','--datepicker-selected-fg':'var(--brand-component-bg-default)','--datepicker-selected-border-color':'var(--brand-component-bg-default)','--datepicker-selected-shadow':'none','--datepicker-day-border-width':'2px'}}
+      },
+      {
+        title:'With Footer',
+        desc:'Today & Clear action buttons in the footer row.',
+        opts:{selected:8,noClick:true,style:{'--datepicker-footer-display':'flex'}}
+      },
+      {
+        title:'Today Dot',
+        desc:'A small dot indicator below today\u2019s date instead of a border ring.',
+        opts:{noClick:true,style:{'--datepicker-today-border-width':'0px','--datepicker-today-dot-display':'block','--datepicker-today-fg':'var(--surface-base-ct-strong)'}}
+      },
+      {
+        title:'No Border',
+        desc:'Clean floating card with no border, large shadow.',
+        opts:{selected:22,noClick:true,style:{'--datepicker-border-width':'0px','--datepicker-shadow':'var(--shadow-xl)','--datepicker-radius':'var(--radius-2xl)'}}
+      },
+    ];
+    presets.forEach(function(p){
+      var card=document.createElement('div');card.className='preset-card';
+      card.innerHTML='<div class="preset-title">'+p.title+'</div><div class="preset-desc">'+p.desc+'</div>';
+      card.appendChild(makeCalendar('base',p.opts));
+      el.appendChild(card);
+    });
+  }
+
+  function renderDensity(){
+    var el=clr('densityScale');
+    SIZES.forEach(function(s){
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:8px';
+      wrap.appendChild(makeCalendar(s,{selected:15,noClick:true}));
+      var meta=document.createElement('div');meta.className='density-meta';
+      meta.textContent=s+' — day cell '+DAY_SIZES[s];
+      wrap.appendChild(meta);
+      el.appendChild(wrap);
+    });
+  }
+
+  function renderStates(){
+    var el=clr('stateMatrix');
+    // Build one calendar for each state to showcase
+    var configs=[
+      {title:'Default',opts:{noClick:true}},
+      {title:'Today',opts:{noClick:true}},
+      {title:'Selected',opts:{selected:15,noClick:true}},
+      {title:'Range',opts:{rangeStart:10,rangeEnd:16,noClick:true}},
+      {title:'Outside Month',opts:{noClick:true}},
+      {title:'Weekend',opts:{noClick:true,style:{'--datepicker-weekend-fg':'var(--danger-content-default, #DC2626)'}}},
+      {title:'Disabled',opts:{disabled:[3,4,5,17,18,19],noClick:true}},
+    ];
+    configs.forEach(function(c){
+      var card=document.createElement('div');card.className='state-card';
+      card.appendChild(makeCalendar(curS,c.opts));
+      var lbl=document.createElement('span');lbl.className='state-label';lbl.textContent=c.title;
+      card.appendChild(lbl);
+      el.appendChild(card);
+    });
+  }
+
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p=document.getElementById(id);
+      while(p.children.length>1)p.removeChild(p.lastChild);
+      p.appendChild(makeCalendar(curS,{selected:15,noClick:true}));
+    });
+  }
+
+  function renderDayRadius(){
+    var el=clr('dayRadiusRow');
+    var radii=[
+      {label:'Circle (default)',val:'var(--radius-full)'},
+      {label:'Rounded',val:'var(--radius-DEFAULT)'},
+      {label:'Subtle',val:'var(--radius-sm)'},
+      {label:'Square',val:'0px'},
+    ];
+    radii.forEach(function(r){
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:8px';
+      wrap.appendChild(makeCalendar(curS,{selected:12,noClick:true,style:{'--datepicker-day-radius':r.val}}));
+      var lbl=document.createElement('div');lbl.style.cssText='font-size:11px;font-weight:600;color:var(--demo-fg-faint);text-transform:uppercase;letter-spacing:0.5px';lbl.textContent=r.label;
+      wrap.appendChild(lbl);el.appendChild(wrap);
+    });
+  }
+
+  function renderShadows(){
+    var el=clr('shadowRow');
+    var shadows=['none','sm','md','lg','xl','2xl'];
+    shadows.forEach(function(s){
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:8px';
+      wrap.appendChild(makeCalendar(curS,{selected:8,noClick:true,style:{'--datepicker-shadow':'var(--shadow-'+s+')'}}));
+      var lbl=document.createElement('div');lbl.style.cssText='font-size:11px;font-weight:600;color:var(--demo-fg-faint);text-transform:uppercase;letter-spacing:0.5px';lbl.textContent='--shadow-'+s;
+      wrap.appendChild(lbl);el.appendChild(wrap);
+    });
+  }
+
+  function renderSlots(){
+    var el=clr('slotsDemo');
+    var combos=[
+      {label:'Default (no footer)',fn:function(){return makeCalendar(curS,{selected:15,noClick:true})}},
+      {label:'With Footer',fn:function(){return makeCalendar(curS,{selected:10,noClick:true,style:{'--datepicker-footer-display':'flex'}})}},
+      {label:'Separator Line',fn:function(){return makeCalendar(curS,{selected:8,noClick:true,style:{'--datepicker-separator-display':'block'}})}},
+      {label:'Today Dot',fn:function(){return makeCalendar(curS,{noClick:true,style:{'--datepicker-today-border-width':'0px','--datepicker-today-dot-display':'block','--datepicker-today-fg':'var(--surface-base-ct-strong)'}})}},
+      {label:'Footer + Separator',fn:function(){return makeCalendar(curS,{selected:20,noClick:true,style:{'--datepicker-footer-display':'flex','--datepicker-separator-display':'block'}})}},
+    ];
+    combos.forEach(function(c){
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:8px';
+      wrap.appendChild(c.fn());
+      var lbl=document.createElement('div');lbl.style.cssText='font-size:11px;font-weight:600;color:var(--demo-fg-faint);text-transform:uppercase;letter-spacing:0.5px';lbl.textContent=c.label;
+      wrap.appendChild(lbl);el.appendChild(wrap);
+    });
+  }
+
+  function renderMotion(){
+    var el=clr('motionDemo');
+    var items=[
+      {label:'Default (fast + in-out)',opts:{selected:10,style:{}}},
+      {label:'Slow + bounce',opts:{selected:15,style:{'--datepicker-day-transition-duration':'var(--duration-slow)','--datepicker-day-transition-easing':'var(--easing-bounce)'}}},
+      {label:'Instant (no transition)',opts:{selected:20,style:{'--datepicker-day-transition-duration':'0ms'}}},
+    ];
+    items.forEach(function(it){
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:8px';
+      wrap.appendChild(makeCalendar(curS,it.opts));
+      var lbl=document.createElement('div');lbl.style.cssText='font-size:11px;font-weight:600;color:var(--demo-fg-faint)';lbl.textContent=it.label;
+      wrap.appendChild(lbl);el.appendChild(wrap);
+    });
+  }
+
+  function renderA11y(){
+    clr('a11yFocus').appendChild(makeCalendar(curS,{selected:15,noClick:true}));
+    clr('a11yKeyboard').appendChild(makeCalendar(curS,{selected:10}));
+    clr('a11yDisabled').appendChild(makeCalendar(curS,{disabled:[1,2,3,25,26,27,28,29,30,31],noClick:true}));
+    clr('a11yForced').appendChild(makeCalendar(curS,{selected:20,noClick:true}));
+  }
+
+  /* ═══════ Inspector ═══════ */
+
+  function updateInspector(){
+    var hero=document.getElementById('heroCal');
+    if(!hero) return;
+    var cs=getComputedStyle(hero);
+    var day=hero.querySelector('.datepicker__day[data-selected]')||hero.querySelector('.datepicker__day[data-today]')||hero.querySelector('.datepicker__day:nth-child(15)');
+    var dcs=day?getComputedStyle(day):{};
+    var selectedVal=day?day.textContent:'—';
+    var tokens=[
+      ['--datepicker-day-size-'+curS, DAY_SIZES[curS], dcs.width||'\u2014'],
+      ['--datepicker-day-radius', 'var(--radius-full)', dcs.borderRadius||'\u2014'],
+      ['--datepicker-day-bg', 'transparent', dcs.backgroundColor||'\u2014'],
+      ['--datepicker-day-fg', '\u2014', dcs.color||'\u2014'],
+      ['--datepicker-selected-bg', '\u2014', day&&day.dataset.selected!==undefined?dcs.backgroundColor:'\u2014'],
+      ['--datepicker-bg', '\u2014', cs.backgroundColor||'\u2014'],
+      ['--datepicker-radius', 'var(--radius-lg)', cs.borderRadius||'\u2014'],
+      ['--datepicker-shadow', '\u2014', cs.boxShadow||'\u2014'],
+      ['--datepicker-padding', 'var(--spacing-16)', cs.padding||'\u2014'],
+      ['Selected day', '', selectedVal],
+    ];
+    var ins=document.getElementById('heroInspector');
+    ins.innerHTML='<div class="inspector-title">Resolved Tokens ('+curS+')</div>'+
+      tokens.map(function(t){
+        return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+t[2]+(t[1]&&t[1]!=='\u2014'?'<br><span style="opacity:0.5;font-size:9px">\u2192 '+t[1]+'</span>':'')+'</span></div>';
+      }).join('');
+  }
+
+  /* ═══════ Apply Globals ═══════ */
+
+  function applyGlobals(){
+    renderHero();renderPresets();renderDensity();renderStates();renderSurface();
+    renderDayRadius();renderShadows();renderSlots();renderMotion();renderA11y();
+    requestAnimationFrame(updateInspector);
+  }
+
+  /* ═══════ Global Controls ═══════ */
+
+  document.getElementById('sizeBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');curS=pill.dataset.ctrlSize;applyGlobals();
+  });
+
+  window.DTF.onThemeChange=updateInspector;
+
+  applyGlobals();
+
+  /* ═══════ Context Playground ═══════ */
+
+  var SURFACE_TOKENS=['bg','hover','pressed','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+  var ROLE_TOKENS=['content-default','content-strong','content-subtle','content-faint','component-bg-default','component-bg-hover','component-bg-pressed','component-outline-default','component-outline-hover','component-outline-pressed','component-separator','container-bg','container-hover','container-pressed','container-outline','container-separator','on-component','on-container'];
+
+  function applySurface(bodyEl,surfaceId){
+    if(surfaceId==='base'){
+      SURFACE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--surface-base-'+tok)});
+      bodyEl.style.background='var(--surface-base-bg)';
+      bodyEl.removeAttribute('data-theme');
+    }else{
+      SURFACE_TOKENS.forEach(function(tok){bodyEl.style.setProperty('--surface-base-'+tok,'var(--surface-'+surfaceId+'-'+tok+')')});
+      bodyEl.style.background='var(--surface-'+surfaceId+'-bg)';
+      if(surfaceId==='inverse'){bodyEl.setAttribute('data-theme','dark');}else{bodyEl.removeAttribute('data-theme');}
+    }
+  }
+
+  function applyRole(bodyEl,roleId){
+    if(roleId==='brand'){ROLE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--brand-'+tok)})}
+    else{ROLE_TOKENS.forEach(function(tok){bodyEl.style.setProperty('--brand-'+tok,'var(--'+roleId+'-'+tok+')')})}
+  }
+
+  var pgSize='base';
+
+  function pgRender(card){
+    var body=document.getElementById('pgBody'+card);
+    body.querySelectorAll('.datepicker').forEach(function(c){c.remove()});
+    body.appendChild(makeCalendar(pgSize,{selected:15,noClick:true}));
+  }
+
+  function pgApplyCard(card){
+    var body=document.getElementById('pgBody'+card);
+    var surfSel=document.querySelector('[data-pg-surface="'+card+'"]');
+    var roleSel=document.querySelector('[data-pg-role="'+card+'"]');
+    applySurface(body,surfSel.value);
+    applyRole(body,roleSel.value);
+    pgRender(card);
+  }
+
+  function pgUpdateChain(){
+    var surfSel=document.querySelector('[data-pg-surface="A"]');
+    var roleSel=document.querySelector('[data-pg-role="A"]');
+    var chain=document.getElementById('pgChain');
+    var s=surfSel.value,r=roleSel.value;
+    var rows=[
+      {sec:'Popover Chrome'},
+      {label:'Popover BG',token:'--datepicker-bg',via:'--surface-float-bg'},
+      {label:'Popover Border',token:'--datepicker-border-color',via:'--surface-float-outline'},
+      {label:'Popover FG',token:'--datepicker-fg',via:'--surface-float-ct-default'},
+      {sec:'Day Cell'},
+      {label:'Day FG',token:'--datepicker-day-fg',via:'--surface-float-ct-default'},
+      {label:'Day BG Hover',token:'--datepicker-day-bg-hover',via:'--'+r+'-container-bg'},
+      {label:'Day FG Hover',token:'--datepicker-day-fg-hover',via:'--'+r+'-on-container'},
+      {sec:'Today'},
+      {label:'Today FG',token:'--datepicker-today-fg',via:'--'+r+'-component-bg-default'},
+      {label:'Today Border',token:'--datepicker-today-border-color',via:'--'+r+'-component-outline-default'},
+      {sec:'Selected'},
+      {label:'Selected BG',token:'--datepicker-selected-bg',via:'--'+r+'-component-bg-default'},
+      {label:'Selected FG',token:'--datepicker-selected-fg',via:'--'+r+'-on-component'},
+      {label:'Selected BG Hover',token:'--datepicker-selected-bg-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Selected FG Hover',token:'--datepicker-selected-fg-hover',via:'--'+r+'-on-component'},
+      {sec:'Range'},
+      {label:'Range BG',token:'--datepicker-range-bg',via:'--'+r+'-container-bg'},
+      {label:'Range FG',token:'--datepicker-range-fg',via:'--surface-float-ct-default'},
+      {label:'Range Start BG',token:'--datepicker-range-start-bg',via:'--'+r+'-component-bg-default'},
+      {label:'Range Start FG',token:'--datepicker-range-start-fg',via:'--'+r+'-on-component'},
+      {label:'Range End BG',token:'--datepicker-range-end-bg',via:'--'+r+'-component-bg-default'},
+      {label:'Range End FG',token:'--datepicker-range-end-fg',via:'--'+r+'-on-component'},
+      {sec:'Outside / Disabled / Weekend'},
+      {label:'Outside FG',token:'--datepicker-outside-fg',via:'--surface-float-ct-faint'},
+      {label:'Disabled FG',token:'--datepicker-disabled-fg',via:'--surface-float-ct-faint'},
+      {label:'Weekend FG',token:'--datepicker-weekend-fg',via:'--surface-float-ct-default'},
+      {sec:'Header / Nav'},
+      {label:'Header FG',token:'--datepicker-header-fg',via:'--surface-float-ct-strong'},
+      {label:'Nav FG',token:'--datepicker-nav-fg',via:'--surface-float-ct-subtle'},
+      {label:'Nav BG Hover',token:'--datepicker-nav-bg-hover',via:'--'+r+'-container-bg'},
+      {label:'Nav FG Hover',token:'--datepicker-nav-fg-hover',via:'--'+r+'-on-container'},
+      {sec:'Weekday / Footer / Misc'},
+      {label:'Weekday FG',token:'--datepicker-weekday-fg',via:'--surface-float-ct-faint'},
+      {label:'Footer BG',token:'--datepicker-footer-bg',via:'--surface-float-cm-bg'},
+      {label:'Footer FG',token:'--datepicker-footer-fg',via:'--surface-float-ct-subtle'},
+      {label:'Footer Border',token:'--datepicker-footer-border-color',via:'--surface-float-separator'},
+      {label:'Weeknum FG',token:'--datepicker-weeknum-fg',via:'--surface-float-ct-faint'},
+      {label:'Separator',token:'--datepicker-separator-color',via:'--surface-float-separator'},
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring',token:'--datepicker-focus-outline-color',via:'--'+r+'-component-outline-default'},
+      {sec:'Page Surface'},
+      {label:'Page BG',token:'--surface-base-bg',via:'remapped to surface-'+s}
+    ];
+    var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row){
+      if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+      h+='<div class="pg-chain-row"><span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span></div>';
+    });
+    chain.innerHTML=h;
+  }
+
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var card=this.dataset.pgSurface||this.dataset.pgRole;
+      pgApplyCard(card);requestAnimationFrame(pgUpdateChain);
+    });
+  });
+
+  document.getElementById('pgDensityBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');pgSize=pill.dataset.pgSize;
+    pgApplyCard('A');pgApplyCard('B');requestAnimationFrame(pgUpdateChain);
+  });
+
+  pgApplyCard('A');pgApplyCard('B');requestAnimationFrame(pgUpdateChain);
+
+})();
+</script>
+</body>
+</html>

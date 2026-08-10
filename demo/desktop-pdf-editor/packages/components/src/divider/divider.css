@@ -1,0 +1,135 @@
+/* ═══════════════════════════════════════════════════════════════
+   DIVIDER — Structural CSS
+   Internal bridge vars: --_dv-*
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Internal bridge vars ────────────────────────────────────── */
+.divider {
+  --_dv-spacing: var(--div-spacing-base);
+  --_dv-color:   var(--div-color);
+  --_dv-style:   var(--div-style);
+  --_dv-thick:   var(--div-thickness);
+  --_dv-indent-s: var(--div-indent-start);
+  --_dv-indent-e: var(--div-indent-end);
+
+  display: flex;
+  align-items: center;
+  border: 0;
+  margin-block: var(--_dv-spacing);
+  margin-inline: 0;
+  padding: 0;
+  block-size: 0;
+  inline-size: auto;
+  transition: border-color var(--div-transition-duration) var(--div-transition-easing);
+}
+
+/* Line rendered via ::before/::after for label support */
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-block-start: var(--_dv-thick) var(--_dv-style) var(--_dv-color);
+}
+
+.divider::before {
+  margin-inline-start: var(--_dv-indent-s);
+}
+
+.divider::after {
+  margin-inline-end: var(--_dv-indent-e);
+}
+
+/* Without label: single continuous line */
+.divider:not(:has(.divider__label))::after {
+  display: none;
+}
+
+.divider:not(:has(.divider__label))::before {
+  margin-inline-end: var(--_dv-indent-e);
+}
+
+/* ── Label slot ──────────────────────────────────────────────── */
+.divider__label {
+  flex-shrink: 0;
+  padding-inline: var(--div-label-gap);
+  font-size: var(--div-label-font-size);
+  font-weight: var(--div-label-font-weight);
+  color: var(--div-label-color);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ── Density (size) selectors ────────────────────────────────── */
+.divider[data-size="micro"]  { --_dv-spacing: var(--div-spacing-micro); }
+.divider[data-size="tiny"]   { --_dv-spacing: var(--div-spacing-tiny); }
+.divider[data-size="small"]  { --_dv-spacing: var(--div-spacing-small); }
+.divider[data-size="base"]   { --_dv-spacing: var(--div-spacing-base); }
+.divider[data-size="medium"] { --_dv-spacing: var(--div-spacing-medium); }
+.divider[data-size="large"]  { --_dv-spacing: var(--div-spacing-large); }
+.divider[data-size="big"]    { --_dv-spacing: var(--div-spacing-big); }
+.divider[data-size="huge"]   { --_dv-spacing: var(--div-spacing-huge); }
+.divider[data-size="mega"]   { --_dv-spacing: var(--div-spacing-mega); }
+.divider[data-size="ultra"]  { --_dv-spacing: var(--div-spacing-ultra); }
+
+/* ── Variant selectors ───────────────────────────────────────── */
+.divider[data-variant="solid"]  { --_dv-style: solid; }
+.divider[data-variant="dashed"] { --_dv-style: dashed; }
+.divider[data-variant="dotted"] { --_dv-style: dotted; }
+.divider[data-variant="double"] { --_dv-style: double; --_dv-thick: 3px; }
+
+/* ── Color modifiers ─────────────────────────────────────────── */
+.divider[data-color="strong"] { --_dv-color: var(--div-color-strong); }
+.divider[data-color="subtle"] { --_dv-color: var(--div-color-subtle); }
+
+/* ── Vertical orientation ────────────────────────────────────── */
+.divider[data-orientation="vertical"] {
+  flex-direction: column;
+  block-size: auto;
+  inline-size: 0;
+  margin-block: 0;
+  margin-inline: var(--_dv-spacing);
+  align-self: stretch;
+}
+
+.divider[data-orientation="vertical"]::before,
+.divider[data-orientation="vertical"]::after {
+  border-block-start: 0;
+  border-inline-start: var(--_dv-thick) var(--_dv-style) var(--_dv-color);
+  margin-inline: 0;
+}
+
+.divider[data-orientation="vertical"]::before {
+  margin-block-start: var(--_dv-indent-s);
+}
+
+.divider[data-orientation="vertical"]::after {
+  margin-block-end: var(--_dv-indent-e);
+}
+
+.divider[data-orientation="vertical"]:not(:has(.divider__label))::before {
+  margin-block-end: var(--_dv-indent-e);
+  margin-inline-end: 0;
+}
+
+.divider[data-orientation="vertical"] .divider__label {
+  padding-inline: 0;
+  padding-block: var(--div-label-gap);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ── Forced colors (a11y) ────────────────────────────────────── */
+@media (forced-colors: active) {
+  .divider::before,
+  .divider::after {
+    border-color: CanvasText;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .divider {
+    transition-duration: 0ms;
+  }
+}

@@ -1,0 +1,685 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — File Upload
+   Variable-driven rendering — reads only from --file-upload-* tokens.
+
+   Two modes:   data-mode="button"    Simple button trigger
+                data-mode="dropzone"  Drag-and-drop zone (default)
+
+   Markup (Dropzone):
+   <div class="file-upload" data-variant="outlined" data-size="base" data-mode="dropzone">
+     <label class="file-upload__label" for="f1">Attachments</label>
+     <div class="file-upload__zone">
+       <span class="file-upload__icon">…svg…</span>
+       <span class="file-upload__text">
+         Drag & drop files here or <span class="file-upload__cta">browse</span>
+       </span>
+       <span class="file-upload__hint">PNG, JPG, PDF up to 10 MB</span>
+       <input type="file" id="f1" class="file-upload__input" multiple>
+     </div>
+     <div class="file-upload__list">…file items…</div>
+     <span class="file-upload__helper">Optional helper</span>
+   </div>
+
+   Markup (Button):
+   <div class="file-upload" data-variant="outlined" data-size="base" data-mode="button">
+     <label class="file-upload__label" for="f2">Upload</label>
+     <div class="file-upload__trigger">
+       <span class="file-upload__icon">…svg…</span>
+       <span class="file-upload__trigger-text">Choose file</span>
+       <input type="file" id="f2" class="file-upload__input">
+     </div>
+     <span class="file-upload__helper">Max 10 MB</span>
+   </div>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────
+   1.  BASE — Internal active variables (default = base + outline)
+   ──────────────────────────────────────────────────────────────── */
+.file-upload {
+  display: flex;
+  flex-direction: column;
+  inline-size: var(--file-upload-inline-size);
+  max-width: var(--file-upload-max-width);
+  padding-inline: 0px;
+  font-family: var(--file-upload-font-family);
+  gap: var(--file-upload-label-gap);
+
+  /* Dimension active vars (base density) */
+  --_fu-btn-height: var(--file-upload-btn-height-base);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-base);
+  --_fu-px: var(--file-upload-padding-x-base);
+  --_fu-py: var(--file-upload-padding-y-base);
+  --_fu-fs: var(--file-upload-font-size-base);
+  --_fu-radius: var(--file-upload-radius-base);
+  --_fu-gap: var(--file-upload-gap-base);
+  --_fu-icon-size: var(--file-upload-icon-size-base);
+
+  /* Surface active vars (outline default) */
+  --_fu-bg: var(--file-upload-outlined-bg);
+  --_fu-bg-hover: var(--file-upload-outlined-bg-hover);
+  --_fu-bg-active: var(--file-upload-outlined-bg-pressed);
+  --_fu-bg-dragover: var(--file-upload-outlined-bg-dragover);
+  --_fu-fg: var(--file-upload-outlined-fg);
+  --_fu-border-color: var(--file-upload-outlined-border-color);
+  --_fu-border-color-hover: var(--file-upload-outlined-border-color-hover);
+  --_fu-border-color-dragover: var(--file-upload-outlined-border-color-dragover);
+  --_fu-shadow: var(--file-upload-shadow);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   2.  SIZE SELECTORS — map density tokens → active vars
+   ──────────────────────────────────────────────────────────────── */
+.file-upload[data-size="micro"] {
+  --_fu-btn-height: var(--file-upload-btn-height-micro);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-micro);
+  --_fu-px: var(--file-upload-padding-x-micro);
+  --_fu-py: var(--file-upload-padding-y-micro);
+  --_fu-fs: var(--file-upload-font-size-micro);
+  --_fu-radius: var(--file-upload-radius-micro);
+  --_fu-gap: var(--file-upload-gap-micro);
+  --_fu-icon-size: var(--file-upload-icon-size-micro);
+}
+.file-upload[data-size="tiny"] {
+  --_fu-btn-height: var(--file-upload-btn-height-tiny);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-tiny);
+  --_fu-px: var(--file-upload-padding-x-tiny);
+  --_fu-py: var(--file-upload-padding-y-tiny);
+  --_fu-fs: var(--file-upload-font-size-tiny);
+  --_fu-radius: var(--file-upload-radius-tiny);
+  --_fu-gap: var(--file-upload-gap-tiny);
+  --_fu-icon-size: var(--file-upload-icon-size-tiny);
+}
+.file-upload[data-size="small"] {
+  --_fu-btn-height: var(--file-upload-btn-height-small);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-small);
+  --_fu-px: var(--file-upload-padding-x-small);
+  --_fu-py: var(--file-upload-padding-y-small);
+  --_fu-fs: var(--file-upload-font-size-small);
+  --_fu-radius: var(--file-upload-radius-small);
+  --_fu-gap: var(--file-upload-gap-small);
+  --_fu-icon-size: var(--file-upload-icon-size-small);
+}
+.file-upload[data-size="base"] {
+  --_fu-btn-height: var(--file-upload-btn-height-base);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-base);
+  --_fu-px: var(--file-upload-padding-x-base);
+  --_fu-py: var(--file-upload-padding-y-base);
+  --_fu-fs: var(--file-upload-font-size-base);
+  --_fu-radius: var(--file-upload-radius-base);
+  --_fu-gap: var(--file-upload-gap-base);
+  --_fu-icon-size: var(--file-upload-icon-size-base);
+}
+.file-upload[data-size="medium"] {
+  --_fu-btn-height: var(--file-upload-btn-height-medium);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-medium);
+  --_fu-px: var(--file-upload-padding-x-medium);
+  --_fu-py: var(--file-upload-padding-y-medium);
+  --_fu-fs: var(--file-upload-font-size-medium);
+  --_fu-radius: var(--file-upload-radius-medium);
+  --_fu-gap: var(--file-upload-gap-medium);
+  --_fu-icon-size: var(--file-upload-icon-size-medium);
+}
+.file-upload[data-size="large"] {
+  --_fu-btn-height: var(--file-upload-btn-height-large);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-large);
+  --_fu-px: var(--file-upload-padding-x-large);
+  --_fu-py: var(--file-upload-padding-y-large);
+  --_fu-fs: var(--file-upload-font-size-large);
+  --_fu-radius: var(--file-upload-radius-large);
+  --_fu-gap: var(--file-upload-gap-large);
+  --_fu-icon-size: var(--file-upload-icon-size-large);
+}
+.file-upload[data-size="big"] {
+  --_fu-btn-height: var(--file-upload-btn-height-big);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-big);
+  --_fu-px: var(--file-upload-padding-x-big);
+  --_fu-py: var(--file-upload-padding-y-big);
+  --_fu-fs: var(--file-upload-font-size-big);
+  --_fu-radius: var(--file-upload-radius-big);
+  --_fu-gap: var(--file-upload-gap-big);
+  --_fu-icon-size: var(--file-upload-icon-size-big);
+}
+.file-upload[data-size="huge"] {
+  --_fu-btn-height: var(--file-upload-btn-height-huge);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-huge);
+  --_fu-px: var(--file-upload-padding-x-huge);
+  --_fu-py: var(--file-upload-padding-y-huge);
+  --_fu-fs: var(--file-upload-font-size-huge);
+  --_fu-radius: var(--file-upload-radius-huge);
+  --_fu-gap: var(--file-upload-gap-huge);
+  --_fu-icon-size: var(--file-upload-icon-size-huge);
+}
+.file-upload[data-size="mega"] {
+  --_fu-btn-height: var(--file-upload-btn-height-mega);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-mega);
+  --_fu-px: var(--file-upload-padding-x-mega);
+  --_fu-py: var(--file-upload-padding-y-mega);
+  --_fu-fs: var(--file-upload-font-size-mega);
+  --_fu-radius: var(--file-upload-radius-mega);
+  --_fu-gap: var(--file-upload-gap-mega);
+  --_fu-icon-size: var(--file-upload-icon-size-mega);
+}
+.file-upload[data-size="ultra"] {
+  --_fu-btn-height: var(--file-upload-btn-height-ultra);
+  --_fu-drop-min-h: var(--file-upload-drop-min-height-ultra);
+  --_fu-px: var(--file-upload-padding-x-ultra);
+  --_fu-py: var(--file-upload-padding-y-ultra);
+  --_fu-fs: var(--file-upload-font-size-ultra);
+  --_fu-radius: var(--file-upload-radius-ultra);
+  --_fu-gap: var(--file-upload-gap-ultra);
+  --_fu-icon-size: var(--file-upload-icon-size-ultra);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   3.  VARIANT SELECTORS — map surface tokens → active vars
+   ──────────────────────────────────────────────────────────────── */
+.file-upload[data-variant="filled"] {
+  --_fu-bg: var(--file-upload-filled-bg);
+  --_fu-bg-hover: var(--file-upload-filled-bg-hover);
+  --_fu-bg-active: var(--file-upload-filled-bg-pressed);
+  --_fu-bg-dragover: var(--file-upload-filled-bg-dragover);
+  --_fu-fg: var(--file-upload-filled-fg);
+  --_fu-border-color: var(--file-upload-filled-border-color);
+  --_fu-border-color-hover: var(--file-upload-filled-border-color-hover);
+  --_fu-border-color-dragover: var(--file-upload-filled-border-color-dragover);
+}
+
+/* Rounded (pill) boolean — always full radius */
+.file-upload[data-rounded] {
+  --_fu-radius: var(--file-upload-radius-rounded);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   3b. ROLE SELECTORS — remap --brand-* palette → role palette
+       Tokens reading --brand-* automatically pick up the role.
+   ──────────────────────────────────────────────────────────────── */
+
+/* data-role="brand" — default, no overrides needed */
+
+/* ── data-role="danger" ─────────────────────────────────────── */
+.file-upload[data-role="danger"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-bg-hover: var(--danger-component-bg-hover);
+  --brand-component-bg-pressed: var(--danger-component-bg-pressed);
+  --brand-on-component: var(--danger-on-component);
+  --brand-content-default: var(--danger-content-default);
+  --brand-content-strong: var(--danger-content-strong);
+  --brand-container-bg: var(--danger-container-bg);
+  --brand-container-hover: var(--danger-container-hover);
+  --brand-container-pressed: var(--danger-container-pressed);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+  --brand-component-outline-hover: var(--danger-component-outline-hover);
+  --brand-component-outline-pressed: var(--danger-component-outline-pressed);
+}
+
+/* ── data-role="success" ────────────────────────────────────── */
+.file-upload[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-bg-hover: var(--success-component-bg-hover);
+  --brand-component-bg-pressed: var(--success-component-bg-pressed);
+  --brand-on-component: var(--success-on-component);
+  --brand-content-default: var(--success-content-default);
+  --brand-content-strong: var(--success-content-strong);
+  --brand-container-bg: var(--success-container-bg);
+  --brand-container-hover: var(--success-container-hover);
+  --brand-container-pressed: var(--success-container-pressed);
+  --brand-component-outline-default: var(--success-component-outline-default);
+  --brand-component-outline-hover: var(--success-component-outline-hover);
+  --brand-component-outline-pressed: var(--success-component-outline-pressed);
+}
+
+/* ── data-role="warning" ────────────────────────────────────── */
+.file-upload[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-bg-hover: var(--warning-component-bg-hover);
+  --brand-component-bg-pressed: var(--warning-component-bg-pressed);
+  --brand-on-component: var(--warning-on-component);
+  --brand-content-default: var(--warning-content-default);
+  --brand-content-strong: var(--warning-content-strong);
+  --brand-container-bg: var(--warning-container-bg);
+  --brand-container-hover: var(--warning-container-hover);
+  --brand-container-pressed: var(--warning-container-pressed);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+  --brand-component-outline-hover: var(--warning-component-outline-hover);
+  --brand-component-outline-pressed: var(--warning-component-outline-pressed);
+}
+
+/* ── data-role="brand" ──────────────────────────────────────── */
+.file-upload[data-role="brand"] {
+  --brand-component-outline-pressed: var(--brand-component-outline-pressed);
+}
+
+/* ── data-role="info" ───────────────────────────────────────── */
+.file-upload[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-bg-hover: var(--info-component-bg-hover);
+  --brand-component-bg-pressed: var(--info-component-bg-pressed);
+  --brand-on-component: var(--info-on-component);
+  --brand-content-default: var(--info-content-default);
+  --brand-content-strong: var(--info-content-strong);
+  --brand-container-bg: var(--info-container-bg);
+  --brand-container-hover: var(--info-container-hover);
+  --brand-container-pressed: var(--info-container-pressed);
+  --brand-component-outline-default: var(--info-component-outline-default);
+  --brand-component-outline-hover: var(--info-component-outline-hover);
+  --brand-component-outline-pressed: var(--info-component-outline-pressed);
+}
+
+/* ── data-role="neutral" ────────────────────────────────────── */
+.file-upload[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg);
+  --brand-component-bg-hover: var(--surface-base-cm-bg-hover);
+  --brand-component-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --brand-on-component: var(--surface-base-ct-default);
+  --brand-content-default: var(--surface-base-ct-default);
+  --brand-content-strong: var(--surface-base-ct-strong);
+  --brand-container-bg: var(--surface-base-subtle);
+  --brand-container-hover: var(--surface-base-strong);
+  --brand-container-pressed: var(--surface-base-strong);
+  --brand-component-outline-default: var(--surface-base-cm-outline);
+  --brand-component-outline-hover: var(--surface-base-cm-outline-hover);
+  --brand-component-outline-pressed: var(--surface-base-cm-outline-pressed);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   4.  LABEL
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__label {
+  font-size: var(--file-upload-label-font-size);
+  font-weight: var(--file-upload-label-font-weight);
+  color: var(--file-upload-label-color);
+  line-height: var(--file-upload-line-height);
+}
+
+.file-upload[aria-invalid="true"] .file-upload__label {
+  color: var(--file-upload-label-color-invalid);
+}
+
+.file-upload[data-disabled] .file-upload__label,
+.file-upload:has(:disabled) .file-upload__label {
+  color: var(--file-upload-label-color-disabled);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   5.  DROPZONE
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--_fu-gap);
+  min-height: var(--_fu-drop-min-h);
+  padding: var(--_fu-py) var(--_fu-px);
+  border: var(--file-upload-border-width) var(--file-upload-border-style) var(--_fu-border-color);
+  border-radius: var(--_fu-radius);
+  background: var(--_fu-bg);
+  color: var(--_fu-fg);
+  box-shadow: var(--_fu-shadow);
+  cursor: pointer;
+  position: relative;
+  transition-property: var(--file-upload-transition-property);
+  transition-duration: var(--file-upload-transition-duration);
+  transition-timing-function: var(--file-upload-transition-easing);
+  clip-path: var(--file-upload-clip-path);
+}
+
+.file-upload__zone:hover {
+  background: var(--_fu-bg-hover);
+  border-color: var(--_fu-border-color-hover);
+  box-shadow: var(--file-upload-shadow-hover);
+}
+
+.file-upload__zone:active {
+  background: var(--_fu-bg-active);
+  box-shadow: var(--file-upload-shadow-pressed);
+}
+
+/* Drag-over state */
+.file-upload[data-dragover] .file-upload__zone {
+  background: var(--_fu-bg-dragover);
+  border-color: var(--_fu-border-color-dragover);
+  border-style: solid;
+}
+
+/* Error state */
+.file-upload[aria-invalid="true"] .file-upload__zone {
+  border-color: var(--file-upload-outlined-border-color-invalid);
+}
+.file-upload[data-variant="filled"][aria-invalid="true"] .file-upload__zone {
+  border-color: var(--file-upload-filled-border-color-invalid);
+}
+
+/* Disabled state */
+.file-upload[data-disabled] .file-upload__zone,
+.file-upload:has(:disabled) .file-upload__zone {
+  opacity: var(--file-upload-outlined-opacity-disabled);
+  pointer-events: none;
+  cursor: default;
+}
+.file-upload[data-variant="filled"][data-disabled] .file-upload__zone,
+.file-upload[data-variant="filled"]:has(:disabled) .file-upload__zone {
+  opacity: var(--file-upload-filled-opacity-disabled);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   6.  BUTTON MODE TRIGGER
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--_fu-gap);
+  min-height: var(--file-upload-min-tap-target);
+  height: var(--_fu-btn-height);
+  padding: 0 var(--_fu-px);
+  border: var(--file-upload-border-width) solid var(--_fu-border-color);
+  border-radius: var(--_fu-radius);
+  background: var(--_fu-bg);
+  color: var(--_fu-fg);
+  font-size: var(--_fu-fs);
+  font-weight: var(--file-upload-font-weight-cta);
+  cursor: pointer;
+  position: relative;
+  transition-property: var(--file-upload-transition-property);
+  transition-duration: var(--file-upload-transition-duration);
+  transition-timing-function: var(--file-upload-transition-easing);
+}
+
+.file-upload__trigger:hover {
+  background: var(--_fu-bg-hover);
+  border-color: var(--_fu-border-color-hover);
+  box-shadow: var(--file-upload-shadow-hover);
+}
+
+.file-upload__trigger:active {
+  background: var(--_fu-bg-active);
+  box-shadow: var(--file-upload-shadow-pressed);
+}
+
+.file-upload[data-disabled] .file-upload__trigger,
+.file-upload:has(:disabled) .file-upload__trigger {
+  opacity: var(--file-upload-outlined-opacity-disabled);
+  pointer-events: none;
+  cursor: default;
+}
+
+.file-upload[data-dragover] .file-upload__trigger {
+  background: var(--_fu-bg-dragover);
+  border-color: var(--_fu-border-color-dragover);
+}
+
+.file-upload[aria-invalid="true"] .file-upload__trigger {
+  border-color: var(--file-upload-outlined-border-color-invalid);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   7.  ICON
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--file-upload-icon-color);
+}
+.file-upload__icon svg {
+  width: var(--_fu-icon-size);
+  height: var(--_fu-icon-size);
+}
+
+.file-upload[data-dragover] .file-upload__icon {
+  color: var(--file-upload-icon-color-dragover);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   8.  TEXT & HINT
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__text {
+  font-size: var(--_fu-fs);
+  font-weight: var(--file-upload-font-weight);
+  line-height: var(--file-upload-line-height);
+  color: var(--_fu-fg);
+  text-align: center;
+}
+
+.file-upload__cta {
+  color: var(--file-upload-accent-color);
+  font-weight: var(--file-upload-font-weight-cta);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.file-upload__cta:hover {
+  color: var(--file-upload-accent-color-hover);
+}
+
+.file-upload__hint {
+  font-size: calc(var(--_fu-fs) - 1px);
+  color: var(--file-upload-helper-color);
+  text-align: center;
+}
+
+.file-upload__trigger-text {
+  font-size: var(--_fu-fs);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   9.  HIDDEN NATIVE INPUT
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.file-upload__input:disabled {
+  cursor: default;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   10. HELPER TEXT
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__helper {
+  font-size: var(--file-upload-helper-font-size);
+  font-weight: var(--file-upload-helper-font-weight);
+  color: var(--file-upload-helper-color);
+  line-height: var(--file-upload-line-height);
+}
+.file-upload[aria-invalid="true"] .file-upload__helper {
+  color: var(--file-upload-helper-color-invalid);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   11. FILE LIST
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--file-upload-item-gap);
+}
+
+.file-upload__item {
+  display: flex;
+  align-items: center;
+  gap: var(--_fu-gap);
+  height: var(--file-upload-item-height);
+  padding: 0 var(--spacing-10);
+  border: 1px solid var(--file-upload-item-border-color);
+  border-radius: var(--file-upload-item-radius);
+  background: var(--file-upload-item-bg);
+  transition: background-color var(--file-upload-transition-duration) var(--file-upload-transition-easing);
+}
+.file-upload__item:hover {
+  background: var(--file-upload-item-bg-hover);
+}
+
+.file-upload__item-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--file-upload-icon-color);
+}
+.file-upload__item-icon svg {
+  width: var(--file-upload-item-icon-size);
+  height: var(--file-upload-item-icon-size);
+}
+
+.file-upload__item-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--file-upload-item-font-size);
+  color: var(--_fu-fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-upload__item-size {
+  font-size: var(--file-upload-item-font-size);
+  color: var(--file-upload-helper-color);
+  flex-shrink: 0;
+}
+
+.file-upload__item-remove {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--file-upload-helper-color);
+  cursor: pointer;
+  transition: color var(--file-upload-transition-duration) var(--file-upload-transition-easing),
+              background-color var(--file-upload-transition-duration) var(--file-upload-transition-easing);
+}
+.file-upload__item-remove:hover {
+  color: var(--danger-content-default);
+  background: var(--danger-container-bg);
+}
+.file-upload__item-remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12. PROGRESS BAR (within file items)
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__progress {
+  flex: 1;
+  height: var(--file-upload-progress-height);
+  border-radius: var(--file-upload-progress-radius);
+  background: var(--file-upload-progress-bg);
+  overflow: hidden;
+}
+.file-upload__progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--file-upload-progress-fill);
+  transition: width 300ms var(--easing-in-out);
+}
+.file-upload__item[data-status="error"] .file-upload__progress-fill {
+  background: var(--file-upload-progress-fill-invalid);
+}
+.file-upload__item[data-status="success"] .file-upload__progress-fill {
+  background: var(--file-upload-progress-fill-success);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   13. FOCUS — keyboard accessibility
+   ──────────────────────────────────────────────────────────────── */
+.file-upload__input:focus-visible ~ .file-upload__zone,
+.file-upload__zone:has(.file-upload__input:focus-visible),
+.file-upload__trigger:has(.file-upload__input:focus-visible) {
+  outline: var(--file-upload-focus-outline-width) solid var(--file-upload-focus-outline-color);
+  outline-offset: var(--file-upload-focus-outline-offset);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   13b. KEYFRAMES
+   ──────────────────────────────────────────────────────────────── */
+@keyframes file-upload-enter {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes file-upload-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes file-upload-pulse {
+  0%, 100% { border-color: var(--_fu-border-color-dragover); }
+  50% { border-color: var(--_fu-border-color); }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   13c. LOADING STATE — shimmer on CTA text
+   ──────────────────────────────────────────────────────────────── */
+.file-upload[data-loading] {
+  pointer-events: none;
+}
+.file-upload[data-loading] .file-upload__cta,
+.file-upload[data-loading] .file-upload__trigger-text {
+  background: linear-gradient(
+    90deg,
+    var(--file-upload-loader-color) 0%,
+    var(--file-upload-loader-color) 33%,
+    transparent 50%,
+    var(--file-upload-loader-color) 67%,
+    var(--file-upload-loader-color) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: var(--file-upload-animation-loading);
+}
+
+/* Dragover pulsing border */
+.file-upload[data-dragover] .file-upload__zone {
+  animation: var(--file-upload-animation-pulse);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   14. FORCED COLORS (High Contrast)
+   ──────────────────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .file-upload__zone,
+  .file-upload__trigger {
+    border-color: ButtonText;
+    color: ButtonText;
+  }
+  .file-upload__zone:hover,
+  .file-upload__trigger:hover {
+    border-color: Highlight;
+  }
+  .file-upload[data-disabled] .file-upload__zone,
+  .file-upload[data-disabled] .file-upload__trigger {
+    border-color: GrayText;
+    color: GrayText;
+  }
+  .file-upload__cta {
+    color: LinkText;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   15. REDUCED MOTION
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .file-upload__zone,
+  .file-upload__trigger,
+  .file-upload__item,
+  .file-upload__progress-fill {
+    transition-duration: 0.01ms !important;
+  }
+  .file-upload[data-loading] .file-upload__cta,
+  .file-upload[data-loading] .file-upload__trigger-text,
+  .file-upload[data-dragover] .file-upload__zone {
+    animation: none !important;
+  }
+}

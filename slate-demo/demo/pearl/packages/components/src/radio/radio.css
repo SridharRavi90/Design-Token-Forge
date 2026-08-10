@@ -1,0 +1,371 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Radio Component CSS
+   Variable-driven rendering. Zero hardcoded visual values.
+   Anatomy: label wrapper > hidden input + visible circle + label text.
+   Uses internal (--_rd-*) vars set by size & variant selectors.
+   Checked via :checked on native input[type=radio].
+   Always circular — no progressive radius (border-radius: 50%).
+   ════════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════════
+   BASE — the <label> wrapper
+   ════════════════════════════════════════════════════════════════ */
+
+.radio {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--radio-gap);
+  position: relative;
+  min-height: var(--radio-min-tap-target);
+
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  vertical-align: top;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HIDDEN INPUT — visually hidden but accessible
+   ════════════════════════════════════════════════════════════════ */
+
+.radio__control {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CIRCLE — the visible indicator (always round)
+   ════════════════════════════════════════════════════════════════ */
+
+.radio__circle {
+  position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
+
+  width: var(--_rd-circle-size);
+  height: var(--_rd-circle-size);
+  border-radius: 50%;
+  border-width: var(--_rd-border-w);
+  border-style: var(--radio-circle-border-style);
+
+  background-color: var(--_rd-circle-bg-off);
+  border-color: var(--_rd-circle-border-off);
+  box-shadow: var(--radio-circle-shadow);
+
+  /* Vertically align circle with first line of label text */
+  margin-top: calc((var(--radio-label-line-height) * var(--radio-label-font-size) - var(--_rd-circle-size)) / 2);
+
+  transition-property: var(--radio-transition-property);
+  transition-duration: var(--radio-transition-duration);
+  transition-timing-function: var(--radio-transition-easing);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DOT — inner circle indicator inside the circle
+   ════════════════════════════════════════════════════════════════ */
+
+.radio__dot {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--_rd-dot-size);
+  height: var(--_rd-dot-size);
+  border-radius: 50%;
+  background-color: var(--_rd-dot-color);
+
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transition-property: opacity, transform;
+  transition-duration: var(--radio-dot-transition-duration);
+  transition-timing-function: var(--radio-dot-transition-easing);
+
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIZE SELECTORS
+   ════════════════════════════════════════════════════════════════ */
+
+.radio:not([data-size]),
+.radio[data-size="base"]   { --_rd-circle-size: var(--radio-circle-size-base);   --_rd-dot-size: var(--radio-dot-size-base);   --radio-label-font-size: var(--radio-label-font-size-base);   --radio-gap: var(--radio-gap-base); }
+.radio[data-size="micro"]  { --_rd-circle-size: var(--radio-circle-size-micro);  --_rd-dot-size: var(--radio-dot-size-micro);  --radio-label-font-size: var(--radio-label-font-size-micro);  --radio-gap: var(--radio-gap-micro); }
+.radio[data-size="tiny"]   { --_rd-circle-size: var(--radio-circle-size-tiny);   --_rd-dot-size: var(--radio-dot-size-tiny);   --radio-label-font-size: var(--radio-label-font-size-tiny);   --radio-gap: var(--radio-gap-tiny); }
+.radio[data-size="small"]  { --_rd-circle-size: var(--radio-circle-size-small);  --_rd-dot-size: var(--radio-dot-size-small);  --radio-label-font-size: var(--radio-label-font-size-small);  --radio-gap: var(--radio-gap-small); }
+.radio[data-size="medium"] { --_rd-circle-size: var(--radio-circle-size-medium); --_rd-dot-size: var(--radio-dot-size-medium); --radio-label-font-size: var(--radio-label-font-size-medium); --radio-gap: var(--radio-gap-medium); }
+.radio[data-size="large"]  { --_rd-circle-size: var(--radio-circle-size-large);  --_rd-dot-size: var(--radio-dot-size-large);  --radio-label-font-size: var(--radio-label-font-size-large);  --radio-gap: var(--radio-gap-large); }
+.radio[data-size="big"]    { --_rd-circle-size: var(--radio-circle-size-big);    --_rd-dot-size: var(--radio-dot-size-big);    --radio-label-font-size: var(--radio-label-font-size-big);    --radio-gap: var(--radio-gap-big); }
+.radio[data-size="huge"]   { --_rd-circle-size: var(--radio-circle-size-huge);   --_rd-dot-size: var(--radio-dot-size-huge);   --radio-label-font-size: var(--radio-label-font-size-huge);   --radio-gap: var(--radio-gap-huge); }
+.radio[data-size="mega"]   { --_rd-circle-size: var(--radio-circle-size-mega);   --_rd-dot-size: var(--radio-dot-size-mega);   --radio-label-font-size: var(--radio-label-font-size-mega);   --radio-gap: var(--radio-gap-mega); }
+.radio[data-size="ultra"]  { --_rd-circle-size: var(--radio-circle-size-ultra);  --_rd-dot-size: var(--radio-dot-size-ultra);  --radio-label-font-size: var(--radio-label-font-size-ultra);  --radio-gap: var(--radio-gap-ultra); }
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT SELECTORS — map tokens → internal vars
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── FILLED (default) ──────────────────────────────────────── */
+.radio:not([data-variant]),
+.radio[data-variant="filled"] {
+  --_rd-border-w: var(--radio-circle-border-width);
+
+  --_rd-circle-bg-off: var(--radio-circle-bg-off);
+  --_rd-circle-bg-off-hover: var(--radio-circle-bg-off-hover);
+  --_rd-circle-bg-on: var(--radio-circle-bg-on);
+  --_rd-circle-bg-on-hover: var(--radio-circle-bg-on-hover);
+  --_rd-circle-border-off: var(--radio-circle-border-color-off);
+  --_rd-circle-border-off-hover: var(--radio-circle-border-color-off-hover);
+  --_rd-circle-border-on: var(--radio-circle-border-color-on);
+  --_rd-circle-border-on-hover: var(--radio-circle-border-color-on-hover);
+
+  --_rd-dot-color: var(--radio-dot-color);
+
+  --_rd-circle-bg-on-disabled: var(--radio-circle-bg-on-disabled);
+  --_rd-circle-border-disabled: var(--radio-circle-border-color-disabled);
+  --_rd-opacity-disabled: var(--radio-opacity-disabled);
+}
+
+/* ── OUTLINED ─────────────────────────────────────────── */
+.radio[data-variant="outlined"] {
+  --_rd-border-w: var(--radio-outlined-circle-border-width);
+
+  --_rd-circle-bg-off: var(--radio-outlined-circle-bg-off);
+  --_rd-circle-bg-off-hover: var(--radio-outlined-circle-bg-off-hover);
+  --_rd-circle-bg-on: var(--radio-outlined-circle-bg-on);
+  --_rd-circle-bg-on-hover: var(--radio-outlined-circle-bg-on-hover);
+  --_rd-circle-border-off: var(--radio-outlined-circle-border-color-off);
+  --_rd-circle-border-off-hover: var(--radio-outlined-circle-border-color-off-hover);
+  --_rd-circle-border-on: var(--radio-outlined-circle-border-color-on);
+  --_rd-circle-border-on-hover: var(--radio-outlined-circle-border-color-on-hover);
+
+  --_rd-dot-color: var(--radio-outlined-dot-color);
+
+  --_rd-circle-bg-on-disabled: var(--radio-outlined-circle-bg-on-disabled);
+  --_rd-circle-border-disabled: var(--radio-outlined-circle-border-color-disabled);
+  --_rd-opacity-disabled: var(--radio-outlined-opacity-disabled);
+}
+
+/* ════════════════════════════════════════════════════════════════   ROLE SELECTORS — palette-level remapping
+   data-role="brand" is the default (no remap needed).
+   ═════════════════════════════════════════════════════════════════ */
+
+.radio[data-role="danger"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-bg-hover: var(--danger-component-bg-hover);
+  --brand-component-bg-pressed: var(--danger-component-bg-pressed);
+  --brand-on-component: var(--danger-on-component);
+  --brand-content-default: var(--danger-content-default);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+}
+.radio[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-bg-hover: var(--success-component-bg-hover);
+  --brand-component-bg-pressed: var(--success-component-bg-pressed);
+  --brand-on-component: var(--success-on-component);
+  --brand-content-default: var(--success-content-default);
+  --brand-component-outline-default: var(--success-component-outline-default);
+}
+.radio[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-bg-hover: var(--warning-component-bg-hover);
+  --brand-component-bg-pressed: var(--warning-component-bg-pressed);
+  --brand-on-component: var(--warning-on-component);
+  --brand-content-default: var(--warning-content-default);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+}
+.radio[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-bg-hover: var(--info-component-bg-hover);
+  --brand-component-bg-pressed: var(--info-component-bg-pressed);
+  --brand-on-component: var(--info-on-component);
+  --brand-content-default: var(--info-content-default);
+  --brand-component-outline-default: var(--info-component-outline-default);
+}
+.radio[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg);
+  --brand-component-bg-hover: var(--surface-base-cm-bg-hover);
+  --brand-component-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --brand-on-component: var(--surface-base-ct-default);
+  --brand-content-default: var(--surface-base-ct-default);
+  --brand-component-outline-default: var(--surface-base-cm-outline);
+}
+
+/* ════════════════════════════════════════════════════════════════   CHECKED STATE
+   ════════════════════════════════════════════════════════════════ */
+
+.radio__control:checked + .radio__circle {
+  background-color: var(--_rd-circle-bg-on);
+  border-color: var(--_rd-circle-border-on);
+}
+
+.radio__control:checked + .radio__circle .radio__dot {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HOVER
+   ════════════════════════════════════════════════════════════════ */
+
+.radio:hover .radio__circle {
+  background-color: var(--_rd-circle-bg-off-hover);
+  border-color: var(--_rd-circle-border-off-hover);
+  box-shadow: var(--radio-circle-shadow-hover);
+}
+
+.radio:hover .radio__control:checked + .radio__circle {
+  background-color: var(--_rd-circle-bg-on-hover);
+  border-color: var(--_rd-circle-border-on-hover);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ACTIVE — press feedback
+   ════════════════════════════════════════════════════════════════ */
+
+.radio:active .radio__circle {
+  transform: scale(var(--radio-circle-scale-pressed));
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FOCUS-VISIBLE
+   ════════════════════════════════════════════════════════════════ */
+
+.radio__control:focus-visible + .radio__circle {
+  outline: var(--radio-focus-outline-width) solid var(--radio-focus-outline-color);
+  outline-offset: var(--radio-focus-outline-offset);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DISABLED
+   ════════════════════════════════════════════════════════════════ */
+
+.radio:has(:disabled),
+.radio[data-disabled] {
+
+  pointer-events: none;
+  opacity: var(--_rd-opacity-disabled);
+}
+
+.radio__control:disabled + .radio__circle {
+  border-color: var(--_rd-circle-border-disabled);
+}
+
+.radio__control:disabled:checked + .radio__circle {
+  background-color: var(--_rd-circle-bg-on-disabled);
+}
+
+.radio:has(:disabled) .radio__label {
+  color: var(--radio-label-color-disabled);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   INVALID STATE — [aria-invalid="true"]
+   Always uses danger primitives (state, not role).
+   ════════════════════════════════════════════════════════════════ */
+
+.radio[aria-invalid="true"] .radio__circle {
+  border-color: var(--radio-circle-border-color-invalid);
+}
+
+.radio[aria-invalid="true"]:hover .radio__circle {
+  border-color: var(--radio-circle-border-color-invalid-hover);
+}
+
+.radio[aria-invalid="true"] .radio__control:checked + .radio__circle {
+  background-color: var(--radio-circle-bg-on-invalid);
+  border-color: var(--radio-circle-bg-on-invalid);
+}
+
+.radio[aria-invalid="true"]:hover .radio__control:checked + .radio__circle {
+  background-color: var(--radio-circle-bg-on-invalid-hover);
+  border-color: var(--radio-circle-bg-on-invalid-hover);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   LABEL
+   ════════════════════════════════════════════════════════════════ */
+
+.radio__label {
+  font-family: var(--radio-label-font-family);
+  font-size: var(--radio-label-font-size);
+  font-weight: var(--radio-label-font-weight);
+  line-height: var(--radio-label-line-height);
+  color: var(--radio-label-color);
+}
+
+.radio__required {
+  color: var(--radio-required-color);
+  margin-inline-start: 0.15em;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RADIO GROUP — fieldset wrapper
+   ════════════════════════════════════════════════════════════════ */
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radio-group-gap);
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.radio-group[data-direction="horizontal"] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--radio-group-gap-horizontal);
+}
+
+.radio-group__legend {
+  font-family: var(--radio-label-font-family);
+  font-size: var(--radio-label-font-size);
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: var(--radio-label-line-height);
+  color: var(--radio-label-color);
+  padding: 0;
+  margin-bottom: var(--radio-group-gap);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FORCED COLORS (Windows High Contrast)
+   ════════════════════════════════════════════════════════════════ */
+
+@media (forced-colors: active) {
+  .radio__circle {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+  }
+  .radio__control:checked + .radio__circle {
+    background: Highlight;
+    border-color: Highlight;
+  }
+  .radio__dot {
+    background-color: HighlightText;
+  }
+  .radio__control:disabled + .radio__circle {
+    border-color: GrayText;
+  }
+  .radio__control:disabled:checked + .radio__circle {
+    background: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .radio__circle,
+  .radio__dot {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

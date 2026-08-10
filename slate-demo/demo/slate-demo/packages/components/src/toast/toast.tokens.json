@@ -1,0 +1,1422 @@
+{
+  "$schema": "https://design-token-forge.dev/schema/component-manifest.v1.json",
+  "component": "toast",
+  "archetype": "feedback-banner",
+  "axes": {
+    "declared": [
+      "shape",
+      "dimension",
+      "surface",
+      "typography",
+      "slots",
+      "motion",
+      "a11y"
+    ],
+    "present": [],
+    "tokenCountByAxis": {
+      "unclassified": 105
+    }
+  },
+  "enumerations": {
+    "variants": [],
+    "roles": [
+      "brand",
+      "danger",
+      "info",
+      "neutral",
+      "success",
+      "warning"
+    ],
+    "states": [],
+    "sizes": [
+      "base",
+      "large",
+      "small"
+    ]
+  },
+  "fillSurfaces": [
+    {
+      "fillToken": "--toast-brand-soft-bg",
+      "group": "brand",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-brand-filled-bg",
+      "group": "brand",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-info-soft-bg",
+      "group": "info",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-info-filled-bg",
+      "group": "info",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-success-soft-bg",
+      "group": "success",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-warning-soft-bg",
+      "group": "warning",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-danger-soft-bg",
+      "group": "danger",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-neutral-soft-bg",
+      "group": "neutral",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-success-filled-bg",
+      "group": "success",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-warning-filled-bg",
+      "group": "warning",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-danger-filled-bg",
+      "group": "danger",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--toast-neutral-filled-bg",
+      "group": "neutral",
+      "states": [
+        "default"
+      ]
+    }
+  ],
+  "onComponentTokens": [
+    {
+      "token": "--toast-{role}-filled-fg",
+      "fillStates": [
+        "--toast-{role}-filled-bg"
+      ],
+      "derivation": "auto-aa",
+      "wcag": "AA",
+      "notes": "Filled-variant text reads against component fill."
+    }
+  ],
+  "editorExposure": {
+    "--toast-accent-width": "advanced",
+    "--toast-accent-radius": "advanced",
+    "--toast-min-width": "advanced",
+    "--toast-max-width": "advanced",
+    "--toast-min-height": "advanced",
+    "--toast-container-gap": "advanced",
+    "--toast-container-padding": "advanced",
+    "--toast-container-z-index": "advanced",
+    "--toast-close-opacity": "advanced",
+    "--toast-close-hover-opacity": "advanced",
+    "--toast-close-hover-bg": "advanced"
+  },
+  "figma": {
+    "bindingPrefix": "toast/"
+  },
+  "gaps": {
+    "missingRoles": [],
+    "missingVariants": [
+      "default",
+      "outlined",
+      "soft"
+    ],
+    "remapOnlyRoles": []
+  },
+  "tokenCount": 105,
+  "tokens": {
+    "--toast-radius": {
+      "name": "--toast-radius",
+      "axis": "unclassified",
+      "role": "radius",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "radius",
+      "value": "var(--radius-lg)",
+      "aliasOf": "--radius-lg",
+      "literal": false
+    },
+    "--toast-border-width": {
+      "name": "--toast-border-width",
+      "axis": "unclassified",
+      "role": "border-width",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-width",
+      "value": "1px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-border-style": {
+      "name": "--toast-border-style",
+      "axis": "unclassified",
+      "role": "border-style",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-style",
+      "value": "solid",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-border-color": {
+      "name": "--toast-border-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-color",
+      "value": "var(--surface-base-cm-outline)",
+      "aliasOf": "--surface-base-cm-outline",
+      "literal": false
+    },
+    "--toast-accent-width": {
+      "name": "--toast-accent-width",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "accent-width",
+      "value": "4px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-accent-radius": {
+      "name": "--toast-accent-radius",
+      "axis": "unclassified",
+      "role": "radius",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "accent-radius",
+      "value": "var(--radius-full)",
+      "aliasOf": "--radius-full",
+      "literal": false
+    },
+    "--toast-padding-y-small": {
+      "name": "--toast-padding-y-small",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-8)",
+      "aliasOf": "--spacing-8",
+      "literal": false
+    },
+    "--toast-padding-x-small": {
+      "name": "--toast-padding-x-small",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-12)",
+      "aliasOf": "--spacing-12",
+      "literal": false
+    },
+    "--toast-gap-small": {
+      "name": "--toast-gap-small",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-8)",
+      "aliasOf": "--spacing-8",
+      "literal": false
+    },
+    "--toast-content-gap-small": {
+      "name": "--toast-content-gap-small",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "content-gap",
+      "value": "var(--spacing-2)",
+      "aliasOf": "--spacing-2",
+      "literal": false
+    },
+    "--toast-font-size-small": {
+      "name": "--toast-font-size-small",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-13)",
+      "aliasOf": "--font-size-13",
+      "literal": false
+    },
+    "--toast-title-font-size-small": {
+      "name": "--toast-title-font-size-small",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "title-font-size",
+      "value": "var(--font-size-13)",
+      "aliasOf": "--font-size-13",
+      "literal": false
+    },
+    "--toast-icon-size-small": {
+      "name": "--toast-icon-size-small",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-16)",
+      "aliasOf": "--spacing-16",
+      "literal": false
+    },
+    "--toast-close-size-small": {
+      "name": "--toast-close-size-small",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "close-size",
+      "value": "var(--spacing-16)",
+      "aliasOf": "--spacing-16",
+      "literal": false
+    },
+    "--toast-padding-y-base": {
+      "name": "--toast-padding-y-base",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-14)",
+      "aliasOf": "--spacing-14",
+      "literal": false
+    },
+    "--toast-padding-x-base": {
+      "name": "--toast-padding-x-base",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-16)",
+      "aliasOf": "--spacing-16",
+      "literal": false
+    },
+    "--toast-gap-base": {
+      "name": "--toast-gap-base",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-12)",
+      "aliasOf": "--spacing-12",
+      "literal": false
+    },
+    "--toast-content-gap-base": {
+      "name": "--toast-content-gap-base",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "content-gap",
+      "value": "var(--spacing-4)",
+      "aliasOf": "--spacing-4",
+      "literal": false
+    },
+    "--toast-font-size-base": {
+      "name": "--toast-font-size-base",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-14)",
+      "aliasOf": "--font-size-14",
+      "literal": false
+    },
+    "--toast-title-font-size-base": {
+      "name": "--toast-title-font-size-base",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "title-font-size",
+      "value": "var(--font-size-14)",
+      "aliasOf": "--font-size-14",
+      "literal": false
+    },
+    "--toast-icon-size-base": {
+      "name": "--toast-icon-size-base",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-20)",
+      "aliasOf": "--spacing-20",
+      "literal": false
+    },
+    "--toast-close-size-base": {
+      "name": "--toast-close-size-base",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "close-size",
+      "value": "var(--spacing-20)",
+      "aliasOf": "--spacing-20",
+      "literal": false
+    },
+    "--toast-padding-y-large": {
+      "name": "--toast-padding-y-large",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-18)",
+      "aliasOf": "--spacing-18",
+      "literal": false
+    },
+    "--toast-padding-x-large": {
+      "name": "--toast-padding-x-large",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-20)",
+      "aliasOf": "--spacing-20",
+      "literal": false
+    },
+    "--toast-gap-large": {
+      "name": "--toast-gap-large",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-14)",
+      "aliasOf": "--spacing-14",
+      "literal": false
+    },
+    "--toast-content-gap-large": {
+      "name": "--toast-content-gap-large",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "content-gap",
+      "value": "var(--spacing-6)",
+      "aliasOf": "--spacing-6",
+      "literal": false
+    },
+    "--toast-font-size-large": {
+      "name": "--toast-font-size-large",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-16)",
+      "aliasOf": "--font-size-16",
+      "literal": false
+    },
+    "--toast-title-font-size-large": {
+      "name": "--toast-title-font-size-large",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "title-font-size",
+      "value": "var(--font-size-16)",
+      "aliasOf": "--font-size-16",
+      "literal": false
+    },
+    "--toast-icon-size-large": {
+      "name": "--toast-icon-size-large",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-24)",
+      "aliasOf": "--spacing-24",
+      "literal": false
+    },
+    "--toast-close-size-large": {
+      "name": "--toast-close-size-large",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "close-size",
+      "value": "var(--spacing-24)",
+      "aliasOf": "--spacing-24",
+      "literal": false
+    },
+    "--toast-min-width": {
+      "name": "--toast-min-width",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "min-width",
+      "value": "300px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-max-width": {
+      "name": "--toast-max-width",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "max-width",
+      "value": "480px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-min-height": {
+      "name": "--toast-min-height",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "min-height",
+      "value": "48px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-container-gap": {
+      "name": "--toast-container-gap",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "container-gap",
+      "value": "var(--spacing-10)",
+      "aliasOf": "--spacing-10",
+      "literal": false
+    },
+    "--toast-container-padding": {
+      "name": "--toast-container-padding",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "container-padding",
+      "value": "var(--spacing-16)",
+      "aliasOf": "--spacing-16",
+      "literal": false
+    },
+    "--toast-container-z-index": {
+      "name": "--toast-container-z-index",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "container-z-index",
+      "value": "9999",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-bg": {
+      "name": "--toast-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--surface-base-cn-bg)",
+      "aliasOf": "--surface-base-cn-bg",
+      "literal": false
+    },
+    "--toast-fg": {
+      "name": "--toast-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--surface-base-ct-default)",
+      "aliasOf": "--surface-base-ct-default",
+      "literal": false
+    },
+    "--toast-shadow": {
+      "name": "--toast-shadow",
+      "axis": "unclassified",
+      "role": "shadow",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "shadow",
+      "value": "var(--shadow-lg)",
+      "aliasOf": "--shadow-lg",
+      "literal": false
+    },
+    "--toast-brand-accent": {
+      "name": "--toast-brand-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--brand-component-bg-default)",
+      "aliasOf": "--brand-component-bg-default",
+      "literal": false
+    },
+    "--toast-brand-icon-color": {
+      "name": "--toast-brand-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--brand-component-bg-default)",
+      "aliasOf": "--brand-component-bg-default",
+      "literal": false
+    },
+    "--toast-brand-title-color": {
+      "name": "--toast-brand-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--brand-content-strong)",
+      "aliasOf": "--brand-content-strong",
+      "literal": false
+    },
+    "--toast-brand-soft-bg": {
+      "name": "--toast-brand-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--brand-container-bg)",
+      "aliasOf": "--brand-container-bg",
+      "literal": false
+    },
+    "--toast-brand-filled-bg": {
+      "name": "--toast-brand-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--brand-component-bg-default)",
+      "aliasOf": "--brand-component-bg-default",
+      "literal": false
+    },
+    "--toast-brand-filled-fg": {
+      "name": "--toast-brand-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--brand-on-component)",
+      "aliasOf": "--brand-on-component",
+      "literal": false
+    },
+    "--toast-brand-outlined-border": {
+      "name": "--toast-brand-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--brand-component-bg-default)",
+      "aliasOf": "--brand-component-bg-default",
+      "literal": false
+    },
+    "--toast-info-accent": {
+      "name": "--toast-info-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--toast-info-icon-color": {
+      "name": "--toast-info-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--toast-info-title-color": {
+      "name": "--toast-info-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--info-content-strong)",
+      "aliasOf": "--info-content-strong",
+      "literal": false
+    },
+    "--toast-info-soft-bg": {
+      "name": "--toast-info-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--toast-primary-soft-bg)",
+      "aliasOf": "--toast-primary-soft-bg",
+      "literal": false
+    },
+    "--toast-info-filled-bg": {
+      "name": "--toast-info-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--toast-info-filled-fg": {
+      "name": "--toast-info-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--info-on-component)",
+      "aliasOf": "--info-on-component",
+      "literal": false
+    },
+    "--toast-info-outlined-border": {
+      "name": "--toast-info-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--toast-success-accent": {
+      "name": "--toast-success-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--toast-success-icon-color": {
+      "name": "--toast-success-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--toast-success-title-color": {
+      "name": "--toast-success-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--success-content-strong)",
+      "aliasOf": "--success-content-strong",
+      "literal": false
+    },
+    "--toast-warning-accent": {
+      "name": "--toast-warning-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--toast-warning-icon-color": {
+      "name": "--toast-warning-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--toast-warning-title-color": {
+      "name": "--toast-warning-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--warning-content-strong)",
+      "aliasOf": "--warning-content-strong",
+      "literal": false
+    },
+    "--toast-danger-accent": {
+      "name": "--toast-danger-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--toast-danger-icon-color": {
+      "name": "--toast-danger-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--toast-danger-title-color": {
+      "name": "--toast-danger-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--danger-content-strong)",
+      "aliasOf": "--danger-content-strong",
+      "literal": false
+    },
+    "--toast-neutral-accent": {
+      "name": "--toast-neutral-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--surface-base-cm-outline)",
+      "aliasOf": "--surface-base-cm-outline",
+      "literal": false
+    },
+    "--toast-neutral-icon-color": {
+      "name": "--toast-neutral-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--surface-base-ct-subtle)",
+      "aliasOf": "--surface-base-ct-subtle",
+      "literal": false
+    },
+    "--toast-neutral-title-color": {
+      "name": "--toast-neutral-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--surface-base-ct-strong)",
+      "aliasOf": "--surface-base-ct-strong",
+      "literal": false
+    },
+    "--toast-primary-soft-bg": {
+      "name": "--toast-primary-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "primary-soft-bg",
+      "value": "var(--brand-container-bg)",
+      "aliasOf": "--brand-container-bg",
+      "literal": false
+    },
+    "--toast-success-soft-bg": {
+      "name": "--toast-success-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--success-container-bg)",
+      "aliasOf": "--success-container-bg",
+      "literal": false
+    },
+    "--toast-warning-soft-bg": {
+      "name": "--toast-warning-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--warning-container-bg)",
+      "aliasOf": "--warning-container-bg",
+      "literal": false
+    },
+    "--toast-danger-soft-bg": {
+      "name": "--toast-danger-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--danger-container-bg)",
+      "aliasOf": "--danger-container-bg",
+      "literal": false
+    },
+    "--toast-neutral-soft-bg": {
+      "name": "--toast-neutral-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--surface-base-cn-bg)",
+      "aliasOf": "--surface-base-cn-bg",
+      "literal": false
+    },
+    "--toast-success-filled-bg": {
+      "name": "--toast-success-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--toast-success-filled-fg": {
+      "name": "--toast-success-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--success-on-component)",
+      "aliasOf": "--success-on-component",
+      "literal": false
+    },
+    "--toast-warning-filled-bg": {
+      "name": "--toast-warning-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--toast-warning-filled-fg": {
+      "name": "--toast-warning-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--warning-on-component)",
+      "aliasOf": "--warning-on-component",
+      "literal": false
+    },
+    "--toast-danger-filled-bg": {
+      "name": "--toast-danger-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--toast-danger-filled-fg": {
+      "name": "--toast-danger-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--danger-on-component)",
+      "aliasOf": "--danger-on-component",
+      "literal": false
+    },
+    "--toast-neutral-filled-bg": {
+      "name": "--toast-neutral-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--surface-base-cm-bg)",
+      "aliasOf": "--surface-base-cm-bg",
+      "literal": false
+    },
+    "--toast-neutral-filled-fg": {
+      "name": "--toast-neutral-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--surface-base-ct-strong)",
+      "aliasOf": "--surface-base-ct-strong",
+      "literal": false
+    },
+    "--toast-success-outlined-border": {
+      "name": "--toast-success-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--toast-warning-outlined-border": {
+      "name": "--toast-warning-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--toast-danger-outlined-border": {
+      "name": "--toast-danger-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--toast-neutral-outlined-border": {
+      "name": "--toast-neutral-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--surface-base-cm-outline)",
+      "aliasOf": "--surface-base-cm-outline",
+      "literal": false
+    },
+    "--toast-font-family": {
+      "name": "--toast-font-family",
+      "axis": "unclassified",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "font-family",
+      "value": "var(--font-family-sans)",
+      "aliasOf": "--font-family-sans",
+      "literal": false
+    },
+    "--toast-font-weight": {
+      "name": "--toast-font-weight",
+      "axis": "unclassified",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "font-weight",
+      "value": "var(--font-weight-normal)",
+      "aliasOf": "--font-weight-normal",
+      "literal": false
+    },
+    "--toast-line-height": {
+      "name": "--toast-line-height",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "line-height",
+      "value": "1.45",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-title-font-weight": {
+      "name": "--toast-title-font-weight",
+      "axis": "unclassified",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "title-font-weight",
+      "value": "var(--font-weight-semibold)",
+      "aliasOf": "--font-weight-semibold",
+      "literal": false
+    },
+    "--toast-close-radius": {
+      "name": "--toast-close-radius",
+      "axis": "unclassified",
+      "role": "radius",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "close-radius",
+      "value": "var(--radius-sm)",
+      "aliasOf": "--radius-sm",
+      "literal": false
+    },
+    "--toast-close-opacity": {
+      "name": "--toast-close-opacity",
+      "axis": "unclassified",
+      "role": "opacity",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "close-opacity",
+      "value": "0.5",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-close-hover-opacity": {
+      "name": "--toast-close-hover-opacity",
+      "axis": "unclassified",
+      "role": "opacity",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "close-hover-opacity",
+      "value": "1",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-close-hover-bg": {
+      "name": "--toast-close-hover-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "close-hover-bg",
+      "value": "rgba(0,0,0,0.06)",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-action-font-size": {
+      "name": "--toast-action-font-size",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "action-font-size",
+      "value": "var(--font-size-13)",
+      "aliasOf": "--font-size-13",
+      "literal": false
+    },
+    "--toast-action-font-weight": {
+      "name": "--toast-action-font-weight",
+      "axis": "unclassified",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "action-font-weight",
+      "value": "var(--font-weight-semibold)",
+      "aliasOf": "--font-weight-semibold",
+      "literal": false
+    },
+    "--toast-transition-property": {
+      "name": "--toast-transition-property",
+      "axis": "unclassified",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-property",
+      "value": "opacity, transform",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-transition-duration": {
+      "name": "--toast-transition-duration",
+      "axis": "unclassified",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-duration",
+      "value": "var(--duration-normal)",
+      "aliasOf": "--duration-normal",
+      "literal": false
+    },
+    "--toast-transition-easing": {
+      "name": "--toast-transition-easing",
+      "axis": "unclassified",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-easing",
+      "value": "var(--easing-in-out)",
+      "aliasOf": "--easing-in-out",
+      "literal": false
+    },
+    "--toast-enter-translate-y": {
+      "name": "--toast-enter-translate-y",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "enter-translate-y",
+      "value": "16px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-exit-translate-y": {
+      "name": "--toast-exit-translate-y",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "exit-translate-y",
+      "value": "-8px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-enter-scale": {
+      "name": "--toast-enter-scale",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "enter-scale",
+      "value": "0.96",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-auto-dismiss": {
+      "name": "--toast-auto-dismiss",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "auto-dismiss",
+      "value": "5000ms",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-progress-height": {
+      "name": "--toast-progress-height",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "progress-height",
+      "value": "3px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-progress-radius": {
+      "name": "--toast-progress-radius",
+      "axis": "unclassified",
+      "role": "radius",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "progress-radius",
+      "value": "var(--radius-full)",
+      "aliasOf": "--radius-full",
+      "literal": false
+    },
+    "--toast-disabled-opacity": {
+      "name": "--toast-disabled-opacity",
+      "axis": "unclassified",
+      "role": "opacity",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "disabled-opacity",
+      "value": "0.5",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-focus-outline-width": {
+      "name": "--toast-focus-outline-width",
+      "axis": "unclassified",
+      "role": "outline",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "focus-outline-width",
+      "value": "2px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--toast-focus-outline-color": {
+      "name": "--toast-focus-outline-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "focus-outline-color",
+      "value": "var(--brand-component-outline-default)",
+      "aliasOf": "--brand-component-outline-default",
+      "literal": false
+    },
+    "--toast-focus-outline-offset": {
+      "name": "--toast-focus-outline-offset",
+      "axis": "unclassified",
+      "role": "outline",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "focus-outline-offset",
+      "value": "2px",
+      "aliasOf": null,
+      "literal": true
+    }
+  }
+}

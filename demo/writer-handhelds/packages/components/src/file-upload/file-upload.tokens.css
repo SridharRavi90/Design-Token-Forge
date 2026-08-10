@@ -1,0 +1,240 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — File Upload Token Defaults
+   Layer 0: System defaults for ~120 file-upload variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.file-upload {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (16 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode */
+  --file-upload-radius-micro: var(--radius-sm);     /* 4px */
+  --file-upload-radius-tiny: var(--radius-sm);      /* 4px */
+  --file-upload-radius-small: var(--radius-md);     /* 6px */
+  --file-upload-radius-base: var(--radius-DEFAULT); /* 8px */
+  --file-upload-radius-medium: var(--radius-DEFAULT); /* 8px */
+  --file-upload-radius-large: var(--radius-md-lg);  /* 10px */
+  --file-upload-radius-big: var(--radius-md-lg);    /* 10px */
+  --file-upload-radius-huge: var(--radius-lg);      /* 12px */
+  --file-upload-radius-mega: var(--radius-lg);      /* 12px — capped; was 2xl */
+  --file-upload-radius-ultra: var(--radius-xl);     /* 16px — capped; was 3xl */
+
+  /* Border */
+  --file-upload-border-width: 2px;
+  --file-upload-border-style: dashed;
+
+  /* Rounded (pill) boolean — applied via data-rounded */
+  --file-upload-radius-rounded: var(--radius-full);
+
+  /* Shadow */
+  --file-upload-shadow: var(--shadow-none);
+  --file-upload-shadow-hover: var(--shadow-xs);
+  --file-upload-shadow-pressed: var(--shadow-none);
+
+  /* Clip */
+  --file-upload-clip-path: none;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (52 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── Button mode: height per density ──────────────────── */
+  --file-upload-btn-height-micro: var(--spacing-24);
+  --file-upload-btn-height-tiny: var(--spacing-28);
+  --file-upload-btn-height-small: var(--spacing-32);
+  --file-upload-btn-height-base: var(--spacing-36);
+  --file-upload-btn-height-medium: var(--spacing-40);
+  --file-upload-btn-height-large: var(--spacing-44);
+  --file-upload-btn-height-big: var(--spacing-48);
+  --file-upload-btn-height-huge: var(--spacing-56);
+  --file-upload-btn-height-mega: var(--spacing-64);
+  --file-upload-btn-height-ultra: var(--spacing-72);
+
+  /* ── Dropzone mode: min-height per density ────────────── */
+  --file-upload-drop-min-height-micro: var(--spacing-80);
+  --file-upload-drop-min-height-tiny: var(--spacing-96);
+  --file-upload-drop-min-height-small: var(--spacing-112);
+  --file-upload-drop-min-height-base: var(--spacing-120);
+  --file-upload-drop-min-height-medium: var(--spacing-120);
+  --file-upload-drop-min-height-large: var(--spacing-120);
+  --file-upload-drop-min-height-big: var(--spacing-120);
+  --file-upload-drop-min-height-huge: var(--spacing-120);
+  --file-upload-drop-min-height-mega: var(--spacing-120);
+  --file-upload-drop-min-height-ultra: var(--spacing-120);
+
+  /* Horizontal padding per density */
+  --file-upload-padding-x-micro: var(--spacing-8);
+  --file-upload-padding-x-tiny: var(--spacing-10);
+  --file-upload-padding-x-small: var(--spacing-12);
+  --file-upload-padding-x-base: var(--spacing-16);
+  --file-upload-padding-x-medium: var(--spacing-18);
+  --file-upload-padding-x-large: var(--spacing-20);
+  --file-upload-padding-x-big: var(--spacing-24);
+  --file-upload-padding-x-huge: var(--spacing-28);
+  --file-upload-padding-x-mega: var(--spacing-32);
+  --file-upload-padding-x-ultra: var(--spacing-40);
+
+  /* Vertical padding per density */
+  --file-upload-padding-y-micro: var(--spacing-6);
+  --file-upload-padding-y-tiny: var(--spacing-8);
+  --file-upload-padding-y-small: var(--spacing-10);
+  --file-upload-padding-y-base: var(--spacing-16);
+  --file-upload-padding-y-medium: var(--spacing-18);
+  --file-upload-padding-y-large: var(--spacing-20);
+  --file-upload-padding-y-big: var(--spacing-24);
+  --file-upload-padding-y-huge: var(--spacing-28);
+  --file-upload-padding-y-mega: var(--spacing-32);
+  --file-upload-padding-y-ultra: var(--spacing-40);
+
+  /* Gap (between icon / text / CTA) */
+  --file-upload-gap-micro: var(--spacing-4);
+  --file-upload-gap-tiny: var(--spacing-5);
+  --file-upload-gap-small: var(--spacing-6);
+  --file-upload-gap-base: var(--spacing-8);
+  --file-upload-gap-medium: var(--spacing-8);
+  --file-upload-gap-large: var(--spacing-10);
+  --file-upload-gap-big: var(--spacing-12);
+  --file-upload-gap-huge: var(--spacing-14);
+  --file-upload-gap-mega: var(--spacing-16);
+  --file-upload-gap-ultra: var(--spacing-20);
+
+  /* Width */
+  --file-upload-max-width: none;
+  --file-upload-inline-size: 100%;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (30 vars = 2 variants × 13 + 4 shared)
+     Pattern: --file-upload-{variant}-{property}[-{state}]
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── OUTLINE (dashed border, transparent bg — default) ── */
+  --file-upload-outlined-bg: transparent;
+  --file-upload-outlined-bg-hover: var(--surface-base-subtle);
+  --file-upload-outlined-bg-pressed: var(--surface-base-strong);
+  --file-upload-outlined-bg-disabled: transparent;
+  --file-upload-outlined-bg-dragover: var(--brand-container-bg);
+  --file-upload-outlined-fg: var(--surface-base-ct-default);
+  --file-upload-outlined-fg-disabled: var(--surface-base-ct-faint);
+  --file-upload-outlined-border-color: var(--surface-base-cm-outline);
+  --file-upload-outlined-border-color-hover: var(--surface-base-cm-outline-hover);
+  --file-upload-outlined-border-color-dragover: var(--brand-component-outline-default);
+  --file-upload-outlined-border-color-disabled: var(--surface-base-cm-outline);
+  --file-upload-outlined-border-color-invalid: var(--danger-component-outline-default);
+  --file-upload-outlined-opacity-disabled: 0.5;
+
+  /* ── FILLED (tinted bg + border) ────────────────────────── */
+  --file-upload-filled-bg: var(--surface-base-cm-bg);
+  --file-upload-filled-bg-hover: var(--surface-base-cm-bg-hover);
+  --file-upload-filled-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --file-upload-filled-bg-disabled: var(--surface-base-cm-bg);
+  --file-upload-filled-bg-dragover: var(--brand-container-bg);
+  --file-upload-filled-fg: var(--surface-base-ct-default);
+  --file-upload-filled-fg-disabled: var(--surface-base-ct-faint);
+  --file-upload-filled-border-color: var(--surface-base-cm-outline);
+  --file-upload-filled-border-color-hover: var(--surface-base-cm-outline-hover);
+  --file-upload-filled-border-color-dragover: var(--brand-component-outline-default);
+  --file-upload-filled-border-color-disabled: var(--surface-base-cm-outline);
+  --file-upload-filled-border-color-invalid: var(--danger-component-outline-default);
+  --file-upload-filled-opacity-disabled: 0.5;
+
+  /* ── Shared surface tokens ──────────────────────────────── */
+  --file-upload-label-color: var(--surface-base-ct-subtle);
+  --file-upload-label-color-invalid: var(--danger-content-default);
+  --file-upload-label-color-disabled: var(--surface-base-ct-faint);
+  --file-upload-helper-color: var(--surface-base-ct-subtle);
+  --file-upload-helper-color-invalid: var(--danger-content-default);
+  --file-upload-accent-color: var(--brand-content-default);
+  --file-upload-accent-color-hover: var(--brand-content-strong);
+  --file-upload-loader-color: var(--brand-content-default);
+  --file-upload-loader-speed: 1.5s;
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+  --file-upload-font-family: var(--font-family-sans);
+
+  /* Font size per density mode */
+  --file-upload-font-size-micro: var(--font-size-10);
+  --file-upload-font-size-tiny: var(--font-size-11);
+  --file-upload-font-size-small: var(--font-size-12);
+  --file-upload-font-size-base: var(--font-size-13);
+  --file-upload-font-size-medium: var(--font-size-14);
+  --file-upload-font-size-large: var(--font-size-14);
+  --file-upload-font-size-big: var(--font-size-16);
+  --file-upload-font-size-huge: var(--font-size-18);
+  --file-upload-font-size-mega: var(--font-size-20);
+  --file-upload-font-size-ultra: var(--font-size-24);
+
+  --file-upload-font-weight: var(--font-weight-regular);
+  --file-upload-font-weight-cta: var(--font-weight-semibold);
+  --file-upload-line-height: var(--line-height-normal);
+  --file-upload-letter-spacing: var(--letter-spacing-normal);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (16 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Icon size per density mode (upload cloud icon) */
+  --file-upload-icon-size-micro: var(--spacing-14);
+  --file-upload-icon-size-tiny: var(--spacing-16);
+  --file-upload-icon-size-small: var(--spacing-18);
+  --file-upload-icon-size-base: var(--spacing-20);
+  --file-upload-icon-size-medium: var(--spacing-22);
+  --file-upload-icon-size-large: var(--spacing-24);
+  --file-upload-icon-size-big: var(--spacing-28);
+  --file-upload-icon-size-huge: var(--spacing-32);
+  --file-upload-icon-size-mega: var(--spacing-36);
+  --file-upload-icon-size-ultra: var(--spacing-40);
+  --file-upload-icon-color: var(--surface-base-ct-subtle);
+  --file-upload-icon-color-dragover: var(--brand-content-default);
+
+  /* Label slot */
+  --file-upload-label-font-size: var(--font-size-13);
+  --file-upload-label-font-weight: var(--font-weight-medium);
+  --file-upload-label-gap: var(--spacing-6);
+
+  /* Helper slot */
+  --file-upload-helper-font-size: var(--font-size-12);
+  --file-upload-helper-font-weight: var(--font-weight-regular);
+  --file-upload-helper-gap: var(--spacing-4);
+
+  /* File list item */
+  --file-upload-item-height: var(--spacing-36);
+  --file-upload-item-gap: var(--spacing-4);
+  --file-upload-item-radius: var(--radius-sm);
+  --file-upload-item-bg: var(--surface-base-cm-bg);
+  --file-upload-item-bg-hover: var(--surface-base-cm-bg-hover);
+  --file-upload-item-border-color: var(--surface-base-cm-outline);
+  --file-upload-item-icon-size: var(--spacing-16);
+  --file-upload-item-font-size: var(--font-size-12);
+
+  /* Progress indicator */
+  --file-upload-progress-height: var(--spacing-3);
+  --file-upload-progress-radius: var(--radius-full);
+  --file-upload-progress-bg: var(--surface-base-cm-bg);
+  --file-upload-progress-fill: var(--brand-component-bg-default);
+  --file-upload-progress-fill-invalid: var(--danger-component-bg-default);
+  --file-upload-progress-fill-success: var(--success-component-bg-default);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --file-upload-transition-property: border-color, background-color, box-shadow, color, opacity;
+  --file-upload-transition-duration: var(--duration-normal);
+  --file-upload-transition-easing: var(--easing-in-out);
+  --file-upload-animation-enter: file-upload-enter 0.3s var(--easing-in-out);
+  --file-upload-animation-exit: none;
+  --file-upload-animation-loading: file-upload-shimmer 1.5s linear infinite;
+  --file-upload-animation-pulse: file-upload-pulse 1.2s ease-in-out infinite;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+  --file-upload-focus-outline-width: var(--focus-outline-width);
+  --file-upload-focus-outline-color: var(--brand-component-outline-default);
+  --file-upload-focus-outline-offset: var(--focus-outline-offset);
+  --file-upload-min-tap-target: 44px;
+}

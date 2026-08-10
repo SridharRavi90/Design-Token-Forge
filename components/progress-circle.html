@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Progress Circle Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/progress-ring/progress-ring.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/progress-ring/progress-ring.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+  .ring-grid { display:flex; flex-wrap:wrap; gap:24px; align-items:flex-end; }
+  .ring-item { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .ring-item-label { font-size:11px; font-weight:600; opacity:0.6; text-transform:capitalize; }
+  .variant-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+  .variant-card { padding:24px; border-radius:12px; border:1px solid var(--demo-border); background:var(--demo-card-bg); }
+  .variant-card-title { font-weight:600; font-size:13px; margin-bottom:16px; text-transform:capitalize; }
+  .state-grid { display:grid; grid-template-columns:80px repeat(3,1fr); gap:12px; align-items:center; }
+  .state-header { font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.6; text-align:center; padding:8px 4px; }
+  .state-row-label { font-weight:600; font-size:12px; text-transform:capitalize; padding:8px 4px; }
+  .state-cell { padding:8px; display:flex; justify-content:center; }
+  .surface-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-radius:12px; overflow:hidden; }
+  .surface-panel { padding:32px 24px; display:flex; flex-wrap:wrap; gap:24px; justify-content:center; }
+  .surface-panel--base { background:var(--surface-base-bg); }
+  .surface-panel--alt { background:var(--surface-base-subtle); }
+  .surface-panel--deep { background:var(--surface-deep-bg); }
+  .surface-panel-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; opacity:0.5; width:100%; text-align:center; }
+  .anatomy-wrap { display:flex; flex-direction:column; gap:24px; }
+  .anatomy-item { padding:20px; border-radius:12px; border:1px solid var(--demo-border); display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .anatomy-label { font-weight:600; font-size:12px; opacity:0.7; min-width:160px; }
+  .motion-demo { display:flex; flex-direction:column; gap:24px; }
+  .motion-card { padding:24px; border-radius:12px; border:1px solid var(--demo-border); }
+  .motion-card-title { font-weight:600; font-size:13px; margin-bottom:16px; }
+  .hero-preview { flex:1; display:flex; gap:32px; flex-wrap:wrap; justify-content:center; padding:24px; align-items:center; }
+  .slider-row { display:flex; align-items:center; gap:12px; width:100%; }
+  .slider-row label { font-weight:600; font-size:13px; flex-shrink:0; }
+  .slider-row input[type="range"] { flex:1; }
+  .slider-row span { font-weight:600; min-width:36px; text-align:right; }
+  .linecap-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+  .linecap-card { padding:24px; border-radius:12px; border:1px solid var(--demo-border); display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .linecap-card-title { font-weight:600; font-size:12px; opacity:0.7; }
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<!-- ═══════════════════ GLOBAL CONTROLS ═══════════════════ -->
+<nav class="global-controls" aria-label="Global progress circle preview controls">
+
+  <div class="control-group">
+    <label>Role</label>
+    <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-role="brand" type="button">Brand</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-variant="filled" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="soft" type="button">Soft</button>
+    </div>
+  </div>
+
+</nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Linecap &amp; Shape</a>
+  <a href="#sec-slots"><span class="sn-num">7</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">8</span>Motion</a>
+  <a href="#sec-a11y"><span class="sn-num">9</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Progress Circle Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~95 CSS Variables</span>
+    <span class="demo-badge">5 Roles</span>
+    <span class="demo-badge">2 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">SVG-Driven</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects global controls. Drag the slider to adjust progress. Inspector shows resolved computed values.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" style="flex-direction:column;align-items:center;gap:16px">
+          <div class="slider-row">
+            <label for="heroRange">Value:</label>
+            <input type="range" id="heroRange" min="0" max="100" value="60">
+            <span id="heroVal">60%</span>
+          </div>
+          <div id="heroRing" style="display:flex;justify-content:center"></div>
+        </div>
+        <div class="hero-inspector" id="heroInspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Default (muted track), outlined (low-opacity track), and soft (role-tinted track) variants, shown with all six semantic roles.</p>
+    <div class="section-body"><div class="variant-grid" id="variantGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 3. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">10 size modes from 16 px (micro) to 96 px (ultra). Stroke width, font-size, and icon size also scale per density.</p>
+    <div class="section-body"><div class="ring-grid" id="densityGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 4. STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every variant in every state: determinate, indeterminate, and disabled.</p>
+    <div class="section-body"><div class="state-grid" id="stateMatrix"></div></div>
+  </section>
+
+  <!-- ═══════════ 5. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Progress circles on three surface background levels to verify contrast and track visibility.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase">
+          <span class="surface-panel-label">surface-base-bg</span>
+        </div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt">
+          <span class="surface-panel-label">surface-base-subtle</span>
+        </div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep">
+          <span class="surface-panel-label">surface-deep-bg</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. LINECAP & SHAPE ═══════════ -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Linecap &amp; Shape</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Round vs butt stroke linecap. Round gives soft ends; butt gives precise edges.</p>
+    <div class="section-body"><div class="linecap-grid" id="linecapGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 7. SLOTS & ANATOMY ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Sub-elements: SVG track, SVG fill, center label, center icon, and helper text below.</p>
+    <div class="section-body"><div class="anatomy-wrap" id="slotsGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 8. MOTION ═══════════ -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Indeterminate spin, value transitions, and interactive click-to-animate demo.</p>
+    <div class="section-body"><div class="motion-demo" id="motionGallery"></div></div>
+  </section>
+
+  <!-- ═══════════ 9. ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc"><code>role="progressbar"</code> with ARIA value attributes. Forced-colors and reduced-motion supported.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">ARIA Attributes</div>
+          <p class="a11y-card-desc">Determinate: <code>aria-valuenow</code> + <code>aria-valuemin</code> + <code>aria-valuemax</code>. Indeterminate: omit <code>aria-valuenow</code>, add <code>aria-label</code>.</p>
+          <div id="a11yAria" style="margin-top:12px;display:flex;justify-content:center"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>data-disabled</code> reduces opacity to 50% and removes pointer events.</p>
+          <div id="a11yDisabled" style="margin-top:12px;display:flex;justify-content:center"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Reduced Motion</div>
+          <p class="a11y-card-desc">Indeterminate spin and fill transitions stop. Static ring only. <code>prefers-reduced-motion: reduce</code>.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">Track stroke becomes <code>CanvasText</code>. Fill stroke becomes <code>Highlight</code>. SVG structure preserved.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 10. FRAMEWORK ═══════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this SVG component in your framework. The CSS custom property <code>--progress</code> drives the ring fill.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>ProgressRing Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-ring">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false"  data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue"   type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html"  type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css"   type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;div className="progress-ring" data-size={size} data-role={role}
+     data-variant={variant !== 'filled' ? variant : undefined}
+     data-indeterminate={indeterminate || undefined}
+     data-disabled={disabled || undefined}
+     role="progressbar"
+     aria-valuenow={indeterminate ? undefined : value}
+     aria-valuemin={0} aria-valuemax={100}
+     aria-label={indeterminate ? 'Loading…' : undefined}&gt;
+  &lt;svg className="progress-ring__svg" viewBox="0 0 36 36"&gt;
+    &lt;circle className="progress-ring__track" cx="18" cy="18" r="16" /&gt;
+    &lt;circle className="progress-ring__fill" cx="18" cy="18" r="16"
+            style={{ '--progress': value }} /&gt;
+  &lt;/svg&gt;
+  {showLabel &amp;&amp; &lt;span className="progress-ring__label"&gt;{value}%&lt;/span&gt;}
+  {icon &amp;&amp; &lt;span className="progress-ring__icon"&gt;{icon}&lt;/span&gt;}
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;div class="progress-ring" :data-size="size ?? 'base'" :data-role="role ?? 'brand'"
+     :data-variant="variant !== 'filled' ? variant : undefined"
+     :data-indeterminate="indeterminate || undefined"
+     :data-disabled="disabled || undefined"
+     role="progressbar"
+     :aria-valuenow="indeterminate ? undefined : value"
+     :aria-valuemin="0" :aria-valuemax="100"&gt;
+  &lt;svg class="progress-ring__svg" viewBox="0 0 36 36"&gt;
+    &lt;circle class="progress-ring__track" cx="18" cy="18" r="16" /&gt;
+    &lt;circle class="progress-ring__fill" cx="18" cy="18" r="16"
+            :style="{ '--progress': value }" /&gt;
+  &lt;/svg&gt;
+  &lt;span v-if="showLabel" class="progress-ring__label"&gt;{{ value }}%&lt;/span&gt;
+  &lt;span v-if="icon" class="progress-ring__icon"&gt;&lt;slot name="icon" /&gt;&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;!-- Determinate with label --&gt;
+&lt;div class="progress-ring" data-size="large" data-role="brand"
+     role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;svg class="progress-ring__svg" viewBox="0 0 36 36"&gt;
+    &lt;circle class="progress-ring__track" cx="18" cy="18" r="16"/&gt;
+    &lt;circle class="progress-ring__fill" cx="18" cy="18" r="16" style="--progress:60"/&gt;
+  &lt;/svg&gt;
+  &lt;span class="progress-ring__label"&gt;60%&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Indeterminate --&gt;
+&lt;div class="progress-ring" data-size="large" data-indeterminate
+     role="progressbar" aria-label="Loading…"&gt;
+  &lt;svg class="progress-ring__svg" viewBox="0 0 36 36"&gt;
+    &lt;circle class="progress-ring__track" cx="18" cy="18" r="16"/&gt;
+    &lt;circle class="progress-ring__fill" cx="18" cy="18" r="16"/&gt;
+  &lt;/svg&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* ── Shape ── */
+--ring-stroke-linecap                /* round | butt */
+--ring-bg-opacity / -rotation / -direction
+
+/* ── Dimension ── */
+--ring-size-{size}                   /* 16px (micro) → 96px (ultra) */
+--ring-stroke-{size}                 /* 2px → 7px stroke per density */
+--ring-gap-{size}                    /* gap to external label per density */
+
+/* ── Surface ── */
+--ring-track-color
+--ring-{role}-fill                   /* brand | danger | warning | info | success | neutral */
+--ring-{role}-soft-track             /* tinted track for soft variant */
+--ring-indeterminate-fill
+--ring-opacity-disabled
+--ring-label-color / -helper-color
+
+/* ── Typography ── */
+--ring-font-family / -weight / -line-height / -letter-spacing
+--ring-font-size-{size}              /* per-density center label font */
+
+/* ── Slots ── */
+--ring-icon-size-{size}              /* per-density center icon size */
+--ring-icon-color / -helper-font-size
+
+/* ── Motion ── */
+--ring-transition-duration / -easing
+--ring-indeterminate-duration / -easing / -enter-duration
+
+/* ── A11y ── */
+--ring-focus-outline-width / -color / -offset        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfProgressRing } from '@design-token-forge/slyte';
+
+&lt;dtf-progress-ring lt-prop-value="72" lt-prop-color-role="brand" lt-prop-size="base"&gt;&lt;/dtf-progress-ring&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div></div>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var SIZES = ['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var ROLES = ['brand','danger','warning','info','success','neutral'];
+  var VARIANTS = ['filled','outlined','soft'];
+  var STATES = ['Determinate','Indeterminate','Disabled'];
+
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  var curRole = 'brand';
+  var curSize = 'medium';
+  var curVariant = 'filled';
+  var heroVal = 60;
+
+  var RG_TOKENS = {
+    size: {micro:'16px',tiny:'20px',small:'24px',base:'32px',medium:'40px',large:'48px',big:'56px',huge:'64px',mega:'80px',ultra:'96px'},
+    stroke: {micro:'2px',tiny:'2.5px',small:'3px',base:'3.5px',medium:'4px',large:'4.5px',big:'5px',huge:'5.5px',mega:'6px',ultra:'7px'},
+    fs: {micro:'--font-size-10',tiny:'--font-size-10',small:'--font-size-10',base:'--font-size-10',medium:'--font-size-11',large:'--font-size-12',big:'--font-size-14',huge:'--font-size-16',mega:'--font-size-20',ultra:'--font-size-24'},
+    iconSize: {micro:'--spacing-8',tiny:'--spacing-10',small:'--spacing-12',base:'--spacing-14',medium:'--spacing-18',large:'--spacing-20',big:'--spacing-24',huge:'--spacing-28',mega:'--spacing-32',ultra:'--spacing-40'}
+  };
+
+  function clr(id){ var e = document.getElementById(id); if(e) e.innerHTML = ''; return e; }
+  function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  function cel(tag, cls){ var e = document.createElement(tag); if(cls) e.className = cls; return e; }
+
+  function makeRing(opts){
+    opts = opts || {};
+    var el = cel('div','progress-ring');
+    var s = opts.size || curSize;
+    var r = opts.role || curRole;
+    var v = opts.variant || curVariant;
+
+    el.dataset.size = s;
+    el.dataset.role = r;
+    if(v !== 'filled') el.dataset.variant = v;
+    if(opts.indeterminate) el.dataset.indeterminate = '';
+    if(opts.disabled) el.dataset.disabled = '';
+    if(opts.strong) el.dataset.strong = '';
+    if(opts.linecap) el.dataset.linecap = opts.linecap;
+
+    el.setAttribute('role','progressbar');
+    if(!opts.indeterminate){
+      el.setAttribute('aria-valuenow', opts.value != null ? opts.value : 60);
+      el.setAttribute('aria-valuemin','0');
+      el.setAttribute('aria-valuemax','100');
+    } else {
+      el.setAttribute('aria-label','Loading\u2026');
+    }
+
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns,'svg');
+    svg.setAttribute('class','progress-ring__svg');
+    svg.setAttribute('viewBox','0 0 36 36');
+
+    var track = document.createElementNS(ns,'circle');
+    track.setAttribute('class','progress-ring__track');
+    track.setAttribute('cx','18'); track.setAttribute('cy','18'); track.setAttribute('r','16');
+    svg.appendChild(track);
+
+    var fill = document.createElementNS(ns,'circle');
+    fill.setAttribute('class','progress-ring__fill');
+    fill.setAttribute('cx','18'); fill.setAttribute('cy','18'); fill.setAttribute('r','16');
+    if(!opts.indeterminate) fill.style.setProperty('--progress', opts.value != null ? opts.value : 60);
+    svg.appendChild(fill);
+    el.appendChild(svg);
+
+    if(opts.label){
+      var lbl = cel('span','progress-ring__label');
+      lbl.textContent = (opts.value != null ? opts.value : 60) + '%';
+      el.appendChild(lbl);
+    }
+    if(opts.icon){
+      var ico = cel('span','progress-ring__icon');
+      ico.innerHTML = opts.icon;
+      el.appendChild(ico);
+    }
+    return el;
+  }
+
+  function wrapItem(el, label){
+    var d = cel('div','ring-item');
+    d.appendChild(el);
+    if(label){
+      var l = cel('span','ring-item-label');
+      l.textContent = label;
+      d.appendChild(l);
+    }
+    return d;
+  }
+
+  /* 1. Hero */
+  function renderHero(){
+    var el = clr('heroRing');
+    el.appendChild(makeRing({value:heroVal, label:true, size:curSize}));
+    updateInspector();
+  }
+
+  function updateInspector(){
+    var ring = document.querySelector('#heroRing .progress-ring');
+    if(!ring) return;
+    var cs = getComputedStyle(ring);
+    var s = curSize;
+    var tokens = [
+      ['--ring-size-'+s, RG_TOKENS.size[s], cs.width],
+      ['--ring-stroke-'+s, RG_TOKENS.stroke[s], '—'],
+      ['--ring-font-size-'+s, RG_TOKENS.fs[s], cs.fontSize],
+      ['--ring-icon-size-'+s, RG_TOKENS.iconSize[s], cs.getPropertyValue('--_rg-icon').trim()||'—'],
+      ['--ring-'+curRole+'-fill', '—', cs.getPropertyValue('--_rg-fill').trim()||'—'],
+      ['--ring-track-color', '—', cs.getPropertyValue('--_rg-track').trim()||'—'],
+      ['--ring-font-weight', '--font-weight-semibold', cs.fontWeight],
+      ['--ring-transition-duration', '--duration-normal', cs.transitionDuration||'—']
+    ];
+    var ins = document.getElementById('heroInspector');
+    ins.innerHTML = '<div class="inspector-title">Resolved Tokens (' + curRole + ' / ' + s + ' / ' + curVariant + ')</div>' +
+      tokens.map(function(t){
+        return '<div class="inspector-row"><span class="token-name">' + t[0] + '</span><span class="token-val">' + t[2] +
+          (t[1] !== '—' ? '<br><span style="opacity:0.5;font-size:9px">\u2192 ' + t[1] + '</span>' : '') +
+          '</span></div>';
+      }).join('');
+  }
+
+  /* 2. Variants */
+  function renderVariants(){
+    var el = clr('variantGallery');
+    VARIANTS.forEach(function(v){
+      var card = cel('div','variant-card');
+      var title = cel('div','variant-card-title'); title.textContent = cap(v);
+      card.appendChild(title);
+      var grid = cel('div','ring-grid');
+      ROLES.forEach(function(r){
+        grid.appendChild(wrapItem(makeRing({value:65, role:r, variant:v, size:'large', label:true}), cap(r)));
+      });
+      card.appendChild(grid);
+      el.appendChild(card);
+    });
+  }
+
+  /* 3. Density */
+  function renderDensity(){
+    var el = clr('densityGallery');
+    SIZES.forEach(function(s){
+      var showLabel = ['large','big','huge','mega','ultra'].indexOf(s) >= 0;
+      el.appendChild(wrapItem(makeRing({value:60, size:s, label:showLabel}), cap(s)));
+    });
+  }
+
+  /* 4. States */
+  function renderStates(){
+    var el = clr('stateMatrix');
+    el.style.gridTemplateColumns = '80px repeat(' + STATES.length + ',1fr)';
+
+    var corner = cel('div','state-header'); el.appendChild(corner);
+    STATES.forEach(function(s){
+      var h = cel('div','state-header'); h.textContent = s; el.appendChild(h);
+    });
+
+    VARIANTS.forEach(function(v){
+      var rl = cel('div','state-row-label'); rl.textContent = cap(v); el.appendChild(rl);
+
+      var c1 = cel('div','state-cell');
+      c1.appendChild(makeRing({value:65, variant:v, size:'large', label:true}));
+      el.appendChild(c1);
+
+      var c2 = cel('div','state-cell');
+      c2.appendChild(makeRing({variant:v, size:'large', indeterminate:true}));
+      el.appendChild(c2);
+
+      var c3 = cel('div','state-cell');
+      c3.appendChild(makeRing({value:50, variant:v, size:'large', disabled:true, label:true}));
+      el.appendChild(c3);
+    });
+  }
+
+  /* 5. Surface */
+  var SURFACE_TOKENS=['bg','hover','pressed','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+  function applySurface(el,sid){
+    if(sid==='base'){SURFACE_TOKENS.forEach(function(t){el.style.removeProperty('--surface-base-'+t);});el.style.background='var(--surface-base-bg)';el.removeAttribute('data-theme');}
+    else{SURFACE_TOKENS.forEach(function(t){el.style.setProperty('--surface-base-'+t,'var(--surface-'+sid+'-'+t+')');});el.style.background='var(--surface-'+sid+'-bg)';if(sid==='inverse'){el.setAttribute('data-theme','dark');}else{el.removeAttribute('data-theme');}}
+  }
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p = document.getElementById(id);
+      while(p.children.length > 1) p.removeChild(p.lastChild);
+      if(id==='surfaceDeep'){applySurface(p,'deep');}
+      ROLES.forEach(function(r){
+        p.appendChild(makeRing({value:60, role:r, size:'large'}));
+      });
+    });
+  }
+
+  /* 6. Linecap */
+  function renderLinecap(){
+    var el = clr('linecapGallery');
+    [['round','Round (default)'],['butt','Butt (sharp)']].forEach(function(pair){
+      var card = cel('div','linecap-card');
+      var title = cel('div','linecap-card-title'); title.textContent = pair[1];
+      card.appendChild(title);
+      var grid = cel('div','ring-grid'); grid.style.justifyContent = 'center';
+      [30,60,90].forEach(function(v){
+        grid.appendChild(makeRing({value:v, size:'huge', linecap:pair[0], label:true}));
+      });
+      card.appendChild(grid);
+      el.appendChild(card);
+    });
+
+    /* Elevated (shadow) */
+    var ce = cel('div','linecap-card');
+    var te = cel('div','linecap-card-title'); te.textContent = 'Elevated (Shadow)';
+    ce.appendChild(te);
+    var ge = cel('div','ring-grid'); ge.style.justifyContent = 'center';
+    ['filled','outlined','soft'].forEach(function(v){
+      ge.appendChild(makeRing({value:65, size:'huge', variant:v, strong:true, label:true}));
+    });
+    ce.appendChild(ge);
+    el.appendChild(ce);
+  }
+
+  /* 7. Slots */
+  function renderSlots(){
+    var el = clr('slotsGallery');
+
+    var a1 = cel('div','anatomy-item');
+    var l1 = cel('div','anatomy-label'); l1.textContent = 'Ring only (minimal)';
+    a1.appendChild(l1);
+    a1.appendChild(makeRing({value:60, size:'huge'}));
+    el.appendChild(a1);
+
+    var a2 = cel('div','anatomy-item');
+    var l2 = cel('div','anatomy-label'); l2.textContent = 'Ring + Center label';
+    a2.appendChild(l2);
+    a2.appendChild(makeRing({value:75, size:'huge', label:true}));
+    el.appendChild(a2);
+
+    var a3 = cel('div','anatomy-item');
+    var l3 = cel('div','anatomy-label'); l3.textContent = 'Ring + Center icon (complete)';
+    a3.appendChild(l3);
+    a3.appendChild(makeRing({value:100, size:'huge', icon:ICON_CHECK, role:'success'}));
+    el.appendChild(a3);
+
+    var a4 = cel('div','anatomy-item');
+    var l4 = cel('div','anatomy-label'); l4.textContent = 'Ring + Helper text below';
+    a4.appendChild(l4);
+    var wrap = cel('div'); wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px';
+    wrap.appendChild(makeRing({value:45, size:'huge', label:true}));
+    var helper = cel('span','progress-ring__helper');
+    helper.textContent = 'Uploading…';
+    wrap.appendChild(helper);
+    a4.appendChild(wrap);
+    el.appendChild(a4);
+  }
+
+  /* 8. Motion */
+  function renderMotion(){
+    var el = clr('motionGallery');
+
+    var m1 = cel('div','motion-card');
+    var t1 = cel('div','motion-card-title'); t1.textContent = 'Indeterminate Spin';
+    m1.appendChild(t1);
+    var g1 = cel('div','ring-grid');
+    ROLES.forEach(function(r){
+      g1.appendChild(wrapItem(makeRing({role:r, size:'large', indeterminate:true}), cap(r)));
+    });
+    m1.appendChild(g1);
+    el.appendChild(m1);
+
+    var m2 = cel('div','motion-card');
+    var t2 = cel('div','motion-card-title'); t2.textContent = 'Value Transition (click to animate)';
+    m2.appendChild(t2);
+    var tRing = makeRing({value:20, size:'mega', label:true});
+    var tWrap = cel('div'); tWrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:16px';
+    tWrap.appendChild(tRing);
+    var btnRow = cel('div'); btnRow.style.cssText = 'display:flex;gap:8px';
+    [0,25,50,75,100].forEach(function(v){
+      var b = cel('button');
+      b.type = 'button'; b.textContent = v + '%';
+      b.style.cssText = 'padding:4px 12px;border-radius:6px;border:1px solid var(--demo-border);background:var(--demo-card-bg);cursor:pointer;font-size:12px';
+      b.addEventListener('click', function(){
+        tRing.querySelector('.progress-ring__fill').style.setProperty('--progress', v);
+        tRing.setAttribute('aria-valuenow', v);
+        var lbl = tRing.querySelector('.progress-ring__label');
+        if(lbl) lbl.textContent = v + '%';
+      });
+      btnRow.appendChild(b);
+    });
+    tWrap.appendChild(btnRow);
+    m2.appendChild(tWrap);
+    el.appendChild(m2);
+  }
+
+  /* 9. A11y */
+  function renderA11y(){
+    var el1 = document.getElementById('a11yAria');
+    if(el1){ el1.innerHTML = ''; el1.appendChild(makeRing({value:60, size:'large', label:true})); }
+    var el2 = document.getElementById('a11yDisabled');
+    if(el2){ el2.innerHTML = ''; el2.appendChild(makeRing({value:40, size:'large', disabled:true, label:true})); }
+  }
+
+  function applyGlobals(){
+    renderHero();
+    renderVariants();
+    renderDensity();
+    renderStates();
+    renderSurface();
+    renderLinecap();
+    renderSlots();
+    renderMotion();
+    renderA11y();
+  }
+
+  function wirePillBar(id, attr, setter){
+    var bar = document.getElementById(id);
+    if(!bar) return;
+    bar.addEventListener('click', function(e){
+      var pill = e.target.closest('.pill');
+      if(!pill) return;
+      this.querySelectorAll('.pill').forEach(function(p){ p.setAttribute('aria-pressed','false'); });
+      pill.setAttribute('aria-pressed','true');
+      setter(pill.getAttribute('data-ctrl-' + attr));
+      applyGlobals();
+    });
+  }
+
+  wirePillBar('roleBar', 'role', function(v){ curRole = v; });
+  wirePillBar('sizeBar', 'size', function(v){ curSize = v; });
+  wirePillBar('variantBar', 'variant', function(v){ curVariant = v; });
+
+  document.getElementById('heroRange').addEventListener('input', function(){
+    heroVal = +this.value;
+    document.getElementById('heroVal').textContent = heroVal + '%';
+    renderHero();
+  });
+
+  applyGlobals();
+  window.DTF.onThemeChange = applyGlobals;
+})();
+</script>
+</body>
+</html>

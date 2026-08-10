@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Components — Design Token Forge</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+/* ── Hub Layout ───────────────────────────────────── */
+body{min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Hub Links ────────────────────────────────────── */
+.hub-links{
+  max-width:1200px;width:100%;margin:0 auto;padding:20px 40px 0;
+  display:flex;flex-direction:column;gap:20px;
+}
+.hub-row-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--demo-fg-faint);margin-bottom:-14px;
+}
+.hub-row{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;
+}
+.hub-link{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border:1px solid var(--demo-border);border-radius:var(--radius-md,6px);
+  background:var(--demo-surface);text-decoration:none;color:inherit;
+  transition:border-color 150ms,box-shadow 150ms;
+}
+.hub-link:hover{
+  border-color:var(--brand-component-outline-default);
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.hub-link-icon{
+  width:28px;height:28px;border-radius:var(--radius-xs,3px);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--demo-cm-bg);color:var(--demo-fg-faint);font-size:14px;flex-shrink:0;
+}
+.hub-link-text{display:flex;flex-direction:column;gap:0;min-width:0}
+.hub-link-title{font-size:12px;font-weight:700;color:var(--demo-fg-strong)}
+.hub-link-hint{font-size:10px;color:var(--demo-fg-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hub-sep{
+  border:none;border-top:1px solid var(--demo-border);margin:4px 0 0;
+}
+.hub-secondary{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:12px;padding:0 4px;
+}
+.hub-secondary a{
+  color:var(--demo-fg-subtle);text-decoration:none;
+  transition:color 150ms;
+}
+.hub-secondary a:hover{color:var(--brand-component-bg-default);text-decoration:underline}
+.hub-dot{color:var(--demo-fg-faint);font-size:10px}
+
+/* ── Main Grid ────────────────────────────────────── */
+.hub-main{
+  max-width:1200px;width:100%;margin:0 auto;padding:24px 40px 64px;
+  display:flex;flex-direction:column;gap:40px;
+}
+
+/* ── Search / Filter Bar ──────────────────────────── */
+.hub-filter{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.hub-search{
+  flex:1;min-width:200px;padding:8px 12px 8px 36px;
+  border:1px solid var(--demo-border);border-radius:var(--radius-md,6px);
+  background:var(--demo-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l3.5 3.5'/%3E%3C/svg%3E") no-repeat 12px center;
+  font-size:13px;color:var(--demo-fg);font-family:inherit;
+}
+.hub-search:focus{outline:2px solid var(--brand-component-bg-default);outline-offset:-1px;border-color:transparent}
+.hub-search::placeholder{color:var(--demo-fg-faint)}
+.filter-pills{display:flex;gap:4px}
+.filter-pill{
+  padding:5px 12px;border-radius:var(--radius-sm,4px);border:1px solid var(--demo-border);
+  background:var(--demo-surface);color:var(--demo-fg-subtle);font-size:11px;
+  font-weight:600;cursor:pointer;transition:all 150ms;white-space:nowrap;font-family:inherit;
+}
+.filter-pill:hover{border-color:var(--demo-fg-faint);color:var(--demo-fg-strong)}
+.filter-pill.active{
+  background:var(--brand-component-bg-default);color:var(--brand-on-component);
+  border-color:var(--brand-component-bg-default);
+}
+
+/* ── Category ─────────────────────────────────────── */
+.category{display:flex;flex-direction:column;gap:14px}
+.cat-head{display:flex;align-items:baseline;gap:8px}
+.cat-title{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--demo-fg-faint);
+}
+.cat-count{font-size:10px;color:var(--demo-fg-faint);opacity:.6}
+
+/* ── Component Card (redesigned) ──────────────────── */
+.comp-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;
+}
+.comp-card{
+  position:relative;display:grid;grid-template-rows:auto 1fr auto;gap:8px;
+  padding:20px;border-radius:var(--radius-lg,12px);
+  border:1px solid var(--demo-border);background:var(--demo-surface);
+  text-decoration:none;color:inherit;
+  transition:border-color 180ms,box-shadow 180ms,transform 120ms;
+}
+.comp-card:hover{
+  border-color:var(--brand-component-outline-default);
+  box-shadow:0 4px 16px rgba(0,0,0,.06);transform:translateY(-2px);
+}
+.comp-card[data-status="planned"]{opacity:.45;pointer-events:none}
+
+.cc-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cc-name{font-size:15px;font-weight:700;color:var(--demo-fg-strong)}
+.cc-badge{
+  font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+.cc-badge[data-s="done"]{background:var(--success-component-bg-default,#059669);color:var(--success-on-component,#fff)}
+.cc-badge[data-s="planned"]{background:var(--demo-cm-bg);color:var(--demo-fg-faint)}
+
+.cc-desc{font-size:12px;color:var(--demo-fg-subtle);line-height:1.5}
+
+.cc-meta{
+  display:flex;gap:6px;flex-wrap:wrap;padding-top:4px;
+  border-top:1px solid var(--demo-border);margin-top:4px;
+}
+.cc-tag{
+  font-size:10px;font-weight:600;padding:2px 6px;
+  border-radius:var(--radius-xs,2px);background:var(--demo-cm-bg);
+  color:var(--demo-fg-faint);font-family:var(--font-family-mono,monospace);
+}
+
+/* ── No-results state ─────────────────────────────── */
+.no-results{
+  display:none;padding:40px 20px;text-align:center;
+  color:var(--demo-fg-faint);font-size:13px;
+}
+.no-results.visible{display:block}
+
+/* ── Responsive ───────────────────────────────────── */
+@media(max-width:900px){
+  .hub-links,.hub-main{padding-left:20px;padding-right:20px}
+  .hub-row{grid-template-columns:repeat(2,1fr)}
+  .comp-grid{grid-template-columns:1fr}
+}
+@media(max-width:500px){
+  .hub-row{grid-template-columns:1fr}
+  .hub-filter{flex-direction:column}
+  .hub-search{min-width:0}
+}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<!-- Explorer Nav -->
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+
+
+<!-- ── Main ─────────────────────────────────────────── -->
+<main class="hub-main">
+
+  <!-- Filter Bar -->
+  <div class="hub-filter">
+    <input class="hub-search" type="search" placeholder="Search components..." aria-label="Search components">
+    <div class="filter-pills">
+      <button class="filter-pill active" data-filter="all">All</button>
+      <button class="filter-pill" data-filter="done">Done</button>
+      <button class="filter-pill" data-filter="planned">Planned</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs & Controls ────────────────────────────── -->
+  <section class="category" data-cat="inputs">
+    <div class="cat-head"><h2 class="cat-title">Inputs &amp; Controls</h2><span class="cat-count"></span></div>
+    <div class="comp-grid">
+      <a class="comp-card" data-status="done" href="button.html">
+        <div class="cc-top"><span class="cc-name">Button</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">10 variants, 10 density modes, shimmer loading, rounded pill mode.</p>
+        <div class="cc-meta"><span class="cc-tag">--btn-*</span><span class="cc-tag">246 vars</span><span class="cc-tag">7 axes</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="icon-button.html">
+        <div class="cc-top"><span class="cc-name">IconButton</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Square/circle shape. Primary, secondary, ghost, danger, neutral, outline.</p>
+        <div class="cc-meta"><span class="cc-tag">--icon-btn-*</span><span class="cc-tag">120 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="split-button.html">
+        <div class="cc-top"><span class="cc-name">SplitButton</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Action + dropdown trigger with divider. 4 variants, 10 sizes.</p>
+        <div class="cc-meta"><span class="cc-tag">--split-btn-*</span><span class="cc-tag">154 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="menu-button.html">
+        <div class="cc-top"><span class="cc-name">MenuButton</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Icon+chevron, text+chevron layouts. Primary, secondary, ghost, neutral.</p>
+        <div class="cc-meta"><span class="cc-tag">--menu-btn-*</span><span class="cc-tag">139 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="toggle.html">
+        <div class="cc-top"><span class="cc-name">Toggle / Switch</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Track + thumb shape variation. Pill, rounded, square track shapes.</p>
+        <div class="cc-meta"><span class="cc-tag">--switch-*</span><span class="cc-tag">93 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="checkbox.html">
+        <div class="cc-top"><span class="cc-name">Checkbox</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Square vs rounded vs circle — fully variable-driven.</p>
+        <div class="cc-meta"><span class="cc-tag">--checkbox-*</span><span class="cc-tag">74 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="radio.html">
+        <div class="cc-top"><span class="cc-name">Radio</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Circular dot indicator, scales per density. Group support built-in.</p>
+        <div class="cc-meta"><span class="cc-tag">--radio-*</span><span class="cc-tag">73 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="input.html">
+        <div class="cc-top"><span class="cc-name">Input / TextField</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Outline, filled, underline. Label, helper text, prefix/suffix slots.</p>
+        <div class="cc-meta"><span class="cc-tag">--input-*</span><span class="cc-tag">172 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="textarea.html">
+        <div class="cc-top"><span class="cc-name">Textarea</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Resize handle, min/max rows, auto and fixed height modes.</p>
+        <div class="cc-meta"><span class="cc-tag">--textarea-*</span><span class="cc-tag">114 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="select.html">
+        <div class="cc-top"><span class="cc-name">Select</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Native select with custom chevron, outline and filled variants.</p>
+        <div class="cc-meta"><span class="cc-tag">--select-*</span><span class="cc-tag">120 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="slider.html">
+        <div class="cc-top"><span class="cc-name">Slider</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Track + fill + thumb. Tooltip, ticks, range mode.</p>
+        <div class="cc-meta"><span class="cc-tag">--slider-*</span><span class="cc-tag">120 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="datepicker.html">
+        <div class="cc-top"><span class="cc-name">DatePicker</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Calendar grid + day cell states. Range, footer, today dot.</p>
+        <div class="cc-meta"><span class="cc-tag">--datepicker-*</span><span class="cc-tag">~190 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="file-upload.html">
+        <div class="cc-top"><span class="cc-name">FileUpload</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Button mode and dropzone mode. Border pattern, icon, progress.</p>
+        <div class="cc-meta"><span class="cc-tag">--file-upload-*</span><span class="cc-tag">~120 vars</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Display & Feedback ───────────────────────────── -->
+  <section class="category" data-cat="display">
+    <div class="cat-head"><h2 class="cat-title">Display &amp; Feedback</h2><span class="cat-count"></span></div>
+    <div class="comp-grid">
+      <a class="comp-card" data-status="done" href="avatar.html">
+        <div class="cc-top"><span class="cc-name">Avatar</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Circle, squircle, rounded-square. Image, initials, icon fallback.</p>
+        <div class="cc-meta"><span class="cc-tag">--avatar-*</span><span class="cc-tag">~80 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="badge.html">
+        <div class="cc-top"><span class="cc-name">Badge / Tag</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Pill, rounded, square. Filled, outline, soft, dot variants.</p>
+        <div class="cc-meta"><span class="cc-tag">--badge-*</span><span class="cc-tag">~90 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="tooltip.html">
+        <div class="cc-top"><span class="cc-name">Tooltip</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Arrow shape, placement, default and error variants.</p>
+        <div class="cc-meta"><span class="cc-tag">--tooltip-*</span><span class="cc-tag">~60 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="alert.html">
+        <div class="cc-top"><span class="cc-name">Alert</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Left-border accent. Info, success, warning, danger roles.</p>
+        <div class="cc-meta"><span class="cc-tag">--alert-*</span><span class="cc-tag">~80 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="toast.html">
+        <div class="cc-top"><span class="cc-name">Toast</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Position, entrance animation, auto-dismiss. 4 semantic variants.</p>
+        <div class="cc-meta"><span class="cc-tag">--toast-*</span><span class="cc-tag">~90 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="progress-bar.html">
+        <div class="cc-top"><span class="cc-name">Progress Bar</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Track + fill radius matching. Indeterminate animation mode.</p>
+        <div class="cc-meta"><span class="cc-tag">--progress-*</span><span class="cc-tag">~60 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="progress-circle.html">
+        <div class="cc-top"><span class="cc-name">Progress Circle</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Stroke width, cap style, variable-driven SVG ring.</p>
+        <div class="cc-meta"><span class="cc-tag">--progress-ring-*</span><span class="cc-tag">~50 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="spinner.html">
+        <div class="cc-top"><span class="cc-name">Spinner</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Ring + dots variants. Speed, stroke width, color via variables.</p>
+        <div class="cc-meta"><span class="cc-tag">--spin-*</span><span class="cc-tag">~85 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="skeleton.html">
+        <div class="cc-top"><span class="cc-name">Skeleton</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Text, rect, circle placeholders. Shimmer wave or pulse animation.</p>
+        <div class="cc-meta"><span class="cc-tag">--skel-*</span><span class="cc-tag">~45 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="kbd.html">
+        <div class="cc-top"><span class="cc-name">KBD</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Key cap shape with bevel shadow. 3 variants, mono font, combo separator.</p>
+        <div class="cc-meta"><span class="cc-tag">--kbd-*</span><span class="cc-tag">~75 vars</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Layout & Structure ───────────────────────────── -->
+  <section class="category" data-cat="layout">
+    <div class="cat-head"><h2 class="cat-title">Layout &amp; Structure</h2><span class="cat-count"></span></div>
+    <div class="comp-grid">
+      <a class="comp-card" data-status="done" href="card.html">
+        <div class="cc-top"><span class="cc-name">Card</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Shadow + radius = brand signature. Raised, outlined, flat, ghost.</p>
+        <div class="cc-meta"><span class="cc-tag">--card-*</span><span class="cc-tag">~75 vars</span></div>
+      </a>
+      <a class="comp-card" data-status="done" href="divider.html">
+        <div class="cc-top"><span class="cc-name">Divider</span><span class="cc-badge" data-s="done">Done</span></div>
+        <p class="cc-desc">Orientation, label slot, solid/dashed/dotted/double variants.</p>
+        <div class="cc-meta"><span class="cc-tag">--div-*</span><span class="cc-tag">~30 vars</span></div>
+      </a>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Accordion</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Expand icon, border pattern. Default, bordered, separated.</p>
+        <div class="cc-meta"><span class="cc-tag">--accordion-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Tabs</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Active indicator shape/position. Underline, boxed, pills.</p>
+        <div class="cc-meta"><span class="cc-tag">--tabs-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Table</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Header, row, cell density. Default, striped, bordered.</p>
+        <div class="cc-meta"><span class="cc-tag">--table-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">List / ListItem</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Interactive vs static, indent levels, divider control.</p>
+        <div class="cc-meta"><span class="cc-tag">--list-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Pagination</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Active page shape, prev/next slots, compact mode.</p>
+        <div class="cc-meta"><span class="cc-tag">--pagination-*</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Navigation ───────────────────────────────────── -->
+  <section class="category" data-cat="nav">
+    <div class="cat-head"><h2 class="cat-title">Navigation</h2><span class="cat-count"></span></div>
+    <div class="comp-grid">
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Link</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Underline style, hover effect. Default and muted variants.</p>
+        <div class="cc-meta"><span class="cc-tag">--link-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Breadcrumb</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Separator character/icon slot, truncation, active item styling.</p>
+        <div class="cc-meta"><span class="cc-tag">--breadcrumb-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Menu / Dropdown</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Item hover shape, dividers, nested submenus, icon/shortcut slots.</p>
+        <div class="cc-meta"><span class="cc-tag">--menu-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Navbar</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Height, shadow, blur backdrop. Logo, nav items, action slots.</p>
+        <div class="cc-meta"><span class="cc-tag">--navbar-*</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Overlay ──────────────────────────────────────── -->
+  <section class="category" data-cat="overlay">
+    <div class="cat-head"><h2 class="cat-title">Overlay</h2><span class="cat-count"></span></div>
+    <div class="comp-grid">
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Modal / Dialog</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Backdrop, radius, shadow. Size-driven width constraints.</p>
+        <div class="cc-meta"><span class="cc-tag">--modal-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Drawer</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Position (left/right/top/bottom), slide animation, backdrop control.</p>
+        <div class="cc-meta"><span class="cc-tag">--drawer-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Popover</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Arrow, shadow, placement. Trigger-aware positioning.</p>
+        <div class="cc-meta"><span class="cc-tag">--popover-*</span></div>
+      </div>
+      <div class="comp-card" data-status="planned">
+        <div class="cc-top"><span class="cc-name">Sheet</span><span class="cc-badge" data-s="planned">Planned</span></div>
+        <p class="cc-desc">Handle bar, snap points. Bottom and side variants.</p>
+        <div class="cc-meta"><span class="cc-tag">--sheet-*</span></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="no-results">No components match your search.</p>
+
+</main>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+/* ── Search & Filter ────────────────────────────────── */
+(function(){
+  const search = document.querySelector('.hub-search');
+  const pills  = document.querySelectorAll('.filter-pill');
+  const cats   = document.querySelectorAll('.category');
+  const cards  = document.querySelectorAll('.comp-card');
+  const noRes  = document.querySelector('.no-results');
+  let activeFilter = 'all';
+
+  function run(){
+    const q = (search.value||'').trim().toLowerCase();
+    let totalVisible = 0;
+
+    cats.forEach(cat => {
+      const grid = cat.querySelector('.comp-grid');
+      let catVisible = 0;
+
+      grid.querySelectorAll('.comp-card').forEach(c => {
+        const name = (c.querySelector('.cc-name')?.textContent||'').toLowerCase();
+        const desc = (c.querySelector('.cc-desc')?.textContent||'').toLowerCase();
+        const tags = (c.querySelector('.cc-meta')?.textContent||'').toLowerCase();
+        const status = c.dataset.status||'';
+
+        const matchQ = !q || name.includes(q) || desc.includes(q) || tags.includes(q);
+        const matchF = activeFilter==='all' || status===activeFilter;
+        const show = matchQ && matchF;
+
+        c.style.display = show ? '' : 'none';
+        if(show) catVisible++;
+      });
+
+      cat.style.display = catVisible ? '' : 'none';
+      const cnt = cat.querySelector('.cat-count');
+      if(cnt) cnt.textContent = catVisible + ' component' + (catVisible===1?'':'s');
+      totalVisible += catVisible;
+    });
+
+    noRes.classList.toggle('visible', totalVisible===0);
+  }
+
+  search.addEventListener('input', run);
+  pills.forEach(p => p.addEventListener('click', () => {
+    pills.forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    activeFilter = p.dataset.filter;
+    run();
+  }));
+
+  run();
+})();
+</script>
+</body>
+</html>

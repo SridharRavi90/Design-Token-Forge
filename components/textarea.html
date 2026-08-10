@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Textarea Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/textarea/textarea.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/textarea/textarea.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+.preview-grid{gap:24px;align-items:flex-start;background:var(--demo-surface)}
+.hero{min-height:220px}
+.pg-card-body{gap:20px}
+.pg-variant-row{flex-direction:column;gap:2px}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<!-- Explorer Nav -->
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-height"><span class="sn-num">4</span>Height Modes</a>
+  <a href="#sec-states"><span class="sn-num">5</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">6</span>Surface Context</a>
+  <a href="#sec-slots"><span class="sn-num">7</span>Slots &amp; Anatomy</a>
+  <a href="#sec-resize"><span class="sn-num">8</span>Resize Modes</a>
+  <a href="#sec-a11y"><span class="sn-num">9</span>Accessibility</a>
+  <a href="#sec-playground"><span class="sn-num">10</span>Context Playground</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<!-- Header -->
+<header class="demo-header">
+  <h1>Textarea Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">114 CSS Variables</span>
+    <span class="demo-badge">2 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">2 Height Modes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<!-- Global Controls -->
+<nav class="global-controls" aria-label="Global textarea preview controls">
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="underline" type="button">Underline</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Height</label>
+    <div class="pill-bar" id="heightBar" role="radiogroup" aria-label="Height mode selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-height="auto" type="button">Auto</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-height="fixed" type="button">Fixed</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header">
+      <h2>Hero Inspector</h2>
+      <span class="section-tag">Interactive</span>
+    </div>
+    <p class="section-desc">Live textarea with inspector showing resolved token values. Try typing, focusing, and hovering.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview">
+          <div class="textarea-group" id="heroTextarea" data-variant="outlined" data-size="base" style="max-width:400px;width:100%">
+            <label class="textarea__label" for="heroField">Description</label>
+            <div class="textarea-field">
+              <textarea id="heroField" placeholder="Tell us about your project…" rows="4"></textarea>
+            </div>
+            <span class="textarea__helper">Up to 500 characters</span>
+          </div>
+        </div>
+        <div class="hero-inspector" id="inspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header">
+      <h2>Variant Gallery</h2>
+      <span class="section-tag">3 Variants</span>
+    </div>
+    <p class="section-desc">Outline (default, transparent bg), Filled (solid bg + border), and Underline (bottom-border only, no background) — each with distinct surface treatment.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <div class="preview-col">
+          <span class="col-label">Outlined</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:300px">
+            <label class="textarea__label">Notes</label>
+            <div class="textarea-field">
+              <textarea placeholder="Enter your notes…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Filled</span>
+          <div class="textarea-group" data-variant="filled" data-size="base" style="width:300px">
+            <label class="textarea__label">Notes</label>
+            <div class="textarea-field">
+              <textarea placeholder="Enter your notes…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Underline</span>
+          <div class="textarea-group" data-variant="underline" data-size="base" style="width:300px">
+            <label class="textarea__label">Notes</label>
+            <div class="textarea-field">
+              <textarea placeholder="Enter your notes…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 3. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header">
+      <h2>Density Scale</h2>
+      <span class="section-tag">10 Sizes</span>
+    </div>
+    <p class="section-desc">From micro to ultra. Padding, font-size, and border-radius all scale per density.</p>
+    <div class="section-body" id="densitySection">
+      <div class="preview-grid" style="flex-direction:column;gap:16px">
+        <div class="textarea-group" data-variant="outlined" data-size="micro" style="max-width:280px"><div class="textarea-field"><textarea placeholder="micro" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="tiny" style="max-width:300px"><div class="textarea-field"><textarea placeholder="tiny" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="small" style="max-width:320px"><div class="textarea-field"><textarea placeholder="small" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="base" style="max-width:360px"><div class="textarea-field"><textarea placeholder="base — default" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="medium" style="max-width:380px"><div class="textarea-field"><textarea placeholder="medium" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="large" style="max-width:400px"><div class="textarea-field"><textarea placeholder="large" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="big" style="max-width:440px"><div class="textarea-field"><textarea placeholder="big" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="huge" style="max-width:480px"><div class="textarea-field"><textarea placeholder="huge" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="mega" style="max-width:520px"><div class="textarea-field"><textarea placeholder="mega" rows="2"></textarea></div></div>
+        <div class="textarea-group" data-variant="outlined" data-size="ultra" style="max-width:580px"><div class="textarea-field"><textarea placeholder="ultra" rows="2"></textarea></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 4. HEIGHT MODES ═══════════ -->
+  <section class="section" id="sec-height">
+    <div class="section-header">
+      <h2>Height Modes</h2>
+      <span class="section-tag">Auto vs Fixed</span>
+    </div>
+    <p class="section-desc"><strong>Auto</strong> (default): textarea grows with content, text aligns top, rows attribute sets the initial height. <strong>Fixed</strong> (<code>data-height="fixed"</code>): textarea height is locked to the size-scale spacing token (same as button heights), text is vertically centered and truncates with ellipsis on overflow.</p>
+    <div class="section-body">
+      <div style="display:flex;flex-direction:column;gap:0">
+        <!-- Auto row -->
+        <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)">
+          <div class="sub-label" style="width:100%;padding:0 0 8px">Auto height (default) — grows with content</div>
+          <div class="textarea-group" data-variant="outlined" data-size="small" style="width:200px">
+            <label class="textarea__label">Small</label>
+            <div class="textarea-field"><textarea placeholder="Type to grow…" rows="2"></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:240px">
+            <label class="textarea__label">Base</label>
+            <div class="textarea-field"><textarea placeholder="Type to grow…" rows="3"></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="large" style="width:280px">
+            <label class="textarea__label">Large</label>
+            <div class="textarea-field"><textarea placeholder="Type to grow…" rows="3"></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="huge" style="width:320px">
+            <label class="textarea__label">Huge</label>
+            <div class="textarea-field"><textarea placeholder="Type to grow…" rows="4"></textarea></div>
+          </div>
+        </div>
+        <!-- Fixed row -->
+        <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)">
+          <div class="sub-label" style="width:100%;padding:0 0 8px">Fixed height — locked to size token, text truncates on overflow</div>
+          <div class="textarea-group" data-variant="outlined" data-size="small" data-height="fixed" style="width:200px">
+            <label class="textarea__label">Small — 32px</label>
+            <div class="textarea-field"><textarea placeholder="Fixed height…">This textarea has a fixed height. When content exceeds the available space it will be truncated.</textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="base" data-height="fixed" style="width:240px">
+            <label class="textarea__label">Base — 36px</label>
+            <div class="textarea-field"><textarea placeholder="Fixed height…">This textarea has a fixed height. When content exceeds the available space it will be truncated.</textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="large" data-height="fixed" style="width:280px">
+            <label class="textarea__label">Large — 44px</label>
+            <div class="textarea-field"><textarea placeholder="Fixed height…">This textarea has a fixed height. When content exceeds the available space it will be truncated.</textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="huge" data-height="fixed" style="width:320px">
+            <label class="textarea__label">Huge — 56px</label>
+            <div class="textarea-field"><textarea placeholder="Fixed height…">This textarea has a fixed height. When content exceeds the available space it will be truncated.</textarea></div>
+          </div>
+        </div>
+        <!-- Fixed + Filled row -->
+        <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)">
+          <div class="sub-label" style="width:100%;padding:0 0 8px">Fixed height + Filled variant</div>
+          <div class="textarea-group" data-variant="filled" data-size="small" data-height="fixed" style="width:200px">
+            <label class="textarea__label">Small</label>
+            <div class="textarea-field"><textarea placeholder="Fixed + filled…"></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="filled" data-size="base" data-height="fixed" style="width:240px">
+            <label class="textarea__label">Base</label>
+            <div class="textarea-field"><textarea placeholder="Fixed + filled…"></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="filled" data-size="large" data-height="fixed" style="width:280px">
+            <label class="textarea__label">Large</label>
+            <div class="textarea-field"><textarea placeholder="Fixed + filled…"></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="filled" data-size="huge" data-height="fixed" style="width:320px">
+            <label class="textarea__label">Huge</label>
+            <div class="textarea-field"><textarea placeholder="Fixed + filled…"></textarea></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 5. STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header">
+      <h2>State Matrix</h2>
+      <span class="section-tag">5 States × 2 Variants</span>
+    </div>
+    <p class="section-desc">Default, hover (try it), focus (click in), disabled, error, and readonly — across both variants.</p>
+    <div class="section-body">
+      <div style="display:flex;flex-direction:column;gap:0">
+
+        <!-- Outlined variant -->
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)">
+          <div class="sub-label" style="width:100%;padding:0 0 8px">Outlined variant</div>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:220px">
+            <div class="textarea-field"><textarea placeholder="Default" rows="2"></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:220px">
+            <div class="textarea-field"><textarea rows="2">With value</textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="base" data-disabled style="width:220px">
+            <div class="textarea-field"><textarea placeholder="Disabled" rows="2" disabled></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="base" aria-invalid="true" style="width:220px">
+            <label class="textarea__label">Feedback</label>
+            <div class="textarea-field"><textarea rows="2">Invalid content</textarea></div>
+            <span class="textarea__helper">This field has an error</span>
+          </div>
+          <div class="textarea-group" data-variant="outlined" data-size="base" data-readonly style="width:220px">
+            <div class="textarea-field"><textarea rows="2" readonly>Read only content</textarea></div>
+          </div>
+        </div>
+
+        <!-- Filled variant -->
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)">
+          <div class="sub-label" style="width:100%;padding:0 0 8px">Filled variant</div>
+          <div class="textarea-group" data-variant="filled" data-size="base" style="width:220px">
+            <div class="textarea-field"><textarea placeholder="Default" rows="2"></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="filled" data-size="base" style="width:220px">
+            <div class="textarea-field"><textarea rows="2">With value</textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="filled" data-size="base" data-disabled style="width:220px">
+            <div class="textarea-field"><textarea placeholder="Disabled" rows="2" disabled></textarea></div>
+          </div>
+          <div class="textarea-group" data-variant="filled" data-size="base" aria-invalid="true" style="width:220px">
+            <label class="textarea__label">Feedback</label>
+            <div class="textarea-field"><textarea rows="2">Invalid content</textarea></div>
+            <span class="textarea__helper">This field has an error</span>
+          </div>
+          <div class="textarea-group" data-variant="filled" data-size="base" data-readonly style="width:220px">
+            <div class="textarea-field"><textarea rows="2" readonly>Read only content</textarea></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Textareas on base, subtle, and deep backgrounds to verify contrast and border visibility.</p>
+    <div class="section-body">
+      <div class="surface-strip" id="surfaceStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. SLOT COMBINATIONS ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header">
+      <h2>Slots &amp; Anatomy</h2>
+      <span class="section-tag">Label + Helper</span>
+    </div>
+    <p class="section-desc">Label text, helper text, character counter, and various combinations.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <!-- Plain -->
+        <div class="preview-col">
+          <span class="col-label">Plain</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:280px">
+            <div class="textarea-field">
+              <textarea placeholder="No label, no helper…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <!-- Label only -->
+        <div class="preview-col">
+          <span class="col-label">Label Only</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:280px">
+            <label class="textarea__label">Description</label>
+            <div class="textarea-field">
+              <textarea placeholder="Write a description…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <!-- Label + Helper -->
+        <div class="preview-col">
+          <span class="col-label">Label + Helper</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:280px">
+            <label class="textarea__label">Bio</label>
+            <div class="textarea-field">
+              <textarea placeholder="Tell us about yourself…" rows="3"></textarea>
+            </div>
+            <span class="textarea__helper">Max 200 characters</span>
+          </div>
+        </div>
+        <!-- Error with slots -->
+        <div class="preview-col">
+          <span class="col-label">Error + Helper</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" aria-invalid="true" style="width:280px">
+            <label class="textarea__label">Comment</label>
+            <div class="textarea-field">
+              <textarea rows="3">x</textarea>
+            </div>
+            <span class="textarea__helper">Must be at least 10 characters</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. RESIZE MODES ═══════════ -->
+  <section class="section" id="sec-resize">
+    <div class="section-header">
+      <h2>Resize Modes</h2>
+      <span class="section-tag">3 Modes</span>
+    </div>
+    <p class="section-desc">The <code>--textarea-resize</code> token controls resize handles. Drag the bottom-right corner.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <div class="preview-col">
+          <span class="col-label">Vertical (default)</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:280px;--textarea-resize:vertical">
+            <div class="textarea-field">
+              <textarea placeholder="Vertical resize only…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Both</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:280px;--textarea-resize:both">
+            <div class="textarea-field">
+              <textarea placeholder="Resize in both directions…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">None</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:280px;--textarea-resize:none">
+            <div class="textarea-field">
+              <textarea placeholder="Cannot be resized…" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 8. ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header">
+      <h2>Accessibility</h2>
+      <span class="section-tag">A11y</span>
+    </div>
+    <p class="section-desc">Focus outline, min tap target (44px), label association, error announcement, forced-colors support.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <div class="preview-col">
+          <span class="col-label">Focus Ring</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" style="width:260px">
+            <label class="textarea__label" for="a11yFocus">Tab here</label>
+            <div class="textarea-field">
+              <textarea id="a11yFocus" placeholder="Focus to see ring" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Error + Helper</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" aria-invalid="true" style="width:260px">
+            <label class="textarea__label" for="a11yError">Required Field</label>
+            <div class="textarea-field">
+              <textarea id="a11yError" aria-invalid="true" aria-describedby="a11yErrorHelper" rows="2"></textarea>
+            </div>
+            <span class="textarea__helper" id="a11yErrorHelper" role="alert">This field is required</span>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Disabled</span>
+          <div class="textarea-group" data-variant="outlined" data-size="base" data-disabled style="width:260px">
+            <label class="textarea__label">Locked</label>
+            <div class="textarea-field">
+              <textarea disabled rows="2">Cannot edit this</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 9. CONTEXT PLAYGROUND ═══════════ -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how textareas adapt across surface contexts and semantic color roles. Click into any textarea or switch roles to see the ring, caret, and label change color.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <!-- Card A -->
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="warning">Warning</option><option value="info">Info</option><option value="success">Success</option><option value="neutral">Neutral</option></select><span class="pg-role-swatch" id="pgSwatchA"></span></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA">
+            <div class="pg-role-bar" id="pgRoleBarA"></div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Outlined</span>
+              <div class="textarea-group pg-textarea" data-variant="outlined" data-size="base" style="width:100%">
+                <label class="textarea__label">Project Description</label>
+                <div class="textarea-field">
+                  <textarea placeholder="Describe your project…" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Filled</span>
+              <div class="textarea-group pg-textarea" data-variant="filled" data-size="base" style="width:100%">
+                <label class="textarea__label">Additional Notes</label>
+                <div class="textarea-field">
+                  <textarea placeholder="Any extra details…" rows="3" >Meeting notes from Tuesday session</textarea>
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Invalid</span>
+              <div class="textarea-group pg-textarea" data-variant="outlined" data-size="base" aria-invalid="true" style="width:100%">
+                <label class="textarea__label">Feedback</label>
+                <div class="textarea-field">
+                  <textarea rows="2">x</textarea>
+                </div>
+                <span class="textarea__helper">Must be at least 10 characters</span>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Disabled</span>
+              <div class="textarea-group pg-textarea" data-variant="filled" data-size="base" data-disabled style="width:100%">
+                <label class="textarea__label">System Log</label>
+                <div class="textarea-field">
+                  <textarea disabled rows="2">Automated system output — read only</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Card B -->
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="warning">Warning</option><option value="info">Info</option><option value="success">Success</option><option value="brand">Brand</option><option value="neutral">Neutral</option></select><span class="pg-role-swatch" id="pgSwatchB"></span></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB">
+            <div class="pg-role-bar" id="pgRoleBarB"></div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Outlined</span>
+              <div class="textarea-group pg-textarea" data-variant="outlined" data-size="base" style="width:100%">
+                <label class="textarea__label">Reason for Deletion</label>
+                <div class="textarea-field">
+                  <textarea placeholder="Explain why you want to delete this…" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Filled</span>
+              <div class="textarea-group pg-textarea" data-variant="filled" data-size="base" style="width:100%">
+                <label class="textarea__label">Cancellation Comment</label>
+                <div class="textarea-field">
+                  <textarea placeholder="Why are you leaving?" rows="3">Moving to a competitor product</textarea>
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Invalid</span>
+              <div class="textarea-group pg-textarea" data-variant="outlined" data-size="base" aria-invalid="true" style="width:100%">
+                <label class="textarea__label">Confirmation</label>
+                <div class="textarea-field">
+                  <textarea rows="2">N/A</textarea>
+                </div>
+                <span class="textarea__helper">Please provide a detailed response</span>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Disabled</span>
+              <div class="textarea-group pg-textarea" data-variant="filled" data-size="base" data-disabled style="width:100%">
+                <label class="textarea__label">Account History</label>
+                <div class="textarea-field">
+                  <textarea disabled rows="2">ACC-0042 — Created 2024-01-15</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Textarea Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-ta">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;div
+  className="textarea-group"
+  data-variant={variant}   {/* outline | filled */}
+  data-size={size}
+  data-height={height}     {/* auto | fixed */}
+  aria-invalid={error || undefined}
+  data-disabled={disabled || undefined}
+  data-readonly={readOnly || undefined}
+&gt;
+  {label &amp;&amp; &lt;label className="textarea__label"&gt;{label}&lt;/label&gt;}
+  &lt;div className="textarea-field"&gt;
+    &lt;textarea value={value} onChange={onChange} rows={rows} /&gt;
+  &lt;/div&gt;
+  {helper &amp;&amp; &lt;span className="textarea__helper"&gt;{helper}&lt;/span&gt;}
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;div class="textarea-group"
+  :data-variant="variant ?? 'outlined'"
+  :data-size="size ?? 'base'"
+  :data-height="height ?? 'auto'"
+  :aria-invalid="error || undefined"
+  :data-disabled="disabled || undefined"
+  :data-readonly="readonly || undefined"&gt;
+  &lt;label v-if="label" class="textarea__label"&gt;{{ label }}&lt;/label&gt;
+  &lt;div class="textarea-field"&gt;
+    &lt;textarea :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" :rows="rows" /&gt;
+  &lt;/div&gt;
+  &lt;span v-if="helper" class="textarea__helper"&gt;{{ helper }}&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;div class="textarea-group" data-variant="outlined" data-size="base" data-height="auto"&gt;
+  &lt;label class="textarea__label"&gt;Message&lt;/label&gt;
+  &lt;div class="textarea-field"&gt;
+    &lt;textarea rows="4" placeholder="Type your message…"&gt;&lt;/textarea&gt;
+  &lt;/div&gt;
+  &lt;span class="textarea__helper"&gt;Max 500 characters&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--textarea-radius-{size}
+--textarea-shadow / -focus
+--textarea-border-style / -width
+
+/* Dimension */
+--textarea-height-{size}      /* fixed-mode height */
+--textarea-min-rows / --textarea-max-rows  /* auto-mode rows */
+--textarea-padding-x-{size} / --textarea-padding-y-{size}
+--textarea-inline-size
+--textarea-min-width / --textarea-max-width
+
+/* Surface */
+--textarea-{variant}-bg / -hover / -focus / -disabled
+--textarea-{variant}-fg / -placeholder / -disabled
+--textarea-{variant}-border-color / -hover / -focus
+--textarea-invalid-border-color / -fg
+
+/* Typography */
+--textarea-font-family / -weight
+--textarea-font-size-{size}
+--textarea-line-height
+
+/* Motion */
+--textarea-transition-duration / -easing / -property
+
+/* A11y */
+--textarea-ring-width / -offset / -color
+--textarea-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfTextarea } from '@design-token-forge/slyte';
+
+&lt;dtf-textarea
+  lt-prop-label="Description"
+  lt-prop-placeholder="Enter description..."
+  lt-prop-size="base"
+  lt-prop-variant="outlined"&gt;
+&lt;/dtf-textarea&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script src="shared-page.js"></script>
+<script>
+/* ── Global Controls ───────────────────────────────── */
+var currentVariant = 'outlined';
+var currentSize = 'base';
+var currentHeight = 'auto';
+var P = window.DTFPage;
+
+function renderSurface() {
+  P.renderSurfacePanels('surfaceStrip', function(panel) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-direction:column;gap:12px;margin-top:12px';
+    ['outlined','filled','underline'].forEach(function(v) {
+      var g = document.createElement('div');
+      g.className = 'textarea-group';
+      g.setAttribute('data-variant', v);
+      g.setAttribute('data-size', currentSize);
+      var lbl = document.createElement('label');
+      lbl.className = 'textarea__label';
+      lbl.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+      g.appendChild(lbl);
+      var field = document.createElement('div');
+      field.className = 'textarea-field';
+      var ta = document.createElement('textarea');
+      ta.rows = 2;
+      ta.placeholder = 'Placeholder text';
+      field.appendChild(ta);
+      g.appendChild(field);
+      row.appendChild(g);
+    });
+    panel.appendChild(row);
+  });
+}
+
+function applyGlobals() {
+  var hero = document.getElementById('heroTextarea');
+  hero.setAttribute('data-variant', currentVariant);
+  if (currentSize) {
+    hero.setAttribute('data-size', currentSize);
+  }
+  if (currentHeight === 'fixed') {
+    hero.setAttribute('data-height', 'fixed');
+  } else {
+    hero.removeAttribute('data-height');
+  }
+  renderSurface();
+  updateInspector();
+}
+
+/* Variant bar */
+document.getElementById('variantBar').addEventListener('click', function(e) {
+  var pill = e.target.closest('[data-ctrl-variant]');
+  if (!pill) return;
+  document.querySelectorAll('#variantBar .pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+  pill.setAttribute('aria-pressed', 'true');
+  currentVariant = pill.dataset.ctrlVariant;
+  applyGlobals();
+});
+
+/* Size bar */
+document.getElementById('sizeBar').addEventListener('click', function(e) {
+  var pill = e.target.closest('[data-ctrl-size]');
+  if (!pill) return;
+  document.querySelectorAll('#sizeBar .pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+  pill.setAttribute('aria-pressed', 'true');
+  currentSize = pill.dataset.ctrlSize;
+  applyGlobals();
+});
+
+/* Height bar */
+document.getElementById('heightBar').addEventListener('click', function(e) {
+  var pill = e.target.closest('[data-ctrl-height]');
+  if (!pill) return;
+  document.querySelectorAll('#heightBar .pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+  pill.setAttribute('aria-pressed', 'true');
+  currentHeight = pill.dataset.ctrlHeight;
+  /* When switching to auto, deselect size presets */
+  if (currentHeight === 'auto') {
+    document.querySelectorAll('#sizeBar .pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+    currentSize = 'base';
+    document.querySelector('#sizeBar [data-ctrl-size="base"]').setAttribute('aria-pressed', 'true');
+  }
+  applyGlobals();
+});
+
+/* Hook theme toggle into inspector */
+window.DTF.onThemeChange = function() { setTimeout(updateInspector, 50); };
+
+/* ── Inspector ─────────────────────────────────────── */
+var TOKEN_MAP = {
+  px: { micro: '--spacing-6', tiny: '--spacing-8', small: '--spacing-10', base: '--spacing-12', medium: '--spacing-14', large: '--spacing-16', big: '--spacing-20', huge: '--spacing-24', mega: '--spacing-28', ultra: '--spacing-36' },
+  py: { micro: '--spacing-4', tiny: '--spacing-6', small: '--spacing-8', base: '--spacing-10', medium: '--spacing-12', large: '--spacing-14', big: '--spacing-16', huge: '--spacing-20', mega: '--spacing-24', ultra: '--spacing-28' },
+  radius: { micro: '--radius-xs', tiny: '--radius-sm', small: '--radius-md', base: '--radius-DEFAULT', medium: '--radius-DEFAULT', large: '--radius-DEFAULT', big: '--radius-DEFAULT', huge: '--radius-lg', mega: '--radius-lg', ultra: '--radius-lg' },
+  fs: { micro: '--font-size-10', tiny: '--font-size-11', small: '--font-size-12', base: '--font-size-14', medium: '--font-size-14', large: '--font-size-16', big: '--font-size-16', huge: '--font-size-18', mega: '--font-size-20', ultra: '--font-size-24' },
+  height: { micro: '24px', tiny: '28px', small: '32px', base: '36px', medium: '40px', large: '44px', big: '48px', huge: '56px', mega: '64px', ultra: '80px' }
+};
+
+var VARIANT_BG = { outline: '--textarea-outlined-bg', filled: '--textarea-filled-bg', underline: '--textarea-underline-bg' };
+var VARIANT_BORDER = { outline: '--textarea-outlined-border-color', filled: '--textarea-filled-border-color', underline: '--textarea-underline-border-color' };
+
+function updateInspector() {
+  var hero = document.getElementById('heroTextarea');
+  var field = hero.querySelector('.textarea-field');
+  var ta = field.querySelector('textarea');
+  var style = getComputedStyle(hero);
+  var fieldStyle = getComputedStyle(field);
+  var taStyle = getComputedStyle(ta);
+  var s = currentSize;
+  var v = currentVariant;
+  var tokens = [
+    ['--textarea-padding-x-' + s, TOKEN_MAP.px[s], taStyle.paddingLeft],
+    ['--textarea-padding-y-' + s, TOKEN_MAP.py[s], taStyle.paddingTop],
+    ['--textarea-radius-' + s, TOKEN_MAP.radius[s], fieldStyle.borderRadius],
+    ['--textarea-font-size-' + s, TOKEN_MAP.fs[s], taStyle.fontSize],
+    ['--textarea-' + v + '-bg', VARIANT_BG[v], fieldStyle.backgroundColor],
+    ['--textarea-' + v + '-fg', '\u2014', fieldStyle.color],
+    ['--textarea-' + v + '-border-color', VARIANT_BORDER[v], fieldStyle.borderColor],
+    ['--textarea-caret-color', '--brand-component-bg-default', style.getPropertyValue('--textarea-caret-color').trim()],
+    ['--textarea-label-color', '--surface-base-ct-subtle', style.getPropertyValue('--textarea-label-color').trim()],
+    ['--textarea-helper-color', '--surface-base-ct-subtle', style.getPropertyValue('--textarea-helper-color').trim()],
+    ['--textarea-resize', '\u2014', taStyle.resize],
+    ['--textarea-line-height', '--line-height-relaxed', taStyle.lineHeight]
+  ];
+  var container = document.getElementById('inspector');
+  /* Add height token row when fixed mode is active */
+  if (currentHeight === 'fixed') {
+    tokens.push(['--textarea-height-' + s, TOKEN_MAP.height[s], TOKEN_MAP.height[s]]);
+  }
+  var heightLabel = currentHeight === 'fixed' ? ' / fixed' : ' / auto';
+  container.innerHTML = '<div class="inspector-title">Resolved Tokens (' + v + ' / ' + s + heightLabel + ')</div>' +
+    tokens.map(function(t) {
+      return '<div class="inspector-row"><span class="token-name">' + t[0] + '</span><span class="token-val">' + t[2] + (t[1] !== '\u2014' ? '<br><span style="opacity:0.5;font-size:9px">\u2192 ' + t[1] + '</span>' : '') + '</span></div>';
+    }).join('');
+}
+
+/* Init */
+applyGlobals();
+
+/* ── Context Playground ──────────────────────────── */
+var SURFACE_TOKENS = [
+  'bg','hover','pressed','outline','separator',
+  'ct-default','ct-strong','ct-subtle','ct-faint',
+  'cm-bg','cm-bg-hover','cm-bg-pressed',
+  'cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'
+];
+var ROLE_TOKENS = [
+  'content-default','content-strong','content-subtle','content-faint',
+  'component-bg-default','component-bg-hover','component-bg-pressed',
+  'component-outline-default','component-outline-hover','component-outline-pressed',
+  'component-separator',
+  'container-bg','container-hover','container-pressed',
+  'container-outline','container-separator',
+  'on-component','on-container'
+];
+
+function applySurface(bodyEl, surfaceId) {
+  if (surfaceId === 'base') {
+    SURFACE_TOKENS.forEach(function(tok) { bodyEl.style.removeProperty('--surface-base-' + tok); });
+    bodyEl.style.background = 'var(--surface-base-bg)';
+    bodyEl.removeAttribute('data-theme');
+  } else {
+    SURFACE_TOKENS.forEach(function(tok) {
+      bodyEl.style.setProperty('--surface-base-' + tok, 'var(--surface-' + surfaceId + '-' + tok + ')');
+    });
+    bodyEl.style.background = 'var(--surface-' + surfaceId + '-bg)';
+    if (surfaceId === 'inverse') { bodyEl.setAttribute('data-theme', 'dark'); } else { bodyEl.removeAttribute('data-theme'); }
+  }
+}
+
+function applyRole(bodyEl, roleId) {
+  if (roleId === 'brand') {
+    ROLE_TOKENS.forEach(function(tok) { bodyEl.style.removeProperty('--brand-' + tok); });
+  } else {
+    ROLE_TOKENS.forEach(function(tok) {
+      bodyEl.style.setProperty('--brand-' + tok, 'var(--' + roleId + '-' + tok + ')');
+    });
+  }
+}
+
+function pgApplyCard(card) {
+  var body = document.getElementById('pgBody' + card);
+  var surfSel = document.querySelector('[data-pg-surface="' + card + '"]');
+  var roleSel = document.querySelector('[data-pg-role="' + card + '"]');
+  applySurface(body, surfSel.value);
+  applyRole(body, roleSel.value);
+  /* Role color indicators */
+  var roleColor = 'var(--' + roleSel.value + '-component-outline-default)';
+  var bar = document.getElementById('pgRoleBar' + card);
+  var swatch = document.getElementById('pgSwatch' + card);
+  if (bar) bar.style.backgroundColor = roleColor;
+  if (swatch) swatch.style.backgroundColor = roleColor;
+}
+
+function pgApplyDensity(size) {
+  document.querySelectorAll('.pg-textarea').forEach(function(g) { g.dataset.size = size; });
+}
+
+function pgUpdateChain(){
+  var surfSel=document.querySelector('[data-pg-surface="A"]');
+  var roleSel=document.querySelector('[data-pg-role="A"]');
+  var bodyEl=document.getElementById('pgBodyA');
+  if(!bodyEl)return;
+  var field=bodyEl.querySelector('.textarea-group[data-variant="outlined"] .textarea-field');
+  if(!field)return;
+  var cs=getComputedStyle(field);
+  var chain=document.getElementById('pgChain');
+  var s=surfSel.value,r=roleSel.value;
+    var rows=[
+      {sec:'Outlined Variant'},
+      {label:'Border',token:'--textarea-outlined-border-color',via:'--surface-'+s+'-cm-outline',val:cs.borderColor},
+      {label:'Border Hover',token:'--textarea-outlined-border-color-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {label:'Border Focus',token:'--textarea-outlined-border-color-focus',via:'--'+r+'-component-outline-default'},
+      {label:'Border Error',token:'--textarea-outlined-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Border Disabled',token:'--textarea-outlined-border-color-disabled',via:'--surface-'+s+'-cm-outline'},
+      {label:'FG',token:'--textarea-outlined-fg',via:'--surface-'+s+'-ct-default',val:cs.color},
+      {label:'FG Disabled',token:'--textarea-outlined-fg-disabled',via:'--surface-'+s+'-ct-faint'},
+      {label:'Placeholder',token:'--textarea-outlined-placeholder',via:'--surface-'+s+'-ct-faint'},
+      {sec:'Filled Variant'},
+      {label:'BG',token:'--textarea-filled-bg',via:'--surface-'+s+'-cm-bg'},
+      {label:'BG Hover',token:'--textarea-filled-bg-hover',via:'--surface-'+s+'-cm-bg-hover'},
+      {label:'FG',token:'--textarea-filled-fg',via:'--surface-'+s+'-ct-default'},
+      {label:'Border',token:'--textarea-filled-border-color',via:'--surface-'+s+'-cm-outline'},
+      {label:'Border Hover',token:'--textarea-filled-border-color-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {label:'Border Focus',token:'--textarea-filled-border-color-focus',via:'--'+r+'-component-outline-default'},
+      {label:'Border Error',token:'--textarea-filled-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Placeholder',token:'--textarea-filled-placeholder',via:'--surface-'+s+'-ct-faint'},
+      {sec:'Shared / Labels'},
+      {label:'Label',token:'--textarea-label-color',via:'--surface-'+s+'-ct-subtle'},
+      {label:'Label Focus',token:'--textarea-label-color-focus',via:'--'+r+'-content-default'},
+      {label:'Label Error',token:'--textarea-label-color-invalid',via:'--danger-content-default'},
+      {label:'Label Disabled',token:'--textarea-label-color-disabled',via:'--surface-'+s+'-ct-faint'},
+      {label:'Helper',token:'--textarea-helper-color',via:'--surface-'+s+'-ct-subtle'},
+      {label:'Helper Error',token:'--textarea-helper-color-invalid',via:'--danger-content-default'},
+      {label:'Caret',token:'--textarea-caret-color',via:'--'+r+'-component-bg-default'},
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring',token:'--textarea-focus-outline-color',via:'--'+r+'-component-outline-default'}
+    ];
+  var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+  rows.forEach(function(row){
+    if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+    h+='<div class="pg-chain-row">';
+    if(row.val){h+='<span class="pg-swatch" style="background:'+row.val+'"></span>';}
+    h+='<span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span>';
+    if(row.val){h+=' <span class="pg-chain-arrow">\u2192</span> <span style="font-weight:600">'+row.val+'</span>';}
+    h+='</div>';
+  });
+  chain.innerHTML=h;
+}
+
+document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel) {
+  sel.addEventListener('change', function() {
+    var card = this.dataset.pgSurface || this.dataset.pgRole;
+    pgApplyCard(card);
+    requestAnimationFrame(pgUpdateChain);
+    if (this.dataset.pgRole) {
+      var body = document.getElementById('pgBody' + card);
+      var firstTA = body.querySelector('.pg-variant-row:first-child .textarea-group:not([data-disabled]):not([aria-invalid="true"]) textarea');
+      if (firstTA) setTimeout(function() { firstTA.focus(); }, 50);
+    }
+  });
+});
+
+document.getElementById('pgDensityBar').addEventListener('click', function(e) {
+  var pill = e.target.closest('.pill'); if (!pill) return;
+  this.querySelectorAll('.pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+  pill.setAttribute('aria-pressed', 'true');
+  pgApplyDensity(pill.dataset.pgSize);
+  requestAnimationFrame(pgUpdateChain);
+});
+
+/* Init playground */
+pgApplyCard('A');
+pgApplyCard('B');
+requestAnimationFrame(pgUpdateChain);
+</script>
+</body>
+</html>

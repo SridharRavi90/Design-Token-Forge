@@ -1,0 +1,39 @@
+{
+  "archetype": "file-input",
+  "tokenPrefix": "file-upload",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "disabled", "aria-invalid", "drag-over"],
+  "rolesSupported": ["brand", "info", "danger", "success", "warning", "neutral"],
+  "variantsSupported": ["filled"],
+  "sizesSupported": ["micro", "tiny", "small", "base", "medium", "large", "big", "huge", "mega", "ultra"],
+  "densityModes": ["micro", "tiny", "small", "base", "medium", "large", "big", "huge", "mega", "ultra"],
+  "onComponentTokens": [
+    {
+      "token": "--file-upload-filled-fg",
+      "fillStates": ["--file-upload-filled-bg"],
+      "derivation": "auto-aa",
+      "wcag": "AA-normal"
+    }
+  ],
+  "editorExposureOverrides": {
+    "--file-upload-font-size-*": "core",
+    "--file-upload-icon-size-*": "core",
+    "--file-upload-padding-*": "advanced",
+    "--file-upload-border-*": "advanced"
+  },
+  "figmaBindingPrefix": "file-upload/",
+  "compSizeProps": [
+    { "propCSS": "font-size",   "propFigma": "font-size" },
+    { "propCSS": "icon-size",   "propFigma": "icon-size" },
+    { "propCSS": "padding-x",   "propFigma": "padding-x" },
+    { "propCSS": "padding-y",   "propFigma": "padding-y" }
+  ],
+  "notes": [
+    "File-input archetype: drag-drop zone for uploading files with optional input button. 10-density sizing (micro...ultra). 6 semantic roles (brand/info/danger/success/warning/neutral) with filled variant.",
+    "Modes: dropzone (drag-drop area) and button (upload button). Both share the same size/role styling.",
+    "States: default (idle), hover (over zone), disabled, aria-invalid (validation error), drag-over (file dragged over zone).",
+    "Roles apply background and text color from semantic palette. On-component text derivation (auto-AA) matches filled button pattern.",
+    "Variant: filled is the only structural variant (transparent, tinted, outlined orthogonal variants may be added later if needed).",
+    "Min-tap-target enforced on dropzone and button (44px minimum)."
+  ]
+}

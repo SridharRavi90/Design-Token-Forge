@@ -1,0 +1,31 @@
+{
+  "archetype": "feedback-progress",
+  "tokenPrefix": "progress",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "indeterminate", "disabled"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined", "soft"],
+  "onComponentTokens": [],
+  "editorExposureOverrides": {
+    "--progress-radius-rounded": "advanced",
+    "--progress-radius-square": "advanced",
+    "--progress-shadow": "advanced",
+    "--progress-shadow-strong": "advanced",
+    "--progress-buffer-opacity": "advanced",
+    "--progress-indeterminate-width": "advanced",
+    "--progress-indeterminate-duration": "advanced",
+    "--progress-stripe-opacity": "advanced",
+    "--progress-stripe-duration": "advanced",
+    "--progress-segment-gap": "advanced",
+    "--progress-focus-outline-offset": "advanced"
+  },
+  "figmaBindingPrefix": "progress/",
+  "notes": [
+    "Feedback-progress archetype: linear track + fill with optional buffer, label, helper rows and segmented/striped/indeterminate modes. Determinate by default; switches to indeterminate via aria-valuenow omission.",
+    "Three variants: filled (default, neutral track + colored fill), outlined (transparent track + border), soft (role-tinted container track + same fill). All share one fill colour per role.",
+    "Roles brand|danger|warning|info|success|neutral expose three slots each (--progress-{role}-fill / -soft-track / -label). data-role swaps the internal --_pg-* chain to the matching slot rather than remapping --brand-*; this keeps soft-variant tracks colour-paired to fills without an extra container layer.",
+    "Track is intentionally NEUTRAL in the filled variant (--surface-base-cm-bg) so the value bar carries all the role colour; soft variant tints the track with the role's container.",
+    "Buffer slot (--progress-buffer-bg + opacity) overlays the unfilled track for streaming/video patterns. Stripe overlay (--progress-stripe-opacity) animates over the fill via --progress-stripe-duration.",
+    "Has NO interactive states (hover/focus/pressed) by design — progressbar is a status output, not an input. Focus tokens exist only for cases where the bar is wrapped in a focusable container."
+  ]
+}

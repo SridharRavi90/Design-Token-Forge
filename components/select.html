@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Select Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css?v=20260616">
+<link rel="stylesheet" href="../packages/components/src/select/select.tokens.css?v=20260616">
+<link rel="stylesheet" href="../packages/components/src/select/select.css?v=20260616">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+.preview-grid{gap:24px;align-items:flex-start;background:var(--demo-surface)}
+.hero{min-height:180px}
+.pg-card-body{gap:20px}
+.pg-variant-row{flex-direction:column;gap:2px}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<!-- Explorer Nav -->
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-slots"><span class="sn-num">6</span>Slots &amp; Anatomy</a>
+  <a href="#sec-a11y"><span class="sn-num">7</span>Accessibility</a>
+  <a href="#sec-playground"><span class="sn-num">8</span>Context Playground</a>
+  <a href="#sec-framework"><span class="sn-num">9</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<!-- Header -->
+<header class="demo-header">
+  <h1>Select Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">120 CSS Variables</span>
+    <span class="demo-badge">2 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<!-- Global Controls -->
+<nav class="global-controls" aria-label="Global select preview controls">
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="underline" type="button">Underline</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header">
+      <h2>Hero Inspector</h2>
+      <span class="section-tag">Interactive</span>
+    </div>
+    <p class="section-desc">Live select with inspector showing resolved token values. Click to open the dropdown.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview">
+          <div class="select-group" id="heroSelect" data-variant="outlined" data-size="base" style="max-width:320px;width:100%">
+            <label class="select__label" for="heroField">Country</label>
+            <div class="select-field">
+              <select id="heroField">
+                <option value="" disabled selected>Choose a country…</option>
+                <option value="us">United States</option>
+                <option value="uk">United Kingdom</option>
+                <option value="de">Germany</option>
+                <option value="fr">France</option>
+                <option value="jp">Japan</option>
+                <option value="au">Australia</option>
+              </select>
+              <span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </div>
+            <span class="select__helper">Select your country of residence</span>
+          </div>
+        </div>
+        <div class="hero-inspector" id="inspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header">
+      <h2>Variant Gallery</h2>
+      <span class="section-tag">3 Variants</span>
+    </div>
+    <p class="section-desc">Outlined (default, transparent bg), Filled (solid bg + border), and Underline (bottom-border only, no background) — each with distinct surface treatment.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <div class="preview-col">
+          <span class="col-label">Outlined</span>
+          <div class="select-group" data-variant="outlined" data-size="base" style="width:260px">
+            <label class="select__label">Category</label>
+            <div class="select-field">
+              <select><option value="" disabled selected>Choose…</option><option>Electronics</option><option>Clothing</option><option>Books</option></select>
+              <span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Filled</span>
+          <div class="select-group" data-variant="filled" data-size="base" style="width:260px">
+            <label class="select__label">Category</label>
+            <div class="select-field">
+              <select><option value="" disabled selected>Choose…</option><option>Electronics</option><option>Clothing</option><option>Books</option></select>
+              <span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Underline</span>
+          <div class="select-group" data-variant="underline" data-size="base" style="width:260px">
+            <label class="select__label">Category</label>
+            <div class="select-field">
+              <select><option value="" disabled selected>Choose…</option><option>Electronics</option><option>Clothing</option><option>Books</option></select>
+              <span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 3. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header">
+      <h2>Density Scale</h2>
+      <span class="section-tag">10 Sizes</span>
+    </div>
+    <p class="section-desc">From micro to ultra. Height, padding, font-size, border-radius, and chevron all scale per density.</p>
+    <div class="section-body">
+      <div class="preview-grid" style="flex-direction:column;gap:12px">
+        <div class="select-group" data-variant="outlined" data-size="micro" style="max-width:240px"><div class="select-field"><select><option>micro</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="tiny" style="max-width:260px"><div class="select-field"><select><option>tiny</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="small" style="max-width:280px"><div class="select-field"><select><option>small</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="base" style="max-width:300px"><div class="select-field"><select><option>base — default</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="medium" style="max-width:320px"><div class="select-field"><select><option>medium</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="large" style="max-width:340px"><div class="select-field"><select><option>large</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="big" style="max-width:360px"><div class="select-field"><select><option>big</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="huge" style="max-width:400px"><div class="select-field"><select><option>huge</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="mega" style="max-width:440px"><div class="select-field"><select><option>mega</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+        <div class="select-group" data-variant="outlined" data-size="ultra" style="max-width:500px"><div class="select-field"><select><option>ultra</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 4. STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header">
+      <h2>State Matrix</h2>
+      <span class="section-tag">5 States × 2 Variants</span>
+    </div>
+    <p class="section-desc">Default, hover (try it), focus (click in), disabled, invalid — across both variants.</p>
+    <div class="section-body">
+      <div style="display:flex;flex-direction:column;gap:0">
+
+        <!-- Outlined variant -->
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)">
+          <div class="sub-label" style="width:100%;padding:0 0 8px">Outlined variant</div>
+          <div class="select-group" data-variant="outlined" data-size="base" style="width:200px">
+            <div class="select-field"><select><option value="" disabled selected>Default</option><option>A</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+          <div class="select-group" data-variant="outlined" data-size="base" style="width:200px">
+            <div class="select-field"><select><option>Selected value</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+          <div class="select-group" data-variant="outlined" data-size="base" data-disabled style="width:200px">
+            <div class="select-field"><select disabled><option>Disabled</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+          <div class="select-group" data-variant="outlined" data-size="base" aria-invalid="true" style="width:200px">
+            <label class="select__label">Status</label>
+            <div class="select-field"><select><option>Invalid</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+            <span class="select__helper">Please select a valid option</span>
+          </div>
+        </div>
+
+        <!-- Filled variant -->
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)">
+          <div class="sub-label" style="width:100%;padding:0 0 8px">Filled variant</div>
+          <div class="select-group" data-variant="filled" data-size="base" style="width:200px">
+            <div class="select-field"><select><option value="" disabled selected>Default</option><option>A</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+          <div class="select-group" data-variant="filled" data-size="base" style="width:200px">
+            <div class="select-field"><select><option>Selected value</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+          <div class="select-group" data-variant="filled" data-size="base" data-disabled style="width:200px">
+            <div class="select-field"><select disabled><option>Disabled</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+          <div class="select-group" data-variant="filled" data-size="base" aria-invalid="true" style="width:200px">
+            <label class="select__label">Status</label>
+            <div class="select-field"><select><option>Invalid</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+            <span class="select__helper">Please select a valid option</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 5. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Selects on base, subtle, and deep backgrounds to verify contrast and border visibility.</p>
+    <div class="section-body">
+      <div class="surface-strip" id="surfaceStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. SLOT COMBINATIONS ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header">
+      <h2>Slots &amp; Anatomy</h2>
+      <span class="section-tag">Label + Helper</span>
+    </div>
+    <p class="section-desc">Label text, helper text, and various combinations.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <div class="preview-col">
+          <span class="col-label">Plain</span>
+          <div class="select-group" data-variant="outlined" data-size="base" style="width:240px">
+            <div class="select-field"><select><option value="" disabled selected>No label…</option><option>A</option><option>B</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Label Only</span>
+          <div class="select-group" data-variant="outlined" data-size="base" style="width:240px">
+            <label class="select__label">Priority</label>
+            <div class="select-field"><select><option value="" disabled selected>Choose…</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Label + Helper</span>
+          <div class="select-group" data-variant="outlined" data-size="base" style="width:240px">
+            <label class="select__label">Department</label>
+            <div class="select-field"><select><option value="" disabled selected>Choose…</option><option>Engineering</option><option>Design</option><option>Marketing</option><option>Sales</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+            <span class="select__helper">Your primary team</span>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Invalid + Helper</span>
+          <div class="select-group" data-variant="outlined" data-size="base" aria-invalid="true" style="width:240px">
+            <label class="select__label">Role</label>
+            <div class="select-field"><select><option value="" disabled selected>Choose…</option><option>Admin</option><option>Editor</option><option>Viewer</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+            <span class="select__helper">A role is required</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header">
+      <h2>Accessibility</h2>
+      <span class="section-tag">A11y</span>
+    </div>
+    <p class="section-desc">Focus outline, min tap target (44px), label association, invalid announcement, forced-colors support.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <div class="preview-col">
+          <span class="col-label">Focus Ring</span>
+          <div class="select-group" data-variant="outlined" data-size="base" style="width:240px">
+            <label class="select__label" for="a11yFocus">Tab here</label>
+            <div class="select-field"><select id="a11yFocus"><option value="" disabled selected>Focus to see ring</option><option>Option</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Invalid + aria</span>
+          <div class="select-group" data-variant="outlined" data-size="base" aria-invalid="true" style="width:240px">
+            <label class="select__label" for="a11yError">Required Field</label>
+            <div class="select-field"><select id="a11yError" aria-invalid="true" aria-describedby="a11yErrorHelper"><option value="" disabled selected>Choose…</option><option>A</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+            <span class="select__helper" id="a11yErrorHelper" role="alert">This field is required</span>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Disabled</span>
+          <div class="select-group" data-variant="outlined" data-size="base" data-disabled style="width:240px">
+            <label class="select__label">Locked</label>
+            <div class="select-field"><select disabled><option>Cannot change</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. CONTEXT PLAYGROUND ═══════════ -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how selects adapt across surface contexts and semantic color roles.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <!-- Card A -->
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select><span class="pg-role-swatch" id="pgSwatchA"></span></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA">
+            <div class="pg-role-bar" id="pgRoleBarA"></div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Outlined</span>
+              <div class="select-group pg-select" data-variant="outlined" data-size="base" style="width:100%">
+                <label class="select__label">Country</label>
+                <div class="select-field"><select><option value="" disabled selected>Choose…</option><option>United States</option><option>United Kingdom</option><option>Germany</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Filled</span>
+              <div class="select-group pg-select" data-variant="filled" data-size="base" style="width:100%">
+                <label class="select__label">Region</label>
+                <div class="select-field"><select><option>North America</option><option>Europe</option><option>Asia</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Invalid</span>
+              <div class="select-group pg-select" data-variant="outlined" data-size="base" aria-invalid="true" style="width:100%">
+                <label class="select__label">Timezone</label>
+                <div class="select-field"><select><option value="" disabled selected>Choose…</option><option>UTC</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+                <span class="select__helper">A timezone is required</span>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Disabled</span>
+              <div class="select-group pg-select" data-variant="filled" data-size="base" data-disabled style="width:100%">
+                <label class="select__label">Currency</label>
+                <div class="select-field"><select disabled><option>USD — US Dollar</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Card B -->
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select><span class="pg-role-swatch" id="pgSwatchB"></span></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB">
+            <div class="pg-role-bar" id="pgRoleBarB"></div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Outlined</span>
+              <div class="select-group pg-select" data-variant="outlined" data-size="base" style="width:100%">
+                <label class="select__label">Action</label>
+                <div class="select-field"><select><option value="" disabled selected>Choose…</option><option>Delete</option><option>Archive</option><option>Suspend</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Filled</span>
+              <div class="select-group pg-select" data-variant="filled" data-size="base" style="width:100%">
+                <label class="select__label">Reason</label>
+                <div class="select-field"><select><option>Violation</option><option>Spam</option><option>Inactive</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Invalid</span>
+              <div class="select-group pg-select" data-variant="outlined" data-size="base" aria-invalid="true" style="width:100%">
+                <label class="select__label">Confirmation</label>
+                <div class="select-field"><select><option value="" disabled selected>Confirm…</option><option>Yes, proceed</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+                <span class="select__helper">You must confirm this action</span>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Disabled</span>
+              <div class="select-group pg-select" data-variant="filled" data-size="base" data-disabled style="width:100%">
+                <label class="select__label">Account Status</label>
+                <div class="select-field"><select disabled><option>Active — locked</option></select><span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Select Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-sel">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;div
+  className="select-group"
+  data-variant={variant}   {/* outlined | filled | underline */}
+  data-size={size}
+  aria-invalid={invalid || undefined}
+  data-disabled={disabled || undefined}
+&gt;
+  {label &amp;&amp; &lt;label className="select__label"&gt;{label}&lt;/label&gt;}
+  &lt;div className="select-field"&gt;
+    &lt;select value={value} onChange={onChange} disabled={disabled}&gt;
+      {children}  {/* &lt;option&gt; elements */}
+    &lt;/select&gt;
+    &lt;span className="select__chevron" aria-hidden="true"&gt;▾&lt;/span&gt;
+  &lt;/div&gt;
+  {helper &amp;&amp; &lt;span className="select__helper"&gt;{helper}&lt;/span&gt;}
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;div class="select-group"
+  :data-variant="variant ?? 'outlined'"
+  :data-size="size ?? 'base'"
+  :aria-invalid="error || undefined"
+  :data-disabled="disabled || undefined"&gt;
+  &lt;label v-if="label" class="select__label"&gt;{{ label }}&lt;/label&gt;
+  &lt;div class="select-field"&gt;
+    &lt;select :value="modelValue" @change="$emit('update:modelValue', $event.target.value)" :disabled="disabled"&gt;
+      &lt;slot /&gt;
+    &lt;/select&gt;
+    &lt;span class="select__chevron" aria-hidden="true"&gt;▾&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;span v-if="helper" class="select__helper"&gt;{{ helper }}&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;div class="select-group" data-variant="outlined" data-size="base"&gt;
+  &lt;label class="select__label"&gt;Country&lt;/label&gt;
+  &lt;div class="select-field"&gt;
+    &lt;select&gt;
+      &lt;option value="" disabled selected&gt;Choose…&lt;/option&gt;
+      &lt;option value="us"&gt;United States&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select__chevron" aria-hidden="true"&gt;▾&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--select-radius-{size}
+--select-shadow / -focus
+--select-border-style / -width
+
+/* Dimension */
+--select-height-{size}
+--select-padding-x-{size} / --select-padding-y-{size}
+--select-min-width / --select-max-width
+
+/* Surface */
+--select-{variant}-bg / -hover / -focus / -disabled
+--select-{variant}-fg / -placeholder / -disabled
+--select-{variant}-border-color / -hover / -focus
+--select-invalid-border-color / -fg
+--select-chevron-color / -size
+
+/* Typography */
+--select-font-family / -weight
+--select-font-size-{size}
+--select-line-height
+
+/* Motion */
+--select-transition-duration / -easing / -property
+
+/* A11y */
+--select-ring-width / -offset / -color
+--select-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfSelect } from '@design-token-forge/slyte';
+
+&lt;dtf-select lt-prop-label="Country" lt-prop-size="base"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;
+    &lt;option value=""&gt;Select&amp;hellip;&lt;/option&gt;
+    &lt;option value="us"&gt;United States&lt;/option&gt;
+    &lt;option value="uk"&gt;United Kingdom&lt;/option&gt;
+  &lt;/template&gt;
+&lt;/dtf-select&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script src="shared-page.js"></script>
+<script>
+/* ── Global Controls ───────────────────────────────── */
+var currentVariant = 'outline';
+var currentSize = 'base';
+var P = window.DTFPage;
+
+function renderSurface() {
+  P.renderSurfacePanels('surfaceStrip', function(panel) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-direction:column;gap:12px;margin-top:12px';
+    ['outline','filled','underline'].forEach(function(v) {
+      var g = document.createElement('div');
+      g.className = 'select-group';
+      g.setAttribute('data-variant', v);
+      g.setAttribute('data-size', currentSize);
+      var lbl = document.createElement('label');
+      lbl.className = 'select__label';
+      lbl.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+      g.appendChild(lbl);
+      var field = document.createElement('div');
+      field.className = 'select-field';
+      var sel = document.createElement('select');
+      sel.innerHTML = '<option>Option A</option><option>Option B</option><option>Option C</option>';
+      field.appendChild(sel);
+      var arrow = document.createElement('span');
+      arrow.className = 'select__arrow';
+      arrow.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
+      field.appendChild(arrow);
+      g.appendChild(field);
+      row.appendChild(g);
+    });
+    panel.appendChild(row);
+  });
+}
+
+function applyGlobals() {
+  var hero = document.getElementById('heroSelect');
+  hero.setAttribute('data-variant', currentVariant);
+  hero.setAttribute('data-size', currentSize);
+  renderSurface();
+  updateInspector();
+}
+
+/* Variant bar */
+document.getElementById('variantBar').addEventListener('click', function(e) {
+  var pill = e.target.closest('[data-ctrl-variant]');
+  if (!pill) return;
+  document.querySelectorAll('#variantBar .pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+  pill.setAttribute('aria-pressed', 'true');
+  currentVariant = pill.dataset.ctrlVariant;
+  applyGlobals();
+});
+
+/* Size bar */
+document.getElementById('sizeBar').addEventListener('click', function(e) {
+  var pill = e.target.closest('[data-ctrl-size]');
+  if (!pill) return;
+  document.querySelectorAll('#sizeBar .pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+  pill.setAttribute('aria-pressed', 'true');
+  currentSize = pill.dataset.ctrlSize;
+  applyGlobals();
+});
+
+/* Hook theme toggle into inspector */
+window.DTF.onThemeChange = function() { setTimeout(updateInspector, 50); };
+
+/* ── Inspector ─────────────────────────────────────── */
+var TOKEN_MAP = {
+  height: { micro: '--spacing-24', tiny: '--spacing-28', small: '--spacing-32', base: '--spacing-36', medium: '--spacing-40', large: '--spacing-44', big: '--spacing-48', huge: '--spacing-56', mega: '--spacing-64', ultra: '--spacing-80' },
+  px: { micro: '--spacing-6', tiny: '--spacing-8', small: '--spacing-10', base: '--spacing-12', medium: '--spacing-14', large: '--spacing-16', big: '--spacing-20', huge: '--spacing-24', mega: '--spacing-28', ultra: '--spacing-36' },
+  py: { micro: '--spacing-2', tiny: '--spacing-3', small: '--spacing-4', base: '--spacing-6', medium: '--spacing-8', large: '--spacing-10', big: '--spacing-12', huge: '--spacing-14', mega: '--spacing-18', ultra: '--spacing-24' },
+  radius: { micro: '--radius-xs', tiny: '--radius-sm', small: '--radius-md', base: '--radius-DEFAULT', medium: '--radius-DEFAULT', large: '--radius-lg', big: '--radius-lg', huge: '--radius-xl', mega: '--radius-2xl', ultra: '--radius-3xl' },
+  fs: { micro: '--font-size-10', tiny: '--font-size-11', small: '--font-size-12', base: '--font-size-14', medium: '--font-size-14', large: '--font-size-16', big: '--font-size-16', huge: '--font-size-18', mega: '--font-size-20', ultra: '--font-size-24' },
+  chevron: { micro: '--spacing-10', tiny: '--spacing-12', small: '--spacing-13', base: '--spacing-16', medium: '--spacing-16', large: '--spacing-18', big: '--spacing-18', huge: '--spacing-20', mega: '--spacing-24', ultra: '--spacing-28' }
+};
+
+var VARIANT_BG = { outline: '--select-outlined-bg', filled: '--select-filled-bg', underline: '--select-underline-bg' };
+var VARIANT_BORDER = { outline: '--select-outlined-border-color', filled: '--select-filled-border-color', underline: '--select-underline-border-color' };
+
+function updateInspector() {
+  var hero = document.getElementById('heroSelect');
+  var field = hero.querySelector('.select-field');
+  var sel = field.querySelector('select');
+  var style = getComputedStyle(hero);
+  var fieldStyle = getComputedStyle(field);
+  var selStyle = getComputedStyle(sel);
+  var s = currentSize;
+  var v = currentVariant;
+  var tokens = [
+    ['--select-height-' + s, TOKEN_MAP.height[s], fieldStyle.height],
+    ['--select-padding-x-' + s, TOKEN_MAP.px[s], selStyle.paddingLeft],
+    ['--select-padding-y-' + s, TOKEN_MAP.py[s], selStyle.paddingTop],
+    ['--select-radius-' + s, TOKEN_MAP.radius[s], fieldStyle.borderRadius],
+    ['--select-font-size-' + s, TOKEN_MAP.fs[s], selStyle.fontSize],
+    ['--select-chevron-size-' + s, TOKEN_MAP.chevron[s], '\u2014'],
+    ['--select-' + v + '-bg', VARIANT_BG[v], fieldStyle.backgroundColor],
+    ['--select-' + v + '-fg', '\u2014', fieldStyle.color],
+    ['--select-' + v + '-border-color', VARIANT_BORDER[v], fieldStyle.borderColor],
+    ['--select-label-color', '--surface-base-ct-subtle', style.getPropertyValue('--select-label-color').trim()],
+    ['--select-helper-color', '--surface-base-ct-subtle', style.getPropertyValue('--select-helper-color').trim()],
+    ['--select-chevron-color', '--surface-base-ct-subtle', style.getPropertyValue('--select-chevron-color').trim()]
+  ];
+  var container = document.getElementById('inspector');
+  container.innerHTML = '<div class="inspector-title">Resolved Tokens (' + v + ' / ' + s + ')</div>' +
+    tokens.map(function(t) {
+      return '<div class="inspector-row"><span class="token-name">' + t[0] + '</span><span class="token-val">' + t[2] + (t[1] !== '\u2014' ? '<br><span style="opacity:0.5;font-size:9px">\u2192 ' + t[1] + '</span>' : '') + '</span></div>';
+    }).join('');
+}
+
+/* Init */
+applyGlobals();
+
+/* ── Context Playground ──────────────────────────── */
+var SURFACE_TOKENS = [
+  'bg','hover','pressed','outline','separator',
+  'ct-default','ct-strong','ct-subtle','ct-faint',
+  'cm-bg','cm-bg-hover','cm-bg-pressed',
+  'cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'
+];
+var ROLE_TOKENS = [
+  'content-default','content-strong','content-subtle','content-faint',
+  'component-bg-default','component-bg-hover','component-bg-pressed',
+  'component-outline-default','component-outline-hover','component-outline-pressed',
+  'component-separator',
+  'container-bg','container-hover','container-pressed',
+  'container-outline','container-separator',
+  'on-component','on-container'
+];
+
+function applySurface(bodyEl, surfaceId) {
+  if (surfaceId === 'base') {
+    SURFACE_TOKENS.forEach(function(tok) { bodyEl.style.removeProperty('--surface-base-' + tok); });
+    bodyEl.style.background = 'var(--surface-base-bg)';
+    bodyEl.removeAttribute('data-theme');
+  } else {
+    SURFACE_TOKENS.forEach(function(tok) {
+      bodyEl.style.setProperty('--surface-base-' + tok, 'var(--surface-' + surfaceId + '-' + tok + ')');
+    });
+    bodyEl.style.background = 'var(--surface-' + surfaceId + '-bg)';
+    if (surfaceId === 'inverse') { bodyEl.setAttribute('data-theme', 'dark'); } else { bodyEl.removeAttribute('data-theme'); }
+  }
+}
+
+function applyRole(bodyEl, roleId) {
+  if (roleId === 'brand') {
+    ROLE_TOKENS.forEach(function(tok) { bodyEl.style.removeProperty('--brand-' + tok); });
+  } else {
+    ROLE_TOKENS.forEach(function(tok) {
+      bodyEl.style.setProperty('--brand-' + tok, 'var(--' + roleId + '-' + tok + ')');
+    });
+  }
+}
+
+function pgApplyCard(card) {
+  var body = document.getElementById('pgBody' + card);
+  var surfSel = document.querySelector('[data-pg-surface="' + card + '"]');
+  var roleSel = document.querySelector('[data-pg-role="' + card + '"]');
+  applySurface(body, surfSel.value);
+  applyRole(body, roleSel.value);
+  var roleColor = 'var(--' + roleSel.value + '-component-outline-default)';
+  var bar = document.getElementById('pgRoleBar' + card);
+  var swatch = document.getElementById('pgSwatch' + card);
+  if (bar) bar.style.backgroundColor = roleColor;
+  if (swatch) swatch.style.backgroundColor = roleColor;
+}
+
+function pgApplyDensity(size) {
+  document.querySelectorAll('.pg-select').forEach(function(g) { g.dataset.size = size; });
+}
+
+function pgUpdateChain(){
+  var surfSel=document.querySelector('[data-pg-surface="A"]');
+  var roleSel=document.querySelector('[data-pg-role="A"]');
+  var bodyEl=document.getElementById('pgBodyA');
+  if(!bodyEl)return;
+  var field=bodyEl.querySelector('.select-group[data-variant="outlined"] .select-field');
+  if(!field)return;
+  var cs=getComputedStyle(field);
+  var chain=document.getElementById('pgChain');
+  var s=surfSel.value,r=roleSel.value;
+    var rows=[
+      {sec:'Outline Variant'},
+      {label:'Border',token:'--select-outlined-border-color',via:'--surface-'+s+'-cm-outline',val:cs.borderColor},
+      {label:'Border Hover',token:'--select-outlined-border-color-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {label:'Border Focus',token:'--select-outlined-border-color-focus',via:'--'+r+'-component-outline-default'},
+      {label:'Border Error',token:'--select-outlined-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Border Disabled',token:'--select-outlined-border-color-disabled',via:'--surface-'+s+'-cm-outline'},
+      {label:'FG',token:'--select-outlined-fg',via:'--surface-'+s+'-ct-default',val:cs.color},
+      {label:'FG Disabled',token:'--select-outlined-fg-disabled',via:'--surface-'+s+'-ct-faint'},
+      {label:'Placeholder',token:'--select-outlined-placeholder',via:'--surface-'+s+'-ct-faint'},
+      {sec:'Filled Variant'},
+      {label:'BG',token:'--select-filled-bg',via:'--surface-'+s+'-cm-bg'},
+      {label:'BG Hover',token:'--select-filled-bg-hover',via:'--surface-'+s+'-cm-bg-hover'},
+      {label:'FG',token:'--select-filled-fg',via:'--surface-'+s+'-ct-default'},
+      {label:'Border',token:'--select-filled-border-color',via:'--surface-'+s+'-cm-outline'},
+      {label:'Border Hover',token:'--select-filled-border-color-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {label:'Border Focus',token:'--select-filled-border-color-focus',via:'--'+r+'-component-outline-default'},
+      {label:'Border Error',token:'--select-filled-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Placeholder',token:'--select-filled-placeholder',via:'--surface-'+s+'-ct-faint'},
+      {sec:'Shared / Labels'},
+      {label:'Label',token:'--select-label-color',via:'--surface-'+s+'-ct-subtle'},
+      {label:'Label Focus',token:'--select-label-color-focus',via:'--'+r+'-content-default'},
+      {label:'Label Error',token:'--select-label-color-invalid',via:'--danger-content-default'},
+      {label:'Label Disabled',token:'--select-label-color-disabled',via:'--surface-'+s+'-ct-faint'},
+      {label:'Helper',token:'--select-helper-color',via:'--surface-'+s+'-ct-subtle'},
+      {label:'Helper Error',token:'--select-helper-color-invalid',via:'--danger-content-default'},
+      {label:'Chevron',token:'--select-chevron-color',via:'--surface-'+s+'-ct-subtle'},
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring',token:'--select-focus-outline-color',via:'--'+r+'-component-outline-default'}
+    ];
+  var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+  rows.forEach(function(row){
+    if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+    h+='<div class="pg-chain-row">';
+    if(row.val){h+='<span class="pg-swatch" style="background:'+row.val+'"></span>';}
+    h+='<span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span>';
+    if(row.val){h+=' <span class="pg-chain-arrow">\u2192</span> <span style="font-weight:600">'+row.val+'</span>';}
+    h+='</div>';
+  });
+  chain.innerHTML=h;
+}
+
+document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel) {
+  sel.addEventListener('change', function() {
+    var card = this.dataset.pgSurface || this.dataset.pgRole;
+    pgApplyCard(card);
+    requestAnimationFrame(pgUpdateChain);
+  });
+});
+
+document.getElementById('pgDensityBar').addEventListener('click', function(e) {
+  var pill = e.target.closest('.pill'); if (!pill) return;
+  this.querySelectorAll('.pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+  pill.setAttribute('aria-pressed', 'true');
+  pgApplyDensity(pill.dataset.pgSize);
+  requestAnimationFrame(pgUpdateChain);
+});
+
+/* Init playground */
+pgApplyCard('A');
+pgApplyCard('B');
+requestAnimationFrame(pgUpdateChain);
+</script>
+</body>
+</html>

@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — MenuButton Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css?v=20260616">
+<link rel="stylesheet" href="../packages/components/src/menu-button/menu-button.tokens.css?v=20260616">
+<link rel="stylesheet" href="../packages/components/src/menu-button/menu-button.css?v=20260616">
+<link rel="stylesheet" href="shared.css?v=1008">
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Structure × Role</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-anatomy"><span class="sn-num">5</span>Slots &amp; Anatomy</a>
+  <a href="#sec-surface"><span class="sn-num">6</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">7</span>Shape & Shadow</a>
+  <a href="#sec-motion"><span class="sn-num">8</span>Motion</a>
+  <a href="#sec-playground"><span class="sn-num">9</span>Context Playground</a>
+  <a href="#sec-a11y"><span class="sn-num">10</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>MenuButton Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~237 CSS Variables</span>
+    <span class="demo-badge">4 Structures × 6 Roles</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<nav class="global-controls" aria-label="Global menu-button preview controls">
+  <div class="control-group">
+    <label>Structure</label>
+    <div class="pill-bar" id="structBar" role="radiogroup" aria-label="Structure selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-struct="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="soft" type="button">Soft</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="ghost" type="button">Ghost</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Role</label>
+    <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="brand" type="button">Brand</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Shape</label>
+    <div class="pill-bar" id="roundedBar" role="radiogroup" aria-label="Rounded toggle">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-rounded="false" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-rounded="true" type="button">Rounded</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- 1. HERO -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects the global variant and size controls. Single button with label + trailing chevron. Inspector shows resolved token values.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview">
+          <button class="menu-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="menu-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span>
+            <span class="menu-btn__label">Actions</span>
+            <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+          </button>
+        </div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- 2. VARIANT GALLERY -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Structure × Role</h2><span class="section-tag">Orthogonal</span></div>
+    <p class="section-desc"><strong>Structural variants</strong> define the surface treatment. <strong>Roles</strong> provide semantic color. Top row: all structures in the selected role. Bottom row: all roles in the selected structure.</p>
+    <div class="section-body">
+      <div class="sub-label">Structural Variants (in selected role)</div>
+      <div class="preview-grid" id="structGallery"></div>
+      <div style="border-top:1px solid var(--demo-border);margin:12px 0"></div>
+      <div class="sub-label">Role Gallery (in selected structure)</div>
+      <div class="preview-grid" id="roleGallery"></div>
+    </div>
+  </section>
+
+  <!-- 3. DENSITY SCALE -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes at the globally selected variant. Each maps: height, padding-x, chevron-pe, font-size, radius, icon-size.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- 4. STATE MATRIX -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every structural variant in every interactive state, using the selected role. Hover and focus to see live transitions.</p>
+    <div class="section-body"><div id="stateMatrix" style="display:flex;flex-direction:column"></div></div>
+  </section>
+
+  <!-- 5. ANATOMY -->
+  <section class="section" id="sec-anatomy">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">MenuButton is a single button: optional leading icon, label, trailing chevron. Multiple slot combinations shown below.</p>
+    <div class="section-body"><div class="slot-grid" id="slotsDemo"></div></div>
+  </section>
+
+  <!-- 6. SURFACE CONTEXT -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">All four structural variants on three background levels, using the selected role.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase"><span class="surface-panel-label">surface-base-bg</span></div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt"><span class="surface-panel-label">surface-base-subtle</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep"><span class="surface-panel-label">surface-deep-bg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. SHAPE & SHADOW -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Radius scales with density. Rounded mode creates pill shape. Shadows reference global shadow tokens.</p>
+    <div class="section-body">
+      <div class="sub-label">Radius per density</div>
+      <div class="density-strip" id="radiusScale"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Rounded (pill) per density</div>
+      <div class="density-strip" id="roundedScale"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Shadow presets</div>
+      <div class="shadow-strip" id="shadowStrip"></div>
+    </div>
+  </section>
+
+  <!-- 8. MOTION -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Transition durations, easing functions, and loading pulse.</p>
+    <div class="section-body"><div class="motion-strip" id="motionDemo"></div></div>
+  </section>
+
+  <!-- 9. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how menu buttons adapt across surface contexts and semantic color roles. Two cards with independent surface + role — compare side by side.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <!-- Card A -->
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA">
+            <div class="pg-variant-row"><span class="pg-variant-label">Brand</span>
+              <button class="menu-btn pg-mb" data-variant="filled" data-role="brand" data-size="base" type="button" aria-haspopup="true">
+                <span class="menu-btn__label">Actions</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Outlined</span>
+              <button class="menu-btn pg-mb" data-variant="outlined" data-size="base" type="button" aria-haspopup="true">
+                <span class="menu-btn__label">Export</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Ghost</span>
+              <button class="menu-btn pg-mb" data-variant="ghost" data-size="base" type="button" aria-haspopup="true">
+                <span class="menu-btn__label">Options</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Neutral</span>
+              <button class="menu-btn pg-mb" data-variant="filled" data-role="neutral" data-size="base" type="button" aria-haspopup="true">
+                <span class="menu-btn__label">Settings</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Disabled</span>
+              <button class="menu-btn pg-mb" data-variant="filled" data-role="brand" data-size="base" type="button" disabled aria-haspopup="true">
+                <span class="menu-btn__label">Disabled</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Card B -->
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB">
+            <div class="pg-variant-row"><span class="pg-variant-label">Brand</span>
+              <button class="menu-btn pg-mb" data-variant="filled" data-role="brand" data-size="base" type="button" aria-haspopup="true">
+                <span class="menu-btn__label">Delete</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Outlined</span>
+              <button class="menu-btn pg-mb" data-variant="outlined" data-size="base" type="button" aria-haspopup="true">
+                <span class="menu-btn__label">Remove</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Ghost</span>
+              <button class="menu-btn pg-mb" data-variant="ghost" data-size="base" type="button" aria-haspopup="true">
+                <span class="menu-btn__label">More</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Neutral</span>
+              <button class="menu-btn pg-mb" data-variant="filled" data-role="neutral" data-size="base" type="button" aria-haspopup="true">
+                <span class="menu-btn__label">Manage</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Disabled</span>
+              <button class="menu-btn pg-mb" data-variant="filled" data-role="brand" data-size="base" type="button" disabled aria-haspopup="true">
+                <span class="menu-btn__label">Disabled</span>
+                <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 10. ACCESSIBILITY -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, disabled states, aria-haspopup, aria-expanded, and forced-colors handling.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to the button. <code>:focus-visible</code> ring appears.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="menu-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-haspopup="true">
+              <span class="menu-btn__label">Focus me</span>
+              <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+            </button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>disabled</code> attribute applies per-variant opacity.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="menu-btn synced-btn" data-variant="filled" data-size="base" type="button" disabled aria-haspopup="true">
+              <span class="menu-btn__label">Disabled</span>
+              <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+            </button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">ARIA Attributes</div>
+          <p class="a11y-card-desc"><code>aria-haspopup="true"</code> and <code>aria-expanded</code> for screen readers.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="menu-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-haspopup="true" aria-expanded="false">
+              <span class="menu-btn__label">ARIA demo</span>
+              <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+            </button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast uses <code>ButtonText</code>, <code>Highlight</code>, <code>GrayText</code>.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="menu-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-haspopup="true">
+              <span class="menu-btn__label">HC Mode</span>
+              <span class="menu-btn__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>MenuButton Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-mb">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;button
+  className="menu-btn"
+  data-variant={variant}   {/* filled | outlined | soft | ghost */}
+  data-role={role}          {/* brand | danger | warning | info | success | neutral */}
+  data-size={size}
+  data-rounded={rounded || undefined}
+  data-loading={loading || undefined}
+  disabled={disabled}
+  aria-expanded={open}
+  aria-haspopup="true"
+  onClick={onToggle}
+&gt;
+  &lt;span className="menu-btn__label"&gt;{children}&lt;/span&gt;
+  &lt;span className="menu-btn__chevron"&gt;▾&lt;/span&gt;
+&lt;/button&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;button
+  class="menu-btn"
+  :data-variant="variant ?? 'brand'"
+  :data-role="role ?? 'brand'"
+  :data-size="size ?? 'base'"
+  :data-rounded="rounded || undefined"
+  :data-loading="loading || undefined"
+  :disabled="disabled"
+  :aria-expanded="open"
+  aria-haspopup="true"
+  @click="$emit('toggle')"
+&gt;
+  &lt;span class="menu-btn__label"&gt;&lt;slot /&gt;&lt;/span&gt;
+  &lt;span class="menu-btn__chevron"&gt;▾&lt;/span&gt;
+&lt;/button&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;button class="menu-btn" data-variant="filled" data-role="brand" data-size="base" aria-expanded="false" aria-haspopup="true"&gt;
+  &lt;span class="menu-btn__label"&gt;Options&lt;/span&gt;
+  &lt;span class="menu-btn__chevron"&gt;▾&lt;/span&gt;
+&lt;/button&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--menu-btn-radius-{size}
+--menu-btn-radius-rounded
+--menu-btn-shadow / -hover
+--menu-btn-border-style / -width
+
+/* Dimension */
+--menu-btn-height-{size}
+--menu-btn-padding-x-{size} / --menu-btn-padding-y-{size}
+--menu-btn-icon-size-{size}    /* chevron icon */
+
+/* Surface */
+--menu-btn-{structure}-bg / -hover / -active / -disabled
+--menu-btn-{structure}-fg / -hover / -disabled
+--menu-btn-{structure}-border-color / -hover / -active
+--menu-btn-{structure}-opacity-disabled
+
+/* Typography */
+--menu-btn-font-family / -weight
+--menu-btn-font-size-{size}
+--menu-btn-letter-spacing / --menu-btn-line-height
+--menu-btn-text-transform
+
+/* Motion */
+--menu-btn-transition-duration / -easing / -property
+--menu-btn-animation-enter / -exit
+
+/* A11y */
+--menu-btn-focus-outline-width / -offset / -color
+--menu-btn-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfMenuButton } from '@design-token-forge/slyte';
+
+&lt;dtf-menu-button
+  lt-prop-variant="outlined"
+  lt-prop-color-role="brand"
+  lt-prop-size="base"
+  lt-prop-show-chevron="true"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;Actions&lt;/template&gt;
+&lt;/dtf-menu-button&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var STRUCTS = ['filled','outlined','soft','ghost'];
+  var ROLES   = ['brand','danger','success','warning','info','neutral'];
+  var SIZES   = ['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var SIZE_HT = {micro:'24px',tiny:'28px',small:'32px',base:'36px',medium:'40px',large:'44px',big:'48px',huge:'56px',mega:'64px',ultra:'72px'};
+  var SHADOWS = ['none','xs','sm','DEFAULT','md','lg','xl','2xl'];
+
+  var ICON_CHEVRON='<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>';
+  var ICON_MENU='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg>';
+  var ICON_DOWNLOAD='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9M4 8l4 4 4-4M3 13h10"/></svg>';
+  var ICON_SETTINGS='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>';
+  var ICON_FILTER='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5L2 3z"/></svg>';
+
+  var STRUCT_ICONS={filled:ICON_MENU,outlined:ICON_DOWNLOAD,soft:ICON_SETTINGS,ghost:ICON_FILTER};
+  var ROLE_LABELS={
+    brand:{filled:'Actions',outlined:'Options',soft:'Select',ghost:'Menu'},
+    danger:{filled:'Delete',outlined:'Remove',soft:'Manage',ghost:'More'},
+    success:{filled:'Confirm',outlined:'Approve',soft:'Review',ghost:'Options'},
+    warning:{filled:'Alerts',outlined:'Warnings',soft:'Cautions',ghost:'More'},
+    brand:{filled:'Get Started',outlined:'Learn More',soft:'Features',ghost:'Menu'},
+    info:{filled:'Help',outlined:'Docs',soft:'FAQ',ghost:'Tips'},
+    neutral:{filled:'Actions',outlined:'Options',soft:'Select',ghost:'More'}
+  };
+
+  var curStruct='filled',curRole='brand',curS='base',curRounded=false;
+
+  function makeMB(struct,role,s,label,o){
+    o=o||{};
+    var b=document.createElement('button');
+    b.type='button';b.className='menu-btn';
+    if(!o.noSync) b.classList.add('synced-btn');
+    b.dataset.variant=struct;
+    if(role&&role!=='brand'||struct==='ghost')b.dataset.role=role||'brand';
+    b.dataset.size=s;
+    b.setAttribute('aria-haspopup','true');b.setAttribute('aria-expanded','false');
+    if(o.disabled) b.disabled=true;
+    if(o.loading) b.dataset.loading='';
+    if(curRounded&&!o.noRounded) b.dataset.rounded='';
+
+    if(o.iconStart){var ic=document.createElement('span');ic.className='menu-btn__icon';ic.innerHTML=o.iconSvg||STRUCT_ICONS[struct]||ICON_MENU;b.appendChild(ic)}
+    if(label!==false){var l=document.createElement('span');l.className='menu-btn__label';l.textContent=label||'Menu';b.appendChild(l)}
+    var chev=document.createElement('span');chev.className='menu-btn__chevron';chev.innerHTML=ICON_CHEVRON;b.appendChild(chev);
+
+    if(o.style){for(var k in o.style){if(o.style.hasOwnProperty(k))b.style.setProperty(k,o.style[k])}}
+    return b;
+  }
+
+  function wrapCard(b,t){var d=document.createElement('div');d.className='variant-card';d.appendChild(b);var l=document.createElement('span');l.className='variant-label';l.textContent=t;d.appendChild(l);return d}
+  function clr(id){var e=document.getElementById(id);e.innerHTML='';return e}
+  function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+  function labelFor(st,r){var l=ROLE_LABELS[r];return l&&l[st]?l[st]:cap(st)}
+
+  function renderStructGallery(){
+    var el=clr('structGallery');
+    STRUCTS.forEach(function(st){el.appendChild(wrapCard(makeMB(st,curRole,curS,labelFor(st,curRole),{iconStart:true,noSync:true}),st))});
+  }
+  function renderRoleGallery(){
+    var el=clr('roleGallery');
+    ROLES.forEach(function(r){el.appendChild(wrapCard(makeMB(curStruct,r,curS,labelFor(curStruct,r),{iconStart:true,noSync:true}),r))});
+  }
+
+  function renderDensity(){
+    var el=clr('densityScale');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      var btn=makeMB(curStruct,curRole,s,cap(s),{iconStart:true,noSync:true,style:{'min-width':'0','min-height':'0'}});
+      it.appendChild(btn);
+      var m=document.createElement('div');m.className='density-meta';
+      requestAnimationFrame(function(){
+        var v=getComputedStyle(btn).getPropertyValue('--menu-btn-height-'+s).trim();
+        m.textContent=v||'\u2014';
+      });
+      m.textContent='\u2026';
+      it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderStates(){
+    var el=clr('stateMatrix');
+    STRUCTS.forEach(function(st){
+      var row=document.createElement('div');row.className='state-row';row.style.cssText='display:flex;gap:12px;align-items:center;padding:8px 0';
+      var lbl=document.createElement('span');lbl.className='sub-label';lbl.style.width='80px';lbl.textContent=cap(st);row.appendChild(lbl);
+      row.appendChild(makeMB(st,curRole,curS,cap(st),{iconStart:true,noSync:true}));
+      row.appendChild(makeMB(st,curRole,curS,cap(st),{iconStart:true,noSync:true}));
+      row.appendChild(makeMB(st,curRole,curS,'Disabled',{disabled:true,iconStart:true,noSync:true}));
+      row.appendChild(makeMB(st,curRole,curS,'Loading...',{loading:true,iconStart:true,noSync:true}));
+      el.appendChild(row);
+    });
+  }
+
+  function renderSlots(){
+    var el=clr('slotsDemo');
+    [{label:'Icon + Label + Chevron',text:'Actions',opts:{iconStart:true}},{label:'Label + Chevron',text:'Options',opts:{}},{label:'Icon + Chevron (compact)',text:false,opts:{iconStart:true,style:{'min-width':'0'}}}].forEach(function(c){
+      var cd=document.createElement('div');cd.className='slot-card';
+      cd.appendChild(makeMB(curStruct,curRole,curS,c.text,c.opts));
+      var l=document.createElement('span');l.className='slot-label';l.textContent=c.label;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  var SURFACE_TOKENS=['bg','hover','pressed','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p=document.getElementById(id);
+      while(p.children.length>1) p.removeChild(p.lastChild);
+      if(id==='surfaceDeep'){applySurface(p,'deep');}
+      STRUCTS.forEach(function(st){p.appendChild(makeMB(st,curRole,curS,cap(st),{iconStart:true}))});
+    });
+  }
+
+  function renderRadius(){
+    var el=clr('radiusScale');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeMB(curStruct,curRole,s,cap(s),{noSync:true,style:{'min-width':'0','min-height':'0'}}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent=s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderRounded(){
+    var el=clr('roundedScale');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeMB(curStruct,curRole,s,cap(s),{noSync:true,noRounded:true,style:{'min-width':'0','min-height':'0'}}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent=s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderShadows(){
+    var el=clr('shadowStrip');
+    SHADOWS.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeMB(curStruct,curRole,curS,s==='DEFAULT'?'default':s,{noSync:true,style:{'--menu-btn-shadow':'var(--shadow-'+s+')','--menu-btn-shadow-hover':'var(--shadow-'+s+')'}}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent='--shadow-'+s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderMotion(){
+    var el=clr('motionDemo');
+    [{label:'Normal',sub:'duration-normal',opts:{iconStart:true}},{label:'Loading...',sub:'1.5s linear pulse',opts:{loading:true,iconStart:true}},{label:'Fast',sub:'duration-fast',opts:{iconStart:true,style:{'--menu-btn-transition-duration':'var(--duration-fast)','--menu-btn-transition-easing':'var(--easing-in)'}}},{label:'Slow bounce',sub:'duration-slow',opts:{iconStart:true,style:{'--menu-btn-transition-duration':'var(--duration-slow)','--menu-btn-transition-easing':'var(--easing-bounce)'}}}].forEach(function(it){
+      var cd=document.createElement('div');cd.className='motion-card';
+      cd.appendChild(makeMB(curStruct,curRole,curS,it.label,it.opts));
+      var l=document.createElement('span');l.className='motion-label';l.textContent=it.sub;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  /* ── Inspector ──────────────────────────────────── */
+  var MB_TOKENS={
+    height:{micro:'--spacing-24',tiny:'--spacing-28',small:'--spacing-32',base:'--spacing-36',medium:'--spacing-40',large:'--spacing-44',big:'--spacing-48',huge:'--spacing-56',mega:'--spacing-64',ultra:'--spacing-80'},
+    radius:{micro:'--radius-sm',tiny:'--radius-sm-md',small:'--radius-md',base:'--radius-md',medium:'--radius-DEFAULT',large:'--radius-DEFAULT',big:'--radius-md-lg',huge:'--radius-lg',mega:'--radius-lg-xl',ultra:'--radius-xl'},
+    px:{micro:'--spacing-8',tiny:'--spacing-10',small:'--spacing-12',base:'--spacing-16',medium:'--spacing-18',large:'--spacing-20',big:'--spacing-24',huge:'--spacing-28',mega:'--spacing-32',ultra:'--spacing-40'},
+    fs:{micro:'--font-size-10',tiny:'--font-size-11',small:'--font-size-12',base:'--font-size-13',medium:'--font-size-14',large:'--font-size-16',big:'--font-size-18',huge:'--font-size-20',mega:'--font-size-24',ultra:'--font-size-28'},
+    iconSize:{micro:'--spacing-12',tiny:'--spacing-14',small:'--spacing-16',base:'--spacing-18',medium:'--spacing-20',large:'--spacing-22',big:'--spacing-24',huge:'--spacing-28',mega:'--spacing-32',ultra:'--spacing-36'}
+  };
+  var STRUCT_TOKEN={filled:'brand',outlined:'secondary',soft:'tertiary',ghost:'ghost'};
+
+  function updateInspector(){
+    var hb=document.querySelector('.hero-preview .menu-btn');if(!hb)return;
+    var cs=getComputedStyle(hb),s=curS,tg=STRUCT_TOKEN[curStruct]||'brand';
+    var isN=curRole==='neutral';
+    var rows=[
+      ['--menu-btn-height-'+s, MB_TOKENS.height[s], cs.getPropertyValue('--_mb-height').trim()],
+      [curRounded?'--menu-btn-radius-rounded':'--menu-btn-radius-'+s, curRounded?'--radius-full':MB_TOKENS.radius[s], cs.borderRadius],
+      ['--menu-btn-padding-x-'+s, MB_TOKENS.px[s], cs.paddingInlineStart],
+      ['--menu-btn-font-size-'+s, MB_TOKENS.fs[s], cs.fontSize],
+      ['--menu-btn-icon-size-'+s, MB_TOKENS.iconSize[s], ''],
+      ['--menu-btn-'+tg+'-bg', isN?'--surface-base-cm-bg':'--brand-component-bg-default', cs.backgroundColor],
+      ['--menu-btn-'+tg+'-fg', isN?'--surface-base-ct-default':'--brand-on-component', cs.color],
+      ['--menu-btn-'+tg+'-border-color', '\u2014', cs.borderColor],
+      ['--menu-btn-shadow', '\u2014', cs.boxShadow==='none'?'none':cs.boxShadow]
+    ];
+    var ins=document.getElementById('heroInspector');
+    ins.innerHTML='<div class="inspector-title">Resolved Tokens ('+curStruct+' / '+curRole+' / '+s+')</div>'+
+      rows.map(function(t){return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+(t[2]||'\u2014')+(t[1]!=='\u2014'?'<br><span style="opacity:0.5;font-size:9px">\u2192 '+t[1]+'</span>':'')+'</span></div>'}).join('');
+  }
+
+  /* ── Apply Global Controls ──────────────────────── */
+  function applyGlobals(){
+    var hb=document.querySelector('.hero-preview .menu-btn');
+    if(hb){
+      hb.dataset.variant=curStruct;
+      if(curRole!=='brand'||curStruct==='ghost'){hb.dataset.role=curRole}else{delete hb.dataset.role}
+      hb.dataset.size=curS;
+      if(curRounded)hb.dataset.rounded='';else delete hb.dataset.rounded;
+    }
+    document.querySelectorAll('.a11y-grid .synced-btn').forEach(function(b){
+      b.dataset.variant=curStruct;
+      if(curRole!=='brand'||curStruct==='ghost'){b.dataset.role=curRole}else{delete b.dataset.role}
+      b.dataset.size=curS;
+      if(curRounded)b.dataset.rounded='';else delete b.dataset.rounded;
+    });
+    renderStructGallery();renderRoleGallery();renderDensity();renderStates();
+    renderSlots();renderSurface();renderRadius();renderRounded();renderShadows();renderMotion();
+    requestAnimationFrame(updateInspector);
+  }
+
+  function wirePill(barId,attr,cb){
+    document.getElementById(barId).addEventListener('click',function(e){
+      var pill=e.target.closest('.pill');if(!pill)return;
+      this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+      pill.setAttribute('aria-pressed','true');cb(pill.dataset[attr]);
+    });
+  }
+
+  wirePill('structBar','ctrlStruct',function(v){curStruct=v;applyGlobals()});
+  wirePill('roleBar','ctrlRole',function(v){curRole=v;applyGlobals()});
+  wirePill('sizeBar','ctrlSize',function(v){curS=v;applyGlobals()});
+  wirePill('roundedBar','ctrlRounded',function(v){curRounded=v==='true';applyGlobals()});
+
+  window.DTF.onThemeChange=updateInspector;
+  applyGlobals();
+
+  /* ── Context Playground ─────────────────────────── */
+  var ROLE_REMAP=['component-bg-default','component-bg-hover','component-bg-pressed','on-component','content-default','content-strong','content-subtle','content-faint','component-outline-default','component-outline-hover','component-outline-pressed','component-separator','container-bg','container-hover','container-pressed','container-outline','container-separator','on-container'];
+  var pgSize='base';
+
+  function applySurface(el,sid){
+    if(sid==='base'){SURFACE_TOKENS.forEach(function(t){el.style.removeProperty('--surface-base-'+t)});el.style.background='var(--surface-base-bg)';el.removeAttribute('data-theme');}
+    else{SURFACE_TOKENS.forEach(function(t){el.style.setProperty('--surface-base-'+t,'var(--surface-'+sid+'-'+t+')')});el.style.background='var(--surface-'+sid+'-bg)';if(sid==='inverse'){el.setAttribute('data-theme','dark');}else{el.removeAttribute('data-theme');}}
+  }
+  function applyRole(el,rid){
+    if(rid==='brand'){ROLE_REMAP.forEach(function(t){el.style.removeProperty('--brand-'+t)})}
+    else if(rid==='neutral'){
+      el.style.setProperty('--brand-component-bg-default','var(--surface-base-cm-bg)');
+      el.style.setProperty('--brand-component-bg-hover','var(--surface-base-cm-bg-hover)');
+      el.style.setProperty('--brand-component-bg-pressed','var(--surface-base-cm-bg-pressed)');
+      el.style.setProperty('--brand-on-component','var(--surface-base-ct-default)');
+      el.style.setProperty('--brand-content-default','var(--surface-base-ct-default)');
+      el.style.setProperty('--brand-container-bg','var(--surface-base-subtle)');
+      el.style.setProperty('--brand-container-hover','var(--surface-base-strong)');
+      el.style.setProperty('--brand-container-pressed','var(--surface-base-strong)');
+      el.style.setProperty('--brand-component-outline-default','var(--surface-base-cm-outline)');
+      el.style.setProperty('--brand-component-outline-hover','var(--surface-base-cm-outline-hover)');
+      el.style.setProperty('--brand-component-outline-pressed','var(--surface-base-cm-outline-pressed)');
+    } else {
+      ROLE_REMAP.forEach(function(t){el.style.setProperty('--brand-'+t,'var(--'+rid+'-'+t+')')});
+    }
+  }
+
+  function pgBuildCard(card){
+    var body=document.getElementById('pgBody'+card);body.innerHTML='';
+    var role=document.querySelector('[data-pg-role="'+card+'"]').value;
+    var labels=ROLE_LABELS[role]||ROLE_LABELS.primary;
+    STRUCTS.forEach(function(st){
+      var row=document.createElement('div');row.className='pg-variant-row';
+      var lbl=document.createElement('span');lbl.className='pg-variant-label';lbl.textContent=cap(st);row.appendChild(lbl);
+      row.appendChild(makeMB(st,'brand',pgSize,labels[st]||cap(st),{iconStart:true,noSync:true}));
+      body.appendChild(row);
+    });
+  }
+  function pgApplyCard(card){
+    var body=document.getElementById('pgBody'+card);
+    applySurface(body,document.querySelector('[data-pg-surface="'+card+'"]').value);
+    applyRole(body,document.querySelector('[data-pg-role="'+card+'"]').value);
+    pgBuildCard(card);
+  }
+  function pgUpdateChain(){
+    var chain=document.getElementById('pgChain');
+    var s=document.querySelector('[data-pg-surface="A"]').value;
+    var r=document.querySelector('[data-pg-role="A"]').value;
+    var isN=(r==='neutral'),rp=isN?'surface-'+s:r;
+    var rows=[
+      {sec:'Filled ('+r+')'},
+      {label:'BG',token:'--menu-btn-filled-bg',via:'--'+rp+(isN?'-cm-bg':'-component-bg-default')},
+      {label:'FG',token:'--menu-btn-filled-fg',via:'--'+rp+(isN?'-ct-default':'-on-component')},
+      {sec:'Outlined ('+r+')'},
+      {label:'Border',token:'--menu-btn-outlined-border-color',via:'--'+rp+(isN?'-outline':'-component-outline-default')},
+      {label:'FG',token:'--menu-btn-outlined-fg',via:'--'+rp+(isN?'-ct-default':'-content-default')},
+      {sec:'Soft ('+r+')'},
+      {label:'BG',token:'--menu-btn-soft-bg',via:'--'+rp+(isN?'-hover':'-container-bg')},
+      {sec:'Ghost ('+r+')'},
+      {label:'FG',token:'--menu-btn-ghost-fg',via:isN?'--surface-'+s+'-ct-default':'--'+r+'-content-default'}
+    ];
+    var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row){
+      if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return}
+      h+='<div class="pg-chain-row"><span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span></div>';
+    });
+    chain.innerHTML=h;
+  }
+
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+    sel.addEventListener('change',function(){var card=this.dataset.pgSurface||this.dataset.pgRole;pgApplyCard(card);requestAnimationFrame(pgUpdateChain)});
+  });
+  document.getElementById('pgDensityBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');pgSize=pill.dataset.pgSize;
+    pgApplyCard('A');pgApplyCard('B');requestAnimationFrame(pgUpdateChain);
+  });
+  pgApplyCard('A');pgApplyCard('B');requestAnimationFrame(pgUpdateChain);
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "archetype": "form-binary",
+  "tokenPrefix": "checkbox",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["unchecked", "checked", "indeterminate", "hover", "pressed", "disabled", "focus-visible", "invalid"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined"],
+  "onComponentTokens": [
+    {
+      "token": "--checkbox-check-color",
+      "fillStates": ["--checkbox-box-bg-on", "--checkbox-box-bg-on-hover"],
+      "derivation": "auto-aa",
+      "wcag": "AA-non-text"
+    },
+    {
+      "token": "--checkbox-outlined-check-color",
+      "fillStates": ["--checkbox-outlined-box-bg-on", "--checkbox-outlined-box-bg-on-hover"],
+      "derivation": "auto-aa",
+      "wcag": "AA-non-text"
+    }
+  ],
+  "editorExposureOverrides": {
+    "--checkbox-min-tap-target": "required",
+    "--checkbox-required-indicator": "required",
+    "--checkbox-required-color": "required",
+    "--checkbox-box-scale-pressed": "advanced",
+    "--checkbox-check-stroke-width": "advanced",
+    "--checkbox-check-size": "advanced",
+    "--checkbox-focus-outline-offset": "advanced"
+  },
+  "figmaBindingPrefix": "checkbox/",
+  "notes": [
+    "Form-binary archetype: visible box + check/dash indicator + label. Three render states (unchecked, checked, indeterminate) layered on standard interaction states.",
+    "Variant pair is filled (solid box-on) + outlined (border-only off, filled on). No soft/ghost — the indicator surface must always render.",
+    "Roles brand|danger|warning|info|success|neutral remap via [data-role=...] overriding --brand-* palette vars at the component scope (see checkbox.css).",
+    "aria-invalid='true' forces danger-coloured border and (when checked) danger-coloured fill, regardless of role. Invalid is a STATE, not a role.",
+    "Label is an optional slot — checkbox without a label is valid (icon-only or grid usage). Required-marker glyph and color are tokenised."
+  ]
+}

@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Token Forge — Token Editor</title>
+  <!-- Auth gate — must be first, no defer, so body hides before paint.
+       Catalyst Slate handles the actual login redirect automatically. -->
+  <script src="../auth-gate.js?v=7"></script>
+  <!-- Catalyst user identity helper — reads Zoho user ID from Catalyst SDK. -->
+  <script src="../catalyst-user.js?v=1" defer></script>
+
+  <!-- Post-restore mask. Set by restoreVersion() before reload:
+         sessionStorage.setItem('dtf-restoring-overlay', JSON.stringify({pid, from, to}));
+       If present, we paint a full-viewport opaque overlay BEFORE
+       any token CSS loads. The overlay stays visible through:
+         • body parse + token <link> loads (which paint maintainer
+           pearl defaults briefly — the source of the flash)
+         • inline Step 1 stash synth (paints project palette)
+         • deferred editor-v2.js boot + injectProjectPrimitivesSync
+       editor-v2.js dismisses the overlay AFTER its first full
+       render with the new tokens, via:
+         document.getElementById('ev2-restore-mask').remove();
+       This is the only deterministic way to hide every possible
+       intermediate paint regardless of stash/Pages/draft state. -->
+  <script>
+  (function(){
+    try {
+      var raw = sessionStorage.getItem('dtf-restoring-overlay');
+      if (!raw) return;
+      var info; try { info = JSON.parse(raw); } catch (_e) { info = {}; }
+      // Single-shot: consume immediately so a manual refresh after
+      // restore doesn't permanently mask the page.
+      sessionStorage.removeItem('dtf-restoring-overlay');
+      // Inline styles (no external CSS yet) using neutral theme-immune
+      // colours. Spinner is pure CSS keyframe injected into head.
+      var st = document.createElement('style');
+      st.id = 'ev2-restore-mask-css';
+      st.textContent =
+        '#ev2-restore-mask{position:fixed;inset:0;z-index:2147483647;' +
+        'background:#0b0d12;color:#e8eaed;display:flex;flex-direction:column;' +
+        'align-items:center;justify-content:center;gap:18px;' +
+        'font:500 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
+        'opacity:1;transition:opacity .18s ease-out}' +
+        '#ev2-restore-mask[data-dismiss]{opacity:0;pointer-events:none}' +
+        '#ev2-restore-mask .rm-spin{width:36px;height:36px;border-radius:50%;' +
+        'border:3px solid rgba(255,255,255,.15);border-top-color:#fff;' +
+        'animation:ev2RmSpin .8s linear infinite}' +
+        '#ev2-restore-mask .rm-msg{opacity:.85;letter-spacing:.01em}' +
+        '#ev2-restore-mask .rm-sub{opacity:.55;font-size:12px}' +
+        '@keyframes ev2RmSpin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(st);
+      // Build overlay now so it's in the DOM before body paints.
+      // Append to documentElement since body doesn't exist yet.
+      var ov = document.createElement('div');
+      ov.id = 'ev2-restore-mask';
+      ov.setAttribute('aria-live', 'polite');
+      ov.innerHTML =
+        '<div class="rm-spin" aria-hidden="true"></div>' +
+        '<div class="rm-msg">Applying ' + (info.to ? String(info.to).replace(/[<>&]/g,'') : 'restored version') + '\u2026</div>' +
+        '<div class="rm-sub">Loading project tokens</div>';
+      // documentElement always exists during head parse.
+      document.documentElement.appendChild(ov);
+      // Safety fallback: if editor-v2.js never dismisses (e.g. boot
+      // crashes), reveal after 8s so user isn't stuck on a blank
+      // overlay forever.
+      setTimeout(function(){
+        var el = document.getElementById('ev2-restore-mask');
+        if (el && !el.hasAttribute('data-dismiss')) {
+          el.setAttribute('data-dismiss', '1');
+          setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 250);
+        }
+      }, 8000);
+    } catch (_e) {}
+  })();
+  </script>
+
+  <!-- Token foundations: same chain as every component demo page -->
+  <link rel="stylesheet" href="../../packages/tokens/src/primitives.css">
+  <link rel="stylesheet" href="../../packages/tokens/src/semantic.css">
+  <link rel="stylesheet" href="../../packages/tokens/src/surfaces.css">
+  <link rel="stylesheet" href="../../packages/tokens/src/extras.css">
+
+  <!-- Shared chrome (nav, theme tokens, pill bars) -->
+  <link rel="stylesheet" href="../shared.css">
+
+  <!-- Editor v2 specific layout -->
+  <link rel="stylesheet" href="./editor-v2.css?v=165">
+
+  <!-- Palette engine MUST load before the per-project token script
+       below so we can synth primitives from cfg.paletteKeys before
+       first paint. Without this, the page paints with the default
+       pearl primitives, then editor-v2.js (deferred) repaints with
+       the project's palette — a visible colour flash. Same-origin
+       file fetches still happen below as a refresh layer for the
+       maintainer's own projects. -->
+  <script src="../palette-engine.js?v=85"></script>
+
+  <!-- Per-project token chrome: load the active project's primitives/
+       semantic/surfaces so the editor itself (topbar dropdown, pills,
+       publish button, dialogs, focus rings) paints in the project's
+       brand — same chain shared.js runs for every other demo page.
+       Inlined here because editor-v2 deliberately doesn't load
+       shared.js (would conflict with its own state machine), but
+       the chrome should still feel like part of the project. -->
+  <script>
+  (function(){
+    try {
+      var qp = new URLSearchParams(location.search).get('project');
+      var pid = qp || localStorage.getItem('dtf-active-project') || '';
+      if (!pid) return;
+      /* Resolve the same-origin URL of /projects/<pid>/<file>.
+         The editor can be served from one of three shapes:
+           1. file://.../demo/editor-v2/index.html         (dev)
+           2. https://<host>/<repo>/demo/editor-v2/        (canonical Pages)
+           3. https://<host>/<repo>/<projectId>/demo/editor-v2/
+              (per-project static dist generated by the sync server;
+              switching projects from that subdir would otherwise
+              produce /<repo>/<otherProject>/projects/<pid>/* 404s,
+              because the per-project dist only carries its own
+              project files \u2014 the maintainer's root deploy is the
+              only same-origin location with every project.)
+         For (2)/(3) we anchor to the FIRST path segment (the repo
+         name), giving /<repo>/projects/<pid>/<file>. For (1) we
+         fall back to the legacy two-up relative path so dev keeps
+         working. */
+      function ev2ProjectFetchUrl(p, file) {
+        var qs = '?_cb=' + Date.now();
+        try {
+          if (location.protocol !== 'file:') {
+            var i = location.pathname.indexOf('/components/editor');
+            if (i > 0) {
+              var segs = location.pathname.slice(0, i).split('/').filter(Boolean);
+              if (segs.length) return '/' + segs[0] + '/projects/' + encodeURIComponent(p) + '/' + file + qs;
+            }
+          }
+        } catch (_e) {}
+        return '../../projects/' + encodeURIComponent(p) + '/' + file + qs;
+      }
+      /* Step 1: synth primitives from the config stash BEFORE first
+         paint. fetchFromUserFork on the hub seeds dtf-project-config-
+         <pid> with the owner-fork config.json (works cross-fork), so
+         this synth produces the same primitives the editor's later
+         injectProjectPrimitivesSync would produce — but it happens
+         here, blocking, before the body renders. Eliminates the
+         default-blue-then-brand colour flash.
+         If the stash is missing (first reload after hub bypass, or
+         old browser cache), fall back to a sync GitHub Contents API
+         XHR using the stored PAT — adds ~200-500ms on first paint
+         but is required to avoid the flash. */
+      function ensureCfg(pid){
+        try {
+          var raw = localStorage.getItem('dtf-project-config-' + pid);
+          if (raw) return JSON.parse(raw);
+        } catch (_e) {}
+        try {
+          var pat   = localStorage.getItem('dtf-gh-pat')   || '';
+          var owner = localStorage.getItem('dtf-gh-owner') || localStorage.getItem('dtf-gh-user') || '';
+          if (!pat || !owner) return null;
+          var url = 'https://api.github.com/repos/' + owner + '/Design-Token-Forge/contents/projects/' + encodeURIComponent(pid) + '/config.json?ref=main';
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', url, /* async */ false);
+          xhr.setRequestHeader('Authorization', 'Bearer ' + pat);
+          xhr.setRequestHeader('Accept', 'application/vnd.github+json');
+          xhr.send(null);
+          if (xhr.status < 200 || xhr.status >= 300) return null;
+          var file = JSON.parse(xhr.responseText);
+          if (!file || !file.content) return null;
+          var cfg = JSON.parse(atob(file.content.replace(/\n/g, '')));
+          try { localStorage.setItem('dtf-project-config-' + pid, JSON.stringify(cfg)); } catch (_se) {}
+          return cfg;
+        } catch (_e) { return null; }
+      }
+      try {
+        var cfg = ensureCfg(pid);
+        if (cfg && cfg.paletteKeys && window.PaletteEngine) {
+          var parts = [];
+          Object.keys(cfg.paletteKeys).forEach(function(roleId){
+            var keyHex = cfg.paletteKeys[roleId];
+            if (!keyHex) return;
+            try {
+              var pal = window.PaletteEngine.generatePalette(keyHex, { anchor: 'exact' });
+              parts.push(window.PaletteEngine.toCss(roleId, pal));
+            } catch (_e) {}
+          });
+          if (parts.length) {
+            var ss = document.createElement('style');
+            ss.id = 'ev2-project-primitives';
+            ss.textContent = parts.join('\n');
+            document.head.appendChild(ss);
+          }
+        }
+      } catch (_e) {}
+      /* Step 2: active tier restoration runs inline after the
+         tierbar markup parses — see <script> block just below the
+         <nav class="ev2-tierbar"> block. That timing guarantees the
+         segmented bar's aria-current is correct before first paint
+         without needing any extra CSS. */
+      var cached = localStorage.getItem('dtf-saved-tokens-' + pid);
+      if (cached) {
+        var s = document.createElement('style');
+        s.id = 'dtfSavedTokens';
+        s.textContent = cached;
+        document.head.appendChild(s);
+      }
+      /* Step 3: cross-fork sync fetch for the published primitives/
+         semantic/surfaces CSS. The packages/tokens/*.css <link>s
+         above paint the maintainer's pearl tokens for a few hundred
+         ms — semantic.css uses var(--prim-*) so the brand synth
+         fixes it, but surfaces.css is LITERAL HEX (--surface-base-
+         bg etc are baked from the maintainer's brand) and can't be
+         re-resolved. Pull the project's three token files from the
+         owner's fork via Contents API (sync XHR — blocks ~300ms
+         once, then localStorage-cached) and inject as the highest-
+         priority style block so surfaces paint with the project's
+         brand on first frame. */
+      if (!cached) {
+        try {
+          var pat   = localStorage.getItem('dtf-gh-pat')   || '';
+          var owner = (cfg && cfg.owner) || localStorage.getItem('dtf-gh-owner') || localStorage.getItem('dtf-gh-user') || '';
+          if (pat && owner) {
+            var ghFiles = ['primitives.css','semantic.css','surfaces.css'];
+            var ghParts = [];
+            ghFiles.forEach(function(f){
+              try {
+                var u = 'https://api.github.com/repos/' + owner + '/Design-Token-Forge/contents/projects/' + encodeURIComponent(pid) + '/' + f + '?ref=main';
+                var xr = new XMLHttpRequest();
+                xr.open('GET', u, /* async */ false);
+                xr.setRequestHeader('Authorization', 'Bearer ' + pat);
+                xr.setRequestHeader('Accept', 'application/vnd.github+json');
+                xr.send(null);
+                if (xr.status >= 200 && xr.status < 300) {
+                  var ff = JSON.parse(xr.responseText);
+                  if (ff && ff.content) ghParts.push(atob(ff.content.replace(/\n/g, '')));
+                }
+              } catch (_fe) {}
+            });
+            if (ghParts.length) {
+              var ghCss = ghParts.join('\n');
+              try { localStorage.setItem('dtf-saved-tokens-' + pid, ghCss); } catch (_se) {}
+              var gs = document.createElement('style');
+              gs.id = 'dtfSavedTokens';
+              gs.textContent = ghCss;
+              document.head.appendChild(gs);
+            }
+          }
+        } catch (_e) {}
+      }
+      // Background refresh from same-origin server (works for projects
+      // owned by the maintainer; cross-fork projects rely on the sync
+      // GitHub API fetch above).
+      //
+      // CRITICAL: same-origin Pages lags 30-90s behind a Restore/Publish
+      // commit (deploy-tokens.yml workflow). Without a version check
+      // this fetch would unconditionally overwrite the just-restored
+      // stash with stale CSS → user sees OLD palette flash in over
+      // the freshly-painted NEW one. So:
+      //  1. Read the version comment from the fetched primitives.css
+      //     (every published file carries `/* version: vX.Y.Z … */`).
+      //  2. Compare to cfg.latestVersion.version (HEAD per config stash).
+      //  3. If fetched is OLDER, drop the bytes on the floor — the
+      //     stash we already painted is correct.
+      var files = ['primitives.css','semantic.css','surfaces.css'];
+      var parts2 = [];
+      var pending = files.length;
+      files.forEach(function(f, i){
+        fetch(ev2ProjectFetchUrl(pid, f))
+          .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+          .then(function(t){ parts2[i] = t; })
+          .catch(function(){})
+          .finally(function(){
+            if (--pending) return;
+            var css = parts2.filter(Boolean).join('\n');
+            if (!css) return;
+            try {
+              var headVer = cfg && cfg.latestVersion && cfg.latestVersion.version;
+              var m = /\/\*\s*version:\s*(v[\d.]+)/i.exec(parts2[0] || '');
+              var fetchedVer = m ? m[1] : '';
+              // Tiny semver-ish compare so v0.0.10 > v0.0.9.
+              function vparts(v){ return String(v||'').replace(/^v/,'').split('.').map(function(n){ return parseInt(n,10)||0; }); }
+              function vlt(a,b){
+                var A=vparts(a), B=vparts(b), n=Math.max(A.length,B.length);
+                for (var k=0;k<n;k++){ var x=A[k]||0, y=B[k]||0; if (x!==y) return x<y; }
+                return false;
+              }
+              if (headVer && fetchedVer && vlt(fetchedVer, headVer)) {
+                // Pages is behind HEAD (just-published commit not deployed
+                // yet). Skip overwrite — stash already holds the right thing.
+                return;
+              }
+            } catch (_ve) {}
+            localStorage.setItem('dtf-saved-tokens-' + pid, css);
+            var el = document.getElementById('dtfSavedTokens');
+            if (el) el.textContent = css;
+            else {
+              var s2 = document.createElement('style');
+              s2.id = 'dtfSavedTokens';
+              s2.textContent = css;
+              document.head.appendChild(s2);
+            }
+          });
+      });
+
+      /* Step 4: version-tag stash drift check (Phase 1 of state model).
+         Every published config.json carries `latestVersion.version`
+         (e.g. "v0.0.7"). Stash freshness is a 1-string compare —
+         far cheaper than the old paletteKeys + semanticMap deep
+         compare, and never produces false positives from cosmetic
+         reordering of unrelated fields.
+
+         On mismatch:
+           • Nuke BOTH stashes (config + tokens). They're derived
+             from the previous publish, so neither survives a remote
+             republish cleanly.
+           • If no unsaved draft → silent reload (next boot rebuilds
+             stashes from remote via Steps 1+3).
+           • If unsaved draft exists → toast warning, leave stashes
+             nuked so next reload still picks up the new version,
+             but DON'T auto-reload (would destroy the draft). User
+             must Discard or Publish first.
+
+         Phase 2 will handle the draft-vs-newer-HEAD case more
+         gracefully (conflict banner with Keep/Discard choice). For
+         now: preserve draft = correct behaviour, just unobtrusive. */
+      setTimeout(function validateStashByVersion(){
+        try {
+          var stashRaw = localStorage.getItem('dtf-project-config-' + pid);
+          if (!stashRaw) return;
+          var stash; try { stash = JSON.parse(stashRaw); } catch (_pe) { return; }
+          var stashVer = (stash && stash.latestVersion && stash.latestVersion.version) || '';
+          // No version field on stash = pre-Phase-1 cache. Treat as
+          // stale once so the version-tagged copy replaces it.
+          // Subsequent boots will short-circuit on match.
+
+          function onFresh(fresh){
+            if (!fresh || typeof fresh !== 'object') return;
+            var freshVer = (fresh && fresh.latestVersion && fresh.latestVersion.version) || '';
+            if (!freshVer) return; // remote has no version yet — skip check
+            if (stashVer && stashVer === freshVer) return; // in sync
+
+            // Direction check — critical for Restore/Publish UX.
+            // Pages (and the same-origin workspace served by Pages
+            // in production) deploys 30-90s behind a commit. Right
+            // after the user clicks Restore/Publish, our stash holds
+            // the FRESH version but Pages still serves the OLD one.
+            // Without this check we'd nuke our just-written stash
+            // and reload onto the stale Pages CSS — exactly the
+            // "wrong version flashes for a few seconds" symptom.
+            //
+            // Only nuke when remote is strictly NEWER than stash
+            // (someone else published, or this tab fell behind). If
+            // remote is OLDER, our stash is correct — Pages just
+            // hasn't caught up yet.
+            function vparts(v){ return String(v||'').replace(/^v/,'').split('.').map(function(n){ return parseInt(n,10)||0; }); }
+            function vlt(a,b){
+              var A=vparts(a), B=vparts(b), n=Math.max(A.length,B.length);
+              for (var k=0;k<n;k++){ var x=A[k]||0, y=B[k]||0; if (x!==y) return x<y; }
+              return false;
+            }
+            if (stashVer && vlt(freshVer, stashVer)) {
+              // Remote is behind our stash. We're ahead (just
+              // restored/published). Hold the stash; do nothing.
+              return;
+            }
+
+            // Drift forward. Nuke both stashes unconditionally —
+            // they were built against the old publish and cannot
+            // be trusted against the newer remote.
+            try { localStorage.removeItem('dtf-project-config-' + pid); } catch (_se) {}
+            try { localStorage.removeItem('dtf-saved-tokens-' + pid); } catch (_se) {}
+
+            var draftKey = 'dtf-editor-v2-draft-v2--' + pid;
+            var hasDraft = false;
+            try { hasDraft = !!localStorage.getItem(draftKey); } catch (_de) {}
+
+            if (hasDraft) {
+              // eslint-disable-next-line no-console
+              console.warn('[ev2] Project published to ' + freshVer + ' on remote (you had ' + (stashVer || 'unversioned') + '). Your draft is preserved. Discard or Publish to resync.');
+              if (window.ev2Toast) {
+                window.ev2Toast('Project updated to ' + freshVer + ' on source. Discard your draft to load it.', 'warn', 6000);
+              }
+              return;
+            }
+            // eslint-disable-next-line no-console
+            console.info('[ev2] Stash out of sync (' + (stashVer || 'unversioned') + ' \u2192 ' + freshVer + '). Reloading.');
+            window.__ev2BypassUnloadGuard = true;
+            location.reload();
+          }
+
+          // Try same-origin first (workspace / Pages).
+          fetch(ev2ProjectFetchUrl(pid, 'config.json'))
+            .then(function(r){ if (!r.ok) throw 0; return r.json(); })
+            .then(onFresh)
+            .catch(function(){
+              // Cross-fork fallback: GitHub Contents API.
+              try {
+                var pat   = localStorage.getItem('dtf-gh-pat')   || '';
+                var owner = (cfg && cfg.owner) || localStorage.getItem('dtf-gh-owner') || localStorage.getItem('dtf-gh-user') || '';
+                if (!pat || !owner) return;
+                var apiUrl = 'https://api.github.com/repos/' + owner + '/Design-Token-Forge/contents/projects/' + encodeURIComponent(pid) + '/config.json?ref=main&_cb=' + Date.now();
+                fetch(apiUrl, { headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json' } })
+                  .then(function(r){ if (!r.ok) throw 0; return r.json(); })
+                  .then(function(file){
+                    if (!file || !file.content) return;
+                    try { onFresh(JSON.parse(atob(file.content.replace(/\n/g, '')))); } catch (_je) {}
+                  })
+                  .catch(function(){ /* offline \u2014 leave stash, user can manually Reset */ });
+              } catch (_we) {}
+            });
+        } catch (_e) {}
+      }, 1500);
+    } catch(e) {}
+  })();
+  </script>
+
+  <!-- Unified topbar (custom element) — defined in demo/dtf-topbar.js -->
+  <script src="../dtf-topbar.js?v=9" defer></script>
+
+  <!-- Palette engine already loaded above (sync) so editor-v2.js can
+       reuse window.PaletteEngine without re-fetching. -->
+  <!-- Token Solver (pure-function engine, exposes window.DTFSolver) -->
+  <script src="./solver.js?v=85" defer></script>
+</head>
+<body>
+
+  <!-- ─── Top bar (unified <dtf-topbar>) ─────────────────
+       The editor keeps its own project chip + power-tool actions, but
+       drops them into the shared shell via slot="project" / slot="action".
+       no-theme-toggle: the in-list "Editing Light/Dark" pill in the tier
+       header already controls data-theme — a duplicate top bar toggle
+       would compete with it. -->
+  <dtf-topbar page="editor-v2/" no-theme-toggle>
+    <div slot="project" class="nav-project-host" id="projectSlot" aria-label="Active project">
+      <div class="nav-project">
+        <span class="nav-project-label">Project</span>
+        <span class="nav-proj-wrap">
+          <button class="nav-proj-btn" id="projBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span id="projName">…</span>
+          </button>
+        </span>
+        <button class="nav-project-action" id="projRenameBtn" type="button" aria-label="Rename active project" data-tip="Rename active project">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11.5 2.5l2 2L5 13H3v-2l8.5-8.5z"/>
+          </svg>
+        </button>
+        <button class="nav-project-action nav-project-del" id="projDeleteBtn" type="button" aria-label="Delete active project" data-tip="Delete active project">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 4h10M12 4v9a1.5 1.5 0 01-1.5 1.5h-5A1.5 1.5 0 014 13V4m2 0V3a1 1 0 011-1h2a1 1 0 011 1v1"/>
+          </svg>
+        </button>
+      </div>
+      <div class="ev2-proj-panel" id="projPanel" role="listbox" hidden></div>
+    </div>
+
+    <button slot="action" class="ev2-topbar-ghost-btn" id="discardBtn" type="button" disabled
+      data-tip="Revert every unsaved change in this draft — Palette + Roles + Surfaces + Components for both light and dark modes. To reset just one section, use the Reset section button above the token list. To reset just one role, use Reset on the role card.">Discard</button>
+
+    <button slot="action" class="ev2-deploy" id="deployBtn" type="button" disabled
+      data-tip="Save your changes as the new default for this project. Figma refreshes automatically.">
+      <span class="ev2-deploy-label">Publish</span>
+    </button>
+  </dtf-topbar>
+
+  <!-- ─── Main workspace: tier rail (top) + panes ────────── -->
+  <main class="ev2-workspace">
+
+    <!-- TOP: Tier rail (horizontal). Sets the navigation contract for
+         T1/T2/T3 — see docs/editor-v2-tier-architecture.md §5.1.
+         T0 stays in the rail because palette editing is shipping; it
+         is conceptually upstream of the T1→T3 cascade but lives in the
+         same shell. -->
+    <nav class="ev2-tierbar" aria-label="Token tiers">
+      <div class="ev2-tierbar-segs" role="tablist">
+        <button class="ev2-tier" data-tier="t0" role="tab" aria-current="true">
+          <span class="ev2-tier-badge">T0</span>
+          <span class="ev2-tier-name">Palette</span>
+        </button>
+        <button class="ev2-tier" data-tier="tt" role="tab">
+          <span class="ev2-tier-badge">Tt</span>
+          <span class="ev2-tier-name">Type</span>
+        </button>
+        <button class="ev2-tier" data-tier="t1" role="tab">
+          <span class="ev2-tier-badge">T1</span>
+          <span class="ev2-tier-name">Roles</span>
+        </button>
+        <button class="ev2-tier" data-tier="t2" role="tab">
+          <span class="ev2-tier-badge">T2</span>
+          <span class="ev2-tier-name">Surfaces</span>
+        </button>
+        <button class="ev2-tier" data-tier="t3" role="tab">
+          <span class="ev2-tier-badge">T3</span>
+          <span class="ev2-tier-name">Components</span>
+        </button>
+      </div>
+      <div class="ev2-tierbar-meta">
+        <div class="ev2-draft-status" id="draftStatus">
+          <span class="ev2-draft-dot"></span>
+          <span class="ev2-draft-text">Loading draft…</span>
+        </div>
+        <button class="ev2-tierbar-link" id="historyBtn" type="button"
+          data-tip="Browse every published version of this project on GitHub. Restore any past version as a new release.">Version history</button>
+      </div>
+    </nav>
+    <script>
+    /* Restore the saved active tier inline, before any paint. The
+       HTML hardcodes T0 as aria-current=true (so a fresh first-time
+       boot has a sensible default), but on every subsequent reload
+       editor-v2.js (deferred) re-applies the saved tier — visible
+       as a pill that jumps to T0 then back to the saved tier. We
+       fix it here by patching aria-current as soon as the tier bar
+       parses, while the body is still being built. */
+    (function(){
+      try {
+        var raw = localStorage.getItem('dtf-editor-v2-ui-v1');
+        if (!raw) return;
+        var ui = JSON.parse(raw);
+        var t = ui && ui.activeTier;
+        if (t !== 't1' && t !== 't2' && t !== 't3' && t !== 'tt') return;
+        document.querySelectorAll('.ev2-tier').forEach(function(btn){
+          if (btn.getAttribute('data-tier') === t) btn.setAttribute('aria-current', 'true');
+          else btn.removeAttribute('aria-current');
+        });
+      } catch (_e) {}
+    })();
+    </script>
+
+    <!-- First-boot migration banner (populated by JS; hidden by default) -->
+    <aside class="ev2-migrate-banner" id="migrateBanner" role="status" hidden>
+      <div class="ev2-migrate-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+      </div>
+      <div class="ev2-migrate-body">
+        <div class="ev2-migrate-title" id="migrateBannerTitle">Migration available</div>
+        <div class="ev2-migrate-sub" id="migrateBannerSub"></div>
+      </div>
+      <div class="ev2-migrate-actions">
+        <button class="ev2-migrate-link" id="migrateBannerInfo" type="button">Audit report</button>
+        <button class="ev2-migrate-ack" id="migrateBannerAck" type="button">Acknowledge</button>
+        <button class="ev2-migrate-dismiss" id="migrateBannerDismiss" type="button" aria-label="Dismiss for this session">×</button>
+      </div>
+    </aside>
+
+    <!-- Draft-vs-HEAD conflict banner (Phase 2 of state model).
+         Shown when the local draft was started against a baseline
+         that has since been republished elsewhere. User picks:
+         Keep draft (carry over current edits, accept the new baseline
+         on next publish) OR Discard (drop the draft, load the new
+         published state). -->
+    <aside class="ev2-migrate-banner" id="conflictBanner" role="status" hidden data-tone="warn">
+      <div class="ev2-migrate-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+      </div>
+      <div class="ev2-migrate-body">
+        <div class="ev2-migrate-title" id="conflictBannerTitle">Project was republished</div>
+        <div class="ev2-migrate-sub" id="conflictBannerSub"></div>
+      </div>
+      <div class="ev2-migrate-actions">
+        <button class="ev2-migrate-ack" id="conflictBannerKeep" type="button">Keep my draft</button>
+        <button class="ev2-migrate-link" id="conflictBannerDiscard" type="button">Discard &amp; load new</button>
+      </div>
+    </aside>
+
+    <!-- BOTTOM: list + resizer + preview -->
+    <div class="ev2-panes">
+
+    <!-- CENTER: Token list (grouped) -->
+    <section class="ev2-list" aria-label="Tokens">
+      <header class="ev2-list-head">
+        <div class="ev2-list-titlerow">
+          <div class="ev2-list-titlewrap">
+            <h2 class="ev2-list-title" id="listTitle">Palette</h2>
+            <p class="ev2-list-sub" id="listSub">Your foundation colors. Editing here cascades to roles, surfaces, and every component.</p>
+          </div>
+          <div class="ev2-edit-toggle" id="tierEditToggle" role="radiogroup" aria-label="Editing mode" hidden
+            data-tip="Switches which mode's tokens you are editing AND the editor UI to match. Light and dark each have their own picks — changing one does not touch the other.">
+            <button type="button" class="ev2-edit-mode" data-edit-mode="light" role="radio" aria-label="Edit light mode tokens">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.3 3.3l1.1 1.1M11.6 11.6l1.1 1.1M3.3 12.7l1.1-1.1M11.6 4.4l1.1-1.1"/></svg>
+              <span>Light</span>
+            </button>
+            <button type="button" class="ev2-edit-mode" data-edit-mode="dark" role="radio" aria-label="Edit dark mode tokens">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 9.5A5.5 5.5 0 1 1 6.5 3a4.5 4.5 0 0 0 6.5 6.5z"/></svg>
+              <span>Dark</span>
+            </button>
+          </div>
+          <button type="button" class="ev2-section-reset" id="sectionResetBtn" hidden
+            data-tip="Reset every change in this section back to the last published version. Other sections are untouched.">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 10 9 10"/></svg>
+            <span class="ev2-section-reset-label">Reset</span>
+          </button>
+          <button type="button" class="ev2-css-toggle" id="showCssNamesBtn"
+                  aria-pressed="true"
+                  aria-label="Toggle CSS variable name labels"
+                  data-tip="Show or hide the --css-variable-name under each token swatch.">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3.5 4.5l-1.5 3 1.5 3M12.5 4.5l1.5 3-1.5 3M9.5 3l-3 10"/>
+            </svg>
+            <input type="checkbox" id="showCssNames" checked hidden>
+          </button>
+        </div>
+      </header>
+
+      <div class="ev2-list-body" id="tokenListBody">
+        <!-- Tier-specific intent UI mounts here -->
+      </div>
+
+      <!-- Tier-specific sticky footer mount. Sibling of #tokenListBody
+           so it never overlaps the scrolling content (an in-body sticky
+           with `bottom:0` would pin ON TOP of the last section). Tt
+           tier populates this with the install/CTA bar; other tiers
+           leave it hidden. -->
+      <div class="ev2-list-sticky" id="ttStickyMount" hidden></div>
+    </section>
+
+    <!-- Drag-to-resize divider between list and preview -->
+    <div class="ev2-resizer" id="paneResizer" role="separator" aria-orientation="vertical" aria-label="Resize list and preview panes" tabindex="0"></div>
+
+    <!-- RIGHT: Live preview -->
+    <section class="ev2-preview" aria-label="Live preview">
+      <header class="ev2-preview-head">
+        <div class="ev2-preview-titlewrap">
+          <span class="ev2-preview-title">Live preview</span>
+        </div>
+        <div class="ev2-preview-actions">
+          <select id="previewSurfaceSelect" class="ev2-preview-surface-select" aria-label="Preview surface family"
+            data-tip="Paint the preview canvas on any surface family. Use to verify mappings across surfaces without changing what you're editing.">
+            <option value="">Follow editor</option>
+            <option value="bright">Bright</option>
+            <option value="base">Base</option>
+            <option value="dim">Dim</option>
+            <option value="deep">Deep</option>
+            <option value="accent">Accent</option>
+            <option value="container">Container</option>
+            <option value="over-container">Over-container</option>
+            <option value="float">Float</option>
+            <option value="inverse">Inverse</option>
+          </select>
+          <a class="ev2-preview-iconbtn" id="previewComponentsLink" href="../components.html"
+             target="_blank" rel="noopener"
+             aria-label="Open components gallery"
+             data-tip="Open the components gallery using this project's published tokens. Drafts are not previewed.">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3H3v10h10v-3"/><path d="M10 3h3v3"/><path d="M8 8l5-5"/></svg>
+          </a>
+          <button class="ev2-preview-iconbtn" id="previewReload" type="button"
+                  aria-label="Reload preview"
+                  data-tip="Reload preview">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.61-3.89"/><path d="M13.5 2.5v3h-3"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="ev2-preview-stage" id="previewStage">
+        <iframe class="ev2-preview-frame" id="previewFrame" title="Live component preview" sandbox="allow-same-origin allow-scripts"></iframe>
+        <!-- Set src INLINE (not deferred) so preview loads the moment
+             the parser reaches this element — ~300-500ms before the
+             442KB deferred editor-v2.js finishes parsing. Without this
+             the stage shows as empty checkerboard for that whole gap.
+             editor-v2.js skips re-setting src if it's already set. -->
+        <script>(function(){
+          try{
+            var f=document.getElementById('previewFrame');
+            // Use srcdoc instead of src= to bypass X-Frame-Options headers
+            // sent by the Zoho Pages hosting platform.
+            fetch('./preview.html?v='+Date.now())
+              .then(function(r){ return r.text(); })
+              .then(function(html){ if(f) f.srcdoc=html; })
+              .catch(function(){});
+          }catch(_e){}
+        })();</script>
+      </div>
+    </section>
+
+    </div><!-- /.ev2-panes -->
+
+  </main>
+
+  <!-- Toast slot -->
+  <div class="ev2-toast" id="ev2Toast" role="status" aria-live="polite"></div>
+
+  <!-- Confirm modal (project switch / discard guards) -->
+  <div class="ev2-modal" id="ev2Modal" hidden role="dialog" aria-modal="true" aria-labelledby="ev2ModalTitle">
+    <div class="ev2-modal-backdrop" data-modal-dismiss></div>
+    <div class="ev2-modal-card" role="document">
+      <button class="ev2-modal-close" type="button" data-modal-action="cancel" aria-label="Close dialog">&times;</button>
+      <h3 class="ev2-modal-title" id="ev2ModalTitle">Title</h3>
+      <p class="ev2-modal-body" id="ev2ModalBody">Body</p>
+      <div class="ev2-modal-field" id="ev2ModalField" hidden>
+        <label class="ev2-modal-field-label" for="ev2ModalInput" id="ev2ModalInputLabel">Value</label>
+        <input class="ev2-modal-field-input" id="ev2ModalInput" type="text" autocomplete="off" spellcheck="false">
+        <div class="ev2-modal-field-hint" id="ev2ModalInputHint" hidden></div>
+      </div>
+      <div class="ev2-modal-actions">
+        <button class="ev2-modal-btn" data-modal-action="cancel" type="button">Cancel</button>
+        <button class="ev2-modal-btn ev2-modal-btn-danger" data-modal-action="confirm" type="button">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Busy overlay: blocks UI during long-running GH ops (delete / rename / restore) -->
+  <div class="ev2-busy" id="ev2Busy" hidden role="alertdialog" aria-modal="true" aria-labelledby="ev2BusyTitle" aria-describedby="ev2BusySub">
+    <div class="ev2-busy-card">
+      <div class="ev2-busy-spinner" aria-hidden="true"></div>
+      <div class="ev2-busy-title" id="ev2BusyTitle">Working…</div>
+      <div class="ev2-busy-sub" id="ev2BusySub">Please don’t close this tab.</div>
+    </div>
+  </div>
+
+  <!-- Custom typography dialog: pick a font per role from a curated
+       Google Fonts list, or paste any name. Opened from the
+       "+ Custom fonts" card on the Tt tier. -->
+  <div class="ev2-modal ev2-tt-modal" id="ev2TtCustom" hidden role="dialog" aria-modal="true" aria-labelledby="ev2TtCustomTitle">
+    <div class="ev2-modal-backdrop" data-tt-dismiss></div>
+    <div class="ev2-modal-card" role="document">
+      <button class="ev2-modal-close" type="button" data-tt-dismiss aria-label="Close dialog">&times;</button>
+      <h3 class="ev2-modal-title" id="ev2TtCustomTitle">Custom fonts</h3>
+      <p class="ev2-modal-body">Upload all weights of a font family at once &mdash; we&rsquo;ll map Bold to Headline and Regular to Body &amp; Code. Or type any Google Fonts name, or upload per role below.</p>
+      <div class="ev2-tt-modal-fields">
+        <!-- Font-family upload: pick all weights at once -->
+        <div class="ev2-tt-family-zone">
+          <input id="ttCustomFamilyFiles" class="ev2-tt-modal-file-input" type="file" multiple accept=".woff2,.woff,.ttf,.otf,font/woff2,font/woff,font/ttf,font/otf" aria-label="Upload font family files" />
+          <label class="ev2-tt-modal-file-pick ev2-tt-family-pick" for="ttCustomFamilyFiles">Upload font family</label>
+          <span class="ev2-tt-family-summary" id="ttFamilySummary" hidden></span>
+          <button class="ev2-tt-modal-file-clear" id="ttFamilyClear" type="button" hidden aria-label="Clear uploaded family">&times;</button>
+        </div>
+        <div class="ev2-tt-family-divider" role="separator"><span>or set per role</span></div>
+        <div class="ev2-tt-modal-row" data-role-row="headline">
+          <label for="ttCustomHeadline">Headline</label>
+          <input id="ttCustomHeadline" type="text" list="ttFontSuggest" data-role="headline" autocomplete="off" placeholder="e.g. Playfair Display" />
+          <span class="ev2-tt-modal-sample" data-role="headline">Aa</span>
+          <div class="ev2-tt-modal-fileops" data-role="headline">
+            <label class="ev2-tt-modal-file-pick" for="ttCustomFileHeadline">Upload font file</label>
+            <input id="ttCustomFileHeadline" class="ev2-tt-modal-file-input" type="file" data-role="headline" accept=".woff2,.woff,.ttf,.otf,font/woff2,font/woff,font/ttf,font/otf" />
+            <span class="ev2-tt-modal-file-name" data-role="headline" hidden></span>
+            <button class="ev2-tt-modal-file-clear" type="button" data-role="headline" hidden aria-label="Remove uploaded file">&times;</button>
+          </div>
+        </div>
+        <div class="ev2-tt-modal-row" data-role-row="body">
+          <label for="ttCustomBody">Body</label>
+          <input id="ttCustomBody" type="text" list="ttFontSuggest" data-role="body" autocomplete="off" placeholder="e.g. Inter" />
+          <span class="ev2-tt-modal-sample" data-role="body">Aa</span>
+          <div class="ev2-tt-modal-fileops" data-role="body">
+            <label class="ev2-tt-modal-file-pick" for="ttCustomFileBody">Upload font file</label>
+            <input id="ttCustomFileBody" class="ev2-tt-modal-file-input" type="file" data-role="body" accept=".woff2,.woff,.ttf,.otf,font/woff2,font/woff,font/ttf,font/otf" />
+            <span class="ev2-tt-modal-file-name" data-role="body" hidden></span>
+            <button class="ev2-tt-modal-file-clear" type="button" data-role="body" hidden aria-label="Remove uploaded file">&times;</button>
+          </div>
+        </div>
+        <div class="ev2-tt-modal-row" data-role-row="code">
+          <label for="ttCustomCode">Code</label>
+          <input id="ttCustomCode" type="text" list="ttFontSuggest" data-role="code" autocomplete="off" placeholder="e.g. JetBrains Mono" />
+          <span class="ev2-tt-modal-sample" data-role="code">Aa</span>
+          <div class="ev2-tt-modal-fileops" data-role="code">
+            <label class="ev2-tt-modal-file-pick" for="ttCustomFileCode">Upload font file</label>
+            <input id="ttCustomFileCode" class="ev2-tt-modal-file-input" type="file" data-role="code" accept=".woff2,.woff,.ttf,.otf,font/woff2,font/woff,font/ttf,font/otf" />
+            <span class="ev2-tt-modal-file-name" data-role="code" hidden></span>
+            <button class="ev2-tt-modal-file-clear" type="button" data-role="code" hidden aria-label="Remove uploaded file">&times;</button>
+          </div>
+        </div>
+        <p class="ev2-tt-modal-hint" id="ttCustomHint" hidden></p>
+      </div>
+      <datalist id="ttFontSuggest">
+        <option value="Inter"></option>
+        <option value="Roboto"></option>
+        <option value="Open Sans"></option>
+        <option value="Lato"></option>
+        <option value="Montserrat"></option>
+        <option value="Poppins"></option>
+        <option value="Source Sans 3"></option>
+        <option value="Work Sans"></option>
+        <option value="Nunito"></option>
+        <option value="DM Sans"></option>
+        <option value="Manrope"></option>
+        <option value="Plus Jakarta Sans"></option>
+        <option value="Playfair Display"></option>
+        <option value="Fraunces"></option>
+        <option value="Merriweather"></option>
+        <option value="Lora"></option>
+        <option value="EB Garamond"></option>
+        <option value="Crimson Pro"></option>
+        <option value="JetBrains Mono"></option>
+        <option value="Fira Code"></option>
+        <option value="IBM Plex Mono"></option>
+        <option value="Source Code Pro"></option>
+        <option value="Roboto Mono"></option>
+        <option value="Space Mono"></option>
+      </datalist>
+      <div class="ev2-modal-actions">
+        <button class="ev2-modal-btn" type="button" data-tt-dismiss>Cancel</button>
+        <button class="ev2-modal-btn ev2-modal-btn-primary" type="button" id="ttCustomApply">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Designer install dialog: opened from the Tt sticky footer.
+       Body is populated by renderTtInstallDialog() each time it
+       opens so the list always reflects the active preset/custom
+       picks. -->
+  <div class="ev2-modal ev2-tt-install-modal" id="ev2TtInstall" hidden role="dialog" aria-modal="true" aria-labelledby="ev2TtInstallTitle">
+    <div class="ev2-modal-backdrop" data-tt-install-dismiss></div>
+    <div class="ev2-modal-card" role="document">
+      <button class="ev2-modal-close" type="button" data-tt-install-dismiss aria-label="Close dialog">&times;</button>
+      <h3 class="ev2-modal-title" id="ev2TtInstallTitle">Fonts to install</h3>
+      <p class="ev2-modal-body" id="ev2TtInstallSub">Designers need these fonts on their computer for Figma to match what you see here.</p>
+      <div id="ev2TtInstallBody"></div>
+      <div class="ev2-modal-actions">
+        <button class="ev2-modal-btn ev2-modal-btn-primary" type="button" data-tt-install-dismiss>Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add custom palette dialog: name + key color picker + live ladder preview -->
+  <div class="ev2-modal ev2-addpal" id="ev2AddPalette" hidden role="dialog" aria-modal="true" aria-labelledby="ev2AddPaletteTitle">
+    <div class="ev2-modal-backdrop" data-addpal-dismiss></div>
+    <div class="ev2-modal-card ev2-addpal-card" role="document">
+      <button class="ev2-modal-close" type="button" data-addpal-dismiss aria-label="Close dialog">&times;</button>
+      <h3 class="ev2-modal-title" id="ev2AddPaletteTitle">Add custom palette</h3>
+      <p class="ev2-modal-body ev2-addpal-intro">Pick a key color &mdash; we&rsquo;ll generate a balanced 22-step ladder you can map to surfaces or roles.</p>
+
+      <div class="ev2-addpal-fields">
+        <label class="ev2-addpal-field">
+          <span class="ev2-addpal-label">Name</span>
+          <input class="ev2-addpal-name" id="ev2AddPalName" type="text" spellcheck="false" autocomplete="off" placeholder="sage, mauve, secondary&hellip;" maxlength="24">
+          <span class="ev2-addpal-hint" id="ev2AddPalNameHint">Lowercase letters, numbers, dashes. Must be unique.</span>
+        </label>
+
+        <div class="ev2-addpal-field">
+          <span class="ev2-addpal-label">Key color</span>
+          <div class="ev2-lever ev2-addpal-lever">
+            <label class="ev2-swatch" id="ev2AddPalSwatch" style="background:#6B7390" title="Pick a color">
+              <input type="color" id="ev2AddPalColor" value="#6B7390">
+            </label>
+            <div class="ev2-lever-fields">
+              <div class="ev2-hex-row">
+                <input class="ev2-hex" id="ev2AddPalHex" type="text" spellcheck="false" value="#6B7390" maxlength="7">
+              </div>
+              <span class="ev2-addpal-hint" id="ev2AddPalHexHint">This becomes step 500. The ladder is derived around it.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ev2-addpal-field">
+          <span class="ev2-addpal-label">Preview ladder &middot; 22 steps</span>
+          <div class="ev2-sp-strip ev2-addpal-strip" id="ev2AddPalStrip"></div>
+        </div>
+      </div>
+
+      <div class="ev2-modal-actions">
+        <button class="ev2-modal-btn" data-addpal-dismiss type="button">Cancel</button>
+        <button class="ev2-modal-btn ev2-modal-btn-primary" id="ev2AddPalConfirm" type="button">Add palette</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Publish dialog. One screen, one verb. The form collects metadata;
+       on submit it morphs into an inline timeline (Saving → Notifying
+       Figma → Done). No standalone "Deploy to Figma" anymore — Figma
+       refresh is the second beat of every Publish. -->
+  <div class="ev2-deploy-dialog" id="ev2DeployDialog" hidden role="dialog" aria-modal="true" aria-labelledby="ev2DeployTitle" data-mode="form">
+    <div class="ev2-modal-backdrop" data-deploy-dismiss></div>
+    <div class="ev2-deploy-card" role="document">
+      <header class="ev2-deploy-head">
+        <div class="ev2-deploy-headtxt">
+          <h3 class="ev2-deploy-title" id="ev2DeployTitle">Publish</h3>
+          <p class="ev2-deploy-sub" id="ev2DeploySub">Save your changes as the new default for this project. Figma refreshes automatically.</p>
+        </div>
+        <div class="ev2-deploy-meta" id="ev2DeployMeta"></div>
+      </header>
+
+      <!-- FORM MODE (data-mode="form"): name + version bump + notes. -->
+      <section class="ev2-save-form" id="ev2SaveForm">
+        <div class="ev2-save-form-grid">
+          <label class="ev2-save-field ev2-save-field--name">
+            <span class="ev2-save-field-label">Release name</span>
+            <input type="text" id="ev2SaveName" maxlength="60" placeholder="e.g. May16 08:57" autocomplete="off" spellcheck="false">
+            <span class="ev2-save-field-hint">Shown in the version history. Auto-filled with today’s date.</span>
+          </label>
+          <div class="ev2-save-field ev2-save-field--ver">
+            <span class="ev2-save-field-label">Version bump</span>
+            <div class="ev2-save-ver-row">
+              <span class="ev2-save-ver-prev" id="ev2SaveVerPrev" title="Previously published version">v—</span>
+              <span class="ev2-save-ver-arrow" aria-hidden="true">→</span>
+              <div class="ev2-save-ver-bump" role="radiogroup" aria-label="Version bump">
+                <button type="button" data-ver-bump="patch" aria-checked="true" role="radio" data-tip="Patch — tweaks, no semantic shift">Patch</button>
+                <button type="button" data-ver-bump="minor" aria-checked="false" role="radio" data-tip="Minor — new tokens, additive">Minor</button>
+                <button type="button" data-ver-bump="major" aria-checked="false" role="radio" data-tip="Major — breaking visual change">Major</button>
+              </div>
+              <span class="ev2-save-ver-next" id="ev2SaveVerNext">v—</span>
+            </div>
+          </div>
+          <label class="ev2-save-field ev2-save-field--desc">
+            <span class="ev2-save-field-label">What changed <em>(optional)</em></span>
+            <textarea id="ev2SaveDesc" rows="2" maxlength="500" placeholder="One line that helps your team scan the history." spellcheck="true"></textarea>
+          </label>
+        </div>
+      </section>
+
+      <!-- Per-section change summary, only shown in form mode. -->
+      <div class="ev2-deploy-body" id="ev2DeployBody"></div>
+
+      <!-- TIMELINE MODE (data-mode="progress" / "success" / "partial" / "error"):
+           replaces the form during/after publish. Each step has an
+           icon ('.' = pending, '~' = running, 'v' = ok, 'x' = fail). -->
+      <section class="ev2-publish-timeline" id="ev2PublishTimeline" hidden>
+        <ol class="ev2-tl-steps" id="ev2TlSteps">
+          <li data-step="save"   data-state="pending">
+            <span class="ev2-tl-icon" aria-hidden="true"></span>
+            <span class="ev2-tl-label" id="ev2TlSaveLabel">Save</span>
+            <span class="ev2-tl-sub" data-tl-sub></span>
+          </li>
+          <li data-step="figma"  data-state="pending">
+            <span class="ev2-tl-icon" aria-hidden="true"></span>
+            <span class="ev2-tl-label">Notify Figma</span>
+            <span class="ev2-tl-sub" data-tl-sub>Refreshes the plugin within ~1 minute</span>
+          </li>
+          <li data-step="done"   data-state="pending">
+            <span class="ev2-tl-icon" aria-hidden="true"></span>
+            <span class="ev2-tl-label">Done</span>
+            <span class="ev2-tl-sub" data-tl-sub></span>
+          </li>
+        </ol>
+        <div class="ev2-tl-summary" id="ev2TlSummary" hidden></div>
+      </section>
+
+      <footer class="ev2-deploy-actions">
+        <span class="ev2-deploy-hint" id="ev2DeployHint">Writes to your GitHub fork. A Personal Access Token with <code>repo</code> scope is required.</span>
+        <div class="ev2-deploy-btns">
+          <button class="ev2-modal-btn" type="button" data-deploy-dismiss id="ev2WizardCancel">Cancel</button>
+          <button class="ev2-modal-btn ev2-modal-btn-primary" type="button" id="ev2DeployConfirm">Publish</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Version history dialog. Read-only list of every published
+       version for the active project. "Restore" republishes the
+       chosen snapshot as a new patch version (never rewrites
+       history) and runs through the same Publish timeline. -->
+  <div class="ev2-history-dialog" id="ev2HistoryDialog" hidden role="dialog" aria-modal="true" aria-labelledby="ev2HistoryTitle">
+    <div class="ev2-modal-backdrop" data-history-dismiss></div>
+    <div class="ev2-history-card" role="document">
+      <header class="ev2-history-head">
+        <div class="ev2-history-headtxt">
+          <h3 class="ev2-history-title" id="ev2HistoryTitle">Version history</h3>
+          <p class="ev2-history-sub" id="ev2HistorySub">Every Publish creates a saved version. Restore one to republish those tokens as the next release.</p>
+        </div>
+        <button class="ev2-modal-btn ev2-history-close" type="button" data-history-dismiss aria-label="Close">×</button>
+      </header>
+      <!-- In-dialog status line. Painted by historyStatus(msg,kind)
+           in editor-v2.js. Lives here so Restore progress/errors
+           render next to the row the user just clicked instead of a
+           floating toast at the page corner. -->
+      <div class="ev2-history-status" id="ev2HistoryStatus" role="status" aria-live="polite" hidden></div>
+      <div class="ev2-history-body" id="ev2HistoryBody">
+        <div class="ev2-history-empty">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./editor-v2.js?v=194" defer></script>
+</body>
+</html>

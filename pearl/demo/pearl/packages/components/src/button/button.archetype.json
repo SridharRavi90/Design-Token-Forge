@@ -1,0 +1,28 @@
+{
+  "archetype": "action",
+  "tokenPrefix": "btn",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "pressed", "disabled", "focus-visible"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined", "soft", "ghost"],
+  "onComponentTokens": [
+    {
+      "token": "--btn-filled-fg",
+      "fillStates": ["--btn-filled-bg", "--btn-filled-bg-hover", "--btn-filled-bg-pressed"],
+      "derivation": "auto-aa",
+      "wcag": "AA-normal"
+    }
+  ],
+  "editorExposureOverrides": {
+    "--btn-min-tap-target": "advanced",
+    "--btn-focus-outline-offset": "advanced",
+    "--btn-clip-path": "advanced",
+    "--btn-transition-property": "advanced"
+  },
+  "figmaBindingPrefix": "btn/",
+  "notes": [
+    "Action archetype: full state matrix (default/hover/pressed/disabled/focus).",
+    "Multi-zone: split-btn inherits radius via --btn-radius-* (see multi-zone-model.md Q6).",
+    "Auto-AA derivation covers default/hover/pressed fills together per memory rule."
+  ]
+}

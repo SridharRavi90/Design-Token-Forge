@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typography Editor — Design Token Forge</title>
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Fraunces:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Source+Code+Pro:wght@400;500;700&display=swap">
+<style>
+/* ════════════════════════════════════════════════════════════
+   Typography Editor — page-specific styles
+   Two-panel layout: controls (left) + live preview (right).
+   ════════════════════════════════════════════════════════════ */
+
+body{overflow:hidden;height:100vh}
+
+/* ── App shell ───────────────────────────────────────────
+   Fixed-height column. Nav + banner + scrollable body +
+   sticky footer. Designed so it can drop straight into
+   editor-v2 as the Typography panel once that integration
+   lands. */
+.te-shell{display:flex;flex-direction:column;height:100vh}
+.te-shell .explorer-nav{flex:0 0 auto}
+
+.te-banner{flex:0 0 auto;padding:14px 32px;border-bottom:1px solid var(--demo-border);background:var(--demo-surface-alt);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.te-banner h1{font-size:16px;font-weight:700;color:var(--demo-fg-strong);margin:0}
+.te-banner .crumbs{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--demo-fg-faint)}
+.te-banner .crumbs strong{color:var(--demo-fg-strong);font-weight:700}
+.te-banner .pill{font-size:11px;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-subtle);padding:2px 8px;border:1px solid var(--demo-border);border-radius:999px}
+
+.te-layout{flex:1 1 auto;display:grid;grid-template-columns:380px 1fr;gap:0;min-height:0;overflow:hidden}
+@media (max-width:980px){.te-layout{grid-template-columns:1fr}}
+.te-controls{padding:20px 24px;border-right:1px solid var(--demo-border);background:var(--demo-surface);overflow-y:auto;min-height:0}
+@media (max-width:980px){.te-controls{border-right:none;border-bottom:1px solid var(--demo-border)}}
+.te-preview{padding:24px 32px;background:var(--demo-bg);overflow-y:auto;min-height:0}
+
+.te-group{margin-bottom:22px}
+.te-group:last-child{margin-bottom:0}
+.te-group-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--demo-fg-faint);margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--demo-border)}
+.te-help{font-size:11px;line-height:1.5;color:var(--demo-fg-subtle);margin:0 0 12px}
+
+.te-presets{display:flex;flex-direction:column;gap:10px}
+.te-preset{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--demo-border);border-radius:8px;background:var(--demo-surface);cursor:pointer;transition:border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;font:inherit;position:relative}
+.te-preset:hover{border-color:var(--demo-fg-faint);transform:translateY(-1px)}
+.te-preset[data-active]{border-color:var(--brand-content-default);box-shadow:0 0 0 2px var(--brand-container-bg)}
+.te-preset[data-active]::after{content:'✓ selected';position:absolute;top:8px;right:10px;font-size:9px;font-weight:700;color:var(--brand-content-default);text-transform:uppercase;letter-spacing:.05em}
+.te-preset .te-preset-label{font-size:9px;font-weight:700;color:var(--demo-fg-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.te-preset .te-preset-fonts{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}
+.te-preset .te-font-line{font-size:18px;font-weight:600;color:var(--demo-fg-strong);line-height:1.15;letter-spacing:-0.01em}
+.te-preset .te-font-line.body{font-size:13px;font-weight:400;color:var(--demo-fg)}
+.te-preset .te-font-line.code{font-size:11px;color:var(--demo-fg-subtle)}
+.te-preset .te-preset-meta{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--demo-fg-faint);padding-top:6px;border-top:1px dashed var(--demo-border)}
+.te-preset .te-preset-meta .name{font-weight:700;color:var(--demo-fg-subtle);text-transform:uppercase;letter-spacing:.04em;font-size:9px}
+.te-preset .te-preset-meta .dot{opacity:.4}
+
+.te-field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.te-field label{font-size:10px;font-weight:700;color:var(--demo-fg-subtle);text-transform:uppercase;letter-spacing:.04em}
+.te-field input[type=text]{padding:8px 10px;border:1px solid var(--demo-border);border-radius:6px;background:var(--demo-bg);color:var(--demo-fg);font-size:12px;font-family:var(--font-family-mono,monospace);width:100%;box-sizing:border-box}
+.te-field input[type=text]:focus{outline:2px solid var(--brand-content-default);outline-offset:1px;border-color:transparent}
+
+.te-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.te-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;font-family:inherit}
+.te-btn-primary{background:var(--brand-component-bg-default);color:var(--brand-on-component);border-color:var(--brand-component-bg-default)}
+.te-btn-primary:hover{background:var(--brand-component-bg-hover);border-color:var(--brand-component-bg-hover)}
+.te-btn-primary:disabled{opacity:.5;cursor:not-allowed;background:var(--brand-component-bg-default);border-color:var(--brand-component-bg-default)}
+.te-btn-ghost{background:transparent;color:var(--demo-fg-subtle);border-color:var(--demo-border)}
+.te-btn-ghost:hover{background:var(--demo-surface-alt);color:var(--demo-fg-strong)}
+
+/* ── Sticky footer ───────────────────────────────────────
+   Persistent action bar. Mirrors the editor-v2 publish
+   header pattern so when typography moves into the Token
+   Editor it can slot into the same chrome. */
+.te-footer{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;background:var(--demo-surface);border-top:1px solid var(--demo-border);box-shadow:0 -2px 8px rgba(0,0,0,.04);z-index:5;flex-wrap:wrap}
+.te-footer-status{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--demo-fg-subtle);min-width:0}
+.te-footer-status .dot{width:8px;height:8px;border-radius:50%;background:var(--success-content-default,#0a7d3e);flex-shrink:0}
+.te-footer-status[data-dirty] .dot{background:var(--warning-content-default,#a06c00);box-shadow:0 0 0 3px color-mix(in srgb, var(--warning-content-default,#a06c00) 20%, transparent)}
+.te-footer-status .label{font-weight:600;color:var(--demo-fg-strong);white-space:nowrap}
+.te-footer-status .detail{color:var(--demo-fg-faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.te-footer-actions{display:flex;align-items:center;gap:8px}
+
+.te-preview-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.te-preview-head h2{font-size:14px;font-weight:700;color:var(--demo-fg-strong);margin:0}
+.te-preview-head .tip{font-size:11px;color:var(--demo-fg-faint)}
+
+.te-specimen{padding:24px 28px;border:1px solid var(--demo-border);border-radius:10px;background:var(--demo-surface);margin-bottom:18px}
+.te-specimen .display{font-family:var(--te-headline,var(--font-family-headline));font-size:42px;font-weight:700;line-height:1.08;letter-spacing:-0.025em;color:var(--demo-fg-strong);margin:0 0 6px}
+.te-specimen .lede{font-family:var(--te-body,var(--font-family-body));font-size:16px;line-height:1.55;color:var(--demo-fg-subtle);margin:0 0 22px;max-width:62ch}
+.te-specimen .heading{font-family:var(--te-headline,var(--font-family-headline));font-size:22px;font-weight:600;line-height:1.25;color:var(--demo-fg-strong);margin:18px 0 8px}
+.te-specimen .body{font-family:var(--te-body,var(--font-family-body));font-size:15px;line-height:1.6;color:var(--demo-fg);max-width:62ch;margin:0 0 10px}
+.te-specimen .caption{font-family:var(--te-body,var(--font-family-body));font-size:11px;color:var(--demo-fg-faint);margin:0}
+.te-specimen .code{font-family:var(--te-code,var(--font-family-code));font-size:13px;background:var(--demo-surface-alt);padding:12px 14px;border-radius:6px;margin:14px 0 0;color:var(--demo-fg-strong);white-space:pre-wrap}
+
+.te-ladders{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.te-ladders{grid-template-columns:1fr}}
+.te-card{border:1px solid var(--demo-border);border-radius:8px;background:var(--demo-surface);overflow:hidden}
+.te-card-head{padding:8px 14px;border-bottom:1px solid var(--demo-border);background:var(--demo-surface-alt)}
+.te-card-head h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--demo-fg-strong);margin:0}
+.te-row{display:grid;grid-template-columns:80px 1fr 70px;align-items:center;gap:10px;padding:5px 14px;border-bottom:1px solid var(--demo-border)}
+.te-row:last-child{border-bottom:none}
+.te-row .name{font-size:10px;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-faint)}
+.te-row .sample{color:var(--demo-fg-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--te-body,var(--font-family-body))}
+.te-row .val{font-size:10px;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-faint);text-align:right}
+
+.te-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--demo-fg-strong);color:var(--demo-bg);font-size:12px;font-weight:600;padding:8px 18px;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;transition:opacity 200ms ease,transform 200ms ease;pointer-events:none;z-index:9999}
+.te-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.te-callout{margin-top:18px;padding:12px 14px;border-left:3px solid var(--demo-fg-faint);background:var(--demo-surface-alt);font-size:11px;line-height:1.5;color:var(--demo-fg-subtle);border-radius:0 6px 6px 0}
+.te-callout strong{color:var(--demo-fg-strong)}
+.te-callout a{color:var(--brand-content-default);text-decoration:underline}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<div class="te-shell">
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="te-banner">
+  <div class="crumbs">
+    <span>Token Editor</span>
+    <span aria-hidden="true">›</span>
+    <strong>Typography</strong>
+    <span aria-hidden="true" style="opacity:.4">·</span>
+    <span class="pill" id="teProject">no project</span>
+  </div>
+  <div class="crumbs">
+    <span>Phase 1 — fonts only</span>
+  </div>
+</div>
+
+<div class="te-layout">
+
+  <aside class="te-controls">
+
+    <div class="te-group">
+      <div class="te-group-head">Step 1 · Pick a font pairing</div>
+      <p class="te-help">Each card shows the actual fonts in use. Click one to try it — the preview on the right updates instantly.</p>
+      <div class="te-presets" id="tePresets"></div>
+    </div>
+
+    <div class="te-group">
+      <div class="te-group-head">Step 2 · Want a different font? (optional)</div>
+      <p class="te-help">Paste any font name you like — Google Fonts, Adobe Fonts, system fonts. Leave a field blank to keep the preset.</p>
+      <div class="te-field">
+        <label for="teHeadline">Headlines &amp; titles</label>
+        <input id="teHeadline" type="text" placeholder="e.g. Playfair Display" />
+      </div>
+      <div class="te-field">
+        <label for="teBody">Paragraphs &amp; UI</label>
+        <input id="teBody" type="text" placeholder="e.g. Inter" />
+      </div>
+      <div class="te-field">
+        <label for="teCode">Code &amp; numbers</label>
+        <input id="teCode" type="text" placeholder="e.g. JetBrains Mono" />
+      </div>
+    </div>
+
+    <div class="te-callout">
+      <strong>Heads up:</strong> Saving stores your choice in this browser so every demo page uses it. To ship the change to Figma and your real project files, head over to the <a href="editor-v2/index.html">Token Editor</a> — full typography publishing is on the way.
+    </div>
+
+  </aside>
+
+  <main class="te-preview">
+
+    <div class="te-preview-head">
+      <h2>Preview</h2>
+      <span class="tip">See your fonts in action</span>
+    </div>
+
+    <article class="te-specimen">
+      <p class="display">Design with confidence.</p>
+      <p class="lede">Three fonts. One headline font for titles, one body font for paragraphs, one mono font for code. That’s all most products need.</p>
+      <p class="heading">This is a heading</p>
+      <p class="body">And this is body copy — the font people actually read. Buttons, labels, paragraphs, form fields. Everything that isn’t a big title or a snippet of code uses this font.</p>
+      <p class="caption">Small caption text uses the same body font, just smaller and lighter.</p>
+      <pre class="code">const greeting = "Hello, world";
+console.log(greeting);</pre>
+    </article>
+
+    <div class="te-ladders">
+      <div class="te-card">
+        <div class="te-card-head"><h3>Weights available</h3></div>
+        <div id="teWeights"></div>
+      </div>
+      <div class="te-card">
+        <div class="te-card-head"><h3>Line spacing</h3></div>
+        <div id="teLineHeights"></div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- Sticky footer — persistent across the whole page like the
+     editor-v2 publish bar. Hosts the save state + actions. -->
+<footer class="te-footer" id="teFooter">
+  <div class="te-footer-status" id="teFooterStatus">
+    <span class="dot" aria-hidden="true"></span>
+    <span class="label" id="teStatusLabel">All changes saved</span>
+    <span class="detail" id="teStatusDetail">Using preset</span>
+  </div>
+  <div class="te-footer-actions">
+    <button id="teReset" class="te-btn te-btn-ghost" type="button">Start over</button>
+    <button id="teApply" class="te-btn te-btn-primary" type="button" disabled>Save fonts</button>
+  </div>
+</footer>
+
+</div>
+
+<div class="te-toast" id="teToast">Saved</div>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* Mirrors packages/sync-server/typography-presets.js. Two sources of
+     truth today (Phase 1) — same as onboard.html. Phase 2 will move
+     this list into a fetched JSON so the editor and onboard agree by
+     construction. */
+  /* Each preset gets a short, plain-language vibe instead of jargony tags. */
+  var PRESETS = [
+    {
+      id: 'neutral-system',
+      name: 'Neutral System',
+      vibe: 'Safe & fast · zero web fonts',
+      display: { headline: 'System UI',     body: 'System UI',    code: 'SF Mono' },
+      fonts: {
+        headline: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+        body:     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+        code:     '"SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", Menlo, Consolas, monospace'
+      }
+    },
+    {
+      id: 'modern-geometric',
+      name: 'Modern Geometric',
+      vibe: 'Clean SaaS · great for product UI',
+      display: { headline: 'Inter',         body: 'Inter',         code: 'JetBrains Mono' },
+      fonts: {
+        headline: 'Inter, system-ui, -apple-system, sans-serif',
+        body:     'Inter, system-ui, -apple-system, sans-serif',
+        code:     '"JetBrains Mono", "SF Mono", Menlo, monospace'
+      }
+    },
+    {
+      id: 'editorial-serif',
+      name: 'Editorial Serif',
+      vibe: 'Magazine feel · strong personality',
+      display: { headline: 'Fraunces',      body: 'Inter',         code: 'IBM Plex Mono' },
+      fonts: {
+        headline: 'Fraunces, Georgia, "Times New Roman", serif',
+        body:     'Inter, system-ui, -apple-system, sans-serif',
+        code:     '"IBM Plex Mono", "SF Mono", Menlo, monospace'
+      }
+    },
+    {
+      id: 'friendly-humanist',
+      name: 'Friendly Humanist',
+      vibe: 'Warm & approachable · rounded shapes',
+      display: { headline: 'Nunito',        body: 'Nunito',        code: 'Source Code Pro' },
+      fonts: {
+        headline: 'Nunito, "Trebuchet MS", "Lucida Sans", sans-serif',
+        body:     'Nunito, "Trebuchet MS", "Lucida Sans", sans-serif',
+        code:     '"Source Code Pro", "SF Mono", Menlo, monospace'
+      }
+    },
+    {
+      id: 'code-first-mono',
+      name: 'Code-first Mono',
+      vibe: 'Dev tools · terminal vibe everywhere',
+      display: { headline: 'SF Mono',       body: 'SF Mono',       code: 'SF Mono' },
+      fonts: {
+        headline: '"SF Mono", "JetBrains Mono", Menlo, Consolas, monospace',
+        body:     '"SF Mono", "JetBrains Mono", Menlo, Consolas, monospace',
+        code:     '"SF Mono", "JetBrains Mono", Menlo, Consolas, monospace'
+      }
+    }
+  ];
+
+  var ROLES = ['headline', 'body', 'code'];
+  var WEIGHTS = ['regular', 'medium', 'semibold', 'bold', 'extrabold'];
+  var LHS     = ['tight', 'snug', 'normal', 'relaxed', 'loose'];
+
+  var state = {
+    projectId: (localStorage.getItem('dtf-active-project') || '').trim(),
+    presetId:  'neutral-system',
+    overrides: { headline: '', body: '', code: '' },
+    dirty:     false
+  };
+
+  function loadProjectState() {
+    document.getElementById('teProject').textContent = state.projectId || 'package defaults';
+    if (!state.projectId) return;
+    try {
+      var raw = localStorage.getItem('dtf-raw-config-' + state.projectId);
+      var cfg = raw ? JSON.parse(raw) : null;
+      if (cfg && cfg.typographyConfig && cfg.typographyConfig.preset) {
+        state.presetId = cfg.typographyConfig.preset;
+      }
+    } catch (_e) {}
+
+    try {
+      var stash = localStorage.getItem('dtf-typo-overrides-' + state.projectId);
+      if (stash) {
+        var parsed = JSON.parse(stash);
+        state.presetId = parsed.presetId || state.presetId;
+        state.overrides = parsed.overrides || state.overrides;
+      }
+    } catch (_e) {}
+  }
+
+  function renderPresets() {
+    var host = document.getElementById('tePresets');
+    host.innerHTML = '';
+    PRESETS.forEach(function (p) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'te-preset';
+      if (p.id === state.presetId) btn.setAttribute('data-active', '');
+      var fh = p.fonts.headline.replace(/"/g, '&quot;');
+      var fb = p.fonts.body.replace(/"/g, '&quot;');
+      var fc = p.fonts.code.replace(/"/g, '&quot;');
+      btn.innerHTML =
+        '<div class="te-preset-label">' + p.name + '</div>' +
+        '<div class="te-preset-fonts">' +
+          '<div class="te-font-line"      style="font-family:' + fh + '">' + p.display.headline + '</div>' +
+          '<div class="te-font-line body" style="font-family:' + fb + '">' + p.display.body + '</div>' +
+          '<div class="te-font-line code" style="font-family:' + fc + '">' + p.display.code + '</div>' +
+        '</div>' +
+        '<div class="te-preset-meta">' + p.vibe + '</div>';
+      btn.addEventListener('click', function () {
+        state.presetId = p.id;
+        state.dirty = true;
+        renderPresets();
+        applyToDom();
+        updateStatus();
+      });
+      host.appendChild(btn);
+    });
+  }
+
+  function renderLadders() {
+    var w = document.getElementById('teWeights');
+    w.innerHTML = '';
+    WEIGHTS.forEach(function (name) {
+      var row = document.createElement('div');
+      row.className = 'te-row';
+      row.innerHTML =
+        '<span class="name">' + name + '</span>' +
+        '<span class="sample" style="font-weight:var(--font-weight-' + name + ');font-size:16px">Aa Bb Cc 123</span>' +
+        '<span class="val" id="teVal-w-' + name + '">…</span>';
+      w.appendChild(row);
+    });
+
+    var lh = document.getElementById('teLineHeights');
+    lh.innerHTML = '';
+    LHS.forEach(function (name) {
+      var row = document.createElement('div');
+      row.className = 'te-row';
+      row.innerHTML =
+        '<span class="name">' + name + '</span>' +
+        '<span class="sample" style="font-size:11px;line-height:var(--line-height-' + name + ');display:block">Two lines of body copy rendered at the chosen line-height multiplier so the breathing room is obvious.</span>' +
+        '<span class="val" id="teVal-lh-' + name + '">…</span>';
+      lh.appendChild(row);
+    });
+
+    refreshLadderValues();
+  }
+
+  function refreshLadderValues() {
+    var css = getComputedStyle(document.documentElement);
+    WEIGHTS.forEach(function (name) {
+      var el = document.getElementById('teVal-w-' + name);
+      if (el) el.textContent = css.getPropertyValue('--font-weight-' + name).trim() || '—';
+    });
+    LHS.forEach(function (name) {
+      var el = document.getElementById('teVal-lh-' + name);
+      if (el) el.textContent = css.getPropertyValue('--line-height-' + name).trim() || '—';
+    });
+  }
+
+  function syncInputsToState() {
+    ROLES.forEach(function (r) {
+      var el = document.getElementById('te' + r.charAt(0).toUpperCase() + r.slice(1));
+      var prev = state.overrides[r];
+      var next = (el && el.value || '').trim();
+      if (prev !== next) {
+        state.overrides[r] = next;
+        state.dirty = true;
+      }
+    });
+  }
+
+  function applyToDom() {
+    var preset = PRESETS.find(function (p) { return p.id === state.presetId; }) || PRESETS[0];
+    var de = document.documentElement;
+    ROLES.forEach(function (r) {
+      var v = state.overrides[r] || preset.fonts[r];
+      de.style.setProperty('--te-' + r, v);
+      de.style.setProperty('--font-family-' + r, v);
+    });
+  }
+
+  function persist() {
+    var preset = PRESETS.find(function (p) { return p.id === state.presetId; }) || PRESETS[0];
+    var payload = { presetId: state.presetId, overrides: state.overrides };
+
+    /* JSON state (what the editor re-reads on next load). */
+    var jsonKey = state.projectId ? ('dtf-typo-overrides-' + state.projectId) : 'dtf-typo-overrides';
+    localStorage.setItem(jsonKey, JSON.stringify(payload));
+
+    /* CSS snippet — shared.js could pick this up on every demo page
+       load to apply the user's local font choice across the site.
+       Not wired into shared.js yet (Phase 2). For now this page
+       injects it inline below so the change reflects within this tab. */
+    var cssLines = [':root {'];
+    ROLES.forEach(function (r) {
+      var v = state.overrides[r] || preset.fonts[r];
+      cssLines.push('  --font-family-' + r + ': ' + v + ';');
+    });
+    cssLines.push('}');
+    var css = cssLines.join('\n');
+    var cssKey = state.projectId ? ('dtf-typo-css-' + state.projectId) : 'dtf-typo-css';
+    localStorage.setItem(cssKey, css);
+
+    /* Inject a live <style> tag on THIS page so changes are visible
+       without reload. Other demo pages will pick this up once shared.js
+       is taught to read the dtf-typo-css-* stash (Phase 2 task). */
+    var styleId = 'dtfTypoEditorOverride';
+    var existing = document.getElementById(styleId);
+    if (!existing) {
+      existing = document.createElement('style');
+      existing.id = styleId;
+      document.head.appendChild(existing);
+    }
+    existing.textContent = css;
+  }
+
+  function onApply() {
+    syncInputsToState();
+    applyToDom();
+    persist();
+    state.dirty = false;
+    updateStatus();
+    showToast('Fonts saved · every demo page now uses them');
+  }
+
+  function onReset() {
+    if (state.projectId) {
+      localStorage.removeItem('dtf-typo-overrides-' + state.projectId);
+      localStorage.removeItem('dtf-typo-css-' + state.projectId);
+    } else {
+      localStorage.removeItem('dtf-typo-overrides');
+      localStorage.removeItem('dtf-typo-css');
+    }
+    var s = document.getElementById('dtfTypoEditorOverride');
+    if (s) s.remove();
+    state.overrides = { headline: '', body: '', code: '' };
+    try {
+      var raw = localStorage.getItem('dtf-raw-config-' + state.projectId);
+      var cfg = raw ? JSON.parse(raw) : null;
+      state.presetId = (cfg && cfg.typographyConfig && cfg.typographyConfig.preset) || 'neutral-system';
+    } catch (_e) {
+      state.presetId = 'neutral-system';
+    }
+    state.dirty = false;
+    renderPresets();
+    syncStateToInputs();
+    applyToDom();
+    updateStatus();
+    showToast('Back to project defaults');
+  }
+
+  function syncStateToInputs() {
+    ROLES.forEach(function (r) {
+      var el = document.getElementById('te' + r.charAt(0).toUpperCase() + r.slice(1));
+      if (el) el.value = state.overrides[r] || '';
+    });
+  }
+
+  function updateStatus() {
+    var bar    = document.getElementById('teFooterStatus');
+    var label  = document.getElementById('teStatusLabel');
+    var detail = document.getElementById('teStatusDetail');
+    var apply  = document.getElementById('teApply');
+    var preset = PRESETS.find(function (p) { return p.id === state.presetId; }) || PRESETS[0];
+    var hasOverride = ROLES.some(function (r) { return (state.overrides[r] || '').trim(); });
+
+    if (state.dirty) {
+      bar.setAttribute('data-dirty', '');
+      label.textContent = 'Unsaved changes';
+      detail.textContent = hasOverride
+        ? preset.name + ' · with custom font'
+        : preset.name + ' · preset';
+      apply.disabled = false;
+    } else {
+      bar.removeAttribute('data-dirty');
+      label.textContent = 'All changes saved';
+      detail.textContent = hasOverride
+        ? 'Using ' + preset.name + ' · with custom font'
+        : 'Using ' + preset.name;
+      apply.disabled = true;
+    }
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('teToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function () { t.classList.remove('show'); }, 1800);
+  }
+
+  loadProjectState();
+  renderPresets();
+  renderLadders();
+  syncStateToInputs();
+  applyToDom();
+  updateStatus();
+
+  document.getElementById('teApply').addEventListener('click', onApply);
+  document.getElementById('teReset').addEventListener('click', onReset);
+  ROLES.forEach(function (r) {
+    var el = document.getElementById('te' + r.charAt(0).toUpperCase() + r.slice(1));
+    if (el) {
+      el.addEventListener('input', function () {
+        state.dirty = true;
+        updateStatus();
+        var v = el.value.trim();
+        if (v) {
+          document.documentElement.style.setProperty('--font-family-' + r, v);
+          document.documentElement.style.setProperty('--te-' + r, v);
+        } else {
+          applyToDom();
+        }
+      });
+    }
+  });
+
+  setTimeout(refreshLadderValues, 400);
+  setTimeout(refreshLadderValues, 1200);
+})();
+</script>
+</body>
+</html>

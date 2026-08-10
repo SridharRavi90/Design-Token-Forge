@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>Preview</title>
+  <!-- Self-mask: hide preview content until the editor pushes the
+       FIRST ev2-overrides message with the project's tokens. Without
+       this, the iframe paints with the maintainer's pearl tokens
+       (loaded from packages/tokens/*.css just below) for 100-1500ms
+       until the editor's postMessage lands. After a Restore, that
+       gap shows the just-replaced "Live" version's colours, which
+       looks like a "wrong version flashes for a few seconds" bug.
+       The mask is hidden by adding `data-ev2-ready` to <html> when
+       the first override arrives. Safety: auto-reveal after 4s in
+       case the editor never sends overrides (preview opened
+       standalone, dev page, etc) so the iframe isn't permanently
+       blank.
+
+       Design notes on the mask colours + animation:
+         • Light mode neutral (#f5f6f8) blends with the surface-base-bg
+           so the mask is invisible against the page — no jarring black
+           flash on reload in light mode.
+         • Dark mode keeps #0b0d12 (matches the dark surface background).
+         • 80ms fade-in delay: very fast loads (cache hits) never see
+           the mask at all. It only appears when the load is slow.
+         • 220ms fade-out when data-ev2-ready is set (opacity !important
+           beats animation fill-mode) → smooth reveal instead of a snap. -->
+  <style id="ev2-preview-mask-css">
+    /* always present, starts transparent, fades in after 80ms */
+    html::before{
+      content:'';position:fixed;inset:0;z-index:2147483647;
+      pointer-events:none;
+      background:#f5f6f8;           /* light-mode neutral */
+      opacity:0;
+      animation:ev2MaskIn 0.15s ease-out 0.08s forwards;
+      transition:opacity 0.22s ease-out;
+    }
+    html[data-theme="dark"]::before{
+      background:#0b0d12;           /* dark-mode neutral */
+    }
+    /* lift mask: !important overrides animation forwards fill */
+    html[data-ev2-ready]::before{
+      opacity:0 !important;
+      pointer-events:none;
+    }
+    @keyframes ev2MaskIn{
+      from{opacity:0}
+      to{opacity:1}
+    }
+  </style>
+  <script>
+    (function(){
+      setTimeout(function(){
+        try { document.documentElement.setAttribute('data-ev2-ready','timeout'); } catch(_e){}
+      }, 4000);
+    })();
+  </script>
+  <link rel="stylesheet" href="../../packages/tokens/src/primitives.css">
+  <link rel="stylesheet" href="../../packages/tokens/src/semantic.css">
+  <link rel="stylesheet" href="../../packages/tokens/src/surfaces.css">
+  <link rel="stylesheet" href="../../packages/tokens/src/extras.css">
+  <link rel="stylesheet" href="../../packages/components/src/button/button.tokens.css">
+  <link rel="stylesheet" href="../../packages/components/src/button/button.css">
+  <link rel="stylesheet" href="../../packages/components/src/badge/badge.tokens.css">
+  <link rel="stylesheet" href="../../packages/components/src/badge/badge.css">
+  <link rel="stylesheet" href="../../packages/components/src/input/input.tokens.css">
+  <link rel="stylesheet" href="../../packages/components/src/input/input.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0}
+    /* `display:flex` on .pv-canvas would otherwise win over the
+       UA `[hidden]{display:none}` rule, so the T2 canvas leaked
+       into T0/T1/T3 previews. Force-hide whenever the attr is set. */
+    [hidden]{display:none !important}
+    html{background:var(--surface-base-bg)}
+    body{font-family:var(--font-family-body,var(--font-family-sans,system-ui));background:var(--surface-base-bg);color:var(--surface-base-ct-default);padding:24px;line-height:1.5;min-height:100vh}
+    /* On T2, the whole iframe should read as the active surface so
+       scrolling never exposes a contrasting base-bg strip behind the
+       canvas. Limited to T2 because T0/T1/T3 sit on base by design. */
+    html:has(body[data-active-tier="t2"]){background:var(--surface-active-bg,var(--surface-base-bg))}
+    body[data-active-tier="t2"]{background:var(--surface-active-bg,var(--surface-base-bg))}
+    .pv-section{position:relative;margin-bottom:24px;padding:14px;border-radius:8px;border:1px solid transparent;transition:box-shadow 200ms,background 200ms}
+    .pv-section[data-active="true"]{box-shadow:0 0 0 2px var(--brand-component-outline-default,#6593fe), 0 6px 20px -8px rgba(60,90,200,.25);background:transparent}
+    .pv-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--surface-base-ct-faint);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .pv-label-tag{font-size:9px;background:var(--surface-base-subtle);padding:2px 6px;border-radius:3px;font-weight:600;letter-spacing:.04em;color:var(--surface-base-ct-faint)}
+    .pv-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .pv-stack{display:flex;flex-direction:column;gap:8px}
+    /* Inline alert mock built from role container tokens */
+    .pv-alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:8px;border:1px solid;font-size:13px;line-height:1.45}
+    .pv-alert[data-role="brand"]   {background:var(--brand-container-bg);border-color:var(--brand-container-outline);color:var(--brand-on-container)}
+    .pv-alert[data-role="danger"]  {background:var(--danger-container-bg);border-color:var(--danger-container-outline);color:var(--danger-on-container)}
+    .pv-alert[data-role="success"] {background:var(--success-container-bg);border-color:var(--success-container-outline);color:var(--success-on-container)}
+    .pv-alert[data-role="warning"] {background:var(--warning-container-bg);border-color:var(--warning-container-outline);color:var(--warning-on-container)}
+    .pv-alert[data-role="info"]    {background:var(--info-container-bg);border-color:var(--info-container-outline);color:var(--info-on-container)}
+    .pv-alert-title{font-family:var(--font-family-headline,var(--font-family-sans,system-ui));font-weight:700;margin-bottom:2px}
+    /* Text card to demo content tokens */
+    .pv-card{padding:14px 16px;border-radius:8px;border:1px solid var(--surface-base-outline);background:var(--surface-base-bg)}
+    .pv-card .pv-h{font-family:var(--font-family-headline,var(--font-family-sans,system-ui));font-size:14px;font-weight:700;margin-bottom:6px}
+    .pv-card .pv-h[data-role="brand"]   {color:var(--brand-content-strong)}
+    .pv-card .pv-h[data-role="danger"]  {color:var(--danger-content-strong)}
+    .pv-card .pv-h[data-role="success"] {color:var(--success-content-strong)}
+    .pv-card .pv-h[data-role="warning"] {color:var(--warning-content-strong)}
+    .pv-card .pv-h[data-role="info"]    {color:var(--info-content-strong)}
+    .pv-card .pv-p{font-size:12.5px;color:var(--surface-base-ct-subtle);margin-bottom:6px}
+    .pv-card .pv-link[data-role="brand"]   {color:var(--brand-content-default)}
+    .pv-card .pv-link[data-role="danger"]  {color:var(--danger-content-default)}
+    .pv-card .pv-link[data-role="success"] {color:var(--success-content-default)}
+    .pv-card .pv-link[data-role="warning"] {color:var(--warning-content-default)}
+    .pv-card .pv-link[data-role="info"]    {color:var(--info-content-default)}
+
+    /* Compare-across-roles accordion. Stays closed by default so the
+       spotlight up top is the focal point. Once opened, native <details>
+       keeps it open until the user closes it explicitly. */
+    .pv-compare{
+      margin-top:8px;
+      border:1px solid var(--surface-base-outline);
+      border-radius:10px;
+      background:var(--surface-base-cm-bg);
+      overflow:hidden;
+    }
+    .pv-compare > summary{
+      list-style:none;cursor:pointer;
+      padding:14px 18px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      font-size:12px;font-weight:700;
+      color:var(--surface-base-ct-strong);
+      letter-spacing:.04em;text-transform:uppercase;
+      user-select:none;
+    }
+    .pv-compare > summary::-webkit-details-marker{display:none}
+    .pv-compare > summary::after{
+      content:'';
+      width:8px;height:8px;
+      border:1.5px solid var(--surface-base-ct-subtle);
+      border-top:0;border-left:0;
+      transform:rotate(45deg) translateY(-2px);
+      transition:transform 180ms;
+    }
+    .pv-compare[open] > summary::after{transform:rotate(-135deg) translateY(-2px)}
+    .pv-compare > summary:hover{background:var(--surface-base-bg)}
+    .pv-compare-sub{
+      font-size:11px;font-weight:500;color:var(--surface-base-ct-subtle);
+      text-transform:none;letter-spacing:0;margin-left:auto;margin-right:8px;
+    }
+    .pv-compare-body{padding:14px 18px 8px;border-top:1px solid var(--surface-base-outline);background:var(--surface-base-bg)}
+    .pv-compare-body .pv-section{margin-bottom:14px}
+    .pv-compare-body .pv-section:last-child{margin-bottom:0}
+
+    /* Spotlight band — emphasizes the active role with a tagged pill,
+       a button trio (filled / outlined / ghost), an alert, and a
+       text card all wired to the same role. Re-bound on
+       ev2-active-role messages from the editor. */
+    .pv-spotlight{
+      margin-bottom:24px;padding:16px 18px;
+      border-radius:10px;
+      background:var(--surface-base-cm-bg);
+      border:1px solid var(--surface-base-outline);
+      position:relative;
+    }
+    .pv-spotlight-head{
+      display:flex;align-items:center;gap:8px;margin-bottom:14px;
+      font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+      color:var(--surface-base-ct-strong);
+    }
+    .pv-spotlight-pill{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:3px 10px;border-radius:999px;
+      background:var(--surface-base-bg);
+      border:1px solid var(--surface-base-outline);
+      font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+      color:var(--surface-base-ct-default);
+    }
+    .pv-spotlight-pill-dot{width:8px;height:8px;border-radius:999px;background:var(--pv-active-fill,#286CE5)}
+    .pv-spotlight-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media (min-width: 720px) { .pv-spotlight-grid{grid-template-columns:1fr 1fr;gap:14px} }
+    .pv-spotlight-card{padding:12px 14px;border-radius:8px;border:1px solid var(--surface-base-outline);background:var(--surface-base-bg)}
+    .pv-spotlight-cap{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--surface-base-ct-faint);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+    .pv-spotlight-cap-tag{font-size:9px;background:var(--surface-base-subtle);padding:2px 6px;border-radius:3px;font-weight:600;letter-spacing:.04em}
+    .pv-spotlight-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+    /* ── Surface canvas ──────────────────────────────────────
+       Renders all 16 props of the active surface as a labeled
+       grid. Every token here consumes the --surface-base-*
+       alias bridge injected by ev2-active-surface, so any T2
+       step change is immediately visible: bg flips, subtle
+       region repaints, ct-strong text re-tones, cm-bg/outline
+       chip shifts. The "canvas" wrapper IS the surface bg, so
+       the user sees their edit on the surface itself, not on
+       a generic page bg. */
+    /* ---- T2 active-surface canvas ----
+       A token-map, not a UI mock. Each zone is a minimal element
+       (a text stack, a tint pair, a button group, a list of two
+       rows) painted with --surface-active-* and labelled with the
+       exact token name beside it, so the eye reads color → token
+       directly. No prose. No app chrome. The header is the strip
+       above (active tile ringed) so we don't repeat it here. */
+    .pv-canvas{
+      margin-bottom:24px;
+      border-radius:12px;
+      border:1px solid var(--surface-active-outline);
+      background:var(--surface-active-bg);
+      color:var(--surface-active-ct-default);
+      padding:16px;
+      display:flex;flex-direction:column;gap:18px;
+    }
+
+    /* Each zone shows: [token label]  [painted thing] */
+    .pv-zone{
+      display:grid;
+      grid-template-columns:120px 1fr;
+      gap:12px;
+      align-items:start;
+    }
+    .pv-zone-label{
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:10px;font-weight:600;
+      color:var(--surface-active-ct-faint);
+      line-height:1.5;
+      padding-top:2px;
+    }
+    .pv-zone-label b{
+      display:block;font-weight:700;
+      color:var(--surface-active-ct-subtle);
+      margin-bottom:2px;
+    }
+    .pv-zone-body{min-width:0;display:flex;flex-direction:column;gap:6px}
+
+    /* Zone 1 — type stack: the 4 ct-* tokens, one line each, each
+       row tagged with its own token name. */
+    .pv-z-type{display:flex;flex-direction:column;gap:4px}
+    .pv-z-type-row{
+      display:flex;align-items:baseline;gap:10px;
+      padding:2px 0;
+    }
+    .pv-z-type-row .pv-z-type-tag{
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:9px;font-weight:600;
+      color:var(--surface-active-ct-faint);
+      flex:0 0 60px;text-align:right;opacity:.8;
+    }
+    .pv-z-type-row.r-strong  > .pv-z-type-txt{font-size:13.5px;font-weight:700;color:var(--surface-active-ct-strong);line-height:1.2}
+    .pv-z-type-row.r-default > .pv-z-type-txt{font-size:12px;color:var(--surface-active-ct-default);line-height:1.3}
+    .pv-z-type-row.r-subtle  > .pv-z-type-txt{font-size:11px;color:var(--surface-active-ct-subtle);line-height:1.3}
+    .pv-z-type-row.r-faint   > .pv-z-type-txt{font-size:10.5px;color:var(--surface-active-ct-faint);line-height:1.3}
+
+    /* Zone 2 — tint pair: bg shown as the canvas itself, subtle
+       and strong as two stacked bars inside the bg with no extra
+       chrome so the user reads the contrast jump. Edges (outline +
+       separator) belong to the same surface family so they live in
+       this zone too, as their own labelled rows. */
+    .pv-z-tints{display:flex;flex-direction:column;gap:4px}
+    .pv-z-tint{
+      padding:10px 12px;border-radius:6px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:10px;font-weight:600;
+      color:var(--surface-active-ct-default);
+      border:1px solid transparent;
+    }
+    .pv-z-tint.t-subtle{background:var(--surface-active-subtle)}
+    .pv-z-tint.t-strong{background:var(--surface-active-strong)}
+
+    /* Surface edges: outline + separator as labelled bars right
+       under the tint stack so they read as part of the same family. */
+    .pv-z-edges{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+    .pv-z-edge-row{
+      display:flex;align-items:center;gap:8px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:9px;color:var(--surface-active-ct-faint);
+    }
+    .pv-z-edge-row > .pv-z-edge-tag{flex:0 0 60px;text-align:right;opacity:.8;font-weight:600}
+    .pv-z-edge-bar{flex:1;height:1px;background:var(--surface-active-separator)}
+    .pv-z-edge-line{flex:1;height:0;border-top:1px solid var(--surface-active-outline)}
+
+    /* Zone 3 — Component family: cm-bg + cm-outline ×3 states, plus
+       cm-separator, all visualised together. Component edges live
+       INSIDE this zone (not mixed with surface edges) so the user
+       sees Component as a self-contained group. */
+    .pv-z-cmp{
+      display:flex;
+      border-radius:8px;overflow:hidden;
+      border:1px solid var(--surface-active-cm-outline);
+      background:var(--surface-active-cm-bg);
+    }
+    .pv-z-cmp-cell{
+      flex:1;
+      padding:10px 8px;
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:9px;color:var(--surface-active-ct-subtle);
+    }
+    .pv-z-cmp-cell + .pv-z-cmp-cell{
+      border-left:1px solid var(--surface-active-cm-separator);
+    }
+    .pv-z-cmp-cell.s-hover  {background:var(--surface-active-cm-bg-hover)}
+    .pv-z-cmp-cell.s-pressed{background:var(--surface-active-cm-bg-pressed)}
+    .pv-z-cmp-dot{
+      width:18px;height:18px;border-radius:50%;
+      border:1px solid var(--surface-active-cm-outline);
+      background:transparent;
+    }
+    .pv-z-cmp-cell.s-hover   .pv-z-cmp-dot{border-color:var(--surface-active-cm-outline-hover)}
+    .pv-z-cmp-cell.s-pressed .pv-z-cmp-dot{border-color:var(--surface-active-cm-outline-pressed)}
+    .pv-z-cmp-sep-row{
+      margin-top:6px;
+      display:flex;align-items:center;gap:8px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:9px;color:var(--surface-active-ct-faint);
+    }
+    .pv-z-cmp-sep-row > .pv-z-edge-tag{flex:0 0 60px;text-align:right;opacity:.8;font-weight:600}
+    .pv-z-cmp-sep-bar{flex:1;height:1px;background:var(--surface-active-cm-separator)}
+
+    /* ---- Interactive try-it section ----
+       Below the static token map: real buttons with real :hover and
+       :active states so the user can FEEL the cm-bg → cm-bg-hover →
+       cm-bg-pressed mapping. Three variants exercise the full token
+       trio (bg+outline+content) in their three interaction states. */
+    .pv-try{
+      margin-top:18px;
+      padding-top:14px;
+      border-top:1px dashed var(--surface-active-separator);
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .pv-try-cap{
+      font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+      color:var(--surface-active-ct-faint);
+      display:flex;align-items:center;gap:8px;
+    }
+    .pv-try-cap-hint{
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:9px;font-weight:500;text-transform:none;letter-spacing:0;
+      opacity:.85;
+    }
+    .pv-try-row{
+      display:flex;gap:8px;flex-wrap:wrap;
+    }
+    .pv-try-btn{
+      flex:1;min-width:0;
+      padding:9px 12px;border-radius:7px;
+      font-size:11.5px;font-weight:600;
+      font-family:inherit;
+      cursor:pointer;
+      transition:background 80ms,border-color 80ms,color 80ms;
+      background:var(--surface-active-cm-bg);
+      border:1px solid var(--surface-active-cm-outline);
+      color:var(--surface-active-ct-strong);
+    }
+    .pv-try-btn:hover{
+      background:var(--surface-active-cm-bg-hover);
+      border-color:var(--surface-active-cm-outline-hover);
+    }
+    .pv-try-btn:active{
+      background:var(--surface-active-cm-bg-pressed);
+      border-color:var(--surface-active-cm-outline-pressed);
+    }
+    /* Variant: ghost — no bg, no outline at rest; cm-bg-hover/pressed
+       fill in on interaction so the user sees the hover/pressed
+       tokens against a transparent baseline. */
+    .pv-try-btn.v-ghost{
+      background:transparent;
+      border-color:transparent;
+      color:var(--surface-active-ct-default);
+    }
+    .pv-try-btn.v-ghost:hover{
+      background:var(--surface-active-cm-bg-hover);
+    }
+    .pv-try-btn.v-ghost:active{
+      background:var(--surface-active-cm-bg-pressed);
+    }
+
+    /* ---- Roles on this surface ----
+       Real-world question for T2: do my brand/danger/success/warning/
+       info buttons + containers still read well on THIS surface?
+       Each role gets one filled button + one outlined button + one
+       tinted container, all sitting directly on --surface-active-bg
+       so the user can spot contrast collapses (e.g. brand-component-
+       bg disappearing on Accent) without leaving the T2 view. */
+    .pv-roles{
+      margin-top:18px;
+      padding-top:14px;
+      border-top:1px dashed var(--surface-active-separator);
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .pv-roles-cap{
+      font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+      color:var(--surface-active-ct-faint);
+      display:flex;align-items:center;gap:8px;
+    }
+    .pv-roles-cap-hint{
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:9px;font-weight:500;text-transform:none;letter-spacing:0;
+      opacity:.85;
+    }
+    .pv-roles-grid{
+      display:grid;
+      grid-template-columns:60px 1fr 1fr 1fr;
+      gap:6px 10px;
+      align-items:center;
+    }
+    .pv-roles-head{
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:9px;font-weight:600;
+      color:var(--surface-active-ct-faint);
+      text-align:center;
+      padding-bottom:2px;
+    }
+    .pv-roles-head.r-label{text-align:left}
+    .pv-roles-row-label{
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:10px;font-weight:700;
+      color:var(--surface-active-ct-strong);
+    }
+    .pv-role-btn{
+      width:100%;
+      padding:7px 10px;border-radius:6px;
+      font-size:11px;font-weight:600;font-family:inherit;
+      cursor:pointer;
+      transition:background 80ms,border-color 80ms;
+      border:1px solid transparent;
+    }
+    .pv-role-btn.v-fill{
+      background:var(--role-bg);
+      color:var(--role-on);
+      border-color:var(--role-bg);
+    }
+    .pv-role-btn.v-fill:hover  {background:var(--role-bg-h);border-color:var(--role-bg-h)}
+    .pv-role-btn.v-fill:active {background:var(--role-bg-p);border-color:var(--role-bg-p)}
+    .pv-role-btn.v-out{
+      background:transparent;
+      color:var(--role-bg);
+      border-color:var(--role-out);
+    }
+    .pv-role-btn.v-out:hover   {background:var(--surface-active-cm-bg-hover);border-color:var(--role-out-h)}
+    .pv-role-btn.v-out:active  {background:var(--surface-active-cm-bg-pressed);border-color:var(--role-out-p)}
+    .pv-role-chip{
+      width:100%;
+      padding:7px 10px;border-radius:6px;
+      font-size:10.5px;font-weight:600;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      background:var(--role-tint);
+      color:var(--role-tint-ct);
+      border:1px solid var(--role-tint-out);
+      text-align:center;
+    }
+    /* Per-role token aliases. Maps the generic --role-* vars used by
+       the button/chip rules above onto whichever role's tokens this
+       row belongs to. Component-bg/outline trios come from the role's
+       palette; container tint + container-on/outline come from the
+       semantic surface family that mirrors the role. */
+    .pv-roles-row[data-role="brand"]{
+      --role-bg:var(--brand-component-bg-default);
+      --role-bg-h:var(--brand-component-bg-hover);
+      --role-bg-p:var(--brand-component-bg-pressed);
+      --role-out:var(--brand-component-outline-default);
+      --role-out-h:var(--brand-component-outline-hover);
+      --role-out-p:var(--brand-component-outline-pressed);
+      --role-on:var(--brand-on-component);
+      --role-tint:var(--brand-container-bg);
+      --role-tint-ct:var(--brand-on-container);
+      --role-tint-out:var(--brand-container-outline);
+    }
+    .pv-roles-row[data-role="danger"]{
+      --role-bg:var(--danger-component-bg-default);
+      --role-bg-h:var(--danger-component-bg-hover);
+      --role-bg-p:var(--danger-component-bg-pressed);
+      --role-out:var(--danger-component-outline-default);
+      --role-out-h:var(--danger-component-outline-hover);
+      --role-out-p:var(--danger-component-outline-pressed);
+      --role-on:var(--danger-on-component);
+      --role-tint:var(--danger-container-bg);
+      --role-tint-ct:var(--danger-on-container);
+      --role-tint-out:var(--danger-container-outline);
+    }
+    .pv-roles-row[data-role="success"]{
+      --role-bg:var(--success-component-bg-default);
+      --role-bg-h:var(--success-component-bg-hover);
+      --role-bg-p:var(--success-component-bg-pressed);
+      --role-out:var(--success-component-outline-default);
+      --role-out-h:var(--success-component-outline-hover);
+      --role-out-p:var(--success-component-outline-pressed);
+      --role-on:var(--success-on-component);
+      --role-tint:var(--success-container-bg);
+      --role-tint-ct:var(--success-on-container);
+      --role-tint-out:var(--success-container-outline);
+    }
+    .pv-roles-row[data-role="warning"]{
+      --role-bg:var(--warning-component-bg-default);
+      --role-bg-h:var(--warning-component-bg-hover);
+      --role-bg-p:var(--warning-component-bg-pressed);
+      --role-out:var(--warning-component-outline-default);
+      --role-out-h:var(--warning-component-outline-hover);
+      --role-out-p:var(--warning-component-outline-pressed);
+      --role-on:var(--warning-on-component);
+      --role-tint:var(--warning-container-bg);
+      --role-tint-ct:var(--warning-on-container);
+      --role-tint-out:var(--warning-container-outline);
+    }
+    .pv-roles-row[data-role="info"]{
+      --role-bg:var(--info-component-bg-default);
+      --role-bg-h:var(--info-component-bg-hover);
+      --role-bg-p:var(--info-component-bg-pressed);
+      --role-out:var(--info-component-outline-default);
+      --role-out-h:var(--info-component-outline-hover);
+      --role-out-p:var(--info-component-outline-pressed);
+      --role-on:var(--info-on-component);
+      --role-tint:var(--info-container-bg);
+      --role-tint-ct:var(--info-on-container);
+      --role-tint-out:var(--info-container-outline);
+    }
+    .pv-roles-row{display:contents}
+
+    /* ---- Tier gating ----
+       When the editor is on T2 the preview becomes a surface-only
+       experience: the role spotlight and compare-roles panels (both
+       designed for T1 work) collapse out of the layout. The pv-canvas
+       takes their place as the entire preview. When on T0/T1/T3,
+       those two panels return and the canvas hides via JS. */
+    body[data-active-tier="t2"] .pv-spotlight,
+    body[data-active-tier="t2"] .pv-compare{display:none !important}
+
+    /* ---- T2 prop flash ring ----
+       When the editor sends ev2-pv-flash, we mark the [data-pv-prop]
+       element with [data-pv-flash="true"] for ~1.4s. The ring is an
+       outline (renders outside layout, doesn't shift anything) plus
+       a soft outer glow so the eye lands on it immediately. Uses the
+       active surface's outline color when paint is dark, or a known
+       high-vis amber when paint is unknown. */
+    [data-pv-flash="true"]{
+      outline:2px solid #ff9900;
+      outline-offset:3px;
+      border-radius:4px;
+      box-shadow:0 0 0 6px rgba(255,153,0,.18);
+      animation:pv-flash-pulse 1.4s ease-out 1;
+      position:relative;z-index:2;
+    }
+    @keyframes pv-flash-pulse{
+      0%   { outline-color:#ff9900; box-shadow:0 0 0 0    rgba(255,153,0,.55) }
+      40%  { outline-color:#ff9900; box-shadow:0 0 0 10px rgba(255,153,0,.18) }
+      100% { outline-color:#ff9900; box-shadow:0 0 0 6px  rgba(255,153,0,.18) }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Active surface canvas — renders a realistic mini app painted
+       entirely with --surface-active-* tokens. The editor aliases
+       those to whichever surface the user clicked, so editing any
+       T2 token visibly repaints real UI here (buttons, alert, card,
+       input, list) instead of abstract swatches. -->
+  <!-- Active-surface canvas — a TOKEN MAP, not a UI mock. Zones
+       group strictly by family so the user reads Surface vs Component
+       as separate concepts: Surface owns bg/subtle/strong + its own
+       outline/separator; Component owns cm-bg trio + cm-outline trio
+       + cm-separator. A separate Try-it row below lets the user
+       hover/press real buttons to feel the cm-*-hover / cm-*-pressed
+       tokens cycle. -->
+  <section class="pv-canvas" id="pv-canvas" hidden aria-label="Active surface token map" data-pv-prop="bg">
+
+    <!-- Zone 1: content tones -->
+    <div class="pv-zone">
+      <div class="pv-zone-label"><b>Content</b>--…-ct-*</div>
+      <div class="pv-zone-body pv-z-type">
+        <div class="pv-z-type-row r-strong" data-pv-prop="ct-strong">
+          <span class="pv-z-type-tag">strong</span>
+          <span class="pv-z-type-txt">Strong heading</span>
+        </div>
+        <div class="pv-z-type-row r-default" data-pv-prop="ct-default">
+          <span class="pv-z-type-tag">default</span>
+          <span class="pv-z-type-txt">Default body text</span>
+        </div>
+        <div class="pv-z-type-row r-subtle" data-pv-prop="ct-subtle">
+          <span class="pv-z-type-tag">subtle</span>
+          <span class="pv-z-type-txt">Subtle metadata</span>
+        </div>
+        <div class="pv-z-type-row r-faint" data-pv-prop="ct-faint">
+          <span class="pv-z-type-tag">faint</span>
+          <span class="pv-z-type-txt">Faint caption</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone 2: Surface family — tints + its own edges grouped -->
+    <div class="pv-zone">
+      <div class="pv-zone-label"><b>Surface</b>bg · subtle · strong · outline · separator</div>
+      <div class="pv-zone-body">
+        <div class="pv-z-tints">
+          <div class="pv-z-tint t-subtle" data-pv-prop="subtle">subtle</div>
+          <div class="pv-z-tint t-strong" data-pv-prop="strong">strong</div>
+        </div>
+        <div class="pv-z-edges">
+          <div class="pv-z-edge-row" data-pv-prop="outline">
+            <span class="pv-z-edge-tag">outline</span>
+            <span class="pv-z-edge-line"></span>
+          </div>
+          <div class="pv-z-edge-row" data-pv-prop="separator">
+            <span class="pv-z-edge-tag">separator</span>
+            <span class="pv-z-edge-bar"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone 3: Component family — cm-bg ×3 states + cm-outline ×3 + cm-separator -->
+    <div class="pv-zone">
+      <div class="pv-zone-label"><b>Component</b>cm-bg · cm-outline ×3 · cm-separator</div>
+      <div class="pv-zone-body">
+        <div class="pv-z-cmp">
+          <div class="pv-z-cmp-cell" data-pv-prop="cm-bg">
+            <div class="pv-z-cmp-dot" data-pv-prop="cm-outline"></div>
+            <span>default</span>
+          </div>
+          <div class="pv-z-cmp-cell s-hover" data-pv-prop="cm-bg-hover">
+            <div class="pv-z-cmp-dot" data-pv-prop="cm-outline-hover"></div>
+            <span>hover</span>
+          </div>
+          <div class="pv-z-cmp-cell s-pressed" data-pv-prop="cm-bg-pressed">
+            <div class="pv-z-cmp-dot" data-pv-prop="cm-outline-pressed"></div>
+            <span>pressed</span>
+          </div>
+        </div>
+        <div class="pv-z-cmp-sep-row" data-pv-prop="cm-separator">
+          <span class="pv-z-edge-tag">cm-sep</span>
+          <span class="pv-z-cmp-sep-bar"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Try-it: real buttons with :hover and :active so the user
+         can feel cm-bg → cm-bg-hover → cm-bg-pressed mapping. -->
+    <div class="pv-try" aria-label="Interactive try-it">
+      <div class="pv-try-cap">
+        <span>Try it</span>
+        <span class="pv-try-cap-hint">hover &amp; press to feel cm-bg / cm-outline cycle</span>
+      </div>
+      <div class="pv-try-row">
+        <button type="button" class="pv-try-btn">Outlined</button>
+        <button type="button" class="pv-try-btn v-ghost">Ghost</button>
+      </div>
+    </div>
+
+    <!-- Roles on this surface: every role's filled + outlined button
+         and container chip painted directly on --surface-active-bg
+         so the user can spot contrast collapses (e.g. a Brand button
+         vanishing on the Accent surface) without leaving T2. -->
+    <div class="pv-roles" aria-label="Roles on this surface">
+      <div class="pv-roles-cap">
+        <span>Roles on this surface</span>
+        <span class="pv-roles-cap-hint">does each role still read?</span>
+      </div>
+      <div class="pv-roles-grid">
+        <div class="pv-roles-head r-label">role</div>
+        <div class="pv-roles-head">filled</div>
+        <div class="pv-roles-head">outlined</div>
+        <div class="pv-roles-head">container</div>
+
+        <div class="pv-roles-row" data-role="brand">
+          <span class="pv-roles-row-label">brand</span>
+          <button type="button" class="pv-role-btn v-fill">Brand</button>
+          <button type="button" class="pv-role-btn v-out">Brand</button>
+          <span class="pv-role-chip">container</span>
+        </div>
+        <div class="pv-roles-row" data-role="danger">
+          <span class="pv-roles-row-label">danger</span>
+          <button type="button" class="pv-role-btn v-fill">Delete</button>
+          <button type="button" class="pv-role-btn v-out">Delete</button>
+          <span class="pv-role-chip">container</span>
+        </div>
+        <div class="pv-roles-row" data-role="success">
+          <span class="pv-roles-row-label">success</span>
+          <button type="button" class="pv-role-btn v-fill">Save</button>
+          <button type="button" class="pv-role-btn v-out">Save</button>
+          <span class="pv-role-chip">container</span>
+        </div>
+        <div class="pv-roles-row" data-role="warning">
+          <span class="pv-roles-row-label">warning</span>
+          <button type="button" class="pv-role-btn v-fill">Review</button>
+          <button type="button" class="pv-role-btn v-out">Review</button>
+          <span class="pv-role-chip">container</span>
+        </div>
+        <div class="pv-roles-row" data-role="info">
+          <span class="pv-roles-row-label">info</span>
+          <button type="button" class="pv-role-btn v-fill">Notify</button>
+          <button type="button" class="pv-role-btn v-out">Notify</button>
+          <span class="pv-role-chip">container</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Active-role spotlight: re-binds to whatever role the editor is on -->
+  <section class="pv-spotlight" id="pv-spotlight" data-pv-shows="all" data-active-role="brand" aria-label="Active role spotlight">
+    <header class="pv-spotlight-head">
+      <span>Active role</span>
+      <span class="pv-spotlight-pill"><span class="pv-spotlight-pill-dot"></span><span id="pv-spotlight-name">Brand</span></span>
+    </header>
+    <div class="pv-spotlight-grid">
+      <div class="pv-spotlight-card">
+        <div class="pv-spotlight-cap"><span>Buttons</span><span class="pv-spotlight-cap-tag">component-bg</span></div>
+        <div class="pv-spotlight-row">
+          <button class="btn" data-variant="filled" data-role="brand" id="pv-sl-fill">Filled</button>
+          <button class="btn" data-variant="outlined" data-role="brand" id="pv-sl-out">Outlined</button>
+          <button class="btn" data-variant="ghost" data-role="brand" id="pv-sl-ghost">Ghost</button>
+        </div>
+      </div>
+      <div class="pv-spotlight-card pv-alert" data-role="brand" id="pv-sl-alert" style="margin:0">
+        <div>
+          <div class="pv-spotlight-cap" style="margin-bottom:4px;color:inherit;opacity:.65"><span>Alert</span><span class="pv-spotlight-cap-tag" style="background:rgba(0,0,0,.07);color:inherit">container-bg + on-container</span></div>
+          <div class="pv-alert-title" id="pv-sl-alert-title">Heads up — Brand</div>
+          <div id="pv-sl-alert-body">This card switches to the role you're editing. Watch container softness, content weight, and fill emphasis change as you tweak the levers.</div>
+        </div>
+      </div>
+      <div class="pv-spotlight-card pv-card" style="grid-column:1/-1;margin:0">
+        <div class="pv-spotlight-cap"><span>Text card</span><span class="pv-spotlight-cap-tag">content-strong + content-default</span></div>
+        <div class="pv-h" data-role="brand" id="pv-sl-h">Brand strong heading</div>
+        <div class="pv-p" id="pv-sl-p">Body text uses surface-content tokens. The link below uses the active role's content-default token.</div>
+        <a href="#" class="pv-link" data-role="brand" id="pv-sl-link">Read documentation →</a>
+      </div>
+    </div>
+  </section>
+
+  <details class="pv-compare" id="pv-compare">
+    <summary>
+      <span>Compare across roles</span>
+      <span class="pv-compare-sub">All 5 roles, side-by-side · click to expand</span>
+    </summary>
+    <div class="pv-compare-body">
+
+  <div class="pv-section" data-pv-shows="fill" data-pv-role="brand">
+    <div class="pv-label">Buttons <span class="pv-label-tag">component-bg</span></div>
+    <div class="pv-row">
+      <button class="btn" data-variant="filled" data-role="brand">Save</button>
+      <button class="btn" data-variant="outlined" data-role="brand">Cancel</button>
+      <button class="btn" data-variant="ghost" data-role="brand">Skip</button>
+      <button class="btn" data-variant="filled" data-role="brand" disabled>Disabled</button>
+    </div>
+    <div class="pv-row" style="margin-top:8px">
+      <button class="btn" data-variant="filled" data-role="danger">Delete</button>
+      <button class="btn" data-variant="filled" data-role="success">Confirm</button>
+      <button class="btn" data-variant="filled" data-role="warning">Review</button>
+      <button class="btn" data-variant="filled" data-role="info">Notify</button>
+    </div>
+  </div>
+
+  <div class="pv-section" data-pv-shows="fill" data-pv-role="brand">
+    <div class="pv-label">Badges <span class="pv-label-tag">component-bg</span></div>
+    <div class="pv-row">
+      <span class="badge" data-variant="filled" data-role="brand">Brand</span>
+      <span class="badge" data-variant="outlined" data-role="brand">Brand</span>
+      <span class="badge" data-variant="filled" data-role="danger">3</span>
+      <span class="badge" data-variant="filled" data-role="success">Live</span>
+      <span class="badge" data-variant="filled" data-role="warning">Beta</span>
+      <span class="badge" data-variant="filled" data-role="info">New</span>
+    </div>
+  </div>
+
+  <div class="pv-section" data-pv-shows="container" data-pv-role="brand">
+    <div class="pv-label">Alerts <span class="pv-label-tag">container-bg + on-container</span></div>
+    <div class="pv-stack">
+      <div class="pv-alert" data-role="brand">
+        <div><div class="pv-alert-title">Heads up</div>Brand container with text on top. Try Container softness Whisper / Light / Tinted.</div>
+      </div>
+      <div class="pv-alert" data-role="danger">
+        <div><div class="pv-alert-title">Something went wrong</div>Could not save your changes. Please try again.</div>
+      </div>
+      <div class="pv-alert" data-role="success">
+        <div><div class="pv-alert-title">Saved</div>All changes were saved to draft.</div>
+      </div>
+      <div class="pv-alert" data-role="warning">
+        <div><div class="pv-alert-title">Heads up</div>You have unsynced edits.</div>
+      </div>
+      <div class="pv-alert" data-role="info">
+        <div><div class="pv-alert-title">Did you know?</div>You can press ⌘S to save.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pv-section" data-pv-shows="content" data-pv-role="brand">
+    <div class="pv-label">Text card <span class="pv-label-tag">content-strong + content-default</span></div>
+    <div class="pv-card">
+      <div class="pv-h" data-role="brand">Brand strong heading</div>
+      <div class="pv-p">Body text uses surface-content tokens. The link below uses brand-content-default.</div>
+      <a href="#" class="pv-link" data-role="brand">Read documentation →</a>
+    </div>
+  </div>
+
+  <div class="pv-section" data-pv-shows="fill" data-pv-role="brand">
+    <div class="pv-label">Input <span class="pv-label-tag">component-outline</span></div>
+    <div class="pv-stack" style="max-width:320px">
+      <input class="input" type="text" placeholder="Brand-tinted focus ring" id="pv-input">
+    </div>
+  </div>
+
+    </div>
+  </details>
+
+  <script>
+    // Inject the override <style> ourselves on first load so file://
+    // sandbox restrictions on parent.contentDocument don't block us.
+    var __ev2OverrideStyle = document.createElement('style');
+    __ev2OverrideStyle.id = 'ev2-overrides';
+    document.head.appendChild(__ev2OverrideStyle);
+
+    /* Typography overrides live in their own <style> so that Tt
+       pushes (which only emit --font-family-*) don't wipe T1 color
+       overrides and vice versa. Same channel, different bucket via
+       message.scope === 'typo'. */
+    var __ev2TypoStyle = document.createElement('style');
+    __ev2TypoStyle.id = 'ev2-typo-overrides';
+    document.head.appendChild(__ev2TypoStyle);
+
+    // Compare-across-roles accordion: persist open state across reloads.
+    // Once a user opens it, keep it open until they manually close it —
+    // tab switches and token pushes must NEVER auto-toggle this.
+    (function () {
+      var compare = document.getElementById('pv-compare');
+      if (!compare) return;
+      try {
+        if (localStorage.getItem('ev2-pv-compare-open') === '1') compare.open = true;
+      } catch (e) {}
+      compare.addEventListener('toggle', function () {
+        try { localStorage.setItem('ev2-pv-compare-open', compare.open ? '1' : '0'); } catch (e) {}
+      });
+    })();
+
+    // (Surface picker lives in the editor pane now; preview is a
+    // passive canvas.)
+
+    // Listen for messages from the editor to highlight the relevant pv-section.
+    var clearTimer = null;
+    var flashing = false;
+    window.addEventListener('message', function (e) {
+      var d = e.data || {};
+      // Token override push from editor (parent posts CSS string here).
+      if (d.type === 'ev2-overrides' && typeof d.css === 'string') {
+        /* Route typo-scoped pushes to their own style tag so they
+           don't clobber T1 color overrides. */
+        if (d.scope === 'typo') {
+          if (__ev2TypoStyle.textContent !== d.css) __ev2TypoStyle.textContent = d.css;
+          return;
+        }
+        if (__ev2OverrideStyle.textContent !== d.css) __ev2OverrideStyle.textContent = d.css;
+        // Reveal the preview now that project tokens are applied.
+        // Two rAFs so the new <style> actually paints before the
+        // self-mask lifts — without this, the very first override
+        // could still let a frame of maintainer-pearl through.
+        if (!document.documentElement.hasAttribute('data-ev2-ready')) {
+          requestAnimationFrame(function(){
+            requestAnimationFrame(function(){
+              document.documentElement.setAttribute('data-ev2-ready', '1');
+            });
+          });
+        }
+        return;
+      }
+      // Lazy-load Google Fonts requested by the Tt Custom Fonts dialog.
+      if (d.type === 'ev2-typo-fonts' && typeof d.href === 'string') {
+        var gLink = document.getElementById('ev2-typo-google');
+        if (!gLink) {
+          gLink = document.createElement('link');
+          gLink.id = 'ev2-typo-google';
+          gLink.rel = 'stylesheet';
+          document.head.appendChild(gLink);
+        }
+        if (gLink.href !== d.href) gLink.href = d.href;
+        return;
+      }
+      // Custom palette injection from the T0 Palettes manager.
+      // Each palette is wrapped in marker comments so rename /
+      // remove messages can splice it out by id without nuking
+      // other custom palettes.
+      if (d.type === 'ev2-custom-palette' && typeof d.css === 'string' && d.id) {
+        var pStyle = document.getElementById('ev2-custom-palettes');
+        if (!pStyle) {
+          pStyle = document.createElement('style');
+          pStyle.id = 'ev2-custom-palettes';
+          document.head.appendChild(pStyle);
+        }
+        pStyle.textContent += '\n/* @ev2-custom-palette:' + d.id + ' */\n'
+          + d.css + '\n/* @ev2-custom-palette-end:' + d.id + ' */\n';
+        return;
+      }
+      if (d.type === 'ev2-custom-palette-remove' && d.id) {
+        var rStyle = document.getElementById('ev2-custom-palettes');
+        if (rStyle) {
+          var rs = rStyle.textContent;
+          var rStart = rs.indexOf('/* @ev2-custom-palette:' + d.id + ' */');
+          var rMark = '/* @ev2-custom-palette-end:' + d.id + ' */';
+          var rEnd = rs.indexOf(rMark);
+          if (rStart >= 0 && rEnd >= 0) {
+            rStyle.textContent = rs.slice(0, rStart) + rs.slice(rEnd + rMark.length);
+          }
+        }
+        return;
+      }
+      if (d.type === 'ev2-custom-palette-rename' && d.oldId && d.newId) {
+        var mStyle = document.getElementById('ev2-custom-palettes');
+        if (mStyle) {
+          mStyle.textContent = mStyle.textContent
+            .replace(new RegExp('@ev2-custom-palette:' + d.oldId, 'g'), '@ev2-custom-palette:' + d.newId)
+            .replace(new RegExp('@ev2-custom-palette-end:' + d.oldId, 'g'), '@ev2-custom-palette-end:' + d.newId)
+            .replace(new RegExp('--prim-' + d.oldId + '-', 'g'), '--prim-' + d.newId + '-');
+        }
+        return;
+      }
+      // Theme swap (parent can't write to our documentElement under file://).
+      if (d.type === 'ev2-theme' && d.mode) {
+        document.documentElement.setAttribute('data-theme', d.mode);
+        return;
+      }
+      // Active role swap — re-bind the spotlight section to the role
+      // the user is currently editing in T1 so the preview is contextual
+      // instead of always showing brand.
+      if (d.type === 'ev2-active-role' && d.role) {
+        var roleId = d.role;
+        var roleLabel = roleId.charAt(0).toUpperCase() + roleId.slice(1);
+        var sl = document.getElementById('pv-spotlight');
+        if (sl) sl.setAttribute('data-active-role', roleId);
+        var nm = document.getElementById('pv-spotlight-name');
+        if (nm) nm.textContent = roleLabel;
+        // Update CSS var the pill dot reads, so it tracks role color
+        var dot = document.querySelector('#pv-spotlight .pv-spotlight-pill-dot');
+        if (dot) {
+          var fillVar = '--' + roleId + '-component-bg-default';
+          dot.style.background = 'var(' + fillVar + ')';
+        }
+        ['pv-sl-fill','pv-sl-out','pv-sl-ghost'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.setAttribute('data-role', roleId);
+        });
+        var alert = document.getElementById('pv-sl-alert');
+        if (alert) alert.setAttribute('data-role', roleId);
+        var aTitle = document.getElementById('pv-sl-alert-title');
+        if (aTitle) aTitle.textContent = 'Heads up \u2014 ' + roleLabel;
+        var h = document.getElementById('pv-sl-h');
+        if (h) { h.setAttribute('data-role', roleId); h.textContent = roleLabel + ' strong heading'; }
+        var link = document.getElementById('pv-sl-link');
+        if (link) link.setAttribute('data-role', roleId);
+        return;
+      }
+      // Dirty-roles list — noop. Kept the message branch so older
+      // editor builds posting it don't trigger a fall-through into
+      // ev2-focus handling. The dashed-ring UX was removed because
+      // per-role badge + change counter already convey the same info.
+      if (d.type === 'ev2-dirty-roles') {
+        document.querySelectorAll('[data-dirty]').forEach(function (el) {
+          el.removeAttribute('data-dirty');
+        });
+        return;
+      }
+      // Active surface — when the user is on the T2 Surfaces tier we
+      // repaint the preview body to render on whichever surface they
+      // are editing. Implemented as an alias substitution: override
+      // every --surface-base-* to forward to --surface-<id>-*. One
+      // switch flips body + cards + alerts + buttons + text all at
+      // once because every preview style consumes the base aliases.
+      // When tier !== t2 (or surface = base) we strip the override
+      // so the preview renders on its canonical base surface.
+      if (d.type === 'ev2-active-surface' && d.surface) {
+        var as = d.surface;
+        var sheet = document.getElementById('pv-active-surface-vars');
+        if (!sheet) {
+          sheet = document.createElement('style');
+          sheet.id = 'pv-active-surface-vars';
+          document.head.appendChild(sheet);
+        }
+        // Always emit the --surface-active-* alias table so the
+        // canvas can paint itself using a single set of tokens that
+        // map to whichever surface the user is editing. Default to
+        // 'base' on non-T2 tiers so the alias still resolves.
+        var bridgeTarget = (d.tier === 't2') ? as : 'base';
+        var PROPS = [
+          'bg','subtle','strong','outline','separator',
+          'ct-default','ct-strong','ct-subtle','ct-faint',
+          'cm-bg','cm-bg-hover','cm-bg-pressed',
+          'cm-outline','cm-outline-hover','cm-outline-pressed',
+          'cm-separator'
+        ];
+        var body = PROPS.map(function (p) {
+          return '--surface-active-' + p + ': var(--surface-' + bridgeTarget + '-' + p + ');';
+        }).join('');
+        var next = ':root{' + body + '}';
+        if (sheet.textContent !== next) sheet.textContent = next;
+        document.body.setAttribute('data-active-surface', as);
+        // Set tier attribute on body so CSS can gate which preview
+        // panels are visible. T2 = surface-only preview; everything
+        // else = role spotlight + compare panels.
+        if (d.tier) document.body.setAttribute('data-active-tier', d.tier);
+        // Reveal the surface canvas only when the editor is on T2.
+        var cnv = document.getElementById('pv-canvas');
+        if (cnv) cnv.hidden = (d.tier !== 't2');
+        return;
+      }
+      // T2 prop flash — editor's WCAG popover wants to point at the
+      // exact zone on the canvas that paints this prop, so the user
+      // sees WHERE the failing color lives + watches it shift when
+      // they apply the suggested step. Scroll into view and add a
+      // ring for ~1.4s. Re-flashing the same prop restarts the timer.
+      if (d.type === 'ev2-pv-flash' && d.prop) {
+        var fProp = d.prop;
+        document.querySelectorAll('[data-pv-flash="true"]').forEach(function (el) {
+          el.removeAttribute('data-pv-flash');
+        });
+        var fTarget = document.querySelector('#pv-canvas [data-pv-prop="' + fProp + '"]')
+                   || (fProp === 'bg' ? document.getElementById('pv-canvas') : null);
+        if (!fTarget) return;
+        if (fProp !== 'bg') {
+          var fRect = fTarget.getBoundingClientRect();
+          var fVh = window.innerHeight || document.documentElement.clientHeight;
+          if (fRect.top < 0 || fRect.bottom > fVh) {
+            fTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+        // Re-trigger CSS animation by removing + re-adding next frame.
+        void fTarget.offsetWidth;
+        fTarget.setAttribute('data-pv-flash', 'true');
+        setTimeout(function () {
+          if (fTarget.getAttribute('data-pv-flash') === 'true') {
+            fTarget.removeAttribute('data-pv-flash');
+          }
+        }, 1500);
+        return;
+      }
+      if (d.type !== 'ev2-focus') return;
+      var lever = d.lever || null;
+      // While a click-flash is in flight, ignore hover messages so the auto-clear schedule survives.
+      if (flashing && !d.scroll) return;
+      var match = null;
+      document.querySelectorAll('.pv-section').forEach(function (s) {
+        var shows = s.getAttribute('data-pv-shows');
+        var on = !!(lever && shows === lever);
+        s.setAttribute('data-active', String(on));
+        if (on && !match) match = s;
+      });
+      if (match && d.scroll) {
+        // Don't auto-scroll if the comparison accordion that owns this
+        // section is collapsed — the spotlight at the top already shows
+        // the change. Forcing scroll into a closed details would just
+        // jump the iframe to the (collapsed) summary, which feels wrong.
+        var compare = match.closest('details.pv-compare');
+        var isVisible = !compare || compare.open;
+        if (isVisible) {
+          var rect = match.getBoundingClientRect();
+          var vh = window.innerHeight || document.documentElement.clientHeight;
+          var fullyVisible = rect.top >= 0 && rect.bottom <= vh;
+          if (!fullyVisible) match.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+      if (d.scroll && lever) {
+        if (clearTimer) clearTimeout(clearTimer);
+        flashing = true;
+        clearTimer = setTimeout(function () {
+          document.querySelectorAll('.pv-section[data-active="true"]').forEach(function (s) {
+            s.setAttribute('data-active', 'false');
+          });
+          flashing = false;
+          clearTimer = null;
+        }, 1400);
+      }
+    });
+  </script>
+
+</body>
+</html>

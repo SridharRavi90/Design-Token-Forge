@@ -1,0 +1,234 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — KBD Component CSS
+   Variable-driven rendering. Zero hardcoded visual values.
+   Uses internal (--_kb-*) vars set by variant/size selectors.
+
+   Markup (single key):
+   <kbd class="kbd" data-size="base" data-variant="filled">Ctrl</kbd>
+
+   Markup (combo):
+   <span class="kbd-combo" data-size="base">
+     <kbd class="kbd">Ctrl</kbd>
+     <span class="kbd__sep">+</span>
+     <kbd class="kbd">S</kbd>
+   </span>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════════
+   1.  BASE STRUCTURE
+   ════════════════════════════════════════════════════════════════ */
+.kbd {
+  /* Internal bridge vars — defaults = base size, filled variant */
+  --_kb-height:   var(--kbd-height-base);
+  --_kb-px:       var(--kbd-padding-x-base);
+  --_kb-py:       var(--kbd-padding-y-base);
+  --_kb-fs:       var(--kbd-font-size-base);
+  --_kb-radius:   var(--kbd-radius-base);
+  --_kb-min-w:    var(--kbd-min-width-base);
+  --_kb-bg:       var(--kbd-filled-bg);
+  --_kb-fg:       var(--kbd-filled-fg);
+  --_kb-border:   var(--kbd-filled-border-color);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--_kb-height);
+  min-width: var(--_kb-min-w);
+  padding-inline: var(--_kb-px);
+  padding-block: var(--_kb-py);
+  border-radius: var(--_kb-radius);
+  border: var(--kbd-border-width) var(--kbd-border-style) var(--_kb-border);
+  box-shadow: var(--kbd-shadow);
+  background-color: var(--_kb-bg);
+  color: var(--_kb-fg);
+  font-family: var(--kbd-font-family);
+  font-size: var(--_kb-fs);
+  font-weight: var(--kbd-font-weight);
+  line-height: var(--kbd-line-height);
+  letter-spacing: var(--kbd-letter-spacing);
+  white-space: nowrap;
+  vertical-align: baseline;
+  transition-property: var(--kbd-transition-property);
+  transition-duration: var(--kbd-transition-duration);
+  transition-timing-function: var(--kbd-transition-easing);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   2.  SIZE SELECTORS
+   ════════════════════════════════════════════════════════════════ */
+.kbd:not([data-size]),
+.kbd[data-size="base"] {
+  --_kb-height: var(--kbd-height-base);
+  --_kb-px:     var(--kbd-padding-x-base);
+  --_kb-py:     var(--kbd-padding-y-base);
+  --_kb-fs:     var(--kbd-font-size-base);
+  --_kb-radius: var(--kbd-radius-base);
+  --_kb-min-w:  var(--kbd-min-width-base);
+}
+
+.kbd[data-size="micro"] {
+  --_kb-height: var(--kbd-height-micro);
+  --_kb-px:     var(--kbd-padding-x-micro);
+  --_kb-py:     var(--kbd-padding-y-micro);
+  --_kb-fs:     var(--kbd-font-size-micro);
+  --_kb-radius: var(--kbd-radius-micro);
+  --_kb-min-w:  var(--kbd-min-width-micro);
+}
+
+.kbd[data-size="tiny"] {
+  --_kb-height: var(--kbd-height-tiny);
+  --_kb-px:     var(--kbd-padding-x-tiny);
+  --_kb-py:     var(--kbd-padding-y-tiny);
+  --_kb-fs:     var(--kbd-font-size-tiny);
+  --_kb-radius: var(--kbd-radius-tiny);
+  --_kb-min-w:  var(--kbd-min-width-tiny);
+}
+
+.kbd[data-size="small"] {
+  --_kb-height: var(--kbd-height-small);
+  --_kb-px:     var(--kbd-padding-x-small);
+  --_kb-py:     var(--kbd-padding-y-small);
+  --_kb-fs:     var(--kbd-font-size-small);
+  --_kb-radius: var(--kbd-radius-small);
+  --_kb-min-w:  var(--kbd-min-width-small);
+}
+
+.kbd[data-size="medium"] {
+  --_kb-height: var(--kbd-height-medium);
+  --_kb-px:     var(--kbd-padding-x-medium);
+  --_kb-py:     var(--kbd-padding-y-medium);
+  --_kb-fs:     var(--kbd-font-size-medium);
+  --_kb-radius: var(--kbd-radius-medium);
+  --_kb-min-w:  var(--kbd-min-width-medium);
+}
+
+.kbd[data-size="large"] {
+  --_kb-height: var(--kbd-height-large);
+  --_kb-px:     var(--kbd-padding-x-large);
+  --_kb-py:     var(--kbd-padding-y-large);
+  --_kb-fs:     var(--kbd-font-size-large);
+  --_kb-radius: var(--kbd-radius-large);
+  --_kb-min-w:  var(--kbd-min-width-large);
+}
+
+.kbd[data-size="big"] {
+  --_kb-height: var(--kbd-height-big);
+  --_kb-px:     var(--kbd-padding-x-big);
+  --_kb-py:     var(--kbd-padding-y-big);
+  --_kb-fs:     var(--kbd-font-size-big);
+  --_kb-radius: var(--kbd-radius-big);
+  --_kb-min-w:  var(--kbd-min-width-big);
+}
+
+.kbd[data-size="huge"] {
+  --_kb-height: var(--kbd-height-huge);
+  --_kb-px:     var(--kbd-padding-x-huge);
+  --_kb-py:     var(--kbd-padding-y-huge);
+  --_kb-fs:     var(--kbd-font-size-huge);
+  --_kb-radius: var(--kbd-radius-huge);
+  --_kb-min-w:  var(--kbd-min-width-huge);
+}
+
+.kbd[data-size="mega"] {
+  --_kb-height: var(--kbd-height-mega);
+  --_kb-px:     var(--kbd-padding-x-mega);
+  --_kb-py:     var(--kbd-padding-y-mega);
+  --_kb-fs:     var(--kbd-font-size-mega);
+  --_kb-radius: var(--kbd-radius-mega);
+  --_kb-min-w:  var(--kbd-min-width-mega);
+}
+
+.kbd[data-size="ultra"] {
+  --_kb-height: var(--kbd-height-ultra);
+  --_kb-px:     var(--kbd-padding-x-ultra);
+  --_kb-py:     var(--kbd-padding-y-ultra);
+  --_kb-fs:     var(--kbd-font-size-ultra);
+  --_kb-radius: var(--kbd-radius-ultra);
+  --_kb-min-w:  var(--kbd-min-width-ultra);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   3.  VARIANT SELECTORS
+   ════════════════════════════════════════════════════════════════ */
+.kbd:not([data-variant]),
+.kbd[data-variant="filled"] {
+  --_kb-bg:     var(--kbd-filled-bg);
+  --_kb-fg:     var(--kbd-filled-fg);
+  --_kb-border: var(--kbd-filled-border-color);
+}
+
+.kbd[data-variant="outlined"] {
+  --_kb-bg:     var(--kbd-outlined-bg);
+  --_kb-fg:     var(--kbd-outlined-fg);
+  --_kb-border: var(--kbd-outlined-border-color);
+  box-shadow: none;
+}
+
+.kbd[data-variant="ghost"] {
+  --_kb-bg:     var(--kbd-ghost-bg);
+  --_kb-fg:     var(--kbd-ghost-fg);
+  --_kb-border: var(--kbd-ghost-border-color);
+  box-shadow: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   4.  DISABLED STATE
+   ════════════════════════════════════════════════════════════════ */
+.kbd[data-disabled] {
+  opacity: var(--kbd-opacity-disabled);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   5.  COMBO WRAPPER
+   ════════════════════════════════════════════════════════════════ */
+.kbd-combo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kbd-gap-base);
+}
+
+.kbd-combo[data-size="micro"]  { gap: var(--kbd-gap-micro); }
+.kbd-combo[data-size="tiny"]   { gap: var(--kbd-gap-tiny); }
+.kbd-combo[data-size="small"]  { gap: var(--kbd-gap-small); }
+.kbd-combo[data-size="base"]   { gap: var(--kbd-gap-base); }
+.kbd-combo[data-size="medium"] { gap: var(--kbd-gap-medium); }
+.kbd-combo[data-size="large"]  { gap: var(--kbd-gap-large); }
+.kbd-combo[data-size="big"]    { gap: var(--kbd-gap-big); }
+.kbd-combo[data-size="huge"]   { gap: var(--kbd-gap-huge); }
+.kbd-combo[data-size="mega"]   { gap: var(--kbd-gap-mega); }
+.kbd-combo[data-size="ultra"]  { gap: var(--kbd-gap-ultra); }
+
+/* ════════════════════════════════════════════════════════════════
+   6.  SEPARATOR
+   ════════════════════════════════════════════════════════════════ */
+.kbd__sep {
+  color: var(--kbd-sep-color);
+  opacity: var(--kbd-sep-opacity);
+  margin-inline: var(--kbd-sep-margin);
+  font-family: var(--kbd-font-family);
+  font-size: inherit;
+  user-select: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   7.  FORCED COLORS (High Contrast)
+   ════════════════════════════════════════════════════════════════ */
+@media (forced-colors: active) {
+  .kbd {
+    border: 1px solid ButtonText;
+  }
+  .kbd[data-disabled] {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   8.  REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .kbd {
+    transition-duration: 0.01ms !important;
+  }
+}

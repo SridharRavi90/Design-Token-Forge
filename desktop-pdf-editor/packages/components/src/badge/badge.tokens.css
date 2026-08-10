@@ -1,0 +1,217 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Badge Token Defaults
+   Layer 0: System defaults for ~90 badge variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.badge {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode */
+  --badge-radius-micro: var(--radius-full);
+  --badge-radius-tiny: var(--radius-full);
+  --badge-radius-small: var(--radius-full);
+  --badge-radius-base: var(--radius-full);
+  --badge-radius-medium: var(--radius-full);
+  --badge-radius-large: var(--radius-full);
+  --badge-radius-big: var(--radius-full);
+  --badge-radius-huge: var(--radius-full);
+  --badge-radius-mega: var(--radius-full);
+  --badge-radius-ultra: var(--radius-full);
+
+  /* Shape overrides */
+  --badge-radius-rounded: var(--radius-md);
+  --badge-radius-square: var(--radius-xs);
+
+  /* Border */
+  --badge-border-width: 1px;
+  --badge-border-style: solid;
+
+  /* Shadow */
+  --badge-shadow: var(--shadow-none);
+  --badge-shadow-strong: var(--shadow-sm);
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (30 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Height per density mode */
+  --badge-height-micro: var(--spacing-16);
+  --badge-height-tiny: var(--spacing-18);
+  --badge-height-small: var(--spacing-20);
+  --badge-height-base: var(--spacing-22);
+  --badge-height-medium: var(--spacing-24);
+  --badge-height-large: var(--spacing-28);
+  --badge-height-big: var(--spacing-32);
+  --badge-height-huge: var(--spacing-36);
+  --badge-height-mega: var(--spacing-40);
+  --badge-height-ultra: var(--spacing-48);
+
+  /* Horizontal padding per density */
+  --badge-padding-x-micro: var(--spacing-4);
+  --badge-padding-x-tiny: var(--spacing-5);
+  --badge-padding-x-small: var(--spacing-6);
+  --badge-padding-x-base: var(--spacing-8);
+  --badge-padding-x-medium: var(--spacing-10);
+  --badge-padding-x-large: var(--spacing-12);
+  --badge-padding-x-big: var(--spacing-14);
+  --badge-padding-x-huge: var(--spacing-16);
+  --badge-padding-x-mega: var(--spacing-18);
+  --badge-padding-x-ultra: var(--spacing-24);
+
+  /* Gap */
+  --badge-gap-micro: var(--spacing-2);
+  --badge-gap-tiny: var(--spacing-2);
+  --badge-gap-small: var(--spacing-3);
+  --badge-gap-base: var(--spacing-4);
+  --badge-gap-medium: var(--spacing-4);
+  --badge-gap-large: var(--spacing-5);
+  --badge-gap-big: var(--spacing-6);
+  --badge-gap-huge: var(--spacing-8);
+  --badge-gap-mega: var(--spacing-8);
+  --badge-gap-ultra: var(--spacing-10);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (36 vars = 4 variants × 8 + 4 shared)
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── FILLED (solid bg) ──────────────────────────────────── */
+  --badge-filled-bg: var(--brand-component-bg-default);
+  --badge-filled-fg: var(--brand-on-component);
+  --badge-filled-border-color: transparent;
+  --badge-filled-bg-hover: var(--brand-component-bg-hover);
+  --badge-filled-fg-hover: var(--brand-on-component);
+
+  /* ── OUTLINE (border only) ──────────────────────────────── */
+  --badge-outlined-bg: transparent;
+  --badge-outlined-fg: var(--brand-content-default);
+  --badge-outlined-border-color: var(--brand-component-outline-default);
+  --badge-outlined-bg-hover: var(--brand-container-bg);
+  --badge-outlined-fg-hover: var(--brand-content-strong);
+
+  /* ── SOFT (tinted container bg) ─────────────────────────── */
+  --badge-soft-bg: var(--brand-container-bg);
+  --badge-soft-fg: var(--brand-content-default);
+  --badge-soft-border-color: transparent;
+  --badge-soft-bg-hover: var(--brand-container-hover);
+  --badge-soft-fg-hover: var(--brand-content-strong);
+
+  /* ── DOT (minimal — small dot indicator) ────────────────── */
+  --badge-dot-size: var(--spacing-8);
+  --badge-dot-color: var(--brand-component-bg-default);
+
+  /* ── Semantic role overrides (6 roles × 6 = 36 vars) ─────── */
+  /* brand */
+  --badge-brand-filled-bg: var(--brand-component-bg-default);
+  --badge-brand-filled-fg: var(--brand-on-component);
+  --badge-brand-outlined-border: var(--brand-component-outline-default);
+  --badge-brand-outlined-fg: var(--brand-content-default);
+  --badge-brand-soft-bg: var(--brand-container-bg);
+  --badge-brand-soft-fg: var(--brand-content-default);
+
+  /* info */
+  --badge-info-filled-bg: var(--info-component-bg-default);
+  --badge-info-filled-fg: var(--info-on-component);
+  --badge-info-outlined-border: var(--info-component-outline-default);
+  --badge-info-outlined-fg: var(--info-content-default);
+  --badge-info-soft-bg: var(--info-container-bg);
+  --badge-info-soft-fg: var(--info-content-default);
+
+  /* danger */
+  --badge-danger-filled-bg: var(--danger-component-bg-default);
+  --badge-danger-filled-fg: var(--danger-on-component);
+  --badge-danger-outlined-border: var(--danger-component-outline-default);
+  --badge-danger-outlined-fg: var(--danger-content-default);
+  --badge-danger-soft-bg: var(--danger-container-bg);
+  --badge-danger-soft-fg: var(--danger-content-default);
+
+  /* success */
+  --badge-success-filled-bg: var(--success-component-bg-default);
+  --badge-success-filled-fg: var(--success-on-component);
+  --badge-success-outlined-border: var(--success-component-outline-default);
+  --badge-success-outlined-fg: var(--success-content-default);
+  --badge-success-soft-bg: var(--success-container-bg);
+  --badge-success-soft-fg: var(--success-content-default);
+
+  /* warning */
+  --badge-warning-filled-bg: var(--warning-component-bg-default);
+  --badge-warning-filled-fg: var(--warning-on-component);
+  --badge-warning-outlined-border: var(--warning-component-outline-default);
+  --badge-warning-outlined-fg: var(--warning-content-default);
+  --badge-warning-soft-bg: var(--warning-container-bg);
+  --badge-warning-soft-fg: var(--warning-content-default);
+
+  /* neutral */
+  --badge-neutral-filled-bg: var(--surface-base-cm-bg-pressed);
+  --badge-neutral-filled-fg: var(--surface-base-ct-default);
+  --badge-neutral-outlined-border: var(--surface-base-cm-outline);
+  --badge-neutral-outlined-fg: var(--surface-base-ct-default);
+  --badge-neutral-soft-bg: var(--surface-base-cm-bg);
+  --badge-neutral-soft-fg: var(--surface-base-ct-default);
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+  --badge-font-family: var(--font-family-sans);
+  --badge-font-weight: var(--font-weight-semibold);
+  --badge-letter-spacing: 0.02em;
+  --badge-line-height: 1;
+
+  /* Font size per density */
+  --badge-font-size-micro: var(--font-size-10);
+  --badge-font-size-tiny: var(--font-size-10);
+  --badge-font-size-small: var(--font-size-10);
+  --badge-font-size-base: var(--font-size-11);
+  --badge-font-size-medium: var(--font-size-12);
+  --badge-font-size-large: var(--font-size-13);
+  --badge-font-size-big: var(--font-size-14);
+  --badge-font-size-huge: var(--font-size-16);
+  --badge-font-size-mega: var(--font-size-18);
+  --badge-font-size-ultra: var(--font-size-20);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (10 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Icon size per density */
+  --badge-icon-size-micro: var(--spacing-10);
+  --badge-icon-size-tiny: var(--spacing-12);
+  --badge-icon-size-small: var(--spacing-12);
+  --badge-icon-size-base: var(--spacing-14);
+  --badge-icon-size-medium: var(--spacing-14);
+  --badge-icon-size-large: var(--spacing-16);
+  --badge-icon-size-big: var(--spacing-18);
+  --badge-icon-size-huge: var(--spacing-20);
+  --badge-icon-size-mega: var(--spacing-22);
+  --badge-icon-size-ultra: var(--spacing-24);
+
+  /* Dismiss button */
+  --badge-dismiss-size: var(--spacing-14);
+  --badge-dismiss-radius: var(--radius-full);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --badge-transition-property: background-color, color, border-color, box-shadow;
+  --badge-transition-duration: var(--duration-fast);
+  --badge-transition-easing: var(--easing-in-out);
+  --badge-animation-pulse: badge-pulse 0.3s ease-out;
+  --badge-animation-skeleton: badge-skeleton 1.5s linear infinite;
+  --badge-loading-bg: var(--surface-base-cm-bg);
+  --badge-loading-shimmer: var(--surface-base-cm-bg-hover);
+
+  /* ────────────────────────────────────────────────────────────
+     🚫 STATE  (1 var)
+     ──────────────────────────────────────────────────────────── */
+  --badge-disabled-opacity: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+  --badge-focus-outline-width: var(--focus-outline-width);
+  --badge-focus-outline-color: var(--brand-component-outline-default);
+  --badge-focus-outline-offset: var(--focus-outline-offset);
+}

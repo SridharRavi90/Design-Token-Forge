@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — KBD Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/kbd/kbd.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/kbd/kbd.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+  .kbd-stage{display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:24px}
+  .density-strip{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;padding:24px}
+  .density-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .density-meta{font-size:10px;opacity:.5;font-weight:600;font-variant-numeric:tabular-nums}
+  .variant-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .variant-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);background:var(--demo-card-bg);display:flex;flex-direction:column;align-items:center;gap:16px}
+  .variant-card-title{font-weight:600;font-size:13px;text-transform:capitalize}
+  .surface-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-radius:12px;overflow:hidden}
+  .surface-panel{padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .surface-panel--base{background:var(--surface-base-bg)}
+  .surface-panel--alt{background:var(--surface-base-subtle)}
+  .surface-panel--deep{background:var(--surface-deep-bg)}
+  .surface-panel-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.5;margin-bottom:8px}
+  .shape-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .shape-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .shape-card-title{font-weight:600;font-size:12px;opacity:.7}
+  .combo-grid{display:flex;flex-direction:column;gap:20px;padding:24px}
+  .combo-row{display:flex;align-items:center;gap:16px}
+  .combo-label{font-weight:600;font-size:12px;opacity:.6;min-width:100px}
+  .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .a11y-card{padding:20px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;gap:8px}
+  .a11y-card-title{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;opacity:.6}
+  .a11y-card-desc{font-size:13px;line-height:1.5}
+  .motion-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .playground-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .playground-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .playground-card-title{font-weight:600;font-size:13px}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<!-- ═══════════════════ GLOBAL CONTROLS ═══════════════════ -->
+<nav class="global-controls" aria-label="Global kbd preview controls">
+
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-variant="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="ghost" type="button">Ghost</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+
+</nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">01</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">02</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">03</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">04</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">05</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">06</span>Shape &amp; Shadow</a>
+  <a href="#sec-slots"><span class="sn-num">07</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">08</span>Motion</a>
+  <a href="#sec-a11y"><span class="sn-num">09</span>Accessibility</a>
+  <a href="#sec-playground"><span class="sn-num">10</span>Context Playground</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>KBD Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~75 CSS Variables</span>
+    <span class="demo-badge">3 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects global controls. Inspector shows resolved computed values for the active size and variant.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" style="display:flex;align-items:center;justify-content:center;min-height:80px;gap:8px">
+          <span class="kbd-combo synced-kbd" data-size="base">
+            <kbd class="kbd" data-variant="filled">Ctrl</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="filled">Shift</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="filled">P</kbd>
+          </span>
+        </div>
+        <div class="hero-inspector" id="heroInspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Structure</span></div>
+    <p class="section-desc">Three structural variants: filled (key-cap style), outlined (border only), ghost (minimal).</p>
+    <div class="section-body">
+      <div class="variant-grid">
+        <div class="variant-card">
+          <span class="variant-card-title">Filled</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="filled">Ctrl</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="filled">C</kbd>
+          </span>
+        </div>
+        <div class="variant-card">
+          <span class="variant-card-title">Outlined</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="outlined">Ctrl</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="outlined">C</kbd>
+          </span>
+        </div>
+        <div class="variant-card">
+          <span class="variant-card-title">Ghost</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="ghost">Ctrl</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="ghost">C</kbd>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 3. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes, micro (16px height) to ultra (40px height).</p>
+    <div class="section-body">
+      <div class="density-strip" id="densityStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 4. STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">KBD states: default and disabled.</p>
+    <div class="section-body">
+      <div class="kbd-stage">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <kbd class="kbd" data-variant="filled" data-size="large">Esc</kbd>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Default</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <kbd class="kbd" data-variant="filled" data-size="large" data-disabled>Esc</kbd>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Disabled</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 5. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">KBD adapts to surrounding surface context.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base">
+          <span class="surface-panel-label">surface-base-bg</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="filled">Cmd</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="filled">K</kbd>
+          </span>
+        </div>
+        <div class="surface-panel surface-panel--alt">
+          <span class="surface-panel-label">surface-base-subtle</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="filled">Cmd</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="filled">K</kbd>
+          </span>
+        </div>
+        <div class="surface-panel surface-panel--deep">
+          <span class="surface-panel-label">surface-deep-bg</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="filled">Cmd</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="filled">K</kbd>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. SHAPE & SHADOW ═══════════ -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Radius scales with density. Shadow provides the characteristic key-cap bevel.</p>
+    <div class="section-body">
+      <div class="shape-grid">
+        <div class="shape-card">
+          <span class="shape-card-title">No shadow</span>
+          <kbd class="kbd" data-variant="filled" data-size="large" style="--kbd-shadow:none">Enter</kbd>
+        </div>
+        <div class="shape-card">
+          <span class="shape-card-title">Default shadow</span>
+          <kbd class="kbd" data-variant="filled" data-size="large">Enter</kbd>
+        </div>
+        <div class="shape-card">
+          <span class="shape-card-title">Strong shadow</span>
+          <kbd class="kbd" data-variant="filled" data-size="large" style="--kbd-shadow:0 2px 0 1px var(--surface-base-outline)">Enter</kbd>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. SLOTS & ANATOMY ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Single key, combo with separator, and various separator styles.</p>
+    <div class="section-body">
+      <div class="combo-grid">
+        <div class="combo-row">
+          <span class="combo-label">Single key</span>
+          <kbd class="kbd" data-variant="filled" data-size="base">F5</kbd>
+        </div>
+        <div class="combo-row">
+          <span class="combo-label">Plus separator</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="filled">Ctrl</kbd>
+            <span class="kbd__sep">+</span>
+            <kbd class="kbd" data-variant="filled">Z</kbd>
+          </span>
+        </div>
+        <div class="combo-row">
+          <span class="combo-label">Arrow separator</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="filled">Ctrl</kbd>
+            <span class="kbd__sep">&rarr;</span>
+            <kbd class="kbd" data-variant="filled">K</kbd>
+            <span class="kbd__sep">&rarr;</span>
+            <kbd class="kbd" data-variant="filled">C</kbd>
+          </span>
+        </div>
+        <div class="combo-row">
+          <span class="combo-label">Then (sequence)</span>
+          <span class="kbd-combo" data-size="base">
+            <kbd class="kbd" data-variant="filled">G</kbd>
+            <span class="kbd__sep">then</span>
+            <kbd class="kbd" data-variant="filled">D</kbd>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 8. MOTION ═══════════ -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">KBD transitions are minimal since the element is non-interactive. Tokens exist for theme-switch smoothness.</p>
+    <div class="section-body">
+      <div class="motion-card">
+        <p style="font-size:13px;opacity:.7;margin:0">Transition: <code>background-color, border-color, box-shadow, opacity</code><br>Duration: <code>var(--duration-fast)</code> (100ms)<br>Easing: <code>var(--easing-in-out)</code></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 9. ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">KBD is a semantic HTML element. Screen readers announce it as keyboard input.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <span class="a11y-card-title">Semantic HTML</span>
+          <span class="a11y-card-desc">Uses native <code>&lt;kbd&gt;</code> element. Screen readers announce content as keyboard input without extra ARIA.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Forced Colors</span>
+          <span class="a11y-card-desc">In Windows High Contrast mode, border is enforced with <code>ButtonText</code>. Disabled uses <code>GrayText</code>.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Non-interactive</span>
+          <span class="a11y-card-desc">KBD is display-only. No focus management, no tap target enforcement needed. <code>--kbd-min-tap-target: 0px</code>.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Contrast</span>
+          <span class="a11y-card-desc">Text uses <code>surface-base-ct-default</code> (strong contrast). Ghost uses <code>ct-subtle</code> (still AA-passing).</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 10. CONTEXT PLAYGROUND ═══════════ -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface &times; Variant</span></div>
+    <p class="section-desc">All 3 variants across different surface levels.</p>
+    <div class="section-body">
+      <div class="playground-grid" id="playgroundGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 11. FRAMEWORK SNIPPETS ═══════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Copy-paste ready code for React, Vue, HTML, and CSS token overrides.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-tabs">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css">CSS Tokens</button>
+        </div>
+        <pre class="fw-snippet-code" data-panel="react"><code>&lt;Kbd size="base"&gt;Ctrl&lt;/Kbd&gt;
+&lt;KbdCombo size="base"&gt;
+  &lt;Kbd&gt;Ctrl&lt;/Kbd&gt;
+  &lt;KbdSep&gt;+&lt;/KbdSep&gt;
+  &lt;Kbd&gt;S&lt;/Kbd&gt;
+&lt;/KbdCombo&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="vue"><code>&lt;DtfKbd size="base"&gt;Ctrl&lt;/DtfKbd&gt;
+&lt;DtfKbdCombo size="base"&gt;
+  &lt;DtfKbd&gt;Ctrl&lt;/DtfKbd&gt;
+  &lt;DtfKbdSep&gt;+&lt;/DtfKbdSep&gt;
+  &lt;DtfKbd&gt;S&lt;/DtfKbd&gt;
+&lt;/DtfKbdCombo&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="html"><code>&lt;kbd class="kbd" data-size="base" data-variant="filled"&gt;Ctrl&lt;/kbd&gt;
+
+&lt;span class="kbd-combo" data-size="base"&gt;
+  &lt;kbd class="kbd"&gt;Ctrl&lt;/kbd&gt;
+  &lt;span class="kbd__sep"&gt;+&lt;/span&gt;
+  &lt;kbd class="kbd"&gt;S&lt;/kbd&gt;
+&lt;/span&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="css"><code>/* Override kbd tokens */
+.my-app .kbd {
+  --kbd-font-family: 'SF Mono', 'Fira Code', monospace;
+  --kbd-filled-bg: var(--surface-base-hover);
+  --kbd-shadow: 0 2px 0 0 var(--surface-base-outline);
+  --kbd-radius-base: var(--radius-md);
+}</code></pre>
+        <pre class="fw-snippet-code" data-panel="slyte" data-active><code>import { DtfComponent } from '@design-token-forge/slyte';
+
+&lt;dtf-component
+  lt-prop-variant="filled"
+  lt-prop-color-role="brand"
+  lt-prop-size="base"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;Content&lt;/template&gt;
+&lt;/dtf-component&gt;</code></pre>
+        
+        
+              </div>
+    </div>
+  </section>
+
+</main>
+</div><!-- .page-content -->
+</div><!-- .page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script src="shared-page.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  var P = window.DTFPage;
+  var SIZES = P.SIZES;
+  var VARIANTS = ['filled', 'outlined', 'ghost'];
+
+  /* ── Global state ────────────────────────────────── */
+  var G = { variant: 'filled', size: 'base' };
+
+  /* ── Apply globals to synced combo ───────────────── */
+  function applyGlobals() {
+    document.querySelectorAll('.synced-kbd').forEach(function(combo) {
+      combo.dataset.size = G.size;
+      combo.querySelectorAll('.kbd').forEach(function(k) {
+        k.dataset.variant = G.variant;
+        k.dataset.size = G.size;
+      });
+    });
+    renderDensity();
+    updateInspector();
+  }
+
+  /* ── Density strip ───────────────────────────────── */
+  function renderDensity() {
+    var strip = P.clr('densityStrip');
+    if (!strip) return;
+    SIZES.forEach(function(sz) {
+      var k = document.createElement('kbd');
+      k.className = 'kbd';
+      k.dataset.variant = G.variant;
+      k.dataset.size = sz;
+      k.textContent = 'A';
+      var it = P.wrapDensityItem(k, sz);
+      strip.appendChild(it);
+    });
+  }
+
+  /* ── Inspector ───────────────────────────────────── */
+  function updateInspector() {
+    var el = document.querySelector('.synced-kbd .kbd');
+    if (!el) return;
+    var cs = getComputedStyle(el);
+    var rows = [
+      ['--kbd-height-' + G.size,     cs.getPropertyValue('--kbd-height-' + G.size).trim(),     ''],
+      ['--kbd-padding-x-' + G.size,  cs.getPropertyValue('--kbd-padding-x-' + G.size).trim(),  ''],
+      ['--kbd-font-size-' + G.size,  cs.getPropertyValue('--kbd-font-size-' + G.size).trim(),  ''],
+      ['--kbd-radius-' + G.size,     cs.getPropertyValue('--kbd-radius-' + G.size).trim(),     ''],
+      ['--kbd-' + G.variant + '-bg', cs.getPropertyValue('--kbd-' + G.variant + '-bg').trim(), ''],
+      ['--kbd-' + G.variant + '-fg', cs.getPropertyValue('--kbd-' + G.variant + '-fg').trim(), ''],
+      ['--kbd-shadow',               cs.getPropertyValue('--kbd-shadow').trim(),               ''],
+      ['--kbd-font-family',          cs.getPropertyValue('--kbd-font-family').trim(),          '']
+    ];
+    P.buildInspector('heroInspector', 'Resolved Tokens (' + G.variant + ' / ' + G.size + ')', rows);
+  }
+
+  /* ── Playground grid ─────────────────────────────── */
+  function renderPlayground() {
+    var grid = P.clr('playgroundGrid');
+    if (!grid) return;
+    VARIANTS.forEach(function(v) {
+      var card = document.createElement('div');
+      card.className = 'playground-card';
+      var title = document.createElement('span');
+      title.className = 'playground-card-title';
+      title.textContent = v;
+      card.appendChild(title);
+
+      var combo = document.createElement('span');
+      combo.className = 'kbd-combo';
+      combo.dataset.size = 'base';
+      ['Ctrl', 'Shift', 'N'].forEach(function(key, i) {
+        if (i > 0) {
+          var sep = document.createElement('span');
+          sep.className = 'kbd__sep';
+          sep.textContent = '+';
+          combo.appendChild(sep);
+        }
+        var k = document.createElement('kbd');
+        k.className = 'kbd';
+        k.dataset.variant = v;
+        k.textContent = key;
+        combo.appendChild(k);
+      });
+      card.appendChild(combo);
+      grid.appendChild(card);
+    });
+  }
+
+  /* ── Wire pill bars ──────────────────────────────── */
+  P.wirePillBar('variantBar', 'ctrlVariant', function(v) { G.variant = v; applyGlobals(); });
+  P.wirePillBar('sizeBar',    'ctrlSize',    function(v) { G.size = v;    applyGlobals(); });
+
+  /* ── Framework tab switching ─────────────────────── */
+  document.querySelectorAll('.fw-snippet-tabs').forEach(function(tabs) {
+    tabs.addEventListener('click', function(e) {
+      var btn = e.target.closest('.fw-snippet-tab');
+      if (!btn) return;
+      var panel = btn.dataset.tab;
+      var snippet = tabs.closest('.fw-snippet');
+      snippet.querySelectorAll('.fw-snippet-tab').forEach(function(t) { t.setAttribute('aria-selected', 'false'); });
+      btn.setAttribute('aria-selected', 'true');
+      snippet.querySelectorAll('.fw-snippet-code').forEach(function(c) { delete c.dataset.active; });
+      var target = snippet.querySelector('[data-panel="' + panel + '"]');
+      if (target) target.dataset.active = '';
+    });
+  });
+
+  /* ── Initial render ──────────────────────────────── */
+  applyGlobals();
+  renderPlayground();
+  window.DTF = window.DTF || {};
+  window.DTF.onThemeChange = function() { applyGlobals(); };
+})();
+</script>
+</body>
+</html>

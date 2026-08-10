@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en" data-no-project-theme="1">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Project — Design Token Forge</title>
+<!-- Public page — no auth gate. Anyone can reach onboard to create a project. -->
+<link rel="stylesheet" href="packages/tokens/src/index.css">
+<link rel="stylesheet" href="/components/shared.css?v=1008">
+<style>
+/* Onboard chrome must be project-agnostic. Hard-pin the DTF system
+   brand blue locally so the active project's saved tokens (injected
+   globally by shared.js) can't repaint the wizard buttons / step
+   pills / focus rings in a different brand colour. shared.js skips
+   the inject when <html data-no-project-theme="1"> is present, but
+   we keep the hard pin as belt-and-braces. */
+:root, html[data-no-project-theme="1"] {
+  --dtf-onboard-brand: #286CE5;
+  --dtf-onboard-brand-hover: #1F58BC;
+}
+/* ── Wizard Layout ────────────────────────────────── */
+.wizard-container {
+  max-width: 820px; width: 100%; margin: 0 auto;
+  padding: 40px 40px 80px;
+}
+.wizard-header { margin-bottom: 32px; }
+.wizard-header h1 {
+  font-size: 28px; font-weight: 800; color: var(--demo-fg-strong);
+  margin-bottom: 8px;
+}
+.wizard-header p {
+  font-size: 14px; color: var(--demo-fg-subtle); line-height: 1.6;
+}
+
+/* ── Steps ────────────────────────────────────────── */
+.wizard-steps { display: flex; gap: 4px; margin-bottom: 32px; }
+.step-pill {
+  flex: 1; padding: 10px 12px; border-radius: 8px;
+  background: var(--demo-cm-bg); border: 1px solid var(--demo-border);
+  font-size: 11px; font-weight: 700; text-align: center;
+  color: var(--demo-fg-faint); transition: all 200ms; cursor: pointer;
+}
+.step-pill.active {
+  background: var(--dtf-onboard-brand);
+  border-color: var(--dtf-onboard-brand); color: #fff;
+}
+.step-pill.done {
+  background: var(--success-container-bg, #DCFCE7);
+  border-color: var(--success-component-outline-default, #16A34A);
+  color: var(--success-content-default, #166534);
+}
+
+/* ── Step panels ──────────────────────────────────── */
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* ── Form elements ────────────────────────────────── */
+.form-group { margin-bottom: 20px; }
+.form-group label {
+  display: block; font-size: 12px; font-weight: 700;
+  color: var(--demo-fg-strong); margin-bottom: 6px;
+}
+.form-group .hint {
+  font-size: 11px; color: var(--demo-fg-faint); margin-top: 4px; line-height: 1.5;
+}
+.form-input {
+  width: 100%; padding: 10px 12px; border-radius: 6px;
+  border: 1px solid var(--demo-border); background: var(--demo-surface);
+  font-size: 13px; color: var(--demo-fg); font-family: inherit;
+}
+.form-input:focus {
+  outline: 2px solid var(--dtf-onboard-brand);
+  outline-offset: -1px; border-color: transparent;
+}
+
+/* ── Color pickers ────────────────────────────────── */
+.color-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+}
+.color-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--demo-border); background: var(--demo-surface);
+}
+.color-item label {
+  font-size: 11px; font-weight: 600; color: var(--demo-fg-subtle);
+  flex: 1; text-transform: capitalize; margin-bottom: 0;
+}
+.color-swatch {
+  width: 32px; height: 32px; border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.1); cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.color-swatch input[type="color"] {
+  position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px);
+  border: none; cursor: pointer;
+}
+.color-hex {
+  width: 80px; padding: 4px 8px; border-radius: 4px;
+  border: 1px solid var(--demo-border); font-size: 11px;
+  font-family: monospace; text-align: center;
+}
+
+/* ── Action buttons ───────────────────────────────── */
+.wizard-actions {
+  display: flex; gap: 12px; margin-top: 32px;
+  padding-top: 24px; border-top: 1px solid var(--demo-border);
+}
+.btn {
+  padding: 12px 24px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; cursor: pointer; border: none;
+  transition: all 150ms; font-family: inherit;
+}
+.btn-primary {
+  background: var(--dtf-onboard-brand); color: #fff;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; }
+.btn-secondary {
+  background: var(--demo-cm-bg); color: var(--demo-fg);
+  border: 1px solid var(--demo-border);
+}
+.btn-secondary:hover { background: var(--demo-border); }
+.btn-launch {
+  background: linear-gradient(135deg, #16A34A 0%, #059669 100%);
+  color: #fff; font-size: 15px; padding: 14px 32px;
+}
+.btn-launch:hover { opacity: 0.9; }
+.btn-launch:disabled { opacity: 0.5; }
+
+/* ── GitHub connect inline ────────────────────────── */
+.gh-connect-row {
+  display: flex; gap: 8px; align-items: center;
+}
+.gh-connect-row .form-input { flex: 1; }
+.gh-connect-row .btn { padding: 10px 16px; font-size: 12px; }
+.gh-status {
+  font-size: 12px; margin-top: 8px; padding: 8px 12px; border-radius: 6px;
+  display: none;
+}
+.gh-status.ok {
+  display: block; background: var(--success-container-bg, #DCFCE7);
+  color: var(--success-content-default, #166534);
+}
+.gh-status.err {
+  display: block; background: var(--danger-container-bg, #FEF2F2);
+  color: var(--danger-content-default, #991B1B);
+}
+
+/* ── Progress / Status ────────────────────────────── */
+.launch-progress {
+  margin-top: 24px; padding: 20px; border-radius: 12px;
+  border: 1px solid var(--demo-border); background: var(--demo-surface);
+  display: none;
+}
+.launch-progress.visible { display: block; }
+.progress-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; font-size: 13px; color: var(--demo-fg-subtle);
+}
+.progress-step.active { color: var(--dtf-onboard-brand); font-weight: 600; }
+.progress-step.done { color: var(--success-content-default, #166534); }
+.progress-step.error { color: var(--danger-content-default, #DC2626); }
+.progress-icon { width: 20px; text-align: center; font-size: 14px; }
+
+
+
+/* ── Error box ────────────────────────────────────── */
+.error-box {
+  margin-top: 12px; padding: 12px 16px; border-radius: 8px;
+  background: var(--danger-container-bg, #FEF2F2);
+  border: 1px solid var(--danger-component-outline-default, #DC2626);
+  font-size: 12px; color: var(--danger-content-default, #991B1B);
+  display: none; line-height: 1.5;
+}
+.error-box.visible { display: block; }
+
+/* ── Typography preset cards ──────────────────────── */
+.typo-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px; margin-top: 8px;
+}
+.typo-card {
+  display: block; text-align: left;
+  padding: 16px; border-radius: 10px;
+  border: 1.5px solid var(--demo-border); background: var(--demo-surface);
+  cursor: pointer; transition: border-color 150ms, background 150ms, box-shadow 150ms;
+  font-family: inherit;
+}
+.typo-card:hover {
+  border-color: var(--dtf-onboard-brand);
+  background: var(--demo-cm-bg);
+}
+.typo-card.selected {
+  border-color: var(--dtf-onboard-brand);
+  box-shadow: 0 0 0 3px rgba(40, 108, 229, 0.12);
+  background: var(--demo-surface);
+}
+.typo-card-name {
+  font-size: 14px; font-weight: 700; color: var(--demo-fg-strong);
+  margin: 0 0 4px;
+}
+.typo-card-tag {
+  font-size: 11px; color: var(--demo-fg-faint);
+  margin: 0 0 12px; line-height: 1.4;
+}
+.typo-card-preview {
+  padding: 12px; border-radius: 6px;
+  background: var(--demo-cm-bg);
+  border: 1px solid var(--demo-border);
+}
+.typo-card-preview .tp-head {
+  font-size: 18px; font-weight: 700; line-height: 1.25;
+  color: var(--demo-fg-strong); margin: 0 0 4px;
+}
+.typo-card-preview .tp-body {
+  font-size: 13px; line-height: 1.5;
+  color: var(--demo-fg-subtle); margin: 0;
+}
+.typo-card-fonts {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+}
+.typo-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 600;
+  background: var(--demo-cm-bg); color: var(--demo-fg-subtle);
+  border: 1px solid var(--demo-border);
+}
+.typo-chip[data-source="google"] { color: var(--brand-content-default, #286CE5); }
+.typo-chip[data-source="system"] { color: var(--demo-fg-subtle); }
+
+/* ── Responsive ───────────────────────────────────── */
+@media(max-width: 600px) {
+  .wizard-container { padding: 20px; }
+  .color-grid { grid-template-columns: 1fr; }
+  .wizard-steps { flex-wrap: wrap; }
+}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<!-- No global nav on the onboard wizard \u2014 the wizard is a focused
+     full-page task. Cancel button (bottom-left of the actions row)
+     returns the user to the page that opened the wizard. -->
+
+<div class="wizard-container">
+
+  <!-- Steps indicator -->
+  <div class="wizard-steps">
+    <div class="step-pill active" data-step="1">1. Project &amp; Colors</div>
+    <div class="step-pill" data-step="2">2. Typography</div>
+    <div class="step-pill" data-step="3">3. Connect GitHub</div>
+    <div class="step-pill" data-step="4">4. Create</div>
+  </div>
+
+  <!-- ═══ Step 1: Project + Colors ═══ -->
+  <div class="step-panel active" id="step1">
+    <div class="form-group">
+      <label for="projName">Project Name</label>
+      <input class="form-input" type="text" id="projName" placeholder="e.g. Writer, CRM, Mobile App">
+      <p class="hint">Your product or team name. This becomes a project inside the shared Design Token Forge system.</p>
+    </div>
+    <div class="form-group">
+      <label>Brand Colors</label>
+      <p class="hint" style="margin-bottom:12px">Pick your key colors. The system generates full 24-step palettes for light &amp; dark themes.<br>Don't worry — you can edit these anytime later from the Color System page.</p>
+      <div class="color-grid" id="colorGrid"></div>
+    </div>
+  </div>
+
+  <!-- ═══ Step 2: Typography ═══ -->
+  <div class="step-panel" id="stepTypo">
+    <div class="form-group" id="typoDevNotice" style="display:none;padding:12px 14px;border-radius:8px;background:#FFF7E6;border:1px solid #F5C26B;color:#7C4A03;font-size:12px;line-height:1.5;margin-bottom:16px;">
+      <strong style="color:#5A3500">Typography is in dev preview.</strong>
+      The starter feels and font ladder ship to Figma, but the per-token editor and font upload flow are still being built. Pick a feel today — you'll be able to fine-tune everything in a future release.
+    </div>
+    <div class="form-group">
+      <label>Pick a starting feel</label>
+      <p class="hint" style="margin-bottom:12px">Choose a font pairing to start with. The system sets up display, body and code fonts, plus a full size + weight ladder.<br>Don't worry — you can fine-tune every value later from the Typography page.</p>
+      <div class="typo-grid" id="typoGrid"></div>
+    </div>
+  </div>
+
+  <!-- ═══ Step 3: Connect GitHub ═══ -->
+  <div class="step-panel" id="step2">
+    <div id="ghStepCatalystNote" style="display:none;padding:14px 16px;background:var(--info-container-bg,#EFF6FF);border:1px solid var(--info-container-outline,#BFDBFE);border-radius:8px;font-size:13px;color:var(--info-content-default,#1D4ED8);line-height:1.6;">
+      <strong>No GitHub token needed.</strong> You&rsquo;re signed in to Design Token Forge — your project will be saved directly to your account. Click <em>Next</em> to continue.
+    </div>
+    <div id="ghStepGitHubForm">
+    <p style="font-size:13px;color:var(--demo-fg-subtle);margin-bottom:20px;line-height:1.6;">
+      Connect your GitHub account. Your project deploys to <strong>your own</strong> copy of the Design-Token-Forge repo — no special access needed.
+    </p>
+
+    <div class="form-group">
+      <label for="ghToken">
+        Personal Access Token
+        <a href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=Design+Token+Forge" target="_blank" rel="noopener" style="font-weight:400;font-size:11px;margin-left:8px;color:var(--brand-content-default, #286CE5);text-decoration:underline;">Don't have one? Create here &rarr;</a>
+      </label>
+      <div class="gh-connect-row">
+        <input class="form-input" type="password" id="ghToken" placeholder="ghp_xxxx...">
+        <button class="btn btn-primary" id="ghConnectBtn">Connect</button>
+      </div>
+      <p class="hint">
+        When creating the token, check the <strong>repo</strong> scope and <strong>workflow</strong> scope.
+        Used to set up your fork and deploy tokens. Stored only in this browser session.
+      </p>
+      <div class="gh-status" id="ghStatus"></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ═══ Step 4: Create ═══ -->
+  <div class="step-panel" id="step3">
+    <p style="font-size:14px;color:var(--demo-fg-subtle);margin-bottom:16px;">
+      Ready to create your project. This commits your configuration and triggers a deploy.
+    </p>
+
+    <div style="padding:16px;border-radius:8px;background:var(--demo-cm-bg);border:1px solid var(--demo-border);margin-bottom:20px;font-size:12px;line-height:1.8;">
+      <strong>Project:</strong> <span id="summaryName">—</span><br>
+      <strong>Slug:</strong> <code id="summarySlug">—</code><br>
+      <strong>Committing as:</strong> <span id="summaryUser">—</span>
+    </div>
+
+    <button class="btn btn-launch" id="launchBtn">🚀 Create My Project</button>
+
+    <div class="launch-progress" id="launchProgress">
+      <div class="progress-step" id="ps-commit"><span class="progress-icon">○</span> Committing project config</div>
+      <div class="progress-step" id="ps-deploy"><span class="progress-icon">○</span> Triggering deploy</div>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+
+  </div>
+
+  <!-- ── Navigation buttons ─────────────────────────── -->
+  <div class="wizard-actions">
+    <button class="btn btn-secondary" id="cancelBtn" type="button">Cancel</button>
+    <button class="btn btn-secondary" id="prevBtn" style="display:none">← Back</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-primary" id="nextBtn">Next →</button>
+  </div>
+</div>
+
+<script src="/components/nav.js?v=20260507b"></script>
+<script src="/components/shared.js?v=1105"></script>
+<script src="/components/palette-engine.js?v=20260516a"></script>
+<script>
+(function() {
+  /* ── Adjust heading if user already has projects ── */
+  try {
+    var kp = JSON.parse(localStorage.getItem('dtf-known-projects') || '[]');
+    if (kp.length > 0) {
+      document.getElementById('wizardTitle').textContent = '\ud83d\ude80 Create Project';
+      document.getElementById('wizardDesc').textContent = 'Add another project to Design Token Forge. Configure your brand colors & connect GitHub \u2014 your tokens will deploy automatically.';
+    }
+  } catch(e) {}
+
+  /* ── Config ─────────────────────────────────────── */
+  const GH_REPO_NAME = 'Design-Token-Forge';
+  const GH_REPO_OWNER = 'sridhar-ravi-2917'; // upstream repo owner
+  const GH_API = 'https://api.github.com';
+
+  function _isCatalystHost() {
+    return window.location.hostname.indexOf('onslate.in') !== -1
+        || window.location.hostname.indexOf('catalystappsecure') !== -1;
+  }
+
+  /* ── State ──────────────────────────────────────── */
+  let currentStep = 1;
+  const totalSteps = 4;
+  let ghPat = '';
+  let ghOwner = '';
+  let ghUsername = '';
+  let repoVerified = false;
+
+  const defaultColors = {
+    brand: '#286CE5',
+    danger: '#DC2626',
+    warning: '#D97706',
+    info: '#0EA5E9',
+    success: '#16A34A'
+  };
+  const colorLabels = {
+    brand: 'Brand',
+    danger: 'Danger / Error',
+    warning: 'Warning',
+    info: 'Info',
+    success: 'Success'
+  };
+  const colors = { ...defaultColors };
+
+  /* ── Typography presets ─────────────────────────── */
+  /* Mirrors packages/sync-server/typography-presets.js so the
+     onboard preview shows EXACTLY what the generator will emit
+     for the chosen preset (single source of truth in spirit —
+     we keep this inline copy small so onboard stays a static
+     file with no module loader). */
+  const TYPO_PRESETS = {
+    'neutral-system': {
+      id: 'neutral-system', name: 'Neutral System',
+      tagline: 'Native UI fonts on every OS',
+      fonts: {
+        headline: { stack: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', source: 'system', label: 'System UI' },
+        body:     { stack: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', source: 'system', label: 'System UI' },
+        code:     { stack: '"SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", Menlo, Consolas, monospace', source: 'system', label: 'SF Mono' }
+      }
+    },
+    'modern-geometric': {
+      id: 'modern-geometric', name: 'Modern Geometric',
+      tagline: 'Crisp, neutral, product-friendly',
+      fonts: {
+        headline: { stack: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif', source: 'google', label: 'Inter' },
+        body:     { stack: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif', source: 'google', label: 'Inter' },
+        code:     { stack: '"JetBrains Mono", "SF Mono", Menlo, monospace', source: 'google', label: 'JetBrains Mono' }
+      }
+    },
+    'editorial-serif': {
+      id: 'editorial-serif', name: 'Editorial Serif',
+      tagline: 'Display serif over a sans body',
+      fonts: {
+        headline: { stack: 'Fraunces, Georgia, "Times New Roman", serif', source: 'google', label: 'Fraunces' },
+        body:     { stack: 'Inter, system-ui, -apple-system, sans-serif', source: 'google', label: 'Inter' },
+        code:     { stack: '"IBM Plex Mono", "SF Mono", Menlo, monospace', source: 'google', label: 'IBM Plex Mono' }
+      }
+    },
+    'friendly-humanist': {
+      id: 'friendly-humanist', name: 'Friendly Humanist',
+      tagline: 'Approachable, soft, easy on the eye',
+      fonts: {
+        headline: { stack: 'Nunito, "Trebuchet MS", "Lucida Sans", sans-serif', source: 'google', label: 'Nunito' },
+        body:     { stack: 'Nunito, "Trebuchet MS", "Lucida Sans", sans-serif', source: 'google', label: 'Nunito' },
+        code:     { stack: '"Source Code Pro", "SF Mono", Menlo, monospace', source: 'google', label: 'Source Code' }
+      }
+    },
+    'code-first-mono': {
+      id: 'code-first-mono', name: 'Code-first Mono',
+      tagline: 'Dev tools / terminal feel',
+      fonts: {
+        headline: { stack: '"SF Mono", "JetBrains Mono", Menlo, Consolas, monospace', source: 'system', label: 'SF Mono' },
+        body:     { stack: '"SF Mono", "JetBrains Mono", Menlo, Consolas, monospace', source: 'system', label: 'SF Mono' },
+        code:     { stack: '"SF Mono", "JetBrains Mono", Menlo, Consolas, monospace', source: 'system', label: 'SF Mono' }
+      }
+    }
+  };
+  let selectedTypoPreset = 'neutral-system';
+
+  /* ── Elements ───────────────────────────────────── */
+  const steps = document.querySelectorAll('.step-pill');
+  const panels = document.querySelectorAll('.step-panel');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const projName = document.getElementById('projName');
+  const ghTokenInput = document.getElementById('ghToken');
+  const ghConnectBtn = document.getElementById('ghConnectBtn');
+  const ghStatusEl = document.getElementById('ghStatus');
+  const launchBtn = document.getElementById('launchBtn');
+  const errorBox = document.getElementById('errorBox');
+
+  /* On Catalyst: show info note, hide GitHub form */
+  if (_isCatalystHost()) {
+    const note = document.getElementById('ghStepCatalystNote');
+    const form = document.getElementById('ghStepGitHubForm');
+    if (note) note.style.display = '';
+    if (form) form.style.display = 'none';
+    repoVerified = true; /* skip GitHub validation */
+  }
+
+  /* ── Step navigation ────────────────────────────── */
+  function goToStep(n) {
+    currentStep = n;
+    steps.forEach(s => {
+      const sn = parseInt(s.dataset.step);
+      s.classList.toggle('active', sn === n);
+      s.classList.toggle('done', sn < n);
+    });
+    panels.forEach((p, i) => p.classList.toggle('active', i === n - 1));
+    prevBtn.style.display = n === 1 ? 'none' : '';
+
+    if (n === totalSteps) {
+      nextBtn.style.display = 'none';
+      populateSummary();
+    } else {
+      nextBtn.style.display = '';
+    }
+  }
+
+  function validate(step) {
+    if (step === 1) {
+      if (!projName.value.trim()) { projName.focus(); return false; }
+    }
+    if (step === 2) {
+      // Typography step always has a default preset selected.
+      return true;
+    }
+    if (step === 3) {
+      /* On Catalyst host the GitHub step is skipped — always valid. */
+      if (_isCatalystHost()) return true;
+      if (!repoVerified) {
+        ghStatusEl.textContent = 'Please connect your GitHub account first.';
+        ghStatusEl.className = 'gh-status err';
+        return false;
+      }
+    }
+    return true;
+  }
+
+  nextBtn.addEventListener('click', () => {
+    if (!validate(currentStep)) return;
+    if (currentStep < totalSteps) goToStep(currentStep + 1);
+  });
+  prevBtn.addEventListener('click', () => {
+    if (currentStep > 1) goToStep(currentStep - 1);
+  });
+  // Cancel: only meaningful if the user already has projects to go back to.
+  // For brand-new users (nothing in dtf-known-projects) there is nowhere to
+  // cancel back to, so we hide the button entirely.
+  const cancelBtn = document.getElementById('cancelBtn');
+  if (cancelBtn) {
+    let hasProjects = false;
+    try {
+      const raw = localStorage.getItem('dtf-known-projects');
+      const list = raw ? JSON.parse(raw) : [];
+      hasProjects = Array.isArray(list) && list.length > 0;
+    } catch (_e) {}
+
+    if (!hasProjects) {
+      cancelBtn.style.display = 'none';
+    } else {
+      cancelBtn.addEventListener('click', () => {
+        window.location.href = '/hub.html';
+      });
+    }
+  }
+  steps.forEach(s => s.addEventListener('click', () => {
+    const target = parseInt(s.dataset.step);
+    if (target < currentStep) goToStep(target);
+    else if (target === currentStep + 1 && validate(currentStep)) goToStep(target);
+  }));
+
+  /* ── Color grid ─────────────────────────────────── */
+  const colorGrid = document.getElementById('colorGrid');
+  function buildColorGrid() {
+    colorGrid.innerHTML = '';
+    for (const [key, hex] of Object.entries(defaultColors)) {
+      const item = document.createElement('div');
+      item.className = 'color-item';
+      item.innerHTML = `
+        <label>${colorLabels[key]}</label>
+        <div class="color-swatch"><input type="color" data-key="${key}" value="${colors[key]}"></div>
+        <input type="text" class="color-hex" data-key="${key}" value="${colors[key]}" maxlength="7">
+      `;
+      colorGrid.appendChild(item);
+    }
+    colorGrid.querySelectorAll('input[type="color"]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        colors[e.target.dataset.key] = e.target.value;
+        colorGrid.querySelector(`.color-hex[data-key="${e.target.dataset.key}"]`).value = e.target.value;
+      });
+    });
+    colorGrid.querySelectorAll('.color-hex').forEach(inp => {
+      inp.addEventListener('input', e => {
+        if (/^#[0-9a-fA-F]{6}$/.test(e.target.value.trim())) {
+          colors[e.target.dataset.key] = e.target.value.trim();
+          colorGrid.querySelector(`input[type="color"][data-key="${e.target.dataset.key}"]`).value = e.target.value.trim();
+        }
+      });
+    });
+  }
+  buildColorGrid();
+
+  /* ── Typography preset grid ───────────────────── */
+  const typoGrid = document.getElementById('typoGrid');
+  function buildTypoGrid() {
+    typoGrid.innerHTML = '';
+    Object.keys(TYPO_PRESETS).forEach(function(key) {
+      const p = TYPO_PRESETS[key];
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'typo-card' + (key === selectedTypoPreset ? ' selected' : '');
+      card.dataset.preset = key;
+      // Inline font-family on previews so each card actually
+      // shows its own pairing — not the page default.
+      const previewHead = 'style="font-family:' + p.fonts.headline.stack.replace(/"/g, '&quot;') + '"';
+      const previewBody = 'style="font-family:' + p.fonts.body.stack.replace(/"/g, '&quot;') + '"';
+      card.innerHTML =
+        '<h3 class="typo-card-name">' + p.name + '</h3>' +
+        '<p class="typo-card-tag">' + p.tagline + '</p>' +
+        '<div class="typo-card-preview">' +
+          '<div class="tp-head" ' + previewHead + '>The quick brown fox</div>' +
+          '<p class="tp-body" ' + previewBody + '>Jumps over the lazy dog. Body text gives a feel for how prose reads.</p>' +
+        '</div>' +
+        '<div class="typo-card-fonts">' +
+          '<span class="typo-chip" data-source="' + p.fonts.headline.source + '">Aa Headline · ' + p.fonts.headline.label + '</span>' +
+          '<span class="typo-chip" data-source="' + p.fonts.body.source + '">Aa Body · ' + p.fonts.body.label + '</span>' +
+          '<span class="typo-chip" data-source="' + p.fonts.code.source + '">{} Code · ' + p.fonts.code.label + '</span>' +
+        '</div>';
+      card.addEventListener('click', function() {
+        selectedTypoPreset = key;
+        typoGrid.querySelectorAll('.typo-card').forEach(function(c) {
+          c.classList.toggle('selected', c.dataset.preset === key);
+        });
+      });
+      typoGrid.appendChild(card);
+    });
+  }
+  buildTypoGrid();
+
+  /* ── Show dev-preview notice on Typography step for everyone
+     except the maintainer. Single owner check used consistently
+     across the plugin + DTF (see ADR-008 · Phase 1). */
+  try {
+    var typoNotice = document.getElementById('typoDevNotice');
+    var ghUser = (localStorage.getItem('dtf-gh-user') || '').toLowerCase();
+    if (typoNotice && ghUser !== 'sridhar-ravi-2917') {
+      typoNotice.style.display = 'block';
+    }
+  } catch(e) {}
+
+  /* ── Pre-fill PAT from launchpad if user came already authenticated ── */
+  (function prefillPat() {
+    var existingPat = localStorage.getItem('dtf-gh-pat') || '';
+    if (existingPat && ghTokenInput) {
+      ghTokenInput.value = existingPat;
+      /* Auto-verify silently so user can skip step 2 */
+      setTimeout(function() {
+        if (typeof connectGitHub === 'function') connectGitHub();
+      }, 200);
+    }
+  })();
+
+  /* ── GitHub Connect ─────────────────────────────── */
+  ghConnectBtn.addEventListener('click', connectGitHub);
+
+  async function connectGitHub() {
+    const token = ghTokenInput.value.trim();
+    if (!token) { ghTokenInput.focus(); return; }
+
+    ghConnectBtn.disabled = true;
+    ghConnectBtn.textContent = 'Connecting…';
+    ghStatusEl.className = 'gh-status';
+    ghStatusEl.style.display = '';
+    ghStatusEl.innerHTML = '<span style="color:#666">⏳ Verifying token…</span>';
+
+    const ghHeaders = { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' };
+
+    try {
+      // 1. Verify token & get username
+      const userResp = await fetch(GH_API + '/user', { headers: ghHeaders });
+      if (!userResp.ok) {
+        if (userResp.status === 401) throw new Error('Invalid token. Make sure you checked the "repo" scope when creating it.');
+        throw new Error('Authentication failed (HTTP ' + userResp.status + ')');
+      }
+      const user = await userResp.json();
+      ghUsername = user.login;
+
+      // 2. Check if user already has their own repo (own fork or upstream original)
+      ghStatusEl.innerHTML = '<span style="color:#666">⏳ Checking your repo…</span>';
+      let repoOwner = '';
+      const ownResp = await fetch(GH_API + '/repos/' + user.login + '/' + GH_REPO_NAME, { headers: ghHeaders });
+
+      if (ownResp.ok) {
+        const repo = await ownResp.json();
+        if (repo.permissions && repo.permissions.push) {
+          repoOwner = user.login;
+        }
+      }
+
+      // 3. If no repo, fork from upstream and set up Pages
+      if (!repoOwner) {
+        ghStatusEl.innerHTML = '<span style="color:#666">⏳ Setting up your copy… (this takes ~15 seconds)</span>';
+
+        // Fork the repo
+        const forkResp = await fetch(GH_API + '/repos/' + GH_REPO_OWNER + '/' + GH_REPO_NAME + '/forks', {
+          method: 'POST', headers: ghHeaders, body: JSON.stringify({ default_branch_only: true })
+        });
+        if (!forkResp.ok && forkResp.status !== 202) {
+          const fErr = await forkResp.json().catch(function() { return {}; });
+          throw new Error('Fork failed: ' + (fErr.message || 'HTTP ' + forkResp.status));
+        }
+
+        // Wait for fork to be ready (GitHub forks are async)
+        ghStatusEl.innerHTML = '<span style="color:#666">⏳ Creating your fork…</span>';
+        for (let attempt = 0; attempt < 20; attempt++) {
+          await new Promise(function(r) { setTimeout(r, 2000); });
+          const check = await fetch(GH_API + '/repos/' + user.login + '/' + GH_REPO_NAME, { headers: ghHeaders });
+          if (check.ok) { repoOwner = user.login; break; }
+        }
+        if (!repoOwner) throw new Error('Fork is taking too long. Please try again in a minute.');
+
+        // Enable Actions on the fork
+        ghStatusEl.innerHTML = '<span style="color:#666">⏳ Enabling Actions…</span>';
+        await fetch(GH_API + '/repos/' + user.login + '/' + GH_REPO_NAME + '/actions/permissions', {
+          method: 'PUT', headers: ghHeaders,
+          body: JSON.stringify({ enabled: true, allowed_actions: 'all' })
+        });
+
+        // Enable GitHub Pages with Actions as build source
+        ghStatusEl.innerHTML = '<span style="color:#666">⏳ Enabling GitHub Pages…</span>';
+        try {
+          await fetch(GH_API + '/repos/' + user.login + '/' + GH_REPO_NAME + '/pages', {
+            method: 'POST', headers: ghHeaders,
+            body: JSON.stringify({ build_type: 'workflow' })
+          });
+        } catch(e) { /* Pages may already be enabled from a previous attempt */ }
+
+        // Trigger first deploy
+        ghStatusEl.innerHTML = '<span style="color:#666">⏳ Triggering first deploy…</span>';
+        try {
+          await fetch(GH_API + '/repos/' + user.login + '/' + GH_REPO_NAME + '/actions/workflows/deploy-tokens.yml/dispatches', {
+            method: 'POST', headers: ghHeaders,
+            body: JSON.stringify({ ref: 'main' })
+          });
+        } catch(e) { /* non-critical */ }
+      }
+
+      // Success
+      ghOwner = repoOwner;
+      ghPat = token;
+      repoVerified = true;
+      localStorage.setItem('dtf-gh-user', user.login);
+      localStorage.setItem('dtf-gh-pat', token);
+      localStorage.setItem('dtf-gh-owner', repoOwner);
+      ghStatusEl.style.display = '';
+      ghStatusEl.textContent = '✓ Connected as ' + user.login + ' — deploying to ' + repoOwner + '/' + GH_REPO_NAME;
+      ghStatusEl.className = 'gh-status ok';
+      ghConnectBtn.disabled = true;
+      ghConnectBtn.textContent = 'Connected ✓';
+      ghConnectBtn.style.opacity = '0.6';
+
+    } catch(err) {
+      ghStatusEl.style.display = '';
+      ghStatusEl.textContent = '✗ ' + err.message;
+      ghStatusEl.className = 'gh-status err';
+      repoVerified = false;
+      ghConnectBtn.disabled = false;
+      ghConnectBtn.textContent = 'Connect';
+    }
+  }
+
+  /* ── Summary ────────────────────────────────────── */
+  function getSlug() {
+    return projName.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 40);
+  }
+
+  function populateSummary() {
+    document.getElementById('summaryName').textContent = projName.value.trim();
+    document.getElementById('summarySlug').textContent = getSlug();
+    document.getElementById('summaryUser').textContent = ghUsername;
+  }
+
+  /* ── Launch (Create Project) ────────────────────── */
+  launchBtn.addEventListener('click', launch);
+
+  async function launch() {
+    launchBtn.disabled = true;
+    launchBtn.textContent = 'Creating…';
+    errorBox.classList.remove('visible');
+    document.getElementById('launchProgress').classList.add('visible');
+
+
+    const name = projName.value.trim();
+    const slug = getSlug();
+    const headers = {
+      'Authorization': 'Bearer ' + ghPat,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+
+    try {
+      /* Step 1: Commit project config */
+      setProgress('ps-commit', 'active');
+
+      const config = {
+        id: slug,
+        name: name,
+        owner: ghUsername,
+        description: 'Design tokens for ' + name,
+        created: new Date().toISOString().split('T')[0],
+        // Stamp current schema so the migration banner doesn't
+        // greet every brand-new project with "v1 → v2 migration
+        // available". Onboard already writes the v2 shape.
+        schemaVersion: 2,
+        // 'exact' anchor: step-500 in the generated 22-step ladder is the
+        // user's key hex byte-for-byte. The editor uses 'exact' by default;
+        // pinning it here means the static build (generate-from-config.js)
+        // produces the same ladder the editor previews.
+        paletteAnchor: 'exact',
+        paletteKeys: { ...colors, greyscale: '#747474', desaturated: '#71747C' },
+        semanticMap: {
+          light: {
+            'content-default':'550','content-strong':'600','content-subtle':'350','content-faint':'200',
+            'component-bg-default':'500','component-bg-hover':'550','component-bg-pressed':'600',
+            'component-outline-default':'300','component-outline-hover':'350','component-outline-pressed':'450',
+            'component-separator':'100',
+            'container-bg':'50','container-hover':'75','container-pressed':'100',
+            'container-outline':'200','container-separator':'100',
+            'on-component':'fixed-white','on-container':'600'
+          },
+          dark: {
+            'content-default':'150','content-strong':'100','content-subtle':'200','content-faint':'350',
+            'component-bg-default':'450','component-bg-hover':'350','component-bg-pressed':'300',
+            'component-outline-default':'450','component-outline-hover':'350','component-outline-pressed':'300',
+            'component-separator':'750',
+            'container-bg':'800','container-hover':'750','container-pressed':'700',
+            'container-outline':'550','container-separator':'750',
+            'on-component':'fixed-white','on-container':'100'
+          }
+        },
+        surfacePaletteSrc: {
+          bright:'greyscale',base:'greyscale',dim:'greyscale',deep:'greyscale',
+          accent:'brand',container:'greyscale','over-container':'greyscale',
+          float:'greyscale',inverse:'greyscale'
+        },
+        // Typography config. Mirrors paletteKeys / semanticMap in
+        // structure — a small JSON record the generator turns into
+        // primitive token overrides (font-family-*, font-size-N,
+        // font-weight-*, line-height-*, letter-spacing-*). The
+        // sync server converts letter-spacing em → % at the Figma
+        // boundary so the values land in the right picker.
+        typographyConfig: {
+          preset: selectedTypoPreset,
+          fonts: TYPO_PRESETS[selectedTypoPreset].fonts
+        }
+      };
+
+      const filePath = 'projects/' + slug + '/config.json';
+      const fileContent = JSON.stringify(config, null, 2) + '\n';
+      const encodedContent = btoa(unescape(encodeURIComponent(fileContent)));
+
+      /* ── Catalyst path — no GitHub PAT required ────────────── */
+      if (_isCatalystHost()) {
+        setProgress('ps-commit', 'active');
+        const catResp = await fetch('/server/createProject', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_id: slug, name: name, description: 'Design tokens for ' + name })
+        });
+        const catBody = await catResp.json();
+        if (!catResp.ok || catBody.status !== 'success') {
+          throw new Error(catBody.error || ('Catalyst error HTTP ' + catResp.status));
+        }
+        setProgress('ps-commit', 'done');
+        setProgress('ps-deploy', 'done');  /* no deploy needed — Catalyst stores tokens directly */
+
+        localStorage.setItem('dtf-active-project', slug);
+        localStorage.setItem('dtf-project-config-' + slug, JSON.stringify(config));
+        try {
+          const knownRaw = localStorage.getItem('dtf-known-projects');
+          let known = [];
+          try { known = JSON.parse(knownRaw) || []; } catch(_e) {}
+          if (!known.some(p => p.id === slug)) {
+            known.push({ id: slug, name: name, owner: ghUsername || 'me' });
+            localStorage.setItem('dtf-known-projects', JSON.stringify(known));
+          }
+        } catch(_e) {}
+
+        window.location.href = '/components/editor/index.html?project=' + encodeURIComponent(slug);
+        return;
+      }
+      /* ── GitHub path (non-Catalyst hosts) ──────────────────── */
+
+      // Check if file already exists (retry case)
+      let existingSha = null;
+      try {
+        const checkResp = await fetch(`${GH_API}/repos/${ghOwner}/${GH_REPO_NAME}/contents/${filePath}?ref=main`, { headers });
+        if (checkResp.ok) {
+          const existing = await checkResp.json();
+          existingSha = existing.sha;
+        }
+      } catch(e) { /* doesn't exist, that's fine */ }
+
+      // Create or update the file
+      const commitBody = {
+        message: (existingSha ? 'Update' : 'Create') + ' project: ' + name,
+        content: encodedContent,
+        branch: 'main'
+      };
+      if (existingSha) commitBody.sha = existingSha;
+
+      const commitResp = await fetch(`${GH_API}/repos/${ghOwner}/${GH_REPO_NAME}/contents/${filePath}`, {
+        method: 'PUT', headers,
+        body: JSON.stringify(commitBody)
+      });
+
+      if (!commitResp.ok) {
+        const err = await commitResp.json();
+        throw new Error(err.message || 'Failed to commit config file');
+      }
+
+      /* Step 1b: Update projects.json index so dropdown finds the new project */
+      try {
+        const idxResp = await fetch(`${GH_API}/repos/${ghOwner}/${GH_REPO_NAME}/contents/projects.json?ref=main`, { headers });
+        let idx = [];
+        let idxSha = null;
+        if (idxResp.ok) {
+          const idxFile = await idxResp.json();
+          idxSha = idxFile.sha;
+          idx = JSON.parse(atob(idxFile.content.replace(/\n/g, '')));
+        }
+        if (!idx.some(p => p.id === slug)) {
+          idx.push({ id: slug, name: name, owner: ghUsername, description: 'Design tokens for ' + name });
+          const idxBody = { message: 'Add ' + slug + ' to projects.json', content: btoa(unescape(encodeURIComponent(JSON.stringify(idx, null, 2) + '\n'))), branch: 'main' };
+          if (idxSha) idxBody.sha = idxSha;
+          await fetch(`${GH_API}/repos/${ghOwner}/${GH_REPO_NAME}/contents/projects.json`, { method: 'PUT', headers, body: JSON.stringify(idxBody) });
+        }
+      } catch(e) { console.warn('[DTF] projects.json update failed (non-critical):', e); }
+
+      setProgress('ps-commit', 'done');
+
+      /* Step 2: Trigger deploy workflow */
+      setProgress('ps-deploy', 'active');
+      // The push to main should auto-trigger the deploy workflow.
+      // Also try dispatching it manually in case paths filter excludes this.
+      try {
+        await fetch(`${GH_API}/repos/${ghOwner}/${GH_REPO_NAME}/actions/workflows/deploy-tokens.yml/dispatches`, {
+          method: 'POST', headers,
+          body: JSON.stringify({ ref: 'main' })
+        });
+      } catch(e) { /* non-critical, push trigger should handle it */ }
+      setProgress('ps-deploy', 'done');
+
+      /* Activate the new project in localStorage so it's immediately selected */
+      localStorage.setItem('dtf-active-project', slug);
+      const knownRaw = localStorage.getItem('dtf-known-projects');
+      let known = [];
+      try { known = JSON.parse(knownRaw) || []; } catch(e) {}
+      if (!known.some(p => p.id === slug)) {
+        known.push({ id: slug, name: name, owner: ghUsername });
+        localStorage.setItem('dtf-known-projects', JSON.stringify(known));
+      }
+
+      /* Save project config to localStorage so color-system picks up colors immediately
+         (CDN won't have the config.json yet since deploy hasn't completed) */
+      const localConfig = JSON.stringify({
+        roles: [
+          {id:'brand',  label:'Brand',  keyHex: colors.brand.toUpperCase(), type:'fixed', derive:null},
+          {id:'danger',   label:'Danger',   keyHex: colors.danger.toUpperCase(), type:'fixed', derive:null},
+          {id:'warning',  label:'Warning',  keyHex: colors.warning.toUpperCase(), type:'fixed', derive:null},
+          {id:'info',     label:'Info',     keyHex: colors.info.toUpperCase(), type:'fixed', derive:null},
+          {id:'success',  label:'Success',  keyHex: colors.success.toUpperCase(), type:'fixed', derive:null},
+          {id:'greyscale', label:'Greyscale', keyHex:null, type:'auto', derive:'greyscale'},
+          {id:'desaturated', label:'Desaturated', keyHex:null, type:'auto', derive:'desaturated'}
+        ],
+        customCounter: 0,
+        semanticMap: config.semanticMap,
+        surfaceMap: null,
+        surfacePaletteSrc: config.surfacePaletteSrc
+      });
+      localStorage.setItem('dtf-color-config-' + slug, localConfig);
+
+      /* Also stash the canonical config.json + a generated
+         primitives.css under project-scoped keys so editor-v2
+         can hydrate the new project immediately on file:// (no
+         wait for the Pages deploy to publish the real files).
+         Editor's injectProjectPrimitivesSync + readProjectConfigSync
+         fall back to these when the on-disk file isn't found. */
+      try {
+        localStorage.setItem('dtf-project-config-' + slug, JSON.stringify(config));
+        if (window.PaletteEngine) {
+          var primParts = [];
+          var allKeys = config.paletteKeys || {};
+          Object.keys(allKeys).forEach(function (roleId) {
+            var keyHex = allKeys[roleId];
+            if (!keyHex) return;
+            // Anchor MUST be 'exact' so step-500 is the user's key
+            // colour. Default 'normalized' shifts step-500 onto the
+            // engine's tone curve (e.g. #865A1D -> #976B1E), which
+            // surfaces in the editor as "the key I picked is wrong".
+            var pal = window.PaletteEngine.generatePalette(keyHex, { anchor: 'exact' });
+            primParts.push(window.PaletteEngine.toCss(roleId, pal));
+          });
+          localStorage.setItem('dtf-project-primitives-' + slug, primParts.join('\n'));
+        }
+      } catch(e) { console.warn('[DTF] local primitives cache failed (non-critical):', e); }
+
+      /* Reset the editor's shared UI state so the new project lands
+         on T0 / Roles with the step ladders expanded — instead of
+         inheriting whatever tier/disclosure pattern the previous
+         project left behind. */
+      try {
+        localStorage.setItem('dtf-editor-v2-ui-v1', JSON.stringify({
+          v: 1,
+          activeTier: 't0',
+          activeRole: 'brand',
+          activeT0: 'roles',
+          activeSurface: null,
+          anchor: null,
+          disclosure: { 't0:steps': true, 't0:affects': true, 't1:slots': true, 't1:affects': true },
+          mode: 'light',
+          showCss: true,
+          focusedLever: null
+        }));
+      } catch(e) {}
+
+      /* Redirect straight into the editor for the freshly-created
+         project. Going to the hub (index.html) felt like a dead end
+         because the hub never auto-opens an active project. */
+      window.location.href = 'editor-v2/index.html?project=' + encodeURIComponent(slug);
+
+    } catch (err) {
+      errorBox.textContent = '❌ ' + err.message;
+      errorBox.classList.add('visible');
+      launchBtn.disabled = false;
+      launchBtn.textContent = '🚀 Retry';
+    }
+  }
+
+  function setProgress(id, state) {
+    const el = document.getElementById(id);
+    el.className = 'progress-step ' + state;
+    const icon = el.querySelector('.progress-icon');
+    if (state === 'active') icon.textContent = '⏳';
+    else if (state === 'done') icon.textContent = '✓';
+    else if (state === 'error') icon.textContent = '✗';
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+})();
+</script>
+</body>
+</html>

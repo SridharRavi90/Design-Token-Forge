@@ -1,0 +1,196 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Toast Token Defaults
+   Layer 0: System defaults for ~89 toast variables.
+   All values reference global tokens — zero hardcoded visuals.
+   7-axis coverage: Shape · Dimension · Surface · Typography · Slots · Motion · A11y
+   ════════════════════════════════════════════════════════════════ */
+
+.toast {
+
+  /* ────────────────────────────────────────────────────────────
+     1 · SHAPE  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --toast-radius:        var(--radius-lg);
+  --toast-border-width:  1px;
+  --toast-border-style:  solid;
+  --toast-border-color:  var(--surface-base-cm-outline);
+  --toast-accent-width:  4px;
+  --toast-accent-radius: var(--radius-full);
+
+  /* ────────────────────────────────────────────────────────────
+     2 · PER-SIZE: SMALL  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+  --toast-padding-y-small:       var(--spacing-8);
+  --toast-padding-x-small:       var(--spacing-12);
+  --toast-gap-small:             var(--spacing-8);
+  --toast-content-gap-small:     var(--spacing-2);
+  --toast-font-size-small:       var(--font-size-13);
+  --toast-title-font-size-small: var(--font-size-13);
+  --toast-icon-size-small:       var(--spacing-16);
+  --toast-close-size-small:      var(--spacing-16);
+
+  /* ────────────────────────────────────────────────────────────
+     2 · PER-SIZE: BASE  (8 vars)  ← default
+     ──────────────────────────────────────────────────────────── */
+  --toast-padding-y-base:       var(--spacing-14);
+  --toast-padding-x-base:       var(--spacing-16);
+  --toast-gap-base:             var(--spacing-12);
+  --toast-content-gap-base:     var(--spacing-4);
+  --toast-font-size-base:       var(--font-size-14);
+  --toast-title-font-size-base: var(--font-size-14);
+  --toast-icon-size-base:       var(--spacing-20);
+  --toast-close-size-base:      var(--spacing-20);
+
+  /* ────────────────────────────────────────────────────────────
+     2 · PER-SIZE: LARGE  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+  --toast-padding-y-large:       var(--spacing-18);
+  --toast-padding-x-large:       var(--spacing-20);
+  --toast-gap-large:             var(--spacing-14);
+  --toast-content-gap-large:     var(--spacing-6);
+  --toast-font-size-large:       var(--font-size-16);
+  --toast-title-font-size-large: var(--font-size-16);
+  --toast-icon-size-large:       var(--spacing-24);
+  --toast-close-size-large:      var(--spacing-24);
+
+  /* ────────────────────────────────────────────────────────────
+     3 · DIMENSION  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --toast-min-width:         300px;
+  --toast-max-width:         480px;
+  --toast-min-height:        48px;
+  --toast-container-gap:     var(--spacing-10);
+  --toast-container-padding: var(--spacing-16);
+  --toast-container-z-index: 9999;
+
+  /* ────────────────────────────────────────────────────────────
+  /* ────────────────────────────────────────────────────────────
+     4 · SURFACE — per-role default/soft  (6 roles × 8 = 48 vars)
+     ─────────────────────────────────────────────────────────────
+     Each role carries an 8-token bundle:
+       · {role}-accent: decoration color (bar/icon accent)
+       · {role}-icon-color: icon fill
+       · {role}-title-color: title text
+       · {role}-soft-bg: soft variant container (tinted)
+       · {role}-filled-bg + {role}-filled-fg: filled variant bg+fg
+       · {role}-outlined-border: outlined variant border
+     ──────────────────────────────────────────────────────────── */
+  /* default (neutral surface) */
+  --toast-bg:     var(--surface-base-cn-bg);
+  --toast-fg:     var(--surface-base-ct-default);
+  --toast-shadow: var(--shadow-lg);
+
+  /* ── per-role slots  (6 roles × 8 = 48 vars) ──── */
+  /* brand */
+  --toast-brand-accent:           var(--brand-component-bg-default);
+  --toast-brand-icon-color:       var(--brand-component-bg-default);
+  --toast-brand-title-color:      var(--brand-content-strong);
+  --toast-brand-soft-bg:          var(--brand-container-bg);
+  --toast-brand-filled-bg:        var(--brand-component-bg-default);
+  --toast-brand-filled-fg:        var(--brand-on-component);
+  --toast-brand-outlined-border:  var(--brand-component-bg-default);
+
+  /* info — dedicated palette (blue) */
+  --toast-info-accent:            var(--info-component-bg-default);
+  --toast-info-icon-color:        var(--info-component-bg-default);
+  --toast-info-title-color:       var(--info-content-strong);
+  --toast-info-soft-bg:           var(--info-container-bg);
+  --toast-info-filled-bg:         var(--info-component-bg-default);
+  --toast-info-filled-fg:         var(--info-on-component);
+  --toast-info-outlined-border:   var(--info-component-bg-default);
+
+  --toast-success-accent:      var(--success-component-bg-default);
+  --toast-success-icon-color:  var(--success-component-bg-default);
+  --toast-success-title-color: var(--success-content-strong);
+
+  --toast-warning-accent:      var(--warning-component-bg-default);
+  --toast-warning-icon-color:  var(--warning-component-bg-default);
+  --toast-warning-title-color: var(--warning-content-strong);
+
+  --toast-danger-accent:       var(--danger-component-bg-default);
+  --toast-danger-icon-color:   var(--danger-component-bg-default);
+  --toast-danger-title-color:  var(--danger-content-strong);
+
+  /* neutral — surface-context (no semantic color) */
+  --toast-neutral-accent:      var(--surface-base-cm-outline);
+  --toast-neutral-icon-color:  var(--surface-base-ct-subtle);
+  --toast-neutral-title-color: var(--surface-base-ct-strong);
+
+  /* ── soft variant bg  (6 vars) ──────────────── */
+  --toast-primary-soft-bg: var(--brand-container-bg);
+  --toast-info-soft-bg:    var(--toast-primary-soft-bg);
+  --toast-success-soft-bg: var(--success-container-bg);
+  --toast-warning-soft-bg: var(--warning-container-bg);
+  --toast-danger-soft-bg:  var(--danger-container-bg);
+  --toast-neutral-soft-bg: var(--surface-base-cn-bg);
+
+  /* ── filled variant  (6 roles × 2 = 12 vars) ───── */
+  --toast-brand-filled-bg:  var(--brand-component-bg-default);
+  --toast-brand-filled-fg:  var(--brand-on-component);
+  --toast-info-filled-bg:   var(--info-component-bg-default);
+  --toast-info-filled-fg:   var(--info-on-component);
+  --toast-success-filled-bg:  var(--success-component-bg-default);
+  --toast-success-filled-fg:  var(--success-on-component);
+  --toast-warning-filled-bg:  var(--warning-component-bg-default);
+  --toast-warning-filled-fg:  var(--warning-on-component);
+  --toast-danger-filled-bg:   var(--danger-component-bg-default);
+  --toast-danger-filled-fg:   var(--danger-on-component);
+  --toast-neutral-filled-bg:  var(--surface-base-cm-bg);
+  --toast-neutral-filled-fg:  var(--surface-base-ct-strong);
+
+  /* Hover/pressed fills — toast is display-only; these equal default fill.
+     Required so the AA on-component derivation check covers all fill states. */
+  --toast-brand-filled-bg-hover:    var(--brand-component-bg-default);
+  --toast-brand-filled-bg-pressed:  var(--brand-component-bg-default);
+
+  /* ── outline variant border  (6 vars) ──────────── */
+  --toast-brand-outlined-border:  var(--brand-component-bg-default);
+  --toast-info-outlined-border:   var(--info-component-bg-default);
+  --toast-success-outlined-border: var(--success-component-bg-default);
+  --toast-warning-outlined-border: var(--warning-component-bg-default);
+  --toast-danger-outlined-border:  var(--danger-component-bg-default);
+  --toast-neutral-outlined-border: var(--surface-base-cm-outline);
+
+  /* ────────────────────────────────────────────────────────────
+     5 · TYPOGRAPHY  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+  --toast-font-family:       var(--font-family-sans);
+  --toast-font-weight:       var(--font-weight-normal);
+  --toast-line-height:       1.45;
+  --toast-title-font-weight: var(--font-weight-semibold);
+
+  /* ────────────────────────────────────────────────────────────
+     6 · SLOTS  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --toast-close-radius:        var(--radius-sm);
+  --toast-close-opacity:       0.5;
+  --toast-close-hover-opacity: 1;
+  --toast-close-hover-bg:      rgba(0,0,0,0.06);
+  --toast-action-font-size:    var(--font-size-13);
+  --toast-action-font-weight:  var(--font-weight-semibold);
+
+  /* ────────────────────────────────────────────────────────────
+     7 · MOTION  (9 vars)
+     ──────────────────────────────────────────────────────────── */
+  --toast-transition-property: opacity, transform;
+  --toast-transition-duration: var(--duration-normal);
+  --toast-transition-easing:   var(--easing-in-out);
+  --toast-enter-translate-y:   16px;
+  --toast-exit-translate-y:    -8px;
+  --toast-enter-scale:         0.96;
+  --toast-auto-dismiss:        5000ms;
+  --toast-progress-height:     3px;
+  --toast-progress-radius:     var(--radius-full);
+
+  /* ────────────────────────────────────────────────────────────
+     8 · STATE  (1 var)
+     ──────────────────────────────────────────────────────────── */
+  --toast-disabled-opacity: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     9 · ACCESSIBILITY  (2 vars)
+     ──────────────────────────────────────────────────────────── */
+  --toast-focus-outline-width: var(--focus-outline-width);
+  --toast-focus-outline-color: var(--brand-component-outline-default);
+  --toast-focus-outline-offset: var(--focus-outline-offset);
+}

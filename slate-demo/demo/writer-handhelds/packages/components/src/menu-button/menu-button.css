@@ -1,0 +1,715 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — MenuButton Component CSS
+   Variable-driven rendering. Zero hardcoded visual values.
+   Single button with optional leading icon + label + trailing
+   chevron. Uses internal (--_mb-*) vars set by variant/size.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Loader pulse animation ─────────────────────────────────── */
+@keyframes menu-btn-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BASE STRUCTURE
+   ════════════════════════════════════════════════════════════════ */
+
+.menu-btn {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+
+  /* Dimension (via active vars) */
+  min-height: var(--menu-btn-min-tap-target);
+  height: var(--_mb-height);
+  padding-block: var(--_mb-py);
+  /* Pill compensation addend — 0px by default, calc(height/4) when data-rounded.
+     All inline padding expressions add this so every content variant
+     (text-only, icon+text, icon-only) automatically gains the correct
+     optical inset in pill mode without extra rules per variant. */
+  --_mb-pill-comp: 0px;
+  padding-inline-start: calc(var(--_mb-px) + var(--_mb-pill-comp));
+  padding-inline-end: calc(var(--_mb-chevron-pe) + var(--_mb-pill-comp));
+
+  /* Shape */
+  border-radius: var(--_mb-radius);
+  border-width: var(--menu-btn-border-width);
+  border-style: var(--menu-btn-border-style);
+  border-color: var(--_mb-border-color);
+  box-shadow: var(--_mb-shadow);
+
+  /* Surface (via active vars) */
+  background-color: var(--_mb-bg);
+  color: var(--_mb-fg);
+
+  /* Typography */
+  font-family: var(--menu-btn-font-family);
+  font-size: var(--_mb-fs);
+  font-weight: var(--menu-btn-font-weight);
+  line-height: var(--menu-btn-line-height);
+  letter-spacing: var(--menu-btn-letter-spacing);
+  text-transform: var(--menu-btn-text-transform);
+
+  /* Motion */
+  transition-property: var(--menu-btn-transition-property);
+  transition-duration: var(--menu-btn-transition-duration);
+  transition-timing-function: var(--menu-btn-transition-easing);
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  text-decoration: none;
+  white-space: var(--menu-btn-white-space);
+  vertical-align: middle;
+  gap: var(--_mb-gap);
+  min-width: var(--_mb-min-width);
+  max-width: var(--menu-btn-max-width);
+  inline-size: var(--menu-btn-inline-size);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HOVER / ACTIVE
+   ════════════════════════════════════════════════════════════════ */
+
+.menu-btn:hover {
+  background-color: var(--_mb-bg-hover);
+  color: var(--_mb-fg-hover);
+  border-color: var(--_mb-border-color-hover);
+  box-shadow: var(--_mb-shadow-hover);
+}
+
+.menu-btn:active {
+  background-color: var(--_mb-bg-active);
+  border-color: var(--_mb-border-color-active);
+  box-shadow: var(--_mb-shadow-active);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIZE SELECTORS  — map stored tokens → active vars
+   ════════════════════════════════════════════════════════════════ */
+
+.menu-btn:not([data-size]),
+.menu-btn[data-size="base"] {
+  --_mb-height: var(--menu-btn-height-base);
+  --_mb-px: var(--menu-btn-padding-x-base);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-base);
+  --_mb-py: var(--menu-btn-padding-y-base);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-base);
+  --_mb-radius: var(--menu-btn-radius-base);
+  --_mb-fs: var(--menu-btn-font-size-base);
+  --_mb-icon-size: var(--menu-btn-icon-size-base);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-base);
+  --_mb-gap: var(--menu-btn-gap-base);
+  --_mb-min-width: var(--menu-btn-min-width-base);
+}
+
+.menu-btn[data-size="micro"] {
+  --_mb-height: var(--menu-btn-height-micro);
+  --_mb-px: var(--menu-btn-padding-x-micro);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-micro);
+  --_mb-py: var(--menu-btn-padding-y-micro);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-micro);
+  --_mb-radius: var(--menu-btn-radius-micro);
+  --_mb-fs: var(--menu-btn-font-size-micro);
+  --_mb-icon-size: var(--menu-btn-icon-size-micro);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-micro);
+  --_mb-gap: var(--menu-btn-gap-micro);
+  --_mb-min-width: var(--menu-btn-min-width-micro);
+}
+
+.menu-btn[data-size="tiny"] {
+  --_mb-height: var(--menu-btn-height-tiny);
+  --_mb-px: var(--menu-btn-padding-x-tiny);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-tiny);
+  --_mb-py: var(--menu-btn-padding-y-tiny);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-tiny);
+  --_mb-radius: var(--menu-btn-radius-tiny);
+  --_mb-fs: var(--menu-btn-font-size-tiny);
+  --_mb-icon-size: var(--menu-btn-icon-size-tiny);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-tiny);
+  --_mb-gap: var(--menu-btn-gap-tiny);
+  --_mb-min-width: var(--menu-btn-min-width-tiny);
+}
+
+.menu-btn[data-size="small"] {
+  --_mb-height: var(--menu-btn-height-small);
+  --_mb-px: var(--menu-btn-padding-x-small);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-small);
+  --_mb-py: var(--menu-btn-padding-y-small);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-small);
+  --_mb-radius: var(--menu-btn-radius-small);
+  --_mb-fs: var(--menu-btn-font-size-small);
+  --_mb-icon-size: var(--menu-btn-icon-size-small);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-small);
+  --_mb-gap: var(--menu-btn-gap-small);
+  --_mb-min-width: var(--menu-btn-min-width-small);
+}
+
+.menu-btn[data-size="medium"] {
+  --_mb-height: var(--menu-btn-height-medium);
+  --_mb-px: var(--menu-btn-padding-x-medium);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-medium);
+  --_mb-py: var(--menu-btn-padding-y-medium);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-medium);
+  --_mb-radius: var(--menu-btn-radius-medium);
+  --_mb-fs: var(--menu-btn-font-size-medium);
+  --_mb-icon-size: var(--menu-btn-icon-size-medium);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-medium);
+  --_mb-gap: var(--menu-btn-gap-medium);
+  --_mb-min-width: var(--menu-btn-min-width-medium);
+}
+
+.menu-btn[data-size="large"] {
+  --_mb-height: var(--menu-btn-height-large);
+  --_mb-px: var(--menu-btn-padding-x-large);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-large);
+  --_mb-py: var(--menu-btn-padding-y-large);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-large);
+  --_mb-radius: var(--menu-btn-radius-large);
+  --_mb-fs: var(--menu-btn-font-size-large);
+  --_mb-icon-size: var(--menu-btn-icon-size-large);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-large);
+  --_mb-gap: var(--menu-btn-gap-large);
+  --_mb-min-width: var(--menu-btn-min-width-large);
+}
+
+.menu-btn[data-size="big"] {
+  --_mb-height: var(--menu-btn-height-big);
+  --_mb-px: var(--menu-btn-padding-x-big);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-big);
+  --_mb-py: var(--menu-btn-padding-y-big);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-big);
+  --_mb-radius: var(--menu-btn-radius-big);
+  --_mb-fs: var(--menu-btn-font-size-big);
+  --_mb-icon-size: var(--menu-btn-icon-size-big);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-big);
+  --_mb-gap: var(--menu-btn-gap-big);
+  --_mb-min-width: var(--menu-btn-min-width-big);
+}
+
+.menu-btn[data-size="huge"] {
+  --_mb-height: var(--menu-btn-height-huge);
+  --_mb-px: var(--menu-btn-padding-x-huge);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-huge);
+  --_mb-py: var(--menu-btn-padding-y-huge);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-huge);
+  --_mb-radius: var(--menu-btn-radius-huge);
+  --_mb-fs: var(--menu-btn-font-size-huge);
+  --_mb-icon-size: var(--menu-btn-icon-size-huge);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-huge);
+  --_mb-gap: var(--menu-btn-gap-huge);
+  --_mb-min-width: var(--menu-btn-min-width-huge);
+}
+
+.menu-btn[data-size="mega"] {
+  --_mb-height: var(--menu-btn-height-mega);
+  --_mb-px: var(--menu-btn-padding-x-mega);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-mega);
+  --_mb-py: var(--menu-btn-padding-y-mega);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-mega);
+  --_mb-radius: var(--menu-btn-radius-mega);
+  --_mb-fs: var(--menu-btn-font-size-mega);
+  --_mb-icon-size: var(--menu-btn-icon-size-mega);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-mega);
+  --_mb-gap: var(--menu-btn-gap-mega);
+  --_mb-min-width: var(--menu-btn-min-width-mega);
+}
+
+.menu-btn[data-size="ultra"] {
+  --_mb-height: var(--menu-btn-height-ultra);
+  --_mb-px: var(--menu-btn-padding-x-ultra);
+  --_mb-px-icon: var(--menu-btn-padding-x-icon-ultra);
+  --_mb-py: var(--menu-btn-padding-y-ultra);
+  --_mb-chevron-pe: var(--menu-btn-chevron-pe-ultra);
+  --_mb-radius: var(--menu-btn-radius-ultra);
+  --_mb-fs: var(--menu-btn-font-size-ultra);
+  --_mb-icon-size: var(--menu-btn-icon-size-ultra);
+  --_mb-chevron-size: var(--menu-btn-chevron-size-ultra);
+  --_mb-gap: var(--menu-btn-gap-ultra);
+  --_mb-min-width: var(--menu-btn-min-width-ultra);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ICON PADDING OVERRIDES
+   Leading icon → reduce start to icon-pad (tighter than full text-pad).
+   No label present → reduce trailing end to icon-pad too (symmetric).
+   Both rules include --_mb-pill-comp so pill buttons automatically get
+   the height/4 optical compensation on whichever edges are active.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Leading icon: replace full text-pad with icon-pad on start */
+.menu-btn:has(> .menu-btn__icon:first-child) {
+  padding-inline-start: calc(var(--_mb-px-icon) + var(--_mb-pill-comp));
+}
+
+/* No label (icon+chevron only): use icon-pad for trailing end too */
+.menu-btn:not(:has(.menu-btn__label)) {
+  padding-inline-end: calc(var(--_mb-px-icon) + var(--_mb-pill-comp));
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SHAPE MODIFIER — rounded pill
+   ════════════════════════════════════════════════════════════════ */
+
+.menu-btn[data-rounded] {
+  --_mb-radius: var(--menu-btn-radius-rounded);
+  /* Set --_mb-pill-comp to height/4. The base padding-inline calc() expressions
+     add this to whichever edge value is currently active (text-pad,
+     icon-pad, or chevron-pe) so all content variants are compensated
+     automatically — no per-variant pill overrides needed. */
+  --_mb-pill-comp: calc(var(--_mb-height) / 4);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT SELECTORS  — map stored tokens → active surface vars
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── PRIMARY (default) ──────────────────────────────────────── */
+.menu-btn:not([data-variant]),
+.menu-btn[data-variant="filled"] {
+  --_mb-bg: var(--menu-btn-filled-bg);
+  --_mb-bg-hover: var(--menu-btn-filled-bg-hover);
+  --_mb-bg-active: var(--menu-btn-filled-bg-pressed);
+  --_mb-fg: var(--menu-btn-filled-fg);
+  --_mb-fg-hover: var(--menu-btn-filled-fg-hover);
+  --_mb-border-color: var(--menu-btn-filled-border-color);
+  --_mb-border-color-hover: var(--menu-btn-filled-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-filled-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+
+/* ── SECONDARY ──────────────────────────────────────────────── */
+.menu-btn[data-variant="outlined"] {
+  --_mb-bg: var(--menu-btn-outlined-bg);
+  --_mb-bg-hover: var(--menu-btn-outlined-bg-hover);
+  --_mb-bg-active: var(--menu-btn-outlined-bg-pressed);
+  --_mb-fg: var(--menu-btn-outlined-fg);
+  --_mb-fg-hover: var(--menu-btn-outlined-fg-hover);
+  --_mb-border-color: var(--menu-btn-outlined-border-color);
+  --_mb-border-color-hover: var(--menu-btn-outlined-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-outlined-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+
+/* ── GHOST ──────────────────────────────────────────────────── */
+.menu-btn[data-variant="ghost"] {
+  --_mb-bg: var(--menu-btn-ghost-bg);
+  --_mb-bg-hover: var(--menu-btn-ghost-bg-hover);
+  --_mb-bg-active: var(--menu-btn-ghost-bg-pressed);
+  --_mb-fg: var(--menu-btn-ghost-fg);
+  --_mb-fg-hover: var(--menu-btn-ghost-fg-hover);
+  --_mb-border-color: var(--menu-btn-ghost-border-color);
+  --_mb-border-color-hover: var(--menu-btn-ghost-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-ghost-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+
+/* ── NEUTRAL ────────────────────────────────────────────────── */
+.menu-btn[data-variant="neutral"] {
+  --_mb-bg: var(--menu-btn-neutral-bg);
+  --_mb-bg-hover: var(--menu-btn-neutral-bg-hover);
+  --_mb-bg-active: var(--menu-btn-neutral-bg-pressed);
+  --_mb-fg: var(--menu-btn-neutral-fg);
+  --_mb-fg-hover: var(--menu-btn-neutral-fg-hover);
+  --_mb-border-color: var(--menu-btn-neutral-border-color);
+  --_mb-border-color-hover: var(--menu-btn-neutral-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-neutral-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+/* ── TERTIARY (soft, tinted fill) ──────────────────────────── */
+.menu-btn[data-variant="soft"] {
+  --_mb-bg: var(--menu-btn-soft-bg);
+  --_mb-bg-hover: var(--menu-btn-soft-bg-hover);
+  --_mb-bg-active: var(--menu-btn-soft-bg-pressed);
+  --_mb-fg: var(--menu-btn-soft-fg);
+  --_mb-fg-hover: var(--menu-btn-soft-fg-hover);
+  --_mb-border-color: var(--menu-btn-soft-border-color);
+  --_mb-border-color-hover: var(--menu-btn-soft-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-soft-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+
+/* ── DANGER (filled, red) ─────────────────────────────────── */
+.menu-btn[data-variant="danger"] {
+  --_mb-bg: var(--menu-btn-danger-bg);
+  --_mb-bg-hover: var(--menu-btn-danger-bg-hover);
+  --_mb-bg-active: var(--menu-btn-danger-bg-pressed);
+  --_mb-fg: var(--menu-btn-danger-fg);
+  --_mb-fg-hover: var(--menu-btn-danger-fg-hover);
+  --_mb-border-color: var(--menu-btn-danger-border-color);
+  --_mb-border-color-hover: var(--menu-btn-danger-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-danger-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+
+/* ── SUCCESS (filled, green) ───────────────────────────────── */
+.menu-btn[data-variant="success"] {
+  --_mb-bg: var(--menu-btn-success-bg);
+  --_mb-bg-hover: var(--menu-btn-success-bg-hover);
+  --_mb-bg-active: var(--menu-btn-success-bg-pressed);
+  --_mb-fg: var(--menu-btn-success-fg);
+  --_mb-fg-hover: var(--menu-btn-success-fg-hover);
+  --_mb-border-color: var(--menu-btn-success-border-color);
+  --_mb-border-color-hover: var(--menu-btn-success-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-success-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+
+/* ── WARNING (filled, amber) ───────────────────────────────── */
+.menu-btn[data-variant="warning"] {
+  --_mb-bg: var(--menu-btn-warning-bg);
+  --_mb-bg-hover: var(--menu-btn-warning-bg-hover);
+  --_mb-bg-active: var(--menu-btn-warning-bg-pressed);
+  --_mb-fg: var(--menu-btn-warning-fg);
+  --_mb-fg-hover: var(--menu-btn-warning-fg-hover);
+  --_mb-border-color: var(--menu-btn-warning-border-color);
+  --_mb-border-color-hover: var(--menu-btn-warning-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-warning-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+
+/* ── BRAND (filled, brand palette) ───────────────────────────── */
+.menu-btn[data-variant="brand"] {
+  --_mb-bg: var(--menu-btn-brand-bg);
+  --_mb-bg-hover: var(--menu-btn-brand-bg-hover);
+  --_mb-bg-active: var(--menu-btn-brand-bg-pressed);
+  --_mb-fg: var(--menu-btn-brand-fg);
+  --_mb-fg-hover: var(--menu-btn-brand-fg-hover);
+  --_mb-border-color: var(--menu-btn-brand-border-color);
+  --_mb-border-color-hover: var(--menu-btn-brand-border-color-hover);
+  --_mb-border-color-active: var(--menu-btn-brand-border-color-pressed);
+  --_mb-shadow: var(--menu-btn-shadow);
+  --_mb-shadow-hover: var(--menu-btn-shadow-hover);
+  --_mb-shadow-active: var(--menu-btn-shadow-pressed);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ROLE REMAPPING — Orthogonal 2-Axis API
+   ────────────────────────────────────────────────────────────────
+   Usage:  data-variant="filled"   data-role="danger"
+           data-variant="outlined" data-role="success"
+           data-variant="soft"     data-role="warning"
+           data-variant="ghost"    data-role="brand"
+
+   Structural variants: filled | outlined | soft | ghost
+   Semantic roles:      brand | danger | warning | info | success | neutral
+
+   HOW IT WORKS:
+   • Structural variants (filled/outlined/soft) read from --brand-* semantic palette.
+   • Role selectors remap --brand-* to the chosen role palette at the element level.
+   • This composes automatically — any structure × any role without per-combo selectors.
+   • Ghost defaults to neutral (surface tokens). Role selectors override ghost tokens too.
+   • Legacy single-value names (danger, success, etc.) keep working unchanged above.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── data-role="brand" ────────────────────────────────────── */
+/* Filled/outlined/soft already read --brand-* by default.
+   Only ghost needs explicit primary override (default ghost = neutral). */
+.menu-btn[data-role="brand"] {
+  --menu-btn-ghost-bg-hover: var(--brand-container-bg);
+  --menu-btn-ghost-bg-pressed: var(--brand-container-pressed);
+  --menu-btn-ghost-fg: var(--brand-content-default);
+  --menu-btn-ghost-fg-hover: var(--brand-content-default);
+  --menu-btn-ghost-fg-disabled: var(--brand-content-default);
+}
+
+/* ── data-role="danger" ─────────────────────────────────────── */
+.menu-btn[data-role="danger"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-bg-hover: var(--danger-component-bg-hover);
+  --brand-component-bg-pressed: var(--danger-component-bg-pressed);
+  --brand-on-component: var(--danger-on-component);
+  --brand-content-default: var(--danger-content-default);
+  --brand-container-bg: var(--danger-container-bg);
+  --brand-container-hover: var(--danger-container-hover);
+  --brand-container-pressed: var(--danger-container-pressed);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+  --brand-component-outline-hover: var(--danger-component-outline-hover);
+  --brand-component-outline-pressed: var(--danger-component-outline-pressed);
+  /* Ghost overrides */
+  --menu-btn-ghost-bg-hover: var(--danger-container-bg);
+  --menu-btn-ghost-bg-pressed: var(--danger-container-pressed);
+  --menu-btn-ghost-fg: var(--danger-content-default);
+  --menu-btn-ghost-fg-hover: var(--danger-content-default);
+  --menu-btn-ghost-fg-disabled: var(--danger-content-default);
+}
+
+/* ── data-role="success" ────────────────────────────────────── */
+.menu-btn[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-bg-hover: var(--success-component-bg-hover);
+  --brand-component-bg-pressed: var(--success-component-bg-pressed);
+  --brand-on-component: var(--success-on-component);
+  --brand-content-default: var(--success-content-default);
+  --brand-container-bg: var(--success-container-bg);
+  --brand-container-hover: var(--success-container-hover);
+  --brand-container-pressed: var(--success-container-pressed);
+  --brand-component-outline-default: var(--success-component-outline-default);
+  --brand-component-outline-hover: var(--success-component-outline-hover);
+  --brand-component-outline-pressed: var(--success-component-outline-pressed);
+  /* Ghost overrides */
+  --menu-btn-ghost-bg-hover: var(--success-container-bg);
+  --menu-btn-ghost-bg-pressed: var(--success-container-pressed);
+  --menu-btn-ghost-fg: var(--success-content-default);
+  --menu-btn-ghost-fg-hover: var(--success-content-default);
+  --menu-btn-ghost-fg-disabled: var(--success-content-default);
+}
+
+/* ── data-role="warning" ────────────────────────────────────── */
+.menu-btn[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-bg-hover: var(--warning-component-bg-hover);
+  --brand-component-bg-pressed: var(--warning-component-bg-pressed);
+  --brand-on-component: var(--warning-on-component);
+  --brand-content-default: var(--warning-content-default);
+  --brand-container-bg: var(--warning-container-bg);
+  --brand-container-hover: var(--warning-container-hover);
+  --brand-container-pressed: var(--warning-container-pressed);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+  --brand-component-outline-hover: var(--warning-component-outline-hover);
+  --brand-component-outline-pressed: var(--warning-component-outline-pressed);
+  /* Ghost overrides */
+  --menu-btn-ghost-bg-hover: var(--warning-container-bg);
+  --menu-btn-ghost-bg-pressed: var(--warning-container-pressed);
+  --menu-btn-ghost-fg: var(--warning-content-default);
+  --menu-btn-ghost-fg-hover: var(--warning-content-default);
+  --menu-btn-ghost-fg-disabled: var(--warning-content-default);
+}
+
+/* ── data-role="brand" ──────────────────────────────────────── */
+.menu-btn[data-role="brand"] {
+  /* Ghost overrides */
+  --menu-btn-ghost-bg-hover: var(--brand-container-bg);
+  --menu-btn-ghost-bg-pressed: var(--brand-container-pressed);
+  --menu-btn-ghost-fg: var(--brand-content-default);
+  --menu-btn-ghost-fg-hover: var(--brand-content-default);
+  --menu-btn-ghost-fg-disabled: var(--brand-content-default);
+}
+
+/* ── data-role="info" ───────────────────────────────────────── */
+.menu-btn[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-bg-hover: var(--info-component-bg-hover);
+  --brand-component-bg-pressed: var(--info-component-bg-pressed);
+  --brand-on-component: var(--info-on-component);
+  --brand-content-default: var(--info-content-default);
+  --brand-container-bg: var(--info-container-bg);
+  --brand-container-hover: var(--info-container-hover);
+  --brand-container-pressed: var(--info-container-pressed);
+  --brand-component-outline-default: var(--info-component-outline-default);
+  --brand-component-outline-hover: var(--info-component-outline-hover);
+  --brand-component-outline-pressed: var(--info-component-outline-pressed);
+  /* Ghost overrides */
+  --menu-btn-ghost-bg-hover: var(--info-container-bg);
+  --menu-btn-ghost-bg-pressed: var(--info-container-pressed);
+  --menu-btn-ghost-fg: var(--info-content-default);
+  --menu-btn-ghost-fg-hover: var(--info-content-default);
+  --menu-btn-ghost-fg-disabled: var(--info-content-default);
+}
+
+/* ── data-role="neutral" ────────────────────────────────────── */
+/* Remaps primary palette → surface-context tokens so structural
+   variants automatically get neutral/surface treatment. */
+.menu-btn[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg);
+  --brand-component-bg-hover: var(--surface-base-cm-bg-hover);
+  --brand-component-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --brand-on-component: var(--surface-base-ct-default);
+  --brand-content-default: var(--surface-base-ct-default);
+  --brand-container-bg: var(--surface-base-subtle);
+  --brand-container-hover: var(--surface-base-strong);
+  --brand-container-pressed: var(--surface-base-strong);
+  --brand-component-outline-default: var(--surface-base-cm-outline);
+  --brand-component-outline-hover: var(--surface-base-cm-outline-hover);
+  --brand-component-outline-pressed: var(--surface-base-cm-outline-pressed);
+  /* Ghost stays at its surface-token defaults — no override needed */
+}
+/* ════════════════════════════════════════════════════════════════
+   STATES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Focus-visible — keyboard focus ring */
+.menu-btn:focus-visible {
+  outline: var(--menu-btn-focus-outline-width) solid var(--menu-btn-focus-outline-color);
+  outline-offset: var(--menu-btn-focus-outline-offset);
+}
+
+/* Disabled — per-variant */
+.menu-btn:disabled,
+.menu-btn[data-disabled] {
+
+  pointer-events: none;
+}
+
+.menu-btn:disabled:not([data-variant]),
+.menu-btn:disabled[data-variant="filled"],
+.menu-btn[data-disabled]:not([data-variant]),
+.menu-btn[data-disabled][data-variant="filled"] {
+  --_mb-bg: var(--menu-btn-filled-bg-disabled);
+  --_mb-fg: var(--menu-btn-filled-fg-disabled);
+  --_mb-border-color: var(--menu-btn-filled-border-color-disabled);
+  opacity: var(--menu-btn-filled-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="outlined"],
+.menu-btn[data-disabled][data-variant="outlined"] {
+  --_mb-bg: var(--menu-btn-outlined-bg-disabled);
+  --_mb-fg: var(--menu-btn-outlined-fg-disabled);
+  --_mb-border-color: var(--menu-btn-outlined-border-color-disabled);
+  opacity: var(--menu-btn-outlined-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="ghost"],
+.menu-btn[data-disabled][data-variant="ghost"] {
+  --_mb-bg: var(--menu-btn-ghost-bg-disabled);
+  --_mb-fg: var(--menu-btn-ghost-fg-disabled);
+  --_mb-border-color: var(--menu-btn-ghost-border-color-disabled);
+  opacity: var(--menu-btn-ghost-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="neutral"],
+.menu-btn[data-disabled][data-variant="neutral"] {
+  --_mb-bg: var(--menu-btn-neutral-bg-disabled);
+  --_mb-fg: var(--menu-btn-neutral-fg-disabled);
+  --_mb-border-color: var(--menu-btn-neutral-border-color-disabled);
+  opacity: var(--menu-btn-neutral-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="soft"],
+.menu-btn[data-disabled][data-variant="soft"] {
+  --_mb-bg: var(--menu-btn-soft-bg-disabled);
+  --_mb-fg: var(--menu-btn-soft-fg-disabled);
+  --_mb-border-color: var(--menu-btn-soft-border-color-disabled);
+  opacity: var(--menu-btn-soft-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="danger"],
+.menu-btn[data-disabled][data-variant="danger"] {
+  --_mb-bg: var(--menu-btn-danger-bg-disabled);
+  --_mb-fg: var(--menu-btn-danger-fg-disabled);
+  --_mb-border-color: var(--menu-btn-danger-border-color-disabled);
+  opacity: var(--menu-btn-danger-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="success"],
+.menu-btn[data-disabled][data-variant="success"] {
+  --_mb-bg: var(--menu-btn-success-bg-disabled);
+  --_mb-fg: var(--menu-btn-success-fg-disabled);
+  --_mb-border-color: var(--menu-btn-success-border-color-disabled);
+  opacity: var(--menu-btn-success-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="warning"],
+.menu-btn[data-disabled][data-variant="warning"] {
+  --_mb-bg: var(--menu-btn-warning-bg-disabled);
+  --_mb-fg: var(--menu-btn-warning-fg-disabled);
+  --_mb-border-color: var(--menu-btn-warning-border-color-disabled);
+  opacity: var(--menu-btn-warning-opacity-disabled);
+}
+.menu-btn:disabled[data-variant="brand"],
+.menu-btn[data-disabled][data-variant="brand"] {
+  --_mb-bg: var(--menu-btn-brand-bg-disabled);
+  --_mb-fg: var(--menu-btn-brand-fg-disabled);
+  --_mb-border-color: var(--menu-btn-brand-border-color-disabled);
+  opacity: var(--menu-btn-brand-opacity-disabled);
+}
+/* Loading — pulse animation */
+.menu-btn[data-loading] {
+  cursor: wait;
+  pointer-events: none;
+  animation: menu-btn-pulse var(--menu-btn-loader-speed) ease-in-out infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SLOTS — icon, label, chevron
+   ════════════════════════════════════════════════════════════════ */
+
+.menu-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_mb-icon-size);
+  height: var(--_mb-icon-size);
+  color: var(--menu-btn-icon-color);
+  flex-shrink: 0;
+}
+.menu-btn:hover .menu-btn__icon {
+  color: var(--menu-btn-icon-color-hover);
+}
+.menu-btn__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.menu-btn__label {
+  display: inline-block;
+}
+
+.menu-btn__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_mb-chevron-size);
+  height: var(--_mb-chevron-size);
+  color: var(--menu-btn-icon-color);
+  flex-shrink: 0;
+}
+.menu-btn:hover .menu-btn__chevron {
+  color: var(--menu-btn-icon-color-hover);
+}
+.menu-btn__chevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Elevated shadow override */
+.menu-btn[data-strong] {
+  box-shadow: var(--menu-btn-shadow-strong);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FORCED COLORS (Windows High Contrast)
+   ════════════════════════════════════════════════════════════════ */
+
+@media (forced-colors: active) {
+  .menu-btn {
+    border: 1px solid ButtonText;
+    color: ButtonText;
+    background-color: ButtonFace;
+  }
+  .menu-btn:hover {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+  .menu-btn:disabled,
+  .menu-btn[data-disabled] {
+    color: GrayText;
+    border-color: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-btn {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

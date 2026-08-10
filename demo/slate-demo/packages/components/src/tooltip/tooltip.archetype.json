@@ -1,0 +1,28 @@
+{
+  "archetype": "utility-overlay",
+  "tokenPrefix": "tooltip",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["hidden", "visible"],
+  "rolesSupported": [],
+  "variantsSupported": ["default", "light", "danger", "warning", "info", "success"],
+  "sizesSupported": ["small", "base", "large"],
+  "onComponentTokens": [],
+  "editorExposureOverrides": {
+    "--tooltip-arrow-size": "advanced",
+    "--tooltip-arrow-offset": "advanced",
+    "--tooltip-content-gap": "advanced",
+    "--tooltip-offset": "advanced",
+    "--tooltip-enter-scale": "advanced",
+    "--tooltip-show-delay": "advanced",
+    "--tooltip-hide-delay": "advanced"
+  },
+  "figmaBindingPrefix": "tooltip/",
+  "notes": [
+    "Utility-overlay archetype: stateless, positional tooltip. Role-less by design — variants are purely semantic colors (default/light/danger/warning/info/success) for visual feedback, not identity.",
+    "Three SIZES (small/base/large) — categorical, not the 10-density ladder. Sizes drive padding, gap, font-size, max-width, icon-size.",
+    "Placement (top/bottom/left/right) is a runtime CSS attribute, not a variant — driven by data-placement.",
+    "State machine: hidden (opacity:0, pointer-events:none) ↔ visible (opacity:1, pointer-events:auto). Driven by data-state.",
+    "Trigger uses aria-describedby → tooltip id. Tooltip has role='tooltip'. Screen readers announce on focus.",
+    "Portal: positioned absolutely, z-index:1000, no tap targets (pointer-events:none). Motion: fade + scale-in (0.96→1)."
+  ]
+}

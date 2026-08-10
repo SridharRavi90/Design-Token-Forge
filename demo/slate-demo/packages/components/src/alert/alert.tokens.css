@@ -1,0 +1,216 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Alert Token Defaults
+   Layer 0: System defaults for ~91 alert variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ----------------------------------------------------------------
+   ANATOMY:
+     .alert (wrapper, role="alert" | "status")
+       └─ .alert__icon    (leading status glyph)
+       └─ .alert__content
+            └─ .alert__title (optional)
+            └─ .alert__body  (message text)
+       └─ .alert__close   (dismiss button, optional)
+       └─ .alert__accent  (leading accent bar, optional)
+
+   VARIANTS  (data-variant):   default (soft container) | filled | outlined | soft
+   ROLES     (data-role):       brand (default) | danger | success | warning | info | neutral
+   SIZES     (data-size):       small | base | large
+   STATES    (selectors):       default | dismissing
+
+   ROLE TOKENS ship as inline named slots (--alert-{role}-bg / -fg / -accent / -border
+   / -icon-color / -title-color / -link-color / -link-hover) plus per-variant overrides
+   (-filled-bg/-fg, -outlined-border, -soft-bg). data-role swaps the internal --_al-*
+   chain to the matching slot rather than remapping --brand-*.
+   ════════════════════════════════════════════════════════════════ */
+
+.alert {
+
+  /* ────────────────────────────────────────────────────────────
+     1 · SHAPE  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --alert-radius:        var(--radius-md);
+  --alert-border-width:  1px;
+  --alert-border-style:  solid;
+  --alert-border-color:  transparent;
+  --alert-accent-width:  4px;
+  --alert-accent-radius: var(--radius-full);
+
+  /* ────────────────────────────────────────────────────────────
+     2 · PER-SIZE: SMALL  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+  --alert-padding-y-small:       var(--spacing-10);
+  --alert-padding-x-small:       var(--spacing-12);
+  --alert-gap-small:             var(--spacing-8);
+  --alert-content-gap-small:     var(--spacing-2);
+  --alert-font-size-small:       var(--font-size-13);
+  --alert-title-font-size-small: var(--font-size-13);
+  --alert-icon-size-small:       var(--spacing-16);
+  --alert-close-size-small:      var(--spacing-16);
+
+  /* ────────────────────────────────────────────────────────────
+     2 · PER-SIZE: BASE  (8 vars)  ← default
+     ──────────────────────────────────────────────────────────── */
+  --alert-padding-y-base:       var(--spacing-14);
+  --alert-padding-x-base:       var(--spacing-16);
+  --alert-gap-base:             var(--spacing-12);
+  --alert-content-gap-base:     var(--spacing-4);
+  --alert-font-size-base:       var(--font-size-14);
+  --alert-title-font-size-base: var(--font-size-14);
+  --alert-icon-size-base:       var(--spacing-20);
+  --alert-close-size-base:      var(--spacing-20);
+
+  /* ────────────────────────────────────────────────────────────
+     2 · PER-SIZE: LARGE  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+  --alert-padding-y-large:       var(--spacing-18);
+  --alert-padding-x-large:       var(--spacing-20);
+  --alert-gap-large:             var(--spacing-14);
+  --alert-content-gap-large:     var(--spacing-6);
+  --alert-font-size-large:       var(--font-size-16);
+  --alert-title-font-size-large: var(--font-size-16);
+  --alert-icon-size-large:       var(--spacing-24);
+  --alert-close-size-large:      var(--spacing-24);
+
+  /* ────────────────────────────────────────────────────────────
+     3 · DIMENSION  (2 vars)
+     ──────────────────────────────────────────────────────────── */
+  --alert-min-height:  48px;
+  --alert-icon-offset: 2px;
+
+  /* ────────────────────────────────────────────────────────────
+     4 · SURFACE — per-role default/soft  (6 roles × 8 = 48 vars)
+     ────────────────────────────────────────────────────────── */
+  /* brand â canonical name (matches other components) */
+  --alert-brand-bg:          var(--brand-container-bg);
+  --alert-brand-fg:          var(--brand-content-default);
+  --alert-brand-accent:      var(--brand-component-bg-default);
+  --alert-brand-border:      var(--brand-container-bg);
+  --alert-brand-icon-color:  var(--brand-component-bg-default);
+  --alert-brand-title-color: var(--brand-content-strong);
+  --alert-brand-link-color:  var(--brand-content-default);
+  --alert-brand-link-hover:  var(--brand-content-strong);
+
+  /* info — dedicated info palette (unique blue, distinct from brand) */
+  --alert-info-bg:          var(--info-container-bg);
+  --alert-info-fg:          var(--info-content-default);
+  --alert-info-accent:      var(--info-component-bg-default);
+  --alert-info-border:      var(--info-container-bg);
+  --alert-info-icon-color:  var(--info-component-bg-default);
+  --alert-info-title-color: var(--info-content-strong);
+  --alert-info-link-color:  var(--info-content-default);
+  --alert-info-link-hover:  var(--info-content-strong);
+
+  --alert-success-bg:          var(--success-container-bg);
+  --alert-success-fg:          var(--success-content-default);
+  --alert-success-accent:      var(--success-component-bg-default);
+  --alert-success-border:      var(--success-container-bg);
+  --alert-success-icon-color:  var(--success-component-bg-default);
+  --alert-success-title-color: var(--success-content-strong);
+  --alert-success-link-color:  var(--success-content-default);
+  --alert-success-link-hover:  var(--success-content-strong);
+
+  --alert-warning-bg:          var(--warning-container-bg);
+  --alert-warning-fg:          var(--warning-content-default);
+  --alert-warning-accent:      var(--warning-component-bg-default);
+  --alert-warning-border:      var(--warning-container-bg);
+  --alert-warning-icon-color:  var(--warning-component-bg-default);
+  --alert-warning-title-color: var(--warning-content-strong);
+  --alert-warning-link-color:  var(--warning-content-default);
+  --alert-warning-link-hover:  var(--warning-content-strong);
+
+  --alert-danger-bg:          var(--danger-container-bg);
+  --alert-danger-fg:          var(--danger-content-default);
+  --alert-danger-accent:      var(--danger-component-bg-default);
+  --alert-danger-border:      var(--danger-container-bg);
+  --alert-danger-icon-color:  var(--danger-component-bg-default);
+  --alert-danger-title-color: var(--danger-content-strong);
+  --alert-danger-link-color:  var(--danger-content-default);
+  --alert-danger-link-hover:  var(--danger-content-strong);
+
+  /* neutral — surface-context (no semantic color) */
+  --alert-neutral-bg:          var(--surface-base-cn-bg);
+  --alert-neutral-fg:          var(--surface-base-ct-default);
+  --alert-neutral-accent:      var(--surface-base-cm-outline);
+  --alert-neutral-border:      var(--surface-base-cn-bg);
+  --alert-neutral-icon-color:  var(--surface-base-ct-subtle);
+  --alert-neutral-title-color: var(--surface-base-ct-strong);
+  --alert-neutral-link-color:  var(--surface-base-ct-default);
+  --alert-neutral-link-hover:  var(--surface-base-ct-strong);
+
+  /* ── filled variant  (6 roles × 2 = 12 vars) ───── */
+  --alert-brand-filled-bg:  var(--brand-component-bg-default);
+  --alert-brand-filled-fg:  var(--brand-on-component);
+  --alert-info-filled-bg:     var(--info-component-bg-default);
+  --alert-info-filled-fg:     var(--info-on-component);
+  --alert-success-filled-bg:  var(--success-component-bg-default);
+  --alert-success-filled-fg:  var(--success-on-component);
+  --alert-warning-filled-bg:  var(--warning-component-bg-default);
+  --alert-warning-filled-fg:  var(--warning-on-component);
+  --alert-danger-filled-bg:   var(--danger-component-bg-default);
+  --alert-danger-filled-fg:   var(--danger-on-component);
+  --alert-neutral-filled-bg:  var(--surface-base-cm-bg);
+  --alert-neutral-filled-fg:  var(--surface-base-ct-strong);
+
+  /* Hover/pressed fills — alert is display-only; these equal default fill.
+     Required so the AA on-component derivation check covers all fill states. */
+  --alert-brand-filled-bg-hover:    var(--brand-component-bg-default);
+  --alert-brand-filled-bg-pressed:  var(--brand-component-bg-default);
+
+  /* ── outline variant border  (6 vars) ──────────── */
+  --alert-brand-outlined-border: var(--brand-component-bg-default);
+  --alert-info-outlined-border:    var(--info-component-bg-default);
+  --alert-success-outlined-border: var(--success-component-bg-default);
+  --alert-warning-outlined-border: var(--warning-component-bg-default);
+  --alert-danger-outlined-border:  var(--danger-component-bg-default);
+  --alert-neutral-outlined-border: var(--surface-base-cm-outline);
+
+  /* ── soft variant bg  (6 vars) ────────────────── */
+  --alert-brand-soft-bg: var(--brand-container-bg);
+  --alert-info-soft-bg:    var(--info-container-bg);
+  --alert-success-soft-bg: var(--success-container-bg);
+  --alert-warning-soft-bg: var(--warning-container-bg);
+  --alert-danger-soft-bg:  var(--danger-container-bg);
+  --alert-neutral-soft-bg: var(--surface-base-cn-bg);
+
+  /* ────────────────────────────────────────────────────────────
+     5 · TYPOGRAPHY  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+  --alert-font-family:       var(--font-family-sans);
+  --alert-font-weight:       var(--font-weight-normal);
+  --alert-line-height:       1.5;
+  --alert-title-font-weight: var(--font-weight-semibold);
+
+  /* ────────────────────────────────────────────────────────────
+     6 · SLOTS  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+  --alert-close-radius:        var(--radius-sm);
+  --alert-close-opacity:       0.6;
+  --alert-close-hover-opacity: 1;
+  --alert-close-hover-bg:      rgba(0,0,0,0.06);
+
+  /* ────────────────────────────────────────────────────────────
+     7 · MOTION  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+  --alert-transition-property: opacity, transform;
+  --alert-transition-duration: var(--duration-normal);
+  --alert-transition-easing:   var(--easing-in-out);
+  --alert-animation-enter: alert-enter 0.25s var(--easing-in-out);
+  --alert-animation-dismiss: alert-dismiss 0.2s var(--easing-in-out) forwards;
+
+  /* ────────────────────────────────────────────────────────────
+     8 · STATE  (1 var)
+     ──────────────────────────────────────────────────────────── */
+  --alert-disabled-opacity: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     9 · ACCESSIBILITY  (2 vars)
+     ──────────────────────────────────────────────────────────── */
+  --alert-focus-outline-width: var(--focus-outline-width);
+  --alert-focus-outline-color: var(--brand-component-outline-default);
+  --alert-focus-outline-offset: var(--focus-outline-offset);
+
+  /* ────────────────────────────────────────────────────────────
+     10 · SHADOW  (1 var)
+     ──────────────────────────────────────────────────────────── */
+  --alert-shadow: none;
+}

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Card Explorer</title>
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/card/card.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/card/card.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+  /* Demo-only styles (not part of the component) */
+  .real-world-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;padding:24px 32px}
+  .horiz-demo{display:flex;flex-direction:column;gap:16px;padding:24px 32px}
+  .variant-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:24px 32px}
+  .variant-card-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .variant-card-title{font-weight:600;font-size:13px;text-transform:capitalize}
+  .density-strip{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;padding:24px 32px}
+  .density-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .density-meta{font-size:10px;opacity:.5;font-weight:600;font-variant-numeric:tabular-nums}
+  .surface-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-radius:12px;overflow:hidden}
+  .surface-panel{padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .surface-panel--base{background:var(--surface-base-bg)}
+  .surface-panel--alt{background:var(--surface-base-subtle)}
+  .surface-panel--deep{background:var(--surface-deep-bg)}
+  .surface-panel-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.5;margin-bottom:8px}
+  .select-demo{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:24px 32px}
+  .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;padding:24px 32px}
+  .a11y-card-info{padding:20px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;gap:8px}
+  .a11y-card-title{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;opacity:.6}
+  .a11y-card-desc{font-size:13px;line-height:1.5}
+  /* Fake content helpers */
+  .fake-price{font-size:18px;font-weight:700;color:var(--color-text-default)}
+  .fake-price-old{font-size:13px;text-decoration:line-through;opacity:.5;margin-inline-start:8px}
+  .fake-badge{display:inline-flex;padding:2px 8px;border-radius:var(--radius-sm);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .fake-badge--sale{background:var(--color-danger-100);color:var(--color-danger-600)}
+  .fake-badge--new{background:var(--color-success-100);color:var(--color-success-600)}
+  .fake-badge--pro{background:var(--color-info-100);color:var(--color-info-600)}
+  .fake-stars{color:var(--color-warning-400);font-size:13px;letter-spacing:2px}
+  .fake-btn{display:inline-flex;align-items:center;justify-content:center;padding:6px 14px;border-radius:var(--radius-md);font-size:13px;font-weight:600;border:1px solid var(--color-border);background:transparent;cursor:pointer;color:inherit;text-decoration:none}
+  .fake-btn--fill{background:var(--color-brand-500);color:var(--color-fixed-white);border-color:transparent}
+  .fake-metric{font-size:28px;font-weight:800;line-height:1}
+  .fake-metric-label{font-size:12px;opacity:.6;margin-top:4px}
+  .fake-trend{font-size:12px;font-weight:600}
+  .fake-trend--up{color:var(--color-success-500)}
+  .fake-trend--down{color:var(--color-danger-500)}
+  .fake-img{background:linear-gradient(135deg,var(--color-brand-100),var(--color-brand-200));display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:10px;opacity:.4;text-transform:uppercase;letter-spacing:.1em}
+  .fake-avatar{width:100%;height:100%;background:linear-gradient(135deg,var(--color-info-200),var(--color-info-400));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--color-fixed-white)}
+  .fake-icon{width:20px;height:20px;border-radius:var(--radius-sm);background:var(--color-brand-100);display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+  .playground-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding:24px 32px}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<!-- ═══════════════════ GLOBAL CONTROLS ═══════════════════ -->
+<nav class="global-controls" aria-label="Global card preview controls">
+
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-variant="raised" type="button">Raised</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="flat" type="button">Flat</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="ghost" type="button">Ghost</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+
+</nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">01</span>Hero Inspector</a>
+  <a href="#sec-realworld"><span class="sn-num">02</span>Real-World Patterns</a>
+  <a href="#sec-horizontal"><span class="sn-num">03</span>Horizontal Layout</a>
+  <a href="#sec-variants"><span class="sn-num">04</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">05</span>Density Scale</a>
+  <a href="#sec-surface"><span class="sn-num">06</span>Surface Context</a>
+  <a href="#sec-clickable"><span class="sn-num">07</span>Clickable &amp; Selection</a>
+  <a href="#sec-a11y"><span class="sn-num">08</span>Accessibility</a>
+  <a href="#sec-playground"><span class="sn-num">09</span>Context Playground</a>
+  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Card Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~90 CSS Variables</span>
+    <span class="demo-badge">4 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects global controls. A production-ready product card with all slots populated.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" style="display:flex;align-items:center;justify-content:center;min-height:240px;padding:32px">
+          <div class="card synced-card" data-variant="raised" data-size="base" style="width:320px">
+            <div class="card__media"><div class="fake-img">product photo</div></div>
+            <div class="card__header">
+              <div class="card__title-group">
+                <h3 class="card__title">Wireless Noise-Cancelling Headphones</h3>
+                <p class="card__subtitle">Sony WH-1000XM5 &middot; Over-ear</p>
+              </div>
+            </div>
+            <div class="card__body">
+              <div style="display:flex;align-items:baseline;gap:4px">
+                <span class="fake-price">$348</span>
+                <span class="fake-price-old">$399</span>
+                <span class="fake-badge fake-badge--sale" style="margin-inline-start:8px">13% off</span>
+              </div>
+              <div class="fake-stars" style="margin-top:8px">&starf;&starf;&starf;&starf;&starf; <span style="opacity:.5;font-size:11px;letter-spacing:0">(2,847)</span></div>
+            </div>
+            <div class="card__footer">
+              <div class="card__actions" data-align="between">
+                <button class="fake-btn" type="button">Save</button>
+                <button class="fake-btn fake-btn--fill" type="button">Add to Cart</button>
+              </div>
+            </div>
+            <a class="card__overlay-link" href="#" aria-label="View Wireless Headphones"></a>
+          </div>
+        </div>
+        <div class="hero-inspector" id="heroInspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. REAL-WORLD PATTERNS ═══════════ -->
+  <section class="section" id="sec-realworld">
+    <div class="section-header"><h2>Real-World Patterns</h2><span class="section-tag">Production</span></div>
+    <p class="section-desc">Cards as they actually appear in dashboards, e-commerce, profiles, and settings — not abstract boxes.</p>
+    <div class="section-body">
+      <div class="real-world-grid">
+
+        <!-- Dashboard metric card -->
+        <div class="card" data-variant="raised" data-size="base">
+          <div class="card__body">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between">
+              <div>
+                <span class="fake-metric-label">Monthly Revenue</span>
+                <div class="fake-metric">$42.5k</div>
+              </div>
+              <span class="fake-trend fake-trend--up">&uarr; 12.5%</span>
+            </div>
+            <div style="margin-top:12px;height:4px;border-radius:2px;background:var(--color-brand-100)">
+              <div style="width:72%;height:100%;border-radius:2px;background:var(--color-brand-500)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User profile card -->
+        <div class="card" data-variant="raised" data-size="base">
+          <div class="card__header">
+            <div class="card__avatar"><div class="fake-avatar">JD</div></div>
+            <div class="card__title-group">
+              <h3 class="card__title">Jane Doe</h3>
+              <p class="card__subtitle">Product Designer &middot; San Francisco</p>
+            </div>
+            <button class="fake-btn card__header-action" type="button">Follow</button>
+          </div>
+          <div class="card__body" style="font-size:13px;opacity:.8;line-height:1.5">
+            Designing tools that help teams move faster. Previously at Figma, now building the next generation of design systems.
+          </div>
+        </div>
+
+        <!-- Blog article card -->
+        <div class="card" data-variant="raised" data-size="base" style="position:relative">
+          <div class="card__media" style="aspect-ratio:2/1"><div class="fake-img">cover image</div></div>
+          <div class="card__body">
+            <span class="fake-badge fake-badge--new" style="margin-bottom:8px">New</span>
+            <h3 class="card__title" style="font-size:var(--font-size-md);font-weight:var(--font-weight-semibold);margin-bottom:6px">Building Scalable Design Token Systems</h3>
+            <p style="margin:0;font-size:13px;opacity:.7;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">A deep dive into how teams can build token systems that scale from a single product to an entire portfolio of brands.</p>
+          </div>
+          <div class="card__footer" style="display:flex;align-items:center;gap:8px;font-size:11px;opacity:.5">
+            <span>5 min read</span><span>&middot;</span><span>May 28, 2026</span>
+          </div>
+          <a class="card__overlay-link" href="#" aria-label="Read: Building Scalable Design Token Systems"></a>
+        </div>
+
+        <!-- Pricing card -->
+        <div class="card" data-variant="outlined" data-size="base" style="text-align:center">
+          <div class="card__body">
+            <span class="fake-badge fake-badge--pro" style="margin-bottom:12px">Pro</span>
+            <div class="fake-metric" style="margin-bottom:4px">$29<span style="font-size:14px;font-weight:400;opacity:.6">/mo</span></div>
+            <p style="margin:0;font-size:13px;opacity:.6">Everything you need to scale</p>
+            <ul style="list-style:none;padding:0;margin:16px 0 0;text-align:start;font-size:13px;line-height:2">
+              <li>&check; Unlimited projects</li>
+              <li>&check; Priority support</li>
+              <li>&check; Custom branding</li>
+              <li>&check; API access</li>
+            </ul>
+          </div>
+          <div class="card__footer">
+            <div class="card__actions" data-align="end">
+              <button class="fake-btn fake-btn--fill" type="button" style="width:100%">Get Started</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings/notification card -->
+        <div class="card" data-variant="outlined" data-size="small">
+          <div class="card__header">
+            <div class="fake-icon">&bell;</div>
+            <div class="card__title-group">
+              <h3 class="card__title" style="font-size:13px">Email Notifications</h3>
+              <p class="card__subtitle" style="font-size:11px">Receive updates about your account activity</p>
+            </div>
+            <button class="fake-btn card__header-action" type="button" style="font-size:11px;padding:4px 10px">Toggle</button>
+          </div>
+        </div>
+
+        <!-- File/document card -->
+        <div class="card" data-variant="outlined" data-size="small" data-interactive>
+          <div class="card__media" style="aspect-ratio:4/3;background:var(--surface-base-subtle);display:flex;align-items:center;justify-content:center">
+            <span style="font-size:32px;opacity:.3">&#128196;</span>
+          </div>
+          <div class="card__body" style="padding-block:8px">
+            <h3 class="card__title" style="font-size:12px;-webkit-line-clamp:1">Q4-2026-Financial-Report-Final-v3.pdf</h3>
+            <p class="card__subtitle" style="font-size:10px;margin-top:2px">2.4 MB &middot; Modified 2h ago</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 3. HORIZONTAL LAYOUT ═══════════ -->
+  <section class="section" id="sec-horizontal">
+    <div class="section-header"><h2>Horizontal Layout</h2><span class="section-tag">Direction</span></div>
+    <p class="section-desc">Image on the side — the most common card pattern in feeds, emails, and settings panels.</p>
+    <div class="section-body">
+      <div class="horiz-demo">
+
+        <!-- News feed card -->
+        <div class="card" data-variant="raised" data-size="base" data-direction="horizontal" style="max-width:560px">
+          <div class="card__media"><div class="fake-img">thumbnail</div></div>
+          <div class="card__content">
+            <div class="card__header">
+              <div class="card__title-group">
+                <h3 class="card__title">Apple Announces M5 Chip with 40% Performance Gains</h3>
+                <p class="card__subtitle">TechCrunch &middot; 3h ago</p>
+              </div>
+            </div>
+            <div class="card__body" style="font-size:13px;opacity:.7;line-height:1.5">
+              The new M5 processor brings significant gains in both single-core and multi-core performance, with improved neural engine capabilities.
+            </div>
+          </div>
+          <a class="card__overlay-link" href="#" aria-label="Read Apple M5 article"></a>
+        </div>
+
+        <!-- Email/notification card -->
+        <div class="card" data-variant="outlined" data-size="small" data-direction="horizontal" style="max-width:560px;--card-horizontal-media-width:60px;--card-horizontal-media-min:60px">
+          <div class="card__media" style="background:var(--color-brand-100);display:flex;align-items:center;justify-content:center">
+            <span style="font-size:20px;opacity:.6">&#9993;</span>
+          </div>
+          <div class="card__content">
+            <div class="card__header" style="border-bottom:none">
+              <div class="card__title-group">
+                <h3 class="card__title" style="font-size:13px">Your deployment is live</h3>
+                <p class="card__subtitle" style="font-size:11px">Production &middot; main@a3f2c1d &middot; 2 min ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product list item -->
+        <div class="card" data-variant="outlined" data-size="base" data-direction="horizontal" style="max-width:560px;--card-horizontal-media-width:140px">
+          <div class="card__media"><div class="fake-img">product</div></div>
+          <div class="card__content">
+            <div class="card__body">
+              <h3 class="card__title">Ergonomic Standing Desk</h3>
+              <p class="card__subtitle" style="margin-top:4px">Height adjustable &middot; Bamboo top</p>
+              <div style="margin-top:12px;display:flex;align-items:baseline;gap:6px">
+                <span class="fake-price" style="font-size:16px">$599</span>
+                <span class="fake-stars" style="font-size:11px">&starf;&starf;&starf;&starf;&star;</span>
+              </div>
+            </div>
+            <div class="card__footer" style="border-top:none;padding-top:0">
+              <div class="card__actions">
+                <button class="fake-btn fake-btn--fill" type="button" style="font-size:12px;padding:5px 12px">Add to Cart</button>
+                <button class="fake-btn" type="button" style="font-size:12px;padding:5px 12px">Compare</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 4. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Structure</span></div>
+    <p class="section-desc">Four structural variants. Each shown with a realistic profile card pattern.</p>
+    <div class="section-body">
+      <div class="variant-grid">
+        <div class="variant-card-wrap">
+          <span class="variant-card-title">Raised</span>
+          <div class="card" data-variant="raised" data-size="base" style="width:100%">
+            <div class="card__header">
+              <div class="card__avatar"><div class="fake-avatar">AB</div></div>
+              <div class="card__title-group">
+                <h3 class="card__title" style="font-size:13px">Alex Bell</h3>
+                <p class="card__subtitle" style="font-size:11px">Engineer</p>
+              </div>
+            </div>
+            <div class="card__body" style="font-size:12px;opacity:.7">Shadow elevation gives depth hierarchy.</div>
+          </div>
+        </div>
+        <div class="variant-card-wrap">
+          <span class="variant-card-title">Outlined</span>
+          <div class="card" data-variant="outlined" data-size="base" style="width:100%">
+            <div class="card__header">
+              <div class="card__avatar"><div class="fake-avatar">CD</div></div>
+              <div class="card__title-group">
+                <h3 class="card__title" style="font-size:13px">Chris Davis</h3>
+                <p class="card__subtitle" style="font-size:11px">Designer</p>
+              </div>
+            </div>
+            <div class="card__body" style="font-size:12px;opacity:.7">Border defines boundaries without shadow.</div>
+          </div>
+        </div>
+        <div class="variant-card-wrap">
+          <span class="variant-card-title">Flat</span>
+          <div class="card" data-variant="flat" data-size="base" style="width:100%">
+            <div class="card__header">
+              <div class="card__avatar"><div class="fake-avatar">EF</div></div>
+              <div class="card__title-group">
+                <h3 class="card__title" style="font-size:13px">Emma Fox</h3>
+                <p class="card__subtitle" style="font-size:11px">Manager</p>
+              </div>
+            </div>
+            <div class="card__body" style="font-size:12px;opacity:.7">Fill only — minimal visual weight.</div>
+          </div>
+        </div>
+        <div class="variant-card-wrap">
+          <span class="variant-card-title">Ghost</span>
+          <div class="card" data-variant="ghost" data-size="base" style="width:100%">
+            <div class="card__header">
+              <div class="card__avatar"><div class="fake-avatar">GH</div></div>
+              <div class="card__title-group">
+                <h3 class="card__title" style="font-size:13px">Grace Hill</h3>
+                <p class="card__subtitle" style="font-size:11px">Intern</p>
+              </div>
+            </div>
+            <div class="card__body" style="font-size:12px;opacity:.7">Transparent — blends with parent surface.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 5. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes control padding, radius, and title font size simultaneously.</p>
+    <div class="section-body">
+      <div class="density-strip" id="densityStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Card appearance on different surface levels.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base">
+          <span class="surface-panel-label">surface-base-bg</span>
+          <div class="card" data-variant="raised" data-size="small" style="width:180px">
+            <div class="card__body"><p style="margin:0;font-size:12px">On base surface</p></div>
+          </div>
+        </div>
+        <div class="surface-panel surface-panel--alt">
+          <span class="surface-panel-label">surface-base-subtle</span>
+          <div class="card" data-variant="raised" data-size="small" style="width:180px">
+            <div class="card__body"><p style="margin:0;font-size:12px">On subtle surface</p></div>
+          </div>
+        </div>
+        <div class="surface-panel surface-panel--deep">
+          <span class="surface-panel-label">surface-deep-bg</span>
+          <div class="card" data-variant="raised" data-size="small" style="width:180px">
+            <div class="card__body"><p style="margin:0;font-size:12px">On deep surface</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. CLICKABLE & SELECTION ═══════════ -->
+  <section class="section" id="sec-clickable">
+    <div class="section-header"><h2>Clickable &amp; Selection</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Overlay-link pattern, interactive hover/active states, multi-select, disabled.</p>
+    <div class="section-body">
+      <div class="select-demo">
+
+        <!-- Interactive (hover me) -->
+        <div class="card" data-variant="raised" data-size="small" data-interactive style="position:relative">
+          <div class="card__body">
+            <h3 class="card__title" style="font-size:13px">Hover &amp; Click</h3>
+            <p style="margin:4px 0 0;font-size:12px;opacity:.6">Lifts on hover, press to activate</p>
+          </div>
+        </div>
+
+        <!-- Selected state -->
+        <div class="card" data-variant="outlined" data-size="small" data-selected>
+          <div class="card__body">
+            <h3 class="card__title" style="font-size:13px">Selected</h3>
+            <p style="margin:4px 0 0;font-size:12px;opacity:.6">Ring + tinted background</p>
+          </div>
+        </div>
+
+        <!-- Disabled -->
+        <div class="card" data-variant="raised" data-size="small" data-disabled>
+          <div class="card__body">
+            <h3 class="card__title" style="font-size:13px">Disabled</h3>
+            <p style="margin:4px 0 0;font-size:12px;opacity:.6">No interaction, reduced opacity</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Overlay link explanation -->
+      <div style="padding:0 32px 24px;max-width:600px">
+        <p style="margin:0;font-size:13px;line-height:1.6;opacity:.8"><strong>Overlay-link pattern:</strong> Add <code>&lt;a class="card__overlay-link"&gt;</code> to make the entire card clickable. Inner buttons/links stay independently clickable via z-index stacking. This is the production pattern for product cards, article cards, and any card that needs a primary action without wrapping everything in an anchor.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 8. ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Cards with proper focus, semantics, and forced-color support.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card-info">
+          <span class="a11y-card-title">Overlay Link</span>
+          <span class="a11y-card-desc"><code>.card__overlay-link</code> gets <code>:focus-visible</code> outline. Inner interactive elements have <code>z-index: 1</code> and remain keyboard-accessible.</span>
+        </div>
+        <div class="a11y-card-info">
+          <span class="a11y-card-title">Heading Hierarchy</span>
+          <span class="a11y-card-desc">Use <code>.card__title</code> with appropriate heading level (h3/h4). Never skip levels. Card title appears in document outline.</span>
+        </div>
+        <div class="a11y-card-info">
+          <span class="a11y-card-title">Forced Colors</span>
+          <span class="a11y-card-desc">All variants get visible <code>ButtonText</code> border. Selection state uses <code>Highlight</code>. Ghost/flat get <code>GrayText</code>.</span>
+        </div>
+        <div class="a11y-card-info">
+          <span class="a11y-card-title">Screen Readers</span>
+          <span class="a11y-card-desc">Overlay link needs <code>aria-label</code> describing the action. Use <code>&lt;article&gt;</code> for standalone cards, <code>&lt;section&gt;</code> for grouped content.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 9. CONTEXT PLAYGROUND ═══════════ -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Grid Utility</span></div>
+    <p class="section-desc">The <code>.card-grid</code> utility provides responsive auto-fill layout. All cards respond to global size/variant controls.</p>
+    <div class="section-body">
+      <div class="playground-grid" id="playgroundGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 10. FRAMEWORK SNIPPETS ═══════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Copy-paste production patterns for React, Vue, HTML, and CSS token overrides.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-tabs">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css">CSS Tokens</button>
+        </div>
+        <pre class="fw-snippet-code" data-panel="react"><code>{/* Product card with overlay link */}
+&lt;Card variant="raised" size="base"&gt;
+  &lt;CardMedia src="/product.jpg" alt="Headphones" /&gt;
+  &lt;CardHeader&gt;
+    &lt;CardTitleGroup&gt;
+      &lt;CardTitle&gt;Product Name&lt;/CardTitle&gt;
+      &lt;CardSubtitle&gt;Category&lt;/CardSubtitle&gt;
+    &lt;/CardTitleGroup&gt;
+  &lt;/CardHeader&gt;
+  &lt;CardBody&gt;$99.00&lt;/CardBody&gt;
+  &lt;CardFooter&gt;
+    &lt;CardActions align="between"&gt;
+      &lt;Button variant="ghost"&gt;Save&lt;/Button&gt;
+      &lt;Button variant="filled"&gt;Add to Cart&lt;/Button&gt;
+    &lt;/CardActions&gt;
+  &lt;/CardFooter&gt;
+  &lt;CardOverlayLink href="/product/123" label="View Product" /&gt;
+&lt;/Card&gt;
+
+{/* Horizontal news card */}
+&lt;Card variant="outlined" direction="horizontal"&gt;
+  &lt;CardMedia src="/thumb.jpg" /&gt;
+  &lt;CardContent&gt;
+    &lt;CardHeader&gt;
+      &lt;CardTitleGroup&gt;
+        &lt;CardTitle&gt;Article Headline&lt;/CardTitle&gt;
+        &lt;CardSubtitle&gt;Source &middot; 3h ago&lt;/CardSubtitle&gt;
+      &lt;/CardTitleGroup&gt;
+    &lt;/CardHeader&gt;
+    &lt;CardBody&gt;Preview text...&lt;/CardBody&gt;
+  &lt;/CardContent&gt;
+&lt;/Card&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="vue"><code>&lt;!-- Dashboard metric card --&gt;
+&lt;DtfCard variant="raised" size="base"&gt;
+  &lt;DtfCardBody&gt;
+    &lt;div class="metric"&gt;
+      &lt;span class="metric-value"&gt;{{ revenue }}&lt;/span&gt;
+      &lt;span class="metric-label"&gt;Monthly Revenue&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/DtfCardBody&gt;
+&lt;/DtfCard&gt;
+
+&lt;!-- Card grid --&gt;
+&lt;DtfCardGrid :columns="3"&gt;
+  &lt;DtfCard v-for="item in items" :key="item.id"
+    variant="outlined" :selected="item.selected"&gt;
+    &lt;DtfCardHeader&gt;
+      &lt;DtfCardAvatar :src="item.avatar" /&gt;
+      &lt;DtfCardTitleGroup&gt;
+        &lt;DtfCardTitle&gt;{{ item.name }}&lt;/DtfCardTitle&gt;
+        &lt;DtfCardSubtitle&gt;{{ item.role }}&lt;/DtfCardSubtitle&gt;
+      &lt;/DtfCardTitleGroup&gt;
+    &lt;/DtfCardHeader&gt;
+  &lt;/DtfCard&gt;
+&lt;/DtfCardGrid&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="html"><code>&lt;!-- Full product card with overlay link --&gt;
+&lt;div class="card" data-variant="raised" data-size="base"&gt;
+  &lt;div class="card__media"&gt;
+    &lt;img src="product.jpg" alt="Product"&gt;
+  &lt;/div&gt;
+  &lt;div class="card__header"&gt;
+    &lt;div class="card__avatar"&gt;&lt;img src="brand.png" alt=""&gt;&lt;/div&gt;
+    &lt;div class="card__title-group"&gt;
+      &lt;h3 class="card__title"&gt;Product Name&lt;/h3&gt;
+      &lt;p class="card__subtitle"&gt;Brand &amp;middot; Category&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;button class="card__header-action"&gt;&amp;hellip;&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="card__body"&gt;Description text&lt;/div&gt;
+  &lt;div class="card__footer"&gt;
+    &lt;div class="card__actions" data-align="between"&gt;
+      &lt;button&gt;Save&lt;/button&gt;
+      &lt;button&gt;Buy Now&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;a class="card__overlay-link" href="/product" aria-label="View Product"&gt;&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;!-- Horizontal card --&gt;
+&lt;div class="card" data-variant="outlined" data-direction="horizontal"&gt;
+  &lt;div class="card__media"&gt;&lt;img src="thumb.jpg" alt=""&gt;&lt;/div&gt;
+  &lt;div class="card__content"&gt;
+    &lt;div class="card__header"&gt;...&lt;/div&gt;
+    &lt;div class="card__body"&gt;...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Responsive card grid --&gt;
+&lt;div class="card-grid" data-columns="3"&gt;
+  &lt;div class="card" data-variant="raised"&gt;...&lt;/div&gt;
+  &lt;div class="card" data-variant="raised"&gt;...&lt;/div&gt;
+  &lt;div class="card" data-variant="raised"&gt;...&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="css"><code>/* Override card tokens for your brand */
+.my-app .card {
+  --card-bg: var(--surface-bright-bg);
+  --card-shadow-raised: var(--shadow-md);
+  --card-radius-base: var(--radius-lg);
+  --card-title-font-weight: var(--font-weight-bold);
+  --card-horizontal-media-width: 160px;
+  --card-avatar-size: 32px;
+  --card-title-line-clamp: 1;
+}
+
+/* Card grid with custom breakpoints */
+.my-grid {
+  --card-grid-min: 240px; /* narrower cards */
+}
+.my-grid .card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-grid-min), 1fr));
+}</code></pre>
+        <pre class="fw-snippet-code" data-panel="slyte" data-active><code>import { DtfComponent } from '@design-token-forge/slyte';
+
+&lt;dtf-component
+  lt-prop-variant="filled"
+  lt-prop-color-role="brand"
+  lt-prop-size="base"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;Content&lt;/template&gt;
+&lt;/dtf-component&gt;</code></pre>
+        
+        
+              </div>
+    </div>
+  </section>
+
+</main>
+</div><!-- .page-content -->
+</div><!-- .page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script src="shared-page.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  var P = window.DTFPage;
+  var SIZES = P.SIZES;
+  var VARIANTS = ['raised', 'outlined', 'flat', 'ghost'];
+
+  var G = { variant: 'raised', size: 'base' };
+
+  function applyGlobals() {
+    document.querySelectorAll('.synced-card').forEach(function(el) {
+      el.dataset.variant = G.variant;
+      el.dataset.size = G.size;
+    });
+    renderDensity();
+    updateInspector();
+  }
+
+  function renderDensity() {
+    var strip = P.clr('densityStrip');
+    if (!strip) return;
+    SIZES.forEach(function(sz) {
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.variant = G.variant;
+      card.dataset.size = sz;
+      card.style.width = '120px';
+      var body = document.createElement('div');
+      body.className = 'card__body';
+      var title = document.createElement('h3');
+      title.className = 'card__title';
+      title.style.fontSize = 'inherit';
+      title.textContent = sz;
+      var sub = document.createElement('p');
+      sub.className = 'card__subtitle';
+      sub.style.fontSize = '10px';
+      sub.textContent = 'density';
+      body.appendChild(title);
+      body.appendChild(sub);
+      card.appendChild(body);
+      var it = P.wrapDensityItem(card, sz);
+      strip.appendChild(it);
+    });
+  }
+
+  function updateInspector() {
+    var el = document.querySelector('.synced-card');
+    if (!el) return;
+    var cs = getComputedStyle(el);
+    var rows = [
+      ['--card-padding-' + G.size,            cs.getPropertyValue('--card-padding-' + G.size).trim(), ''],
+      ['--card-radius-' + G.size,             cs.getPropertyValue('--card-radius-' + G.size).trim(), ''],
+      ['--card-title-font-size-' + G.size,    cs.getPropertyValue('--card-title-font-size-' + G.size).trim(), ''],
+      ['--card-bg',                           cs.getPropertyValue('--card-bg').trim(), ''],
+      ['--card-border-color',                 cs.getPropertyValue('--card-border-color').trim(), ''],
+      ['--card-shadow-raised',                cs.getPropertyValue('--card-shadow-raised').trim(), ''],
+      ['--card-horizontal-media-width',       cs.getPropertyValue('--card-horizontal-media-width').trim(), ''],
+      ['--card-avatar-size',                  cs.getPropertyValue('--card-avatar-size').trim(), ''],
+      ['--card-title-line-clamp',             cs.getPropertyValue('--card-title-line-clamp').trim(), '']
+    ];
+    P.buildInspector('heroInspector', 'Resolved Tokens (' + G.variant + ' / ' + G.size + ')', rows);
+  }
+
+  function renderPlayground() {
+    var grid = P.clr('playgroundGrid');
+    if (!grid) return;
+    var items = [
+      { title: 'Analytics Dashboard', sub: 'View reports', body: 'Track KPIs, user metrics, and revenue growth.' },
+      { title: 'Team Directory', sub: '24 members', body: 'Browse team profiles and contact info.' },
+      { title: 'Project Settings', sub: 'Configuration', body: 'Manage integrations, API keys, and webhooks.' }
+    ];
+    items.forEach(function(item) {
+      var card = document.createElement('div');
+      card.className = 'card synced-card';
+      card.dataset.variant = G.variant;
+      card.dataset.size = G.size;
+      card.dataset.interactive = '';
+
+      var header = document.createElement('div');
+      header.className = 'card__header';
+      var tg = document.createElement('div');
+      tg.className = 'card__title-group';
+      var t = document.createElement('h3');
+      t.className = 'card__title';
+      t.textContent = item.title;
+      var s = document.createElement('p');
+      s.className = 'card__subtitle';
+      s.textContent = item.sub;
+      tg.appendChild(t);
+      tg.appendChild(s);
+      header.appendChild(tg);
+      card.appendChild(header);
+
+      var body = document.createElement('div');
+      body.className = 'card__body';
+      body.style.fontSize = '13px';
+      body.style.opacity = '.7';
+      body.textContent = item.body;
+      card.appendChild(body);
+
+      grid.appendChild(card);
+    });
+  }
+
+  P.wirePillBar('variantBar', 'ctrlVariant', function(v) { G.variant = v; applyGlobals(); renderPlayground(); });
+  P.wirePillBar('sizeBar',    'ctrlSize',    function(v) { G.size = v;    applyGlobals(); renderPlayground(); });
+
+  document.querySelectorAll('.fw-snippet-tabs').forEach(function(tabs) {
+    tabs.addEventListener('click', function(e) {
+      var btn = e.target.closest('.fw-snippet-tab');
+      if (!btn) return;
+      var panel = btn.dataset.tab;
+      var snippet = tabs.closest('.fw-snippet');
+      snippet.querySelectorAll('.fw-snippet-tab').forEach(function(t) { t.setAttribute('aria-selected', 'false'); });
+      btn.setAttribute('aria-selected', 'true');
+      snippet.querySelectorAll('.fw-snippet-code').forEach(function(c) { delete c.dataset.active; });
+      var target = snippet.querySelector('[data-panel="' + panel + '"]');
+      if (target) target.dataset.active = '';
+    });
+  });
+
+  applyGlobals();
+  renderPlayground();
+  window.DTF = window.DTF || {};
+  window.DTF.onThemeChange = function() { applyGlobals(); };
+})();
+</script>
+</body>
+</html>

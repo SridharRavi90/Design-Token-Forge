@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge &#8212; Button Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css?v=20260514l">
+<link rel="stylesheet" href="../packages/components/src/button/button.tokens.css?v=20260514l">
+<link rel="stylesheet" href="../packages/components/src/button/button.css?v=20260514l">
+<link rel="stylesheet" href="shared.css?v=1008">
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Shape &amp; Shadow</a>
+  <a href="#sec-slots"><span class="sn-num">7</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">8</span>Motion</a>
+  <a href="#sec-playground"><span class="sn-num">9</span>Context Playground<span class="sn-tag">New</span></a>
+  <a href="#sec-a11y"><span class="sn-num">10</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Button Explorer <span>&#8212; Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">246 CSS Variables</span>
+    <span class="demo-badge">4 Structures × 6 Roles</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<nav class="global-controls" aria-label="Global button preview controls">
+  <div class="control-group">
+    <label>Structure</label>
+    <div class="pill-bar" id="structBar" role="radiogroup" aria-label="Structure selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-struct="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="soft" type="button">Soft</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="ghost" type="button">Ghost</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Role</label>
+    <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="brand" type="button">Brand</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Shape</label>
+    <div class="pill-bar" id="roundedBar" role="radiogroup" aria-label="Rounded toggle">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-rounded="false" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-rounded="true" type="button">Rounded</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Icon Detail</label>
+    <div class="pill-bar" id="iconDetailBar" role="radiogroup" aria-label="Icon detail toggle">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-icon-detail="default" type="button">Default · 16</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-icon-detail="high" type="button">High · 20</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- 1. HERO -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects the global structure, role, and size controls. Inspector shows the token resolution chain.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview">
+          <button class="btn synced-btn" data-variant="filled" data-size="base" type="button">
+            <span class="btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span>
+            <span class="btn__label">Button</span>
+          </button>
+        </div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- 2. VARIANT GALLERY -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Structure &#215; Role</span></div>
+    <p class="section-desc">
+      <strong>Structural variants</strong> define the surface treatment. <strong>Roles</strong> color them.
+      Top row: all structures in selected role. Bottom row: all roles in selected structure.
+    </p>
+    <div class="section-body">
+      <div class="sub-label">Structural Variants (in selected role)</div>
+      <div class="preview-grid" id="structGallery"></div>
+      <div style="border-top:1px solid var(--demo-border);margin:12px 0"></div>
+      <div class="sub-label">Role Gallery (in selected structure)</div>
+      <div class="preview-grid" id="roleGallery"></div>
+    </div>
+  </section>
+
+  <!-- 3. DENSITY SCALE -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes at the globally selected structure + role. Each maps 8 dimensions: height, padding-x/y, min-width, gap, font-size, radius, icon-size.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- 4. STATE MATRIX -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every structural variant in every interactive state, using the selected role. Hover and focus buttons to see live transitions.</p>
+    <div class="section-body"><div class="state-grid" id="stateMatrix"></div></div>
+  </section>
+
+  <!-- 5. SURFACE CONTEXT -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">All four structural variants on three background levels, using the selected role.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase"><span class="surface-panel-label">surface-base-bg</span></div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt"><span class="surface-panel-label">surface-base-subtle</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep"><span class="surface-panel-label">surface-deep-bg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SHAPE & SHADOW -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Radius scales with density. Shadows reference global shadow tokens.</p>
+    <div class="section-body">
+      <div class="sub-label">Radius per density</div>
+      <div class="density-strip" id="radiusScale"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Shadow presets</div>
+      <div class="shadow-strip" id="shadowStrip"></div>
+    </div>
+  </section>
+
+  <!-- 7. SLOT COMPOSITIONS -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Label, icon-start, icon-end, icon-both, and icon-only. Icon size scales with density.</p>
+    <div class="section-body"><div class="slot-grid" id="slotsDemo"></div></div>
+  </section>
+
+  <!-- 8. MOTION -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Transition durations, easing functions, and loading shimmer. Hover over buttons to see transitions.</p>
+    <div class="section-body"><div class="motion-strip" id="motionDemo"></div></div>
+  </section>
+
+  <!-- 9. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface &#215; Role</span></div>
+    <p class="section-desc">See how buttons adapt across surface contexts and semantic roles. Two cards with independent surface + role. Each card shows all 4 structural variants.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="micro" type="button">micro</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="ultra" type="button">ultra</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option><option value="neutral">Neutral</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA"></div>
+        </div>
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option><option value="neutral">Neutral</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB"></div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 10. ACCESSIBILITY -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, disabled states, reduced motion, and forced-colors handling.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to buttons. <code>:focus-visible</code> shows keyboard-only ring.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="btn synced-btn" data-variant="filled" data-size="base" type="button"><span class="btn__label">Focus me</span></button>
+            <button class="btn synced-btn" data-variant="outlined" data-size="base" type="button"><span class="btn__label">Tab here</span></button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>disabled</code> and <code>data-disabled</code> apply per-variant opacity.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="btn synced-btn" data-variant="filled" data-size="base" disabled type="button"><span class="btn__label">disabled</span></button>
+            <button class="btn synced-btn" data-variant="filled" data-role="danger" data-size="base" data-disabled type="button"><span class="btn__label">data-disabled</span></button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Reduced Motion</div>
+          <p class="a11y-card-desc"><code>prefers-reduced-motion</code> simplifies shimmer and transitions.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="btn synced-btn" data-variant="filled" data-size="base" data-loading type="button"><span class="btn__label">Loading...</span></button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast uses <code>ButtonText</code>, <code>Highlight</code>, <code>GrayText</code>.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="btn synced-btn" data-variant="filled" data-size="base" type="button"><span class="btn__label">HC Mode</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. USE IN YOUR FRAMEWORK -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes &#8212; our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Button Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-btn">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;button
+  className="btn"
+  data-variant={variant}   {/* filled | outlined | soft | ghost */}
+  data-role={role}          {/* brand | danger | warning | info | success | neutral */}
+  data-size={size}          {/* micro &#8230; ultra */}
+  data-rounded={rounded || undefined}
+  data-loading={loading || undefined}
+  disabled={disabled}
+&gt;
+  &lt;span className="btn__label"&gt;{children}&lt;/span&gt;
+&lt;/button&gt;
+
+{/* Legacy single-value variants still work: */}
+{/* data-variant="danger" = data-variant="filled" data-role="danger" */}</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;button
+  class="btn"
+  :data-variant="variant ?? 'filled'"
+  :data-role="role ?? 'brand'"
+  :data-size="size ?? 'base'"
+  :data-rounded="rounded || undefined"
+  :data-loading="loading || undefined"
+  :disabled="disabled"
+&gt;
+  &lt;span class="btn__label"&gt;&lt;slot /&gt;&lt;/span&gt;
+&lt;/button&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;!-- Orthogonal API (recommended) --&gt;
+&lt;button class="btn" data-variant="filled" data-role="brand" data-size="base"&gt;
+  &lt;span class="btn__label"&gt;Submit&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- Outlined + Danger --&gt;
+&lt;button class="btn" data-variant="outlined" data-role="danger" data-size="base"&gt;
+  &lt;span class="btn__label"&gt;Cancel&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- Legacy (backward compat) --&gt;
+&lt;button class="btn" data-variant="filled" data-role="danger" data-size="base"&gt;
+  &lt;span class="btn__label"&gt;Delete&lt;/span&gt;
+&lt;/button&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--btn-radius-{size}           /* border radius per density */
+--btn-radius-rounded          /* pill override */
+--btn-shadow / -hover / -active
+
+/* Dimension */
+--btn-height-{size}           /* height per density step */
+--btn-padding-x-{size}        /* horizontal padding */
+--btn-padding-y-{size}        /* vertical padding */
+--btn-gap-{size}              /* icon-label gap */
+
+/* Surface (structural groups; role remaps via --brand-* cascade) */
+--btn-filled-*      (solid background, role-colored)
+--btn-outlined-*    (border emphasis, role-colored)
+--btn-soft-*        (tinted container, role-colored)
+--btn-ghost-*       (no chrome, role-colored on hover)
+
+/* Typography */
+--btn-font-family / --btn-font-weight
+--btn-font-size-{size}
+
+/* Slots */
+--btn-icon-size-{size}
+--btn-icon-color / -hover
+--btn-loader-color / -speed
+
+/* Motion */
+--btn-transition-duration / -easing / -property
+
+/* A11y */
+--btn-focus-outline-width / -offset / -color
+--btn-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfButton } from '@design-token-forge/slyte';
+
+&lt;dtf-button
+  lt-prop-variant="filled"
+  lt-prop-color-role="brand"
+  lt-prop-size="base"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;Submit&lt;/template&gt;
+&lt;/dtf-button&gt;
+
+&lt;!-- Outlined danger --&gt;
+&lt;dtf-button lt-prop-variant="outlined" lt-prop-color-role="danger" lt-prop-disabled="true"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;Delete&lt;/template&gt;
+&lt;/dtf-button&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div>
+</div>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var STRUCTS = ['filled','outlined','soft','ghost'];
+  var ROLES   = ['brand','danger','success','warning','info','neutral'];
+  var SIZES   = ['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+
+  var SIZE_HT = {micro:'24px',tiny:'28px',small:'32px',base:'36px',medium:'40px',large:'44px',big:'48px',huge:'56px',mega:'64px',ultra:'72px'};
+  var RADIUS_TK = {micro:'radius-sm',tiny:'radius-sm-md',small:'radius-md',base:'radius-md',medium:'radius-DEFAULT',large:'radius-DEFAULT',big:'radius-md-lg',huge:'radius-lg',mega:'radius-lg-xl',ultra:'radius-xl'};
+  var SHADOWS = ['none','xs','sm','DEFAULT','md','lg','xl','2xl'];
+
+  var ICON_PLUS  = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>';
+  var ICON_ARROW = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
+  var ICON_CHECK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>';
+
+  var ROLE_LABELS = {
+    brand: {filled:'Submit',outlined:'Cancel',soft:'Details',ghost:'Skip'},
+    danger:  {filled:'Delete',outlined:'Remove',soft:'Archive',ghost:'Undo'},
+    success: {filled:'Confirm',outlined:'Approve',soft:'Review',ghost:'OK'},
+    warning: {filled:'Proceed',outlined:'Override',soft:'Caution',ghost:'Skip'},
+    brand:   {filled:'Get Started',outlined:'Learn More',soft:'Features',ghost:'Skip'},
+    info:    {filled:'Learn More',outlined:'View Docs',soft:'FAQ',ghost:'Info'},
+    neutral: {filled:'Dismiss',outlined:'Close',soft:'Options',ghost:'More'}
+  };
+
+  var curStruct = 'filled', curRole = 'brand', curS = 'base', curRounded = false, curIconDetail = 'default';
+
+  function makeBtn(struct, role, s, label, o) {
+    o = o || {};
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn';
+    if (!o.noSync) b.classList.add('synced-btn');
+    b.dataset.variant = struct;
+    if (role && role !== 'brand') b.dataset.role = role;
+    if (struct === 'ghost' && role === 'brand') b.dataset.role = 'brand';
+    b.dataset.size = s;
+    if (o.disabled) b.disabled = true;
+    if (o.loading) b.dataset.loading = '';
+    if (curRounded && !o.noRounded) b.dataset.rounded = '';
+    if (curIconDetail === 'high' && !o.noIconDetail) b.dataset.iconDetail = 'high';
+    if (o.iconStart) { var i=document.createElement('span'); i.className='btn__icon'; i.innerHTML=o.iconStartSvg||ICON_PLUS; b.appendChild(i); }
+    if (label !== false) { var l=document.createElement('span'); l.className='btn__label'; l.textContent=label||'Button'; b.appendChild(l); }
+    if (o.iconEnd) { var e=document.createElement('span'); e.className='btn__icon'; e.innerHTML=o.iconEndSvg||ICON_ARROW; b.appendChild(e); }
+    if (o.style) { for (var k in o.style) { if (o.style.hasOwnProperty(k)) b.style.setProperty(k, o.style[k]); } }
+    return b;
+  }
+
+  function wrapCard(b,t) { var d=document.createElement('div'); d.className='variant-card'; d.appendChild(b); var l=document.createElement('span'); l.className='variant-label'; l.textContent=t; d.appendChild(l); return d; }
+  function clr(id) { var e=document.getElementById(id); e.innerHTML=''; return e; }
+  function cap(s)  { return s.charAt(0).toUpperCase()+s.slice(1); }
+  function cell(p,c) { var d=document.createElement('div'); d.appendChild(c); p.appendChild(d); }
+  function labelFor(st,r) { var l=ROLE_LABELS[r]; return l&&l[st]?l[st]:cap(st); }
+
+  /* ── Section Renderers ──────────────────────────────────── */
+
+  function renderStructGallery() {
+    var el = clr('structGallery');
+    STRUCTS.forEach(function(st) { el.appendChild(wrapCard(makeBtn(st, curRole, curS, labelFor(st, curRole), {iconStart:true, noSync:true}), st)); });
+  }
+
+  function renderRoleGallery() {
+    var el = clr('roleGallery');
+    ROLES.forEach(function(r) { el.appendChild(wrapCard(makeBtn(curStruct, r, curS, labelFor(curStruct, r), {iconStart:true, noSync:true}), r)); });
+  }
+
+  function renderDensity() {
+    var el = clr('densityScale');
+    SIZES.forEach(function(s) {
+      var it=document.createElement('div'); it.className='density-item';
+      var btn=makeBtn(curStruct, curRole, s, cap(s), {iconStart:true, noSync:true, style:{'min-width':'0','min-height':'0'}});
+      it.appendChild(btn);
+      var m=document.createElement('div'); m.className='density-meta';
+      requestAnimationFrame(function(){
+        var v=getComputedStyle(btn).getPropertyValue('--btn-height-'+s).trim();
+        m.textContent=v||'\u2014';
+      });
+      m.textContent='\u2026';
+      it.appendChild(m); el.appendChild(it);
+    });
+  }
+
+  function renderStates() {
+    var el = clr('stateMatrix');
+    var sts = ['Default','Hover','Active','Focus','Disabled','Loading'];
+    var corner=document.createElement('div'); corner.className='state-header'; el.appendChild(corner);
+    sts.forEach(function(s) { var h=document.createElement('div'); h.className='state-header'; h.textContent=s; el.appendChild(h); });
+    STRUCTS.forEach(function(st) {
+      var rl=document.createElement('div'); rl.className='state-row-label'; rl.textContent=st; el.appendChild(rl);
+      cell(el, makeBtn(st, curRole, curS, cap(st), {noSync:true}));
+      cell(el, makeBtn(st, curRole, curS, cap(st), {noSync:true}));
+      cell(el, makeBtn(st, curRole, curS, cap(st), {noSync:true}));
+      cell(el, makeBtn(st, curRole, curS, cap(st), {noSync:true}));
+      cell(el, makeBtn(st, curRole, curS, cap(st), {disabled:true, noSync:true}));
+      cell(el, makeBtn(st, curRole, curS, 'Loading...', {loading:true, noSync:true}));
+    });
+  }
+
+  var SURFACE_TOKENS=['bg','hover','pressed','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+
+  function renderSurface() {
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id) {
+      var p=document.getElementById(id);
+      while(p.children.length>1) p.removeChild(p.lastChild);
+      if(id==='surfaceDeep'){applySurface(p,'deep');}
+      STRUCTS.forEach(function(st) { p.appendChild(makeBtn(st, curRole, curS, cap(st), {iconStart:true})); });
+    });
+  }
+
+  function renderRadius() {
+    var el = clr('radiusScale');
+    SIZES.forEach(function(s) {
+      var it=document.createElement('div'); it.className='density-item';
+      it.appendChild(makeBtn(curStruct, curRole, s, cap(s), {noSync:true, style:{'min-width':'0','min-height':'0'}}));
+      var m=document.createElement('div'); m.className='density-meta'; m.textContent=RADIUS_TK[s]; it.appendChild(m); el.appendChild(it);
+    });
+  }
+
+  function renderShadows() {
+    var el = clr('shadowStrip');
+    SHADOWS.forEach(function(s) {
+      var it=document.createElement('div'); it.className='density-item';
+      it.appendChild(makeBtn(curStruct, curRole, curS, s==='DEFAULT'?'default':s, {noSync:true, style:{'--btn-shadow':'var(--shadow-'+s+')','--btn-shadow-hover':'var(--shadow-'+s+')'}}));
+      var m=document.createElement('div'); m.className='density-meta'; m.textContent='--shadow-'+s; it.appendChild(m); el.appendChild(it);
+    });
+  }
+
+  function renderSlots() {
+    var el = clr('slotsDemo');
+    [{label:'Label only',text:'Button',opts:{}},{label:'Icon + Label',text:'Button',opts:{iconStart:true}},{label:'Label + Arrow',text:'Continue',opts:{iconEnd:true}},{label:'Both Icons',text:'Confirm',opts:{iconStart:true,iconStartSvg:ICON_CHECK,iconEnd:true}},{label:'Icon only',text:false,opts:{iconStart:true}}].forEach(function(c) {
+      var cd=document.createElement('div'); cd.className='slot-card';
+      cd.appendChild(makeBtn(curStruct, curRole, curS, c.text, c.opts));
+      var l=document.createElement('span'); l.className='slot-label'; l.textContent=c.label; cd.appendChild(l); el.appendChild(cd);
+    });
+  }
+
+  function renderMotion() {
+    var el = clr('motionDemo');
+    [{label:'Normal',sub:'duration-normal',opts:{iconStart:true}},{label:'Loading...',sub:'1.8s linear shimmer',opts:{loading:true}},{label:'Fast',sub:'duration-fast',opts:{style:{'--btn-transition-duration':'var(--duration-fast)','--btn-transition-easing':'var(--easing-in)'}}},{label:'Slow bounce',sub:'duration-slow',opts:{style:{'--btn-transition-duration':'var(--duration-slow)','--btn-transition-easing':'var(--easing-bounce)'}}}].forEach(function(it) {
+      var cd=document.createElement('div'); cd.className='motion-card';
+      cd.appendChild(makeBtn(curStruct, curRole, curS, it.label, it.opts));
+      var l=document.createElement('span'); l.className='motion-label'; l.textContent=it.sub; cd.appendChild(l); el.appendChild(cd);
+    });
+  }
+
+  /* ── Inspector ──────────────────────────────────────────── */
+  var BTN_TOKENS = {
+    height:{micro:'--spacing-24',tiny:'--spacing-28',small:'--spacing-32',base:'--spacing-36',medium:'--spacing-40',large:'--spacing-44',big:'--spacing-48',huge:'--spacing-56',mega:'--spacing-64',ultra:'--spacing-72'},
+    px:{micro:'--spacing-4',tiny:'--spacing-6',small:'--spacing-8',base:'--spacing-10',medium:'--spacing-10',large:'--spacing-12',big:'--spacing-14',huge:'--spacing-14',mega:'--spacing-16',ultra:'--spacing-20'},
+    pxIcon:{micro:'--spacing-3',tiny:'--spacing-4',small:'--spacing-5',base:'--spacing-6',medium:'--spacing-8',large:'--spacing-8',big:'--spacing-10',huge:'--spacing-12',mega:'--spacing-14',ultra:'--spacing-16'},
+    py:{micro:'--spacing-2',tiny:'--spacing-3',small:'--spacing-4',base:'--spacing-6',medium:'--spacing-8',large:'--spacing-10',big:'--spacing-12',huge:'--spacing-14',mega:'--spacing-16',ultra:'--spacing-20'},
+    radius:{micro:'--radius-sm',tiny:'--radius-sm',small:'--radius-md',base:'--radius-md',medium:'--radius-DEFAULT',large:'--radius-DEFAULT',big:'--radius-md-lg',huge:'--radius-md-lg',mega:'--radius-lg',ultra:'--radius-lg-xl'},
+    gap:{micro:'--spacing-2',tiny:'--spacing-2',small:'--spacing-3',base:'--spacing-4',medium:'--spacing-4',large:'--spacing-5',big:'--spacing-6',huge:'--spacing-6',mega:'--spacing-8',ultra:'--spacing-8'},
+    fs:{micro:'--font-size-10',tiny:'--font-size-11',small:'--font-size-12',base:'--font-size-13',medium:'--font-size-14',large:'--font-size-14',big:'--font-size-16',huge:'--font-size-18',mega:'--font-size-20',ultra:'--font-size-22'},
+    iconSize:{micro:'--spacing-12',tiny:'--spacing-12',small:'--spacing-16',base:'--spacing-16',medium:'--spacing-20',large:'--spacing-20',big:'--spacing-24',huge:'--spacing-24',mega:'--spacing-32',ultra:'--spacing-32'},
+    minW:{micro:'--spacing-40',tiny:'--spacing-48',small:'--spacing-54',base:'--spacing-64',medium:'--spacing-72',large:'--spacing-80',big:'--spacing-80',huge:'--spacing-96',mega:'--spacing-112',ultra:'--spacing-120'}
+  };
+
+  var STRUCT_TOKEN = {filled:'brand',outlined:'secondary',soft:'tertiary',ghost:'ghost'};
+  var ROLE_PREFIX  = {danger:'danger',success:'success',warning:'warning',info:'info',neutral:'surface-base'};
+
+  function updateInspector() {
+    var hb=document.querySelector('.hero-preview .btn'); if(!hb) return;
+    var cs=getComputedStyle(hb), s=curS, tg=STRUCT_TOKEN[curStruct]||'brand';
+    var rp=ROLE_PREFIX[curRole]||'brand', isN=curRole==='neutral';
+    var hasIcon=!!hb.querySelector('.btn__icon:first-child');
+    var rows=[
+      ['--btn-height-'+s, BTN_TOKENS.height[s], cs.getPropertyValue('--_btn-height').trim()],
+      ['--btn-padding-x-'+s, BTN_TOKENS.px[s], cs.paddingRight],
+      [hasIcon?'--btn-padding-x-icon-'+s:'--btn-padding-x-'+s, hasIcon?BTN_TOKENS.pxIcon[s]:BTN_TOKENS.px[s], cs.paddingLeft],
+      ['--btn-padding-y-'+s, BTN_TOKENS.py[s], cs.paddingTop],
+      [curRounded?'--btn-radius-rounded':'--btn-radius-'+s, curRounded?'--radius-full':BTN_TOKENS.radius[s], cs.borderRadius],
+      ['--btn-gap-'+s, BTN_TOKENS.gap[s], cs.gap],
+      ['--btn-font-size-'+s, BTN_TOKENS.fs[s], cs.fontSize],
+      ['--btn-icon-size-'+s, BTN_TOKENS.iconSize[s], cs.getPropertyValue('--_btn-icon-size').trim()||'\u2014'],
+      (curIconDetail==='high' ? ['--btn-icon-size-detail-high', '--spacing-20', cs.getPropertyValue('--_btn-icon-size').trim()] : null),
+      ['--btn-min-width-'+s, BTN_TOKENS.minW[s], cs.minWidth],
+      ['--btn-'+tg+'-bg', isN?'--surface-base-cm-bg':'--'+rp+'-component-bg-default', cs.backgroundColor],
+      ['--btn-'+tg+'-fg', isN?'--surface-base-ct-default':(tg==='brand'?'--'+rp+'-on-component':'--'+rp+'-content-default'), cs.color],
+      ['--btn-'+tg+'-border-color', '\u2014', cs.borderColor],
+      ['--btn-shadow', '\u2014', cs.boxShadow==='none'?'none':cs.boxShadow],
+      ['--btn-font-weight', '\u2014', cs.fontWeight],
+      ['--btn-transition-duration', '--duration-normal', cs.transitionDuration]
+    ];
+    var ins=document.getElementById('heroInspector');
+    ins.innerHTML='<div class="inspector-title">Resolved Tokens ('+curStruct+' / '+curRole+' / '+s+')</div>'+
+      rows.filter(Boolean).map(function(t){return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+t[2]+(t[1]!=='\u2014'?'<br><span style="opacity:0.5;font-size:9px">\u2192 '+t[1]+'</span>':'')+'</span></div>';}).join('');
+  }
+
+  /* ── Apply Global Controls ──────────────────────────────── */
+  function applyGlobals() {
+    var hb=document.querySelector('.hero-preview .btn');
+    if(hb){
+      hb.dataset.variant=curStruct;
+      if(curRole!=='brand'||curStruct==='ghost'){hb.dataset.role=curRole;}else{delete hb.dataset.role;}
+      hb.dataset.size=curS;
+      if(curRounded)hb.dataset.rounded='';else delete hb.dataset.rounded;
+      if(curIconDetail==='high')hb.dataset.iconDetail='high';else delete hb.dataset.iconDetail;
+    }
+    document.querySelectorAll('.a11y-grid .synced-btn').forEach(function(b){
+      if(!b.dataset.role||b.dataset.role!=='danger'){
+        b.dataset.variant=curStruct;
+        if(curRole!=='brand'||curStruct==='ghost'){b.dataset.role=curRole;}else{delete b.dataset.role;}
+      }
+      b.dataset.size=curS;
+      if(curRounded)b.dataset.rounded='';else delete b.dataset.rounded;
+      if(curIconDetail==='high')b.dataset.iconDetail='high';else delete b.dataset.iconDetail;
+    });
+    renderStructGallery(); renderRoleGallery(); renderDensity(); renderStates();
+    renderSurface(); renderRadius(); renderShadows(); renderSlots(); renderMotion();
+    requestAnimationFrame(updateInspector);
+  }
+
+  function wirePill(barId,attr,cb){
+    document.getElementById(barId).addEventListener('click',function(e){
+      var pill=e.target.closest('.pill'); if(!pill)return;
+      this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false');});
+      pill.setAttribute('aria-pressed','true'); cb(pill.dataset[attr]);
+    });
+  }
+
+  wirePill('structBar','ctrlStruct',function(v){curStruct=v;applyGlobals();});
+  wirePill('roleBar','ctrlRole',function(v){curRole=v;applyGlobals();});
+  wirePill('sizeBar','ctrlSize',function(v){curS=v;applyGlobals();});
+  wirePill('roundedBar','ctrlRounded',function(v){curRounded=v==='true';applyGlobals();});
+  wirePill('iconDetailBar','ctrlIconDetail',function(v){curIconDetail=v;applyGlobals();});
+
+  window.DTF.onThemeChange = updateInspector;
+  applyGlobals();
+
+  /* ── Context Playground ─────────────────────────────────── */
+  var ROLE_REMAP=['component-bg-default','component-bg-hover','component-bg-pressed','on-component','content-default','content-strong','content-subtle','content-faint','component-outline-default','component-outline-hover','component-outline-pressed','component-separator','container-bg','container-hover','container-pressed','container-outline','container-separator','on-container'];
+  var pgSize='base';
+
+  function applySurface(el,sid){
+    if(sid==='base'){SURFACE_TOKENS.forEach(function(t){el.style.removeProperty('--surface-base-'+t);});el.style.background='var(--surface-base-bg)';el.removeAttribute('data-theme');}
+    else{SURFACE_TOKENS.forEach(function(t){el.style.setProperty('--surface-base-'+t,'var(--surface-'+sid+'-'+t+')');});el.style.background='var(--surface-'+sid+'-bg)';if(sid==='inverse'){el.setAttribute('data-theme','dark');}else{el.removeAttribute('data-theme');}}
+  }
+
+  function applyRole(el,rid){
+    if(rid==='brand'){ROLE_REMAP.forEach(function(t){el.style.removeProperty('--brand-'+t);});}
+    else if(rid==='neutral'){
+      el.style.setProperty('--brand-component-bg-default','var(--surface-base-cm-bg)');
+      el.style.setProperty('--brand-component-bg-hover','var(--surface-base-cm-bg-hover)');
+      el.style.setProperty('--brand-component-bg-pressed','var(--surface-base-cm-bg-pressed)');
+      el.style.setProperty('--brand-on-component','var(--surface-base-ct-default)');
+      el.style.setProperty('--brand-content-default','var(--surface-base-ct-default)');
+      el.style.setProperty('--brand-container-bg','var(--surface-base-subtle)');
+      el.style.setProperty('--brand-container-hover','var(--surface-base-strong)');
+      el.style.setProperty('--brand-container-pressed','var(--surface-base-strong)');
+      el.style.setProperty('--brand-component-outline-default','var(--surface-base-cm-outline)');
+      el.style.setProperty('--brand-component-outline-hover','var(--surface-base-cm-outline-hover)');
+      el.style.setProperty('--brand-component-outline-pressed','var(--surface-base-cm-outline-pressed)');
+    } else {
+      ROLE_REMAP.forEach(function(t){el.style.setProperty('--brand-'+t,'var(--'+rid+'-'+t+')');});
+    }
+  }
+
+  function pgBuildCard(card){
+    var body=document.getElementById('pgBody'+card); body.innerHTML='';
+    var role=document.querySelector('[data-pg-role="'+card+'"]').value;
+    var labels=ROLE_LABELS[role]||ROLE_LABELS.primary;
+    STRUCTS.forEach(function(st){
+      var row=document.createElement('div'); row.className='pg-variant-row';
+      var lbl=document.createElement('span'); lbl.className='pg-variant-label'; lbl.textContent=cap(st); row.appendChild(lbl);
+      row.appendChild(makeBtn(st,'brand',pgSize,labels[st]||cap(st),{noSync:true}));
+      body.appendChild(row);
+    });
+    var drow=document.createElement('div'); drow.className='pg-variant-row';
+    var dlbl=document.createElement('span'); dlbl.className='pg-variant-label'; dlbl.textContent='Disabled'; drow.appendChild(dlbl);
+    drow.appendChild(makeBtn('filled','brand',pgSize,'Disabled',{disabled:true,noSync:true}));
+    body.appendChild(drow);
+  }
+
+  function pgApplyCard(card){
+    var body=document.getElementById('pgBody'+card);
+    applySurface(body,document.querySelector('[data-pg-surface="'+card+'"]').value);
+    applyRole(body,document.querySelector('[data-pg-role="'+card+'"]').value);
+    pgBuildCard(card);
+  }
+
+  function pgUpdateChain(){
+    var chain=document.getElementById('pgChain');
+    var s=document.querySelector('[data-pg-surface="A"]').value;
+    var r=document.querySelector('[data-pg-role="A"]').value;
+    var body=document.getElementById('pgBodyA');
+    var fb=body.querySelector('.btn[data-variant="filled"]');
+    var ob=body.querySelector('.btn[data-variant="outlined"]');
+    var cs=fb?getComputedStyle(fb):null, cs2=ob?getComputedStyle(ob):null;
+    var isN=(r==='neutral'), rp=isN?'surface-'+s:r;
+    var rows=[
+      {sec:'Filled ('+r+')'},
+      {label:'BG',token:'--btn-filled-bg',via:'--'+rp+(isN?'-cm-bg':'-component-bg-default'),val:cs?cs.backgroundColor:''},
+      {label:'BG Hover',token:'--btn-filled-bg-hover',via:'--'+rp+(isN?'-cm-bg-hover':'-component-bg-hover')},
+      {label:'FG',token:'--btn-filled-fg',via:'--'+rp+(isN?'-ct-default':'-on-component'),val:cs?cs.color:''},
+      {sec:'Outlined ('+r+')'},
+      {label:'BG Hover',token:'--btn-outlined-bg-hover',via:'--'+rp+(isN?'-subtle':'-container-bg')},
+      {label:'FG',token:'--btn-outlined-fg',via:'--'+rp+(isN?'-ct-default':'-content-default'),val:cs2?cs2.color:''},
+      {label:'Border',token:'--btn-outlined-border-color',via:'--'+rp+(isN?'-outline':'-component-outline-default')},
+      {sec:'Soft ('+r+')'},
+      {label:'BG',token:'--btn-soft-bg',via:'--'+rp+(isN?'-subtle':'-container-bg')},
+      {label:'FG',token:'--btn-soft-fg',via:'--'+rp+(isN?'-ct-default':'-content-default')},
+      {sec:'Ghost ('+r+')'},
+      {label:'BG Hover',token:'--btn-ghost-bg-hover',via:isN?'--surface-'+s+'-subtle':'--'+r+'-container-bg'},
+      {label:'FG',token:'--btn-ghost-fg',via:isN?'--surface-'+s+'-ct-default':'--'+r+'-content-default'},
+      {sec:'Focus Ring'},
+      {label:'Outline',token:'--btn-focus-outline-color',via:'--'+rp+(isN?'-cm-outline':'-component-outline-default')}
+    ];
+    var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row){
+      if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+      h+='<div class="pg-chain-row">';
+      if(row.val)h+='<span class="pg-swatch" style="background:'+row.val+'"></span>';
+      h+='<span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span>';
+      if(row.val)h+=' <span class="pg-chain-arrow">\u2192</span> <span style="font-weight:600">'+row.val+'</span>';
+      h+='</div>';
+    });
+    chain.innerHTML=h;
+  }
+
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var card=this.dataset.pgSurface||this.dataset.pgRole;
+      pgApplyCard(card); requestAnimationFrame(pgUpdateChain);
+    });
+  });
+
+  document.getElementById('pgDensityBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill'); if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false');});
+    pill.setAttribute('aria-pressed','true'); pgSize=pill.dataset.pgSize;
+    pgApplyCard('A'); pgApplyCard('B'); requestAnimationFrame(pgUpdateChain);
+  });
+
+  pgApplyCard('A'); pgApplyCard('B'); requestAnimationFrame(pgUpdateChain);
+
+})();
+</script>
+</body>
+</html>

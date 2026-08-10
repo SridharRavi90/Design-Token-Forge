@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Component Builder — UX Mockup (compressed)</title>
+<style>
+  :root {
+    --dtf-surface:#FFFFFF;
+    --dtf-surface-alt:#F7F7F8;
+    --dtf-surface-deep:#EEEEF1;
+    --dtf-border:#E5E5E8;
+    --dtf-border-strong:#D4D4D8;
+    --dtf-fg-strong:#1A1A1A;
+    --dtf-fg:#3F3F46;
+    --dtf-fg-subtle:#71717A;
+    --dtf-fg-faint:#A1A1AA;
+    --dtf-brand-bg:#3366F0;
+    --dtf-brand-bg-hover:#2952D9;
+    --dtf-info-bg-soft:#DBEAFE;
+    --dtf-info-content:#1E40AF;
+    --dtf-info-border:#BFDBFE;
+    --dtf-warning-bg-soft:#FEF3CD;
+    --dtf-warning-content:#92400E;
+    --dtf-warning-border:#FDBA74;
+    --dtf-purple-bg-soft:#EDE9FE;
+    --dtf-purple-content:#5B21B6;
+    --dtf-purple-border:#DDD6FE;
+    --dtf-danger-bg-soft:#FEE2E2;
+    --dtf-danger-content:#991B1B;
+    --dtf-danger-border:#FCA5A5;
+    --dtf-radius-sm:4px;
+    --dtf-radius-md:6px;
+    --dtf-radius-pill:999px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+    background: #d8d8dc;
+    color: var(--dtf-fg);
+    padding: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+    gap: 28px;
+    align-items: start;
+  }
+  .plugin {
+    width: 480px;
+    background: var(--dtf-surface);
+    border-radius: 8px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .plugin-title {
+    height: 36px; padding: 0 12px;
+    background: #1f1f24; color: white;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 500;
+  }
+  .plugin-title .ic { width: 14px; height: 14px; border-radius: 3px; background: #4d4d5a; }
+  .plugin-title .gap { flex: 1; }
+  .plugin-title .x { color: #9c9cab; cursor: pointer; }
+  .topbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--dtf-border);
+  }
+  .proj { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .proj .dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+  .topbar .gap { flex: 1; }
+  .iconbtn { width: 24px; height: 24px; border: none; background: transparent; border-radius: 999px; cursor: pointer; }
+  .avatar { width: 24px; height: 24px; border-radius: 999px; background: #d4d4d8; color: #52525b; display: grid; place-items: center; font-weight: 600; font-size: 11px; }
+
+  .tabs { display: flex; gap: 16px; padding: 0 14px; border-bottom: 1px solid var(--dtf-border); }
+  .tab {
+    padding: 10px 0; font-weight: 600; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: var(--dtf-fg-subtle);
+  }
+  .tab[aria-selected="true"] { color: var(--dtf-fg-strong); border-bottom-color: var(--dtf-brand-bg); }
+
+  .body { padding: 14px; }
+
+  .comp-list {
+    border: 1px solid var(--dtf-border);
+    border-radius: var(--dtf-radius-md);
+    overflow: hidden;
+  }
+  .comp-row {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: start;
+    border-bottom: 1px solid var(--dtf-border);
+    cursor: pointer;
+  }
+  .comp-row:last-child { border-bottom: none; }
+  .comp-row[data-tint="drift"]     { background: rgba(214,29,32,0.04); }
+  .comp-row[data-tint="structure"] { background: rgba(166,98,8,0.03); }
+  .comp-row[data-tint="proto"]     { background: rgba(91,33,182,0.03); }
+  .comp-row[data-tint="bindings"]  { background: rgba(51,102,240,0.03); }
+
+  .comp-row input[type="checkbox"] {
+    margin: 2px 0 0; accent-color: var(--dtf-brand-bg);
+    width: 14px; height: 14px;
+  }
+  .comp-head {
+    display: flex; align-items: baseline; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .comp-name { font-weight: 600; color: var(--dtf-fg-strong); font-size: 13px; }
+  .comp-when { color: var(--dtf-fg-faint); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .comp-action {
+    color: var(--dtf-fg); font-size: 11px;
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+  .comp-action.idle  { color: var(--dtf-fg-faint); font-style: italic; }
+  .comp-action .nums { color: var(--dtf-fg-strong); font-weight: 600; }
+
+  .pill {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: var(--dtf-radius-pill);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+  .pill[data-kind="bindings"]  { background: var(--dtf-info-bg-soft);    color: var(--dtf-info-content);    border: 1px solid var(--dtf-info-border); }
+  .pill[data-kind="structure"] { background: var(--dtf-warning-bg-soft); color: var(--dtf-warning-content); border: 1px solid var(--dtf-warning-border); }
+  .pill[data-kind="proto"]     { background: var(--dtf-purple-bg-soft);  color: var(--dtf-purple-content);  border: 1px solid var(--dtf-purple-border); }
+  .pill[data-kind="drift"]     { background: var(--dtf-danger-bg-soft);  color: var(--dtf-danger-content);  border: 1px solid var(--dtf-danger-border); }
+  .pill[data-kind="new"]       { background: var(--dtf-surface-alt);     color: var(--dtf-fg-subtle);       border: 1px solid var(--dtf-border); }
+
+  .footer {
+    border-top: 1px solid var(--dtf-border);
+    padding: 12px 14px 10px;
+    background: var(--dtf-surface);
+  }
+  .btn {
+    border: none; cursor: pointer;
+    padding: 10px 14px;
+    border-radius: var(--dtf-radius-sm);
+    font: inherit; font-weight: 600; font-size: 12px;
+    width: 100%;
+  }
+  .btn-primary { background: var(--dtf-brand-bg); color: white; }
+  .btn-primary:disabled { background: var(--dtf-surface-deep); color: var(--dtf-fg-faint); cursor: default; }
+  .footnote {
+    margin: 8px 2px 0;
+    font-size: 10px;
+    color: var(--dtf-fg-faint);
+    text-align: center;
+  }
+
+  .busy {
+    position: relative; min-height: 220px;
+    border: 1px solid var(--dtf-border);
+    border-radius: var(--dtf-radius-md);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px; padding: 24px;
+    background: var(--dtf-surface-alt);
+  }
+  .spinner {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 3px solid var(--dtf-border);
+    border-top-color: var(--dtf-brand-bg);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .mock-label {
+    color: #44444a; font-size: 13px; font-weight: 600;
+    margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mock-label .num {
+    width: 22px; height: 22px;
+    background: #1f1f24; color: white;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .mock-note {
+    color: #5b5b66; font-size: 11px; line-height: 1.5;
+    margin: 8px 0 0;
+  }
+
+  .legend {
+    background: var(--dtf-surface);
+    border-radius: var(--dtf-radius-md);
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .legend h2 { margin: 0 0 12px; font-size: 14px; }
+  .legend table { width: 100%; border-collapse: collapse; }
+  .legend td { padding: 6px 8px; vertical-align: top; border-bottom: 1px solid var(--dtf-border); font-size: 11px; }
+  .legend tr:last-child td { border-bottom: none; }
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+  <!-- 0. First time -->
+  <div>
+    <h3 class="mock-label"><span class="num">0</span>First time</h3>
+    <div class="plugin">
+      <div class="plugin-title"><div class="ic"></div><div>Design Token Forge</div><div class="gap"></div><div class="x">×</div></div>
+      <div class="topbar"><div class="proj"><span class="dot"></span> Pearl</div><div class="gap"></div><button class="iconbtn">⋯</button><div class="avatar">S</div></div>
+      <div class="tabs"><div class="tab">Sync</div><div class="tab" aria-selected="true">Builder</div></div>
+      <div class="body">
+        <div class="comp-list">
+          <label class="comp-row">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head"><span class="comp-name">Button</span> <span class="pill" data-kind="new">new</span></div>
+              <div class="comp-action">Will create <span class="nums">264 variants</span> bound to Pearl tokens.</div>
+            </div>
+          </label>
+          <label class="comp-row">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head"><span class="comp-name">Split Button</span> <span class="pill" data-kind="new">new</span></div>
+              <div class="comp-action">Will create <span class="nums">80 variants</span>.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary">Build components</button>
+        <div class="footnote">Existing IDs and library references are always preserved.</div>
+      </div>
+    </div>
+    <p class="mock-note">First build. CTA reads <strong>Build</strong>. Each row says <em>what will happen</em> in one short clause.</p>
+  </div>
+
+
+  <!-- 1. Clean -->
+  <div>
+    <h3 class="mock-label"><span class="num">1</span>Clean</h3>
+    <div class="plugin">
+      <div class="plugin-title"><div class="ic"></div><div>Design Token Forge</div><div class="gap"></div><div class="x">×</div></div>
+      <div class="topbar"><div class="proj"><span class="dot"></span> Pearl</div><div class="gap"></div><button class="iconbtn">⋯</button><div class="avatar">S</div></div>
+      <div class="tabs"><div class="tab">Sync</div><div class="tab" aria-selected="true">Builder</div></div>
+      <div class="body">
+        <div class="comp-list">
+          <label class="comp-row">
+            <input type="checkbox">
+            <div>
+              <div class="comp-head"><span class="comp-name">Button</span> <span class="comp-when">· 5 min ago · 264 variants</span></div>
+              <div class="comp-action idle">Up to date.</div>
+            </div>
+          </label>
+          <label class="comp-row">
+            <input type="checkbox">
+            <div>
+              <div class="comp-head"><span class="comp-name">Split Button</span> <span class="comp-when">· 5 min ago · 80 variants</span></div>
+              <div class="comp-action idle">Up to date.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary" disabled>Rebuild components</button>
+        <div class="footnote">Existing IDs and library references are always preserved.</div>
+      </div>
+    </div>
+    <p class="mock-note">Nothing to rebuild. No pills, no banners — just <em>Up to date</em>. CTA disabled.</p>
+  </div>
+
+
+  <!-- 2. Bindings -->
+  <div>
+    <h3 class="mock-label"><span class="num">2</span>Bindings — 3 new tokens</h3>
+    <div class="plugin">
+      <div class="plugin-title"><div class="ic"></div><div>Design Token Forge</div><div class="gap"></div><div class="x">×</div></div>
+      <div class="topbar"><div class="proj"><span class="dot"></span> Pearl</div><div class="gap"></div><button class="iconbtn">⋯</button><div class="avatar">S</div></div>
+      <div class="tabs"><div class="tab">Sync</div><div class="tab" aria-selected="true">Builder</div></div>
+      <div class="body">
+        <div class="comp-list">
+          <label class="comp-row" data-tint="bindings">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head"><span class="comp-name">Button</span> <span class="pill" data-kind="bindings">+3 bindings</span> <span class="comp-when">· 2h ago</span></div>
+              <div class="comp-action">Re-binds <span class="nums">3 tokens</span>.</div>
+            </div>
+          </label>
+          <label class="comp-row">
+            <input type="checkbox">
+            <div>
+              <div class="comp-head"><span class="comp-name">Split Button</span> <span class="comp-when">· 2h ago · 80 variants</span></div>
+              <div class="comp-action idle">Up to date.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary">Rebuild components</button>
+        <div class="footnote">Existing IDs and library references are always preserved.</div>
+      </div>
+    </div>
+    <p class="mock-note">Pill on the head, one-line action below. ~6 words.</p>
+  </div>
+
+
+  <!-- 3. Structure -->
+  <div>
+    <h3 class="mock-label"><span class="num">3</span>Structure changed</h3>
+    <div class="plugin">
+      <div class="plugin-title"><div class="ic"></div><div>Design Token Forge</div><div class="gap"></div><div class="x">×</div></div>
+      <div class="topbar"><div class="proj"><span class="dot"></span> Pearl</div><div class="gap"></div><button class="iconbtn">⋯</button><div class="avatar">S</div></div>
+      <div class="tabs"><div class="tab">Sync</div><div class="tab" aria-selected="true">Builder</div></div>
+      <div class="body">
+        <div class="comp-list">
+          <label class="comp-row" data-tint="structure">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head"><span class="comp-name">Button</span> <span class="pill" data-kind="structure">structure</span> <span class="comp-when">· 1d ago</span></div>
+              <div class="comp-action">Rebuilds with <span class="nums">16 variants</span> (new <em>square</em> shape).</div>
+            </div>
+          </label>
+          <label class="comp-row" data-tint="structure">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head"><span class="comp-name">Split Button</span> <span class="pill" data-kind="structure">structure</span> <span class="comp-when">· 1d ago</span></div>
+              <div class="comp-action">Re-binds <span class="nums">3 tokens</span>.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary">Rebuild components</button>
+        <div class="footnote">Existing IDs and library references are always preserved.</div>
+      </div>
+    </div>
+    <p class="mock-note">Amber pill. The cause (<em>new square shape</em>) is a parenthetical aside, not a separate card.</p>
+  </div>
+
+
+  <!-- 4. Prototype -->
+  <div>
+    <h3 class="mock-label"><span class="num">4</span>Prototype changed</h3>
+    <div class="plugin">
+      <div class="plugin-title"><div class="ic"></div><div>Design Token Forge</div><div class="gap"></div><div class="x">×</div></div>
+      <div class="topbar"><div class="proj"><span class="dot"></span> Pearl</div><div class="gap"></div><button class="iconbtn">⋯</button><div class="avatar">S</div></div>
+      <div class="tabs"><div class="tab">Sync</div><div class="tab" aria-selected="true">Builder</div></div>
+      <div class="body">
+        <div class="comp-list">
+          <label class="comp-row" data-tint="proto">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head"><span class="comp-name">Button</span> <span class="pill" data-kind="proto">prototype</span> <span class="comp-when">· 3h ago</span></div>
+              <div class="comp-action">Re-wires <span class="nums">hover → pressed</span> reactions.</div>
+            </div>
+          </label>
+          <label class="comp-row">
+            <input type="checkbox">
+            <div>
+              <div class="comp-head"><span class="comp-name">Split Button</span> <span class="comp-when">· 3h ago · 80 variants</span></div>
+              <div class="comp-action idle">Up to date.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary">Rebuild components</button>
+        <div class="footnote">Existing IDs and library references are always preserved.</div>
+      </div>
+    </div>
+    <p class="mock-note">Purple pill. Plain action line.</p>
+  </div>
+
+
+  <!-- 5. Mixed -->
+  <div>
+    <h3 class="mock-label"><span class="num">5</span>Mixed — one component, multiple causes</h3>
+    <div class="plugin">
+      <div class="plugin-title"><div class="ic"></div><div>Design Token Forge</div><div class="gap"></div><div class="x">×</div></div>
+      <div class="topbar"><div class="proj"><span class="dot"></span> Pearl</div><div class="gap"></div><button class="iconbtn">⋯</button><div class="avatar">S</div></div>
+      <div class="tabs"><div class="tab">Sync</div><div class="tab" aria-selected="true">Builder</div></div>
+      <div class="body">
+        <div class="comp-list">
+          <label class="comp-row" data-tint="structure">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head">
+                <span class="comp-name">Button</span>
+                <span class="pill" data-kind="bindings">+3 bindings</span>
+                <span class="pill" data-kind="structure">structure</span>
+                <span class="pill" data-kind="proto">prototype</span>
+                <span class="comp-when">· 6h ago</span>
+              </div>
+              <div class="comp-action">Adds <span class="nums">3 bindings</span>, <span class="nums">16 variants</span>, and re-wires hover → pressed.</div>
+            </div>
+          </label>
+          <label class="comp-row" data-tint="bindings">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head"><span class="comp-name">Split Button</span> <span class="pill" data-kind="bindings">+3 bindings</span> <span class="comp-when">· 6h ago</span></div>
+              <div class="comp-action">Re-binds <span class="nums">3 tokens</span>.</div>
+            </div>
+          </label>
+          <label class="comp-row">
+            <input type="checkbox">
+            <div>
+              <div class="comp-head"><span class="comp-name">Avatar</span> <span class="pill" data-kind="new">new</span></div>
+              <div class="comp-action idle">Will create on first build.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary">Rebuild components</button>
+        <div class="footnote">Existing IDs and library references are always preserved.</div>
+      </div>
+    </div>
+    <p class="mock-note">Three pills inline, <strong>one</strong> consolidated action line. Explainer cards eliminated.</p>
+  </div>
+
+
+  <!-- 6. Drift -->
+  <div>
+    <h3 class="mock-label"><span class="num">6</span>Drift — wrong project</h3>
+    <div class="plugin">
+      <div class="plugin-title"><div class="ic"></div><div>Design Token Forge</div><div class="gap"></div><div class="x">×</div></div>
+      <div class="topbar"><div class="proj"><span class="dot"></span> Slate</div><div class="gap"></div><button class="iconbtn">⋯</button><div class="avatar">S</div></div>
+      <div class="tabs"><div class="tab">Sync</div><div class="tab" aria-selected="true">Builder</div></div>
+      <div class="body">
+        <div class="comp-list">
+          <label class="comp-row" data-tint="drift">
+            <input type="checkbox" checked>
+            <div>
+              <div class="comp-head"><span class="comp-name">Button</span> <span class="pill" data-kind="drift">wrong project</span> <span class="comp-when">· 1w ago</span></div>
+              <div class="comp-action">Built against <span class="nums">Pearl</span>. Rebuilding re-targets to <span class="nums">Slate</span>.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary">Rebuild components</button>
+        <div class="footnote">Existing IDs and library references are always preserved.</div>
+      </div>
+    </div>
+    <p class="mock-note">Red pill. Two project names bolded — the only thing the user needs to verify.</p>
+  </div>
+
+
+  <!-- 7. Building -->
+  <div>
+    <h3 class="mock-label"><span class="num">7</span>Building</h3>
+    <div class="plugin">
+      <div class="plugin-title"><div class="ic"></div><div>Design Token Forge</div><div class="gap"></div><div class="x">×</div></div>
+      <div class="topbar"><div class="proj"><span class="dot"></span> Pearl</div><div class="gap"></div><button class="iconbtn">⋯</button><div class="avatar">S</div></div>
+      <div class="tabs"><div class="tab">Sync</div><div class="tab" aria-selected="true">Builder</div></div>
+      <div class="body">
+        <div class="busy">
+          <div class="spinner"></div>
+          <div style="font-weight:600; color:var(--dtf-fg-strong)">Rebuilding Button…</div>
+          <div style="color:var(--dtf-fg-subtle); font-size:11px">Snapshotting, then writing 264 variants.</div>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary" disabled>Rebuilding…</button>
+      </div>
+    </div>
+    <p class="mock-note">Single panel replaces the list. No footnote during work.</p>
+  </div>
+
+
+  <div class="legend">
+    <h2>The whole UI in one mental model</h2>
+    <table>
+      <tr><td><strong>SYNC tab</strong></td><td>Pushes token <em>values</em> to Figma. Components repaint automatically — never needs rebuild.</td></tr>
+      <tr><td><strong>BUILDER tab</strong></td><td>Pushes component <em>structure &amp; bindings</em> to Figma. Needed only when the set of tokens, the blueprint, or the prototype changes.</td></tr>
+      <tr><td><span class="pill" data-kind="bindings">+N bindings</span></td><td>New tokens added — components don't bind to them yet.</td></tr>
+      <tr><td><span class="pill" data-kind="structure">structure</span></td><td>Blueprint added/removed variants, states, or layers.</td></tr>
+      <tr><td><span class="pill" data-kind="proto">prototype</span></td><td>Reactions (interactions) between variants moved.</td></tr>
+      <tr><td><span class="pill" data-kind="drift">wrong project</span></td><td>File scope ≠ build's project. Overrides all other pills.</td></tr>
+      <tr><td><span class="pill" data-kind="new">new</span></td><td>Component never built in this project. CTA reads <em>Build</em>.</td></tr>
+    </table>
+    <p style="font-size:11px; color:#5b5b66; margin:14px 0 0; line-height:1.6;">
+      <strong>Trims from v1:</strong> dropped intro paragraph · dropped explainer cards · dropped green reassurance banner (moved to footnote) · tint only the highest-severity row · combined causes into one action line.
+    </p>
+  </div>
+
+</body>
+</html>

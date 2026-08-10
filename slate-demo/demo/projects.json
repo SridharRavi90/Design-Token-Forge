@@ -1,0 +1,26 @@
+[
+  {
+    "id": "desktop-pdf-editor",
+    "name": "Desktop PDF Editor",
+    "owner": "sridhar-ravi-2917",
+    "description": "Default project — the original DTF token set for the Desktop PDF Editor product."
+  },
+  {
+    "id": "pearl",
+    "name": "Pearl",
+    "owner": "sridhar-ravi-2917",
+    "description": "Design tokens for Pearl"
+  },
+  {
+    "id": "slate-demo",
+    "name": "Slate demo",
+    "owner": "Gowthamrg20",
+    "description": "Design tokens for Slate demo"
+  },
+  {
+    "id": "writer-handhelds",
+    "name": "writer-handhelds",
+    "owner": "sridhar-ravi-2917",
+    "description": ""
+  }
+]

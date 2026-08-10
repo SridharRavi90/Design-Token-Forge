@@ -1,0 +1,14 @@
+{
+  "project_id": 38969000000013030,
+  "project_name": "Project-Rainfall",
+  "project_key": "project-rainfall",
+  "datacenter": "IN",
+  "client": {
+    "source": ".",
+    "app_id": 9921000000008014
+  },
+  "functions": {
+    "targets": ["getUser", "getTokenStatus", "getTokens", "getProjects", "listProjects", "createProject", "saveTokens", "getProjectTokens", "getProjectStatus", "getProjectVersions", "generatePluginToken", "pollPluginToken"],
+    "source": "functions"
+  }
+}

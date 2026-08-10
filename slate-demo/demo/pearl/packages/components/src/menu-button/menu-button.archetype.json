@@ -1,0 +1,28 @@
+{
+  "archetype": "action",
+  "tokenPrefix": "menu-btn",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "pressed", "disabled", "open", "focus-visible"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined", "soft", "ghost"],
+  "onComponentTokens": [
+    {
+      "token": "--menu-btn-filled-fg",
+      "fillStates": ["--menu-btn-filled-bg", "--menu-btn-filled-bg-hover", "--menu-btn-filled-bg-pressed"],
+      "derivation": "auto-aa",
+      "wcag": "AA-normal"
+    }
+  ],
+  "editorExposureOverrides": {
+    "--menu-btn-min-tap-target": "advanced",
+    "--menu-btn-focus-outline-offset": "advanced"
+  },
+  "figmaBindingPrefix": "menu-btn/",
+  "slots": {
+    "chevron": "indicates menu disclosure; rotates 180° when [data-open]"
+  },
+  "notes": [
+    "Action with disclosure: chevron slot indicates a menu will open.",
+    "Open state is an additional state beyond the standard action matrix."
+  ]
+}

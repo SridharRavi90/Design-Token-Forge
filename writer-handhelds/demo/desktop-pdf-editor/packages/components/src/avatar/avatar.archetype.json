@@ -1,0 +1,36 @@
+{
+  "archetype": "identity-image",
+  "tokenPrefix": "avatar",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": [],
+  "rolesSupported": ["brand", "info", "danger", "success", "warning", "neutral"],
+  "variantsSupported": [],
+  "sizesSupported": ["micro", "tiny", "small", "base", "medium", "large", "big", "huge", "mega", "ultra"],
+  "densityModes": ["micro", "tiny", "small", "base", "medium", "large", "big", "huge", "mega", "ultra"],
+  "onComponentTokens": [],
+  "editorExposureOverrides": {
+    "--avatar-size-*": "core",
+    "--avatar-font-size-*": "core",
+    "--avatar-icon-size-*": "core",
+    "--avatar-group-offset-*": "core",
+    "--avatar-radius-*": "advanced",
+    "--avatar-ring-*": "advanced"
+  },
+  "figmaBindingPrefix": "avatar/",
+  "compSizeProps": [
+    { "propCSS": "size",         "propFigma": "size" },
+    { "propCSS": "radius",       "propFigma": "radius" },
+    { "propCSS": "font-size",    "propFigma": "font-size" },
+    { "propCSS": "icon-size",    "propFigma": "icon-size" },
+    { "propCSS": "group-offset", "propFigma": "group-offset" }
+  ],
+  "notes": [
+    "Identity-image archetype: circular/square image container with fallback initials or icon. 10-density sizing (micro...ultra). 6 semantic roles (brand/info/danger/success/warning/neutral) supply container + text color.",
+    "10-density sizing ladder: micro/tiny/small/base/medium/large/big/huge/mega/ultra. Each density sets size (w=h), radius, font-size (for initials), icon-size, and avatar-group stacking offset. COMP-SIZE eligible for Figma multi-mode binding.",
+    "Variant-less: no filled/outlined/soft — role color is background + text. All role variants are uniform (tinted bg from container palette).",
+    "Shape variants: circle (default, radius-full) and square (radius-0). Orthogonal to density and role.",
+    "Avatar Group: stacked avatars with negative offset (overlapping). Offset is per-density to maintain proportional spacing.",
+    "Ring: optional online/status ring (2px border) atop avatar. Not per-density; fixed 2px width with surface-base-bg (consistent across sizes).",
+    "No AA on-component needed: avatar is image OR short initials. If initials, role bg + text is user-chosen (designer/brand), not auto-derived."
+  ]
+}

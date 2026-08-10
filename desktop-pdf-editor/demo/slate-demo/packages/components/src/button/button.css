@@ -1,0 +1,789 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Button Component CSS
+   Variable-driven rendering. Zero hardcoded visual values.
+   Uses internal (--_btn-*) vars set by variant/size selectors.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Loader spin animation ──────────────────────────────────── */
+@keyframes btn-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BASE STRUCTURE
+   ════════════════════════════════════════════════════════════════ */
+
+.btn {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--_btn-gap);
+  box-sizing: border-box;
+  position: relative;
+
+  /* Dimension (via active vars) */
+  min-height: var(--btn-min-tap-target);
+  height: var(--_btn-height);
+  padding: var(--_btn-py) var(--_btn-px);
+  min-width: var(--_btn-min-width);
+  max-width: var(--btn-max-width);
+  inline-size: var(--btn-inline-size);
+
+  /* Shape */
+  border-radius: var(--_btn-radius);
+  border-width:
+    var(--btn-border-width-t) var(--btn-border-width-r)
+    var(--btn-border-width-b) var(--btn-border-width-l);
+  border-style: var(--btn-border-style);
+  box-shadow: var(--_btn-shadow);
+  overflow: var(--btn-overflow);
+  clip-path: var(--btn-clip-path);
+
+  /* Surface (via active vars) */
+  background-color: var(--_btn-bg);
+  color: var(--_btn-fg);
+  border-color: var(--_btn-border-color);
+
+  /* Typography */
+  font-family: var(--btn-font-family);
+  font-size: var(--_btn-fs);
+  font-weight: var(--btn-font-weight);
+  line-height: var(--btn-line-height);
+  letter-spacing: var(--btn-letter-spacing);
+  text-transform: var(--btn-text-transform);
+
+  /* Motion */
+  transition-property: var(--btn-transition-property);
+  transition-duration: var(--btn-transition-duration);
+  transition-timing-function: var(--btn-transition-easing);
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  text-decoration: none;
+  white-space: var(--btn-white-space);
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIZE SELECTORS  — map stored tokens → active vars
+   ════════════════════════════════════════════════════════════════ */
+
+.btn:not([data-size]),
+.btn[data-size="base"] {
+  --_btn-height: var(--btn-height-base);
+  --_btn-px: var(--btn-padding-x-base);
+  --_btn-px-icon: var(--btn-padding-x-icon-base);
+  --_btn-py: var(--btn-padding-y-base);
+  --_btn-fs: var(--btn-font-size-base);
+  --_btn-min-width: var(--btn-min-width-base);
+  --_btn-gap: var(--btn-gap-base);
+  --_btn-radius: var(--btn-radius-base);
+  --_btn-std-icon-size: var(--btn-icon-size-base);
+  --_btn-icon-pad: var(--btn-icon-pad-base);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-base));
+}
+
+.btn[data-size="micro"] {
+  --_btn-height: var(--btn-height-micro);
+  --_btn-px: var(--btn-padding-x-micro);
+  --_btn-px-icon: var(--btn-padding-x-icon-micro);
+  --_btn-py: var(--btn-padding-y-micro);
+  --_btn-fs: var(--btn-font-size-micro);
+  --_btn-min-width: var(--btn-min-width-micro);
+  --_btn-gap: var(--btn-gap-micro);
+  --_btn-radius: var(--btn-radius-micro);
+  --_btn-std-icon-size: var(--btn-icon-size-micro);
+  --_btn-icon-pad: var(--btn-icon-pad-micro);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-micro));
+}
+
+.btn[data-size="tiny"] {
+  --_btn-height: var(--btn-height-tiny);
+  --_btn-px: var(--btn-padding-x-tiny);
+  --_btn-px-icon: var(--btn-padding-x-icon-tiny);
+  --_btn-py: var(--btn-padding-y-tiny);
+  --_btn-fs: var(--btn-font-size-tiny);
+  --_btn-min-width: var(--btn-min-width-tiny);
+  --_btn-gap: var(--btn-gap-tiny);
+  --_btn-radius: var(--btn-radius-tiny);
+  --_btn-std-icon-size: var(--btn-icon-size-tiny);
+  --_btn-icon-pad: var(--btn-icon-pad-tiny);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-tiny));
+}
+
+.btn[data-size="small"] {
+  --_btn-height: var(--btn-height-small);
+  --_btn-px: var(--btn-padding-x-small);
+  --_btn-px-icon: var(--btn-padding-x-icon-small);
+  --_btn-py: var(--btn-padding-y-small);
+  --_btn-fs: var(--btn-font-size-small);
+  --_btn-min-width: var(--btn-min-width-small);
+  --_btn-gap: var(--btn-gap-small);
+  --_btn-radius: var(--btn-radius-small);
+  --_btn-std-icon-size: var(--btn-icon-size-small);
+  --_btn-icon-pad: var(--btn-icon-pad-small);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-small));
+}
+
+.btn[data-size="medium"] {
+  --_btn-height: var(--btn-height-medium);
+  --_btn-px: var(--btn-padding-x-medium);
+  --_btn-px-icon: var(--btn-padding-x-icon-medium);
+  --_btn-py: var(--btn-padding-y-medium);
+  --_btn-fs: var(--btn-font-size-medium);
+  --_btn-min-width: var(--btn-min-width-medium);
+  --_btn-gap: var(--btn-gap-medium);
+  --_btn-radius: var(--btn-radius-medium);
+  --_btn-std-icon-size: var(--btn-icon-size-medium);
+  --_btn-icon-pad: var(--btn-icon-pad-medium);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-medium));
+}
+
+.btn[data-size="large"] {
+  --_btn-height: var(--btn-height-large);
+  --_btn-px: var(--btn-padding-x-large);
+  --_btn-px-icon: var(--btn-padding-x-icon-large);
+  --_btn-py: var(--btn-padding-y-large);
+  --_btn-fs: var(--btn-font-size-large);
+  --_btn-min-width: var(--btn-min-width-large);
+  --_btn-gap: var(--btn-gap-large);
+  --_btn-radius: var(--btn-radius-large);
+  --_btn-std-icon-size: var(--btn-icon-size-large);
+  --_btn-icon-pad: var(--btn-icon-pad-large);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-large));
+}
+
+.btn[data-size="big"] {
+  --_btn-height: var(--btn-height-big);
+  --_btn-px: var(--btn-padding-x-big);
+  --_btn-px-icon: var(--btn-padding-x-icon-big);
+  --_btn-py: var(--btn-padding-y-big);
+  --_btn-fs: var(--btn-font-size-big);
+  --_btn-min-width: var(--btn-min-width-big);
+  --_btn-gap: var(--btn-gap-big);
+  --_btn-radius: var(--btn-radius-big);
+  --_btn-std-icon-size: var(--btn-icon-size-big);
+  --_btn-icon-pad: var(--btn-icon-pad-big);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-big));
+}
+
+.btn[data-size="huge"] {
+  --_btn-height: var(--btn-height-huge);
+  --_btn-px: var(--btn-padding-x-huge);
+  --_btn-px-icon: var(--btn-padding-x-icon-huge);
+  --_btn-py: var(--btn-padding-y-huge);
+  --_btn-fs: var(--btn-font-size-huge);
+  --_btn-min-width: var(--btn-min-width-huge);
+  --_btn-gap: var(--btn-gap-huge);
+  --_btn-radius: var(--btn-radius-huge);
+  --_btn-std-icon-size: var(--btn-icon-size-huge);
+  --_btn-icon-pad: var(--btn-icon-pad-huge);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-huge));
+}
+
+.btn[data-size="mega"] {
+  --_btn-height: var(--btn-height-mega);
+  --_btn-px: var(--btn-padding-x-mega);
+  --_btn-px-icon: var(--btn-padding-x-icon-mega);
+  --_btn-py: var(--btn-padding-y-mega);
+  --_btn-fs: var(--btn-font-size-mega);
+  --_btn-min-width: var(--btn-min-width-mega);
+  --_btn-gap: var(--btn-gap-mega);
+  --_btn-radius: var(--btn-radius-mega);
+  --_btn-std-icon-size: var(--btn-icon-size-mega);
+  --_btn-icon-pad: var(--btn-icon-pad-mega);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-mega));
+}
+
+.btn[data-size="ultra"] {
+  --_btn-height: var(--btn-height-ultra);
+  --_btn-px: var(--btn-padding-x-ultra);
+  --_btn-px-icon: var(--btn-padding-x-icon-ultra);
+  --_btn-py: var(--btn-padding-y-ultra);
+  --_btn-fs: var(--btn-font-size-ultra);
+  --_btn-min-width: var(--btn-min-width-ultra);
+  --_btn-gap: var(--btn-gap-ultra);
+  --_btn-radius: var(--btn-radius-ultra);
+  --_btn-std-icon-size: var(--btn-icon-size-ultra);
+  --_btn-icon-pad: var(--btn-icon-pad-ultra);
+  --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-ultra));
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SHAPE MODIFIERS
+   ════════════════════════════════════════════════════════════════ */
+
+/* Rounded (pill) boolean — always full radius */
+.btn[data-rounded] {
+  --_btn-radius: var(--btn-radius-rounded);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ICON DETAIL TIER — opt-in larger icons for detailed glyphs
+   ────────────────────────────────────────────────────────────────
+   16px icons leave little drawing scope for filters, branded marks,
+   or multi-stroke icons. data-icon-detail="high" bumps the icon to
+   20px ONLY in the base/medium range where the standard icon is ≤20px.
+
+   Suppressed on:
+     • micro/tiny/small  → would crowd to <4px breathing room
+     • large/big/huge/mega/ultra → standard icon (22–36px) exceeds 20px;
+                             "high" would visually shrink it
+   For per-instance bumps outside this scale, set --btn-icon-size on
+   the element directly.
+   ════════════════════════════════════════════════════════════════ */
+.btn[data-icon-detail="high"] {
+  --_btn-icon-size: var(--btn-icon-size-detail-high);
+}
+/* Suppress on sizes outside the base/medium sweet spot —
+   restore the per-density standard so "high" never makes the icon smaller. */
+.btn[data-size="micro"][data-icon-detail="high"]  { --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-micro)); }
+.btn[data-size="tiny"][data-icon-detail="high"]   { --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-tiny)); }
+.btn[data-size="small"][data-icon-detail="high"]  { --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-small)); }
+.btn[data-size="large"][data-icon-detail="high"]  { --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-large)); }
+.btn[data-size="big"][data-icon-detail="high"]    { --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-big)); }
+.btn[data-size="huge"][data-icon-detail="high"]   { --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-huge)); }
+.btn[data-size="mega"][data-icon-detail="high"]   { --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-mega)); }
+.btn[data-size="ultra"][data-icon-detail="high"]  { --_btn-icon-size: var(--btn-icon-size, var(--btn-icon-size-ultra)); }
+
+/* ════════════════════════════════════════════════════════════════
+   ASYMMETRIC ICON PADDING — tighter on the icon side
+   Compensates inline padding when --_btn-icon-size grows beyond the
+   per-size standard icon (--_btn-std-icon-size) so the larger glyph
+   never crowds the edge below 4px. Zero compensation for standard icons.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Leading icon present → reduce start padding, compensate for icon growth */
+.btn:has(> .btn__icon:first-child) {
+  padding-inline-start: max(
+    var(--spacing-4),
+    calc(var(--_btn-px-icon) - max(0px, (var(--_btn-icon-size) - var(--_btn-std-icon-size)) / 2))
+  );
+}
+
+/* Trailing icon present → reduce end padding, compensate for icon growth */
+.btn:has(> .btn__icon:last-child) {
+  padding-inline-end: max(
+    var(--spacing-4),
+    calc(var(--_btn-px-icon) - max(0px, (var(--_btn-icon-size) - var(--_btn-std-icon-size)) / 2))
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ICON-ONLY MODE  — square geometry
+   When the button's only child is .btn__icon (no label), the default
+   min-width (designed for text buttons, 40–120px) forces a 1.67–1.82×
+   horizontal stretch. Override to min-width=height so the button
+   renders as a square. The existing btn-icon-pad-* tokens are sized
+   to produce content ≈ height − 2–6px, so clamping to height gives a
+   near-perfect square with natural optical breathing room.
+   Pill + icon-only = perfect circle: lock inline-size to height.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Square: min-width = height, icon-pad on both sides */
+.btn:has(> .btn__icon:only-child) {
+  min-width: var(--_btn-height);
+  inline-size: auto;
+  padding-inline: var(--_btn-icon-pad);
+}
+
+/* Pill + icon-only = perfect circle */
+.btn[data-rounded]:has(> .btn__icon:only-child) {
+  inline-size: var(--_btn-height);
+  padding-inline: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT SELECTORS  — map stored tokens → active surface vars
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── PRIMARY (default) ──────────────────────────────────────── */
+.btn:not([data-variant]),
+.btn[data-variant="filled"] {
+  --_btn-bg: var(--btn-filled-bg);
+  --_btn-fg: var(--btn-filled-fg);
+  --_btn-border-color: var(--btn-filled-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn:not([data-variant]):hover,
+.btn[data-variant="filled"]:hover {
+  --_btn-bg: var(--btn-filled-bg-hover);
+  --_btn-fg: var(--btn-filled-fg-hover);
+  --_btn-border-color: var(--btn-filled-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn:not([data-variant]):active,
+.btn[data-variant="filled"]:active {
+  --_btn-bg: var(--btn-filled-bg-pressed);
+  --_btn-border-color: var(--btn-filled-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ── SECONDARY ──────────────────────────────────────────────── */
+.btn[data-variant="outlined"] {
+  --_btn-bg: var(--btn-outlined-bg);
+  --_btn-fg: var(--btn-outlined-fg);
+  --_btn-border-color: var(--btn-outlined-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="outlined"]:hover {
+  --_btn-bg: var(--btn-outlined-bg-hover);
+  --_btn-fg: var(--btn-outlined-fg-hover);
+  --_btn-border-color: var(--btn-outlined-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="outlined"]:active {
+  --_btn-bg: var(--btn-outlined-bg-pressed);
+  --_btn-border-color: var(--btn-outlined-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ── TERTIARY ───────────────────────────────────────────────── */
+.btn[data-variant="soft"] {
+  --_btn-bg: var(--btn-soft-bg);
+  --_btn-fg: var(--btn-soft-fg);
+  --_btn-border-color: var(--btn-soft-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="soft"]:hover {
+  --_btn-bg: var(--btn-soft-bg-hover);
+  --_btn-fg: var(--btn-soft-fg-hover);
+  --_btn-border-color: var(--btn-soft-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="soft"]:active {
+  --_btn-bg: var(--btn-soft-bg-pressed);
+  --_btn-border-color: var(--btn-soft-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ── GHOST ──────────────────────────────────────────────────── */
+.btn[data-variant="ghost"] {
+  --_btn-bg: var(--btn-ghost-bg);
+  --_btn-fg: var(--btn-ghost-fg);
+  --_btn-border-color: var(--btn-ghost-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="ghost"]:hover {
+  --_btn-bg: var(--btn-ghost-bg-hover);
+  --_btn-fg: var(--btn-ghost-fg-hover);
+  --_btn-border-color: var(--btn-ghost-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="ghost"]:active {
+  --_btn-bg: var(--btn-ghost-bg-pressed);
+  --_btn-border-color: var(--btn-ghost-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ── DANGER ─────────────────────────────────────────────────── */
+.btn[data-variant="danger"] {
+  --_btn-bg: var(--btn-danger-bg);
+  --_btn-fg: var(--btn-danger-fg);
+  --_btn-border-color: var(--btn-danger-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="danger"]:hover {
+  --_btn-bg: var(--btn-danger-bg-hover);
+  --_btn-fg: var(--btn-danger-fg-hover);
+  --_btn-border-color: var(--btn-danger-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="danger"]:active {
+  --_btn-bg: var(--btn-danger-bg-pressed);
+  --_btn-border-color: var(--btn-danger-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ── SUCCESS ────────────────────────────────────────────────── */
+.btn[data-variant="success"] {
+  --_btn-bg: var(--btn-success-bg);
+  --_btn-fg: var(--btn-success-fg);
+  --_btn-border-color: var(--btn-success-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="success"]:hover {
+  --_btn-bg: var(--btn-success-bg-hover);
+  --_btn-fg: var(--btn-success-fg-hover);
+  --_btn-border-color: var(--btn-success-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="success"]:active {
+  --_btn-bg: var(--btn-success-bg-pressed);
+  --_btn-border-color: var(--btn-success-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ── WARNING ────────────────────────────────────────────────── */
+.btn[data-variant="warning"] {
+  --_btn-bg: var(--btn-warning-bg);
+  --_btn-fg: var(--btn-warning-fg);
+  --_btn-border-color: var(--btn-warning-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="warning"]:hover {
+  --_btn-bg: var(--btn-warning-bg-hover);
+  --_btn-fg: var(--btn-warning-fg-hover);
+  --_btn-border-color: var(--btn-warning-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="warning"]:active {
+  --_btn-bg: var(--btn-warning-bg-pressed);
+  --_btn-border-color: var(--btn-warning-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ── NEUTRAL (filled, surface-context) ──────────────────────── */
+.btn[data-variant="neutral"] {
+  --_btn-bg: var(--btn-neutral-bg);
+  --_btn-fg: var(--btn-neutral-fg);
+  --_btn-border-color: var(--btn-neutral-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="neutral"]:hover {
+  --_btn-bg: var(--btn-neutral-bg-hover);
+  --_btn-fg: var(--btn-neutral-fg-hover);
+  --_btn-border-color: var(--btn-neutral-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="neutral"]:active {
+  --_btn-bg: var(--btn-neutral-bg-pressed);
+  --_btn-border-color: var(--btn-neutral-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ── BRAND (filled, brand palette) ──────────────────────────── */
+.btn[data-variant="brand"] {
+  --_btn-bg: var(--btn-brand-bg);
+  --_btn-fg: var(--btn-brand-fg);
+  --_btn-border-color: var(--btn-brand-border-color);
+  --_btn-shadow: var(--btn-shadow);
+}
+.btn[data-variant="brand"]:hover {
+  --_btn-bg: var(--btn-brand-bg-hover);
+  --_btn-fg: var(--btn-brand-fg-hover);
+  --_btn-border-color: var(--btn-brand-border-color-hover);
+  --_btn-shadow: var(--btn-shadow-hover);
+}
+.btn[data-variant="brand"]:active {
+  --_btn-bg: var(--btn-brand-bg-pressed);
+  --_btn-border-color: var(--btn-brand-border-color-pressed);
+  --_btn-shadow: var(--btn-shadow-pressed);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ROLE REMAPPING — Orthogonal 2-Axis API
+   ────────────────────────────────────────────────────────────────
+   Usage:  data-variant="filled"   data-role="danger"
+           data-variant="outlined" data-role="success"
+           data-variant="soft"     data-role="warning"
+           data-variant="ghost"    data-role="brand"
+
+   Structural variants: filled | outlined | soft | ghost
+   Semantic roles:      brand | danger | warning | info | success | neutral
+
+   HOW IT WORKS:
+   • Structural variants (filled/outlined/soft) read from --brand-* semantic palette.
+   • Role selectors remap --brand-* to the chosen role palette at the element level.
+   • This composes automatically — any structure × any role without per-combo selectors.
+   • Ghost defaults to neutral (surface tokens). Role selectors override ghost tokens too.
+   • Legacy single-value names (danger, success, etc.) keep working unchanged above.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── data-role="brand" ────────────────────────────────────── */
+/* Filled/outlined/soft already read --brand-* by default.
+   Only ghost needs explicit primary override (default ghost = neutral). */
+.btn[data-role="brand"] {
+  --btn-ghost-bg-hover: var(--brand-container-bg);
+  --btn-ghost-bg-pressed: var(--brand-container-pressed);
+  --btn-ghost-fg: var(--brand-content-default);
+  --btn-ghost-fg-hover: var(--brand-content-default);
+  --btn-ghost-fg-disabled: var(--brand-content-default);
+}
+
+/* ── data-role="danger" ─────────────────────────────────────── */
+.btn[data-role="danger"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-bg-hover: var(--danger-component-bg-hover);
+  --brand-component-bg-pressed: var(--danger-component-bg-pressed);
+  --brand-on-component: var(--danger-on-component);
+  --brand-content-default: var(--danger-content-default);
+  --brand-container-bg: var(--danger-container-bg);
+  --brand-container-hover: var(--danger-container-hover);
+  --brand-container-pressed: var(--danger-container-pressed);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+  --brand-component-outline-hover: var(--danger-component-outline-hover);
+  --brand-component-outline-pressed: var(--danger-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--danger-container-bg);
+  --btn-ghost-bg-pressed: var(--danger-container-pressed);
+  --btn-ghost-fg: var(--danger-content-default);
+  --btn-ghost-fg-hover: var(--danger-content-default);
+  --btn-ghost-fg-disabled: var(--danger-content-default);
+}
+
+/* ── data-role="success" ────────────────────────────────────── */
+.btn[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-bg-hover: var(--success-component-bg-hover);
+  --brand-component-bg-pressed: var(--success-component-bg-pressed);
+  --brand-on-component: var(--success-on-component);
+  --brand-content-default: var(--success-content-default);
+  --brand-container-bg: var(--success-container-bg);
+  --brand-container-hover: var(--success-container-hover);
+  --brand-container-pressed: var(--success-container-pressed);
+  --brand-component-outline-default: var(--success-component-outline-default);
+  --brand-component-outline-hover: var(--success-component-outline-hover);
+  --brand-component-outline-pressed: var(--success-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--success-container-bg);
+  --btn-ghost-bg-pressed: var(--success-container-pressed);
+  --btn-ghost-fg: var(--success-content-default);
+  --btn-ghost-fg-hover: var(--success-content-default);
+  --btn-ghost-fg-disabled: var(--success-content-default);
+}
+
+/* ── data-role="warning" ────────────────────────────────────── */
+.btn[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-bg-hover: var(--warning-component-bg-hover);
+  --brand-component-bg-pressed: var(--warning-component-bg-pressed);
+  --brand-on-component: var(--warning-on-component);
+  --brand-content-default: var(--warning-content-default);
+  --brand-container-bg: var(--warning-container-bg);
+  --brand-container-hover: var(--warning-container-hover);
+  --brand-container-pressed: var(--warning-container-pressed);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+  --brand-component-outline-hover: var(--warning-component-outline-hover);
+  --brand-component-outline-pressed: var(--warning-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--warning-container-bg);
+  --btn-ghost-bg-pressed: var(--warning-container-pressed);
+  --btn-ghost-fg: var(--warning-content-default);
+  --btn-ghost-fg-hover: var(--warning-content-default);
+  --btn-ghost-fg-disabled: var(--warning-content-default);
+}
+
+/* ── data-role="brand" ──────────────────────────────────────── */
+.btn[data-role="brand"] {
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--brand-container-bg);
+  --btn-ghost-bg-pressed: var(--brand-container-pressed);
+  --btn-ghost-fg: var(--brand-content-default);
+  --btn-ghost-fg-hover: var(--brand-content-default);
+  --btn-ghost-fg-disabled: var(--brand-content-default);
+}
+
+/* ── data-role="info" ───────────────────────────────────────── */
+.btn[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-bg-hover: var(--info-component-bg-hover);
+  --brand-component-bg-pressed: var(--info-component-bg-pressed);
+  --brand-on-component: var(--info-on-component);
+  --brand-content-default: var(--info-content-default);
+  --brand-container-bg: var(--info-container-bg);
+  --brand-container-hover: var(--info-container-hover);
+  --brand-container-pressed: var(--info-container-pressed);
+  --brand-component-outline-default: var(--info-component-outline-default);
+  --brand-component-outline-hover: var(--info-component-outline-hover);
+  --brand-component-outline-pressed: var(--info-component-outline-pressed);
+  /* Ghost overrides */
+  --btn-ghost-bg-hover: var(--info-container-bg);
+  --btn-ghost-bg-pressed: var(--info-container-pressed);
+  --btn-ghost-fg: var(--info-content-default);
+  --btn-ghost-fg-hover: var(--info-content-default);
+  --btn-ghost-fg-disabled: var(--info-content-default);
+}
+
+/* ── data-role="neutral" ────────────────────────────────────── */
+/* Remaps primary palette → surface-context tokens so structural
+   variants automatically get neutral/surface treatment. */
+.btn[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg);
+  --brand-component-bg-hover: var(--surface-base-cm-bg-hover);
+  --brand-component-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --brand-on-component: var(--surface-base-ct-default);
+  --brand-content-default: var(--surface-base-ct-default);
+  --brand-container-bg: var(--surface-base-subtle);
+  --brand-container-hover: var(--surface-base-strong);
+  --brand-container-pressed: var(--surface-base-strong);
+  --brand-component-outline-default: var(--surface-base-cm-outline);
+  --brand-component-outline-hover: var(--surface-base-cm-outline-hover);
+  --brand-component-outline-pressed: var(--surface-base-cm-outline-pressed);
+  /* Ghost stays at its surface-token defaults — no override needed */
+}
+
+/* ════════════════════════════════════════════════════════════════
+   STATES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Focus-visible — keyboard focus ring */
+.btn:focus-visible {
+  outline: var(--btn-focus-outline-width) var(--btn-outline-style) var(--btn-focus-outline-color);
+  outline-offset: var(--btn-focus-outline-offset);
+}
+
+/* Disabled */
+.btn:disabled,
+.btn[data-disabled] {
+
+  pointer-events: none;
+}
+
+/* Disabled: per-variant opacity + color override */
+.btn:disabled:not([data-variant]),
+.btn:disabled[data-variant="filled"],
+.btn[data-disabled]:not([data-variant]),
+.btn[data-disabled][data-variant="filled"] {
+  --_btn-bg: var(--btn-filled-bg-disabled);
+  --_btn-fg: var(--btn-filled-fg-disabled);
+  --_btn-border-color: var(--btn-filled-border-color-disabled);
+  opacity: var(--btn-filled-opacity-disabled);
+}
+.btn:disabled[data-variant="outlined"],
+.btn[data-disabled][data-variant="outlined"] {
+  --_btn-bg: var(--btn-outlined-bg-disabled);
+  --_btn-fg: var(--btn-outlined-fg-disabled);
+  --_btn-border-color: var(--btn-outlined-border-color-disabled);
+  opacity: var(--btn-outlined-opacity-disabled);
+}
+.btn:disabled[data-variant="soft"],
+.btn[data-disabled][data-variant="soft"] {
+  --_btn-bg: var(--btn-soft-bg-disabled);
+  --_btn-fg: var(--btn-soft-fg-disabled);
+  --_btn-border-color: var(--btn-soft-border-color-disabled);
+  opacity: var(--btn-soft-opacity-disabled);
+}
+.btn:disabled[data-variant="ghost"],
+.btn[data-disabled][data-variant="ghost"] {
+  --_btn-bg: var(--btn-ghost-bg-disabled);
+  --_btn-fg: var(--btn-ghost-fg-disabled);
+  --_btn-border-color: var(--btn-ghost-border-color-disabled);
+  opacity: var(--btn-ghost-opacity-disabled);
+}
+.btn:disabled[data-variant="danger"],
+.btn[data-disabled][data-variant="danger"] {
+  --_btn-bg: var(--btn-danger-bg-disabled);
+  --_btn-fg: var(--btn-danger-fg-disabled);
+  --_btn-border-color: var(--btn-danger-border-color-disabled);
+  opacity: var(--btn-danger-opacity-disabled);
+}
+.btn:disabled[data-variant="success"],
+.btn[data-disabled][data-variant="success"] {
+  --_btn-bg: var(--btn-success-bg-disabled);
+  --_btn-fg: var(--btn-success-fg-disabled);
+  --_btn-border-color: var(--btn-success-border-color-disabled);
+  opacity: var(--btn-success-opacity-disabled);
+}
+.btn:disabled[data-variant="warning"],
+.btn[data-disabled][data-variant="warning"] {
+  --_btn-bg: var(--btn-warning-bg-disabled);
+  --_btn-fg: var(--btn-warning-fg-disabled);
+  --_btn-border-color: var(--btn-warning-border-color-disabled);
+  opacity: var(--btn-warning-opacity-disabled);
+}
+.btn:disabled[data-variant="neutral"],
+.btn[data-disabled][data-variant="neutral"] {
+  --_btn-bg: var(--btn-neutral-bg-disabled);
+  --_btn-fg: var(--btn-neutral-fg-disabled);
+  --_btn-border-color: var(--btn-neutral-border-color-disabled);
+  opacity: var(--btn-neutral-opacity-disabled);
+}
+.btn:disabled[data-variant="brand"],
+.btn[data-disabled][data-variant="brand"] {
+  --_btn-bg: var(--btn-brand-bg-disabled);
+  --_btn-fg: var(--btn-brand-fg-disabled);
+  --_btn-border-color: var(--btn-brand-border-color-disabled);
+  opacity: var(--btn-brand-opacity-disabled);
+}
+
+/* Loading state — text shimmer, no spinner icon */
+.btn[data-loading] {
+  cursor: wait;
+  pointer-events: none;
+}
+.btn[data-loading] .btn__icon {
+  display: none;
+}
+.btn[data-loading] .btn__label {
+  background: linear-gradient(
+    90deg,
+    var(--btn-loader-color) 0%,
+    var(--btn-loader-color) 33%,
+    transparent 50%,
+    var(--btn-loader-color) 67%,
+    var(--btn-loader-color) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: btn-shimmer var(--btn-loader-speed) linear infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SLOTS
+   ════════════════════════════════════════════════════════════════ */
+
+/* Icon slot */
+.btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_btn-icon-size);
+  height: var(--_btn-icon-size);
+  color: var(--btn-icon-color);
+  flex-shrink: 0;
+}
+.btn:hover .btn__icon {
+  color: var(--btn-icon-color-hover);
+}
+.btn__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Label slot */
+.btn__label {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Elevated shadow override */
+.btn[data-strong] {
+  box-shadow: var(--btn-shadow-strong);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FORCED COLORS (Windows High Contrast)
+   ════════════════════════════════════════════════════════════════ */
+
+@media (forced-colors: active) {
+  .btn {
+    border: 1px solid ButtonText;
+  }
+  .btn:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  .btn:disabled {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

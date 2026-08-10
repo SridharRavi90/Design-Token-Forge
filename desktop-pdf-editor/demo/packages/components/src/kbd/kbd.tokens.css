@@ -1,0 +1,174 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — KBD Token Defaults
+   Layer 0: System defaults for ~75 kbd variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ────────────────────────────────────────────────────────────────
+   ANATOMY:
+     <kbd class="kbd" data-size="base" data-variant="filled">
+       Ctrl
+     </kbd>
+
+   Compound (shortcut sequence):
+     <span class="kbd-combo" data-size="base">
+       <kbd class="kbd">Ctrl</kbd>
+       <span class="kbd__sep">+</span>
+       <kbd class="kbd">S</kbd>
+     </span>
+
+   VARIANTS  (data-variant):  filled (default) | outlined | ghost
+   ════════════════════════════════════════════════════════════════ */
+
+.kbd {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border-radius per density */
+  --kbd-radius-micro:  var(--radius-xs);
+  --kbd-radius-tiny:   var(--radius-xs);
+  --kbd-radius-small:  var(--radius-sm);
+  --kbd-radius-base:   var(--radius-sm);
+  --kbd-radius-medium: var(--radius-sm-md);
+  --kbd-radius-large:  var(--radius-md);
+  --kbd-radius-big:    var(--radius-md);
+  --kbd-radius-huge:   var(--radius-md-lg);
+  --kbd-radius-mega:   var(--radius-lg);
+  --kbd-radius-ultra:  var(--radius-lg);
+
+  /* Border */
+  --kbd-border-width: 1px;
+  --kbd-border-style: solid;
+
+  /* Shadow — subtle inset/bevel for key-cap look */
+  --kbd-shadow: 0 1px 0 0 var(--surface-base-outline);
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (50 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Height per density (min-height for the key-cap) */
+  --kbd-height-micro:  16px;
+  --kbd-height-tiny:   18px;
+  --kbd-height-small:  20px;
+  --kbd-height-base:   22px;
+  --kbd-height-medium: 24px;
+  --kbd-height-large:  26px;
+  --kbd-height-big:    28px;
+  --kbd-height-huge:   32px;
+  --kbd-height-mega:   36px;
+  --kbd-height-ultra:  40px;
+
+  /* Padding-x per density */
+  --kbd-padding-x-micro:  3px;
+  --kbd-padding-x-tiny:   4px;
+  --kbd-padding-x-small:  5px;
+  --kbd-padding-x-base:   6px;
+  --kbd-padding-x-medium: 7px;
+  --kbd-padding-x-large:  8px;
+  --kbd-padding-x-big:    9px;
+  --kbd-padding-x-huge:   10px;
+  --kbd-padding-x-mega:   12px;
+  --kbd-padding-x-ultra:  14px;
+
+  /* Padding-y per density */
+  --kbd-padding-y-micro:  1px;
+  --kbd-padding-y-tiny:   1px;
+  --kbd-padding-y-small:  2px;
+  --kbd-padding-y-base:   2px;
+  --kbd-padding-y-medium: 3px;
+  --kbd-padding-y-large:  3px;
+  --kbd-padding-y-big:    4px;
+  --kbd-padding-y-huge:   4px;
+  --kbd-padding-y-mega:   5px;
+  --kbd-padding-y-ultra:  6px;
+
+  /* Gap per density (between key + separator in combo) */
+  --kbd-gap-micro:  2px;
+  --kbd-gap-tiny:   2px;
+  --kbd-gap-small:  3px;
+  --kbd-gap-base:   4px;
+  --kbd-gap-medium: 4px;
+  --kbd-gap-large:  5px;
+  --kbd-gap-big:    5px;
+  --kbd-gap-huge:   6px;
+  --kbd-gap-mega:   6px;
+  --kbd-gap-ultra:  8px;
+
+  /* Min-width per density */
+  --kbd-min-width-micro:  14px;
+  --kbd-min-width-tiny:   16px;
+  --kbd-min-width-small:  18px;
+  --kbd-min-width-base:   20px;
+  --kbd-min-width-medium: 22px;
+  --kbd-min-width-large:  24px;
+  --kbd-min-width-big:    26px;
+  --kbd-min-width-huge:   28px;
+  --kbd-min-width-mega:   32px;
+  --kbd-min-width-ultra:  36px;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (10 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Filled variant */
+  --kbd-filled-bg:           var(--surface-base-subtle);
+  --kbd-filled-fg:           var(--surface-base-ct-default);
+  --kbd-filled-border-color: var(--surface-base-outline);
+
+  /* Outlined variant */
+  --kbd-outlined-bg:           transparent;
+  --kbd-outlined-fg:           var(--surface-base-ct-default);
+  --kbd-outlined-border-color: var(--surface-base-outline);
+
+  /* Ghost variant */
+  --kbd-ghost-bg:           transparent;
+  --kbd-ghost-fg:           var(--surface-base-ct-subtle);
+  --kbd-ghost-border-color: transparent;
+
+  /* Disabled */
+  --kbd-opacity-disabled: 0.4;
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --kbd-font-family:    var(--font-family-mono);
+  --kbd-font-weight:    var(--font-weight-medium);
+  --kbd-line-height:    1;
+  --kbd-letter-spacing: var(--letter-spacing-normal);
+
+  /* Font-size per density */
+  --kbd-font-size-micro:  9px;
+  --kbd-font-size-tiny:   10px;
+  --kbd-font-size-small:  11px;
+  --kbd-font-size-base:   12px;
+  --kbd-font-size-medium: 12px;
+  --kbd-font-size-large:  13px;
+  --kbd-font-size-big:    13px;
+  --kbd-font-size-huge:   14px;
+  --kbd-font-size-mega:   15px;
+  --kbd-font-size-ultra:  16px;
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (3 vars — separator)
+     ──────────────────────────────────────────────────────────── */
+
+  --kbd-sep-color:   var(--surface-base-ct-faint);
+  --kbd-sep-opacity: 0.7;
+  --kbd-sep-margin:  0px;
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --kbd-transition-property: background-color, border-color, box-shadow, opacity;
+  --kbd-transition-duration: var(--duration-fast);
+  --kbd-transition-easing:   var(--easing-in-out);
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ A11Y  (1 var — non-interactive display element)
+     ──────────────────────────────────────────────────────────── */
+
+  --kbd-min-tap-target: 0px;
+}

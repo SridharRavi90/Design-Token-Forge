@@ -1,0 +1,227 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Select Token Defaults
+   Layer 0: System defaults for 120 select variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ----------------------------------------------------------------
+   ANATOMY:
+     .select-group (wrapper)
+       └─ .select-label   (optional)
+       └─ .select-control (field + chevron slot)
+            └─ .select-field   (native <select>)
+            └─ .select-chevron (icon slot)
+       └─ .select-helper  (optional)
+
+   VARIANTS  (data-variant):   outlined (default) | filled | underline
+   ROLES     (data-role):       brand (default) | danger | success | warning | info | neutral
+   STATES    (selectors):       default | hover | focus-visible | disabled | invalid | readonly
+
+   "INVALID" IS A STATE, NOT A ROLE
+     Use aria-invalid="true" on .select-group to mark an invalid field.
+     Roles (data-role) describe the brand palette of the focus ring / label;
+     invalid state ALWAYS overrides role-tinted focus to danger borders.
+   ════════════════════════════════════════════════════════════════ */
+
+.select-group {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode */
+  --select-radius-micro: var(--radius-sm);     /* 4px  — same as btn-micro */
+  --select-radius-tiny: var(--radius-sm);      /* 4px  — same as btn-tiny */
+  --select-radius-small: var(--radius-md);     /* 6px  — same as btn-small */
+  --select-radius-base: var(--radius-DEFAULT); /* 8px  — one step above btn-base */
+  --select-radius-medium: var(--radius-DEFAULT); /* 8px */
+  --select-radius-large: var(--radius-md-lg);  /* 10px — one step above btn-large */
+  --select-radius-big: var(--radius-md-lg);    /* 10px — same as btn-big */
+  --select-radius-huge: var(--radius-lg);      /* 12px — one step above btn-huge */
+  --select-radius-mega: var(--radius-lg);      /* 12px — same as btn-mega */
+  --select-radius-ultra: var(--radius-xl);     /* 16px — capped */
+  --select-radius-rounded: var(--radius-full);
+
+  /* Border */
+  --select-border-width: 1px;
+  --select-border-style: solid;
+
+  /* Shadow */
+  --select-shadow: var(--shadow-none);
+  --select-shadow-focus: var(--shadow-none);
+
+  --select-outline-style: solid;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (32 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Height per density mode — same scale as Input / Button */
+  --select-height-micro: var(--spacing-24);
+  --select-height-tiny: var(--spacing-28);
+  --select-height-small: var(--spacing-32);
+  --select-height-base: var(--spacing-36);
+  --select-height-medium: var(--spacing-40);
+  --select-height-large: var(--spacing-44);
+  --select-height-big: var(--spacing-48);
+  --select-height-huge: var(--spacing-56);
+  --select-height-mega: var(--spacing-64);
+  --select-height-ultra: var(--spacing-72);
+
+  /* Horizontal padding per density mode */
+  --select-padding-x-micro: var(--spacing-6);
+  --select-padding-x-tiny: var(--spacing-8);
+  --select-padding-x-small: var(--spacing-10);
+  --select-padding-x-base: var(--spacing-12);
+  --select-padding-x-medium: var(--spacing-14);
+  --select-padding-x-large: var(--spacing-16);
+  --select-padding-x-big: var(--spacing-16);
+  --select-padding-x-huge: var(--spacing-18);
+  --select-padding-x-mega: var(--spacing-20);
+  --select-padding-x-ultra: var(--spacing-20);
+
+  /* Vertical padding per density mode */
+  --select-padding-y-micro: var(--spacing-2);
+  --select-padding-y-tiny: var(--spacing-3);
+  --select-padding-y-small: var(--spacing-4);
+  --select-padding-y-base: var(--spacing-6);
+  --select-padding-y-medium: var(--spacing-8);
+  --select-padding-y-large: var(--spacing-10);
+  --select-padding-y-big: var(--spacing-12);
+  --select-padding-y-huge: var(--spacing-14);
+  --select-padding-y-mega: var(--spacing-16);
+  --select-padding-y-ultra: var(--spacing-20);
+
+  /* Width model */
+  --select-min-width: var(--spacing-120);
+  --select-max-width: none;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — OUTLINED VARIANT  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --select-outlined-bg: transparent;
+  --select-outlined-bg-hover: transparent;
+  --select-outlined-bg-focus: transparent;
+  --select-outlined-bg-disabled: transparent;
+  --select-outlined-bg-invalid: transparent;
+  --select-outlined-fg: var(--surface-base-ct-default);
+  --select-outlined-fg-disabled: var(--surface-base-ct-faint);
+  --select-outlined-border-color: var(--surface-base-cm-outline);
+  --select-outlined-border-color-hover: var(--surface-base-cm-outline-hover);
+  --select-outlined-border-color-focus: var(--brand-component-outline-default);
+  --select-outlined-border-color-disabled: var(--surface-base-cm-outline);
+  --select-outlined-border-color-invalid: var(--danger-component-outline-default);
+  --select-outlined-placeholder: var(--surface-base-ct-faint);
+  --select-outlined-placeholder-disabled: var(--surface-base-ct-faint);
+  --select-outlined-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — FILLED VARIANT  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --select-filled-bg: var(--surface-base-cm-bg);
+  --select-filled-bg-hover: var(--surface-base-cm-bg-hover);
+  --select-filled-bg-focus: var(--surface-base-cm-bg);
+  --select-filled-bg-disabled: var(--surface-base-cm-bg);
+  --select-filled-bg-invalid: var(--surface-base-cm-bg);
+  --select-filled-fg: var(--surface-base-ct-default);
+  --select-filled-fg-disabled: var(--surface-base-ct-faint);
+  --select-filled-border-color: var(--surface-base-cm-outline);
+  --select-filled-border-color-hover: var(--surface-base-cm-outline-hover);
+  --select-filled-border-color-focus: var(--brand-component-outline-default);
+  --select-filled-border-color-disabled: var(--surface-base-cm-outline);
+  --select-filled-border-color-invalid: var(--danger-component-outline-default);
+  --select-filled-placeholder: var(--surface-base-ct-faint);
+  --select-filled-placeholder-disabled: var(--surface-base-ct-faint);
+  --select-filled-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — UNDERLINE VARIANT  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --select-underline-bg: transparent;
+  --select-underline-bg-hover: transparent;
+  --select-underline-bg-focus: transparent;
+  --select-underline-bg-disabled: transparent;
+  --select-underline-bg-invalid: transparent;
+  --select-underline-fg: var(--surface-base-ct-default);
+  --select-underline-fg-disabled: var(--surface-base-ct-faint);
+  --select-underline-border-color: var(--surface-base-cm-outline);
+  --select-underline-border-color-hover: var(--surface-base-ct-subtle);
+  --select-underline-border-color-focus: var(--brand-component-outline-default);
+  --select-underline-border-color-disabled: var(--surface-base-cm-outline);
+  --select-underline-border-color-invalid: var(--danger-component-outline-default);
+  --select-underline-placeholder: var(--surface-base-ct-faint);
+  --select-underline-placeholder-disabled: var(--surface-base-ct-faint);
+  --select-underline-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — SHARED  (7 vars)
+     ──────────────────────────────────────────────────────────── */
+  --select-label-color: var(--surface-base-ct-subtle);
+  --select-label-color-focus: var(--brand-content-default);
+  --select-label-color-invalid: var(--danger-content-default);
+  --select-label-color-disabled: var(--surface-base-ct-faint);
+  --select-helper-color: var(--surface-base-ct-subtle);
+  --select-helper-color-invalid: var(--danger-content-default);
+  --select-chevron-color: var(--surface-base-ct-subtle);
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (13 vars)
+     ──────────────────────────────────────────────────────────── */
+  --select-font-family: var(--font-family-sans);
+
+  /* Font size per density mode */
+  --select-font-size-micro: var(--font-size-10);
+  --select-font-size-tiny: var(--font-size-11);
+  --select-font-size-small: var(--font-size-12);
+  --select-font-size-base: var(--font-size-14);
+  --select-font-size-medium: var(--font-size-14);
+  --select-font-size-large: var(--font-size-16);
+  --select-font-size-big: var(--font-size-16);
+  --select-font-size-huge: var(--font-size-18);
+  --select-font-size-mega: var(--font-size-20);
+  --select-font-size-ultra: var(--font-size-24);
+
+  --select-font-weight: var(--font-weight-regular);
+  --select-line-height: var(--line-height-normal);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (16 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Chevron icon size per density mode */
+  --select-chevron-size-micro: var(--spacing-10);
+  --select-chevron-size-tiny: var(--spacing-12);
+  --select-chevron-size-small: var(--spacing-14);
+  --select-chevron-size-base: var(--spacing-16);
+  --select-chevron-size-medium: var(--spacing-16);
+  --select-chevron-size-large: var(--spacing-18);
+  --select-chevron-size-big: var(--spacing-18);
+  --select-chevron-size-huge: var(--spacing-20);
+  --select-chevron-size-mega: var(--spacing-24);
+  --select-chevron-size-ultra: var(--spacing-28);
+
+  /* Label slot */
+  --select-label-font-size: var(--font-size-13);
+  --select-label-font-weight: var(--font-weight-medium);
+  --select-label-gap: var(--spacing-6);
+
+  /* Helper slot */
+  --select-helper-font-size: var(--font-size-12);
+  --select-helper-font-weight: var(--font-weight-regular);
+  --select-helper-gap: var(--spacing-4);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+  --select-transition-property: border-color, background-color, box-shadow, color, opacity;
+  --select-transition-duration: var(--duration-normal);
+  --select-transition-easing: var(--easing-in-out);
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --select-focus-outline-width: var(--focus-outline-width);
+  --select-focus-outline-color: var(--brand-component-outline-default);
+  --select-focus-outline-offset: var(--focus-outline-offset);
+  --select-min-tap-target: 44px;
+  --select-required-indicator: '*';
+  --select-required-color: var(--danger-content-default);
+}

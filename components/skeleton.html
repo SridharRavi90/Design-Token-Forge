@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Skeleton Explorer</title>
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/skeleton/skeleton.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/skeleton/skeleton.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+  .skel-stage{display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:24px}
+  .density-strip{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;padding:24px}
+  .density-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .density-meta{font-size:10px;opacity:.5;font-weight:600;font-variant-numeric:tabular-nums}
+  .variant-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .variant-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);background:var(--demo-card-bg);display:flex;flex-direction:column;align-items:center;gap:16px}
+  .variant-card-title{font-weight:600;font-size:13px;text-transform:capitalize}
+  .surface-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-radius:12px;overflow:hidden}
+  .surface-panel{padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .surface-panel--base{background:var(--surface-base-bg)}
+  .surface-panel--alt{background:var(--surface-base-subtle)}
+  .surface-panel--deep{background:var(--surface-deep-bg)}
+  .surface-panel-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.5;margin-bottom:8px}
+  .shape-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .shape-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .shape-card-title{font-weight:600;font-size:12px;opacity:.7}
+  .anim-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .anim-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:16px}
+  .anim-card-title{font-weight:600;font-size:13px}
+  .anatomy-grid{display:flex;flex-direction:column;gap:20px;padding:24px}
+  .anatomy-row{display:flex;align-items:center;gap:16px}
+  .anatomy-label{font-weight:600;font-size:12px;opacity:.6;min-width:120px}
+  .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .a11y-card{padding:20px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;gap:8px}
+  .a11y-card-title{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;opacity:.6}
+  .a11y-card-desc{font-size:13px;line-height:1.5}
+  .motion-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .playground-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .playground-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .playground-card-title{font-weight:600;font-size:13px}
+  .mock-card{padding:20px;border-radius:12px;border:1px solid var(--demo-border);display:flex;gap:12px;align-items:flex-start;width:320px}
+  .mock-card-lines{flex:1;display:flex;flex-direction:column;gap:8px}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<!-- ═══════════════════ GLOBAL CONTROLS ═══════════════════ -->
+<nav class="global-controls" aria-label="Global skeleton preview controls">
+
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-variant="text" type="button">Text</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="rect" type="button">Rect</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="circle" type="button">Circle</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Animation</label>
+    <div class="pill-bar" id="animBar" role="radiogroup" aria-label="Animation selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-animation="shimmer" type="button">Shimmer</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-animation="pulse" type="button">Pulse</button>
+    </div>
+  </div>
+
+</nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">01</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">02</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">03</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">04</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">05</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">06</span>Shape</a>
+  <a href="#sec-slots"><span class="sn-num">07</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">08</span>Motion</a>
+  <a href="#sec-a11y"><span class="sn-num">09</span>Accessibility</a>
+  <a href="#sec-playground"><span class="sn-num">10</span>Context Playground</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Skeleton Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~45 CSS Variables</span>
+    <span class="demo-badge">3 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects global controls. Inspector shows resolved computed values for the active size and variant.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" style="display:flex;align-items:center;justify-content:center;min-height:80px;padding:24px">
+          <div class="synced-skel" style="width:240px">
+            <div class="skeleton" data-variant="text" data-size="base"></div>
+          </div>
+        </div>
+        <div class="hero-inspector" id="heroInspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Structure</span></div>
+    <p class="section-desc">Three shapes: text (line), rect (block), circle (avatar placeholder).</p>
+    <div class="section-body">
+      <div class="variant-grid">
+        <div class="variant-card">
+          <span class="variant-card-title">Text</span>
+          <div class="skeleton-group" style="width:180px">
+            <div class="skeleton" data-variant="text" data-size="base"></div>
+            <div class="skeleton" data-variant="text" data-size="base" style="width:75%"></div>
+            <div class="skeleton" data-variant="text" data-size="base" style="width:50%"></div>
+          </div>
+        </div>
+        <div class="variant-card">
+          <span class="variant-card-title">Rect</span>
+          <div class="skeleton" data-variant="rect" data-size="huge" style="width:180px"></div>
+        </div>
+        <div class="variant-card">
+          <span class="variant-card-title">Circle</span>
+          <div class="skeleton" data-variant="circle" data-size="large"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 3. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes, micro (8px) to ultra (40px) for text variant.</p>
+    <div class="section-body">
+      <div class="density-strip" id="densityStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 4. STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Skeleton states: default (animating) and disabled (paused).</p>
+    <div class="section-body">
+      <div class="skel-stage">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="skeleton" data-variant="text" data-size="large" style="width:120px"></div>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Default</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="skeleton" data-variant="text" data-size="large" data-disabled style="width:120px"></div>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Disabled</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 5. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Skeleton adapts visibility on different surface levels.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base">
+          <span class="surface-panel-label">surface-base-bg</span>
+          <div class="skeleton-group" style="width:140px">
+            <div class="skeleton" data-variant="text" data-size="base"></div>
+            <div class="skeleton" data-variant="text" data-size="base" style="width:70%"></div>
+          </div>
+        </div>
+        <div class="surface-panel surface-panel--alt">
+          <span class="surface-panel-label">surface-base-subtle</span>
+          <div class="skeleton-group" style="width:140px">
+            <div class="skeleton" data-variant="text" data-size="base"></div>
+            <div class="skeleton" data-variant="text" data-size="base" style="width:70%"></div>
+          </div>
+        </div>
+        <div class="surface-panel surface-panel--deep">
+          <span class="surface-panel-label">surface-deep-bg</span>
+          <div class="skeleton-group" style="width:140px">
+            <div class="skeleton" data-variant="text" data-size="base"></div>
+            <div class="skeleton" data-variant="text" data-size="base" style="width:70%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. SHAPE ═══════════ -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Each variant has its own border-radius: small for text, medium for rect, full for circle.</p>
+    <div class="section-body">
+      <div class="shape-grid">
+        <div class="shape-card">
+          <span class="shape-card-title">radius-sm (text)</span>
+          <div class="skeleton" data-variant="text" data-size="large" style="width:120px"></div>
+        </div>
+        <div class="shape-card">
+          <span class="shape-card-title">radius-md (rect)</span>
+          <div class="skeleton" data-variant="rect" data-size="large" style="width:120px"></div>
+        </div>
+        <div class="shape-card">
+          <span class="shape-card-title">radius-full (circle)</span>
+          <div class="skeleton" data-variant="circle" data-size="large"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. SLOTS & ANATOMY ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Common composition patterns: card placeholder, list items, profile block.</p>
+    <div class="section-body">
+      <div class="anatomy-grid">
+        <div class="anatomy-row">
+          <span class="anatomy-label">Card mock</span>
+          <div class="mock-card">
+            <div class="skeleton" data-variant="circle" data-size="base"></div>
+            <div class="mock-card-lines">
+              <div class="skeleton" data-variant="text" data-size="small"></div>
+              <div class="skeleton" data-variant="text" data-size="small" style="width:60%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="anatomy-row">
+          <span class="anatomy-label">Paragraph</span>
+          <div class="skeleton-group" style="width:280px">
+            <div class="skeleton" data-variant="text" data-size="small"></div>
+            <div class="skeleton" data-variant="text" data-size="small"></div>
+            <div class="skeleton" data-variant="text" data-size="small" style="width:80%"></div>
+          </div>
+        </div>
+        <div class="anatomy-row">
+          <span class="anatomy-label">Image block</span>
+          <div class="skeleton" data-variant="rect" data-size="mega" style="width:200px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 8. MOTION ═══════════ -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Two animation modes: shimmer (wave across) and pulse (fade in/out).</p>
+    <div class="section-body">
+      <div class="anim-grid">
+        <div class="anim-card">
+          <span class="anim-card-title">Shimmer (wave)</span>
+          <div class="skeleton" data-variant="text" data-size="large" style="width:180px"></div>
+          <span style="font-size:11px;opacity:.6">translateX sweep, 1.8s, ease-in-out</span>
+        </div>
+        <div class="anim-card">
+          <span class="anim-card-title">Pulse (fade)</span>
+          <div class="skeleton" data-variant="text" data-size="large" data-animation="pulse" style="width:180px"></div>
+          <span style="font-size:11px;opacity:.6">opacity 1→0.5→1, 1.8s, ease-in-out</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 9. ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Skeleton is a decorative loading indicator. It uses aria-hidden or role="status".</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <span class="a11y-card-title">Non-interactive</span>
+          <span class="a11y-card-desc">Skeleton is display-only. <code>pointer-events: none</code> and <code>user-select: none</code> prevent interaction.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Forced Colors</span>
+          <span class="a11y-card-desc">In Windows High Contrast, a visible border with <code>GrayText</code> replaces the shimmer gradient.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Reduced Motion</span>
+          <span class="a11y-card-desc">Shimmer/pulse animations are disabled. A static low-opacity fill communicates loading state.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Screen Readers</span>
+          <span class="a11y-card-desc">Use <code>aria-busy="true"</code> on the container and <code>aria-hidden="true"</code> on individual skeletons.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 10. CONTEXT PLAYGROUND ═══════════ -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface &times; Variant</span></div>
+    <p class="section-desc">All 3 variants side by side in current size.</p>
+    <div class="section-body">
+      <div class="playground-grid" id="playgroundGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 11. FRAMEWORK SNIPPETS ═══════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Copy-paste ready code for React, Vue, HTML, and CSS token overrides.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-tabs">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css">CSS Tokens</button>
+        </div>
+        <pre class="fw-snippet-code" data-panel="react"><code>&lt;Skeleton variant="text" size="base" /&gt;
+&lt;Skeleton variant="circle" size="large" /&gt;
+&lt;SkeletonGroup&gt;
+  &lt;Skeleton variant="text" /&gt;
+  &lt;Skeleton variant="text" style={{ width: '75%' }} /&gt;
+&lt;/SkeletonGroup&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="vue"><code>&lt;DtfSkeleton variant="text" size="base" /&gt;
+&lt;DtfSkeleton variant="circle" size="large" /&gt;
+&lt;DtfSkeletonGroup&gt;
+  &lt;DtfSkeleton variant="text" /&gt;
+  &lt;DtfSkeleton variant="text" style="width: 75%" /&gt;
+&lt;/DtfSkeletonGroup&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="html"><code>&lt;div class="skeleton" data-variant="text" data-size="base"&gt;&lt;/div&gt;
+&lt;div class="skeleton" data-variant="circle" data-size="large"&gt;&lt;/div&gt;
+
+&lt;div class="skeleton-group"&gt;
+  &lt;div class="skeleton" data-variant="text"&gt;&lt;/div&gt;
+  &lt;div class="skeleton" data-variant="text" style="width:75%"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="css"><code>/* Override skeleton tokens */
+.my-app .skeleton {
+  --skel-bg: var(--surface-base-subtle);
+  --skel-shimmer-via: rgba(255,255,255,0.3);
+  --skel-animation-duration: 2s;
+  --skel-radius-text: var(--radius-md);
+}</code></pre>
+        <pre class="fw-snippet-code" data-panel="slyte" data-active><code>import { DtfComponent } from '@design-token-forge/slyte';
+
+&lt;dtf-component
+  lt-prop-variant="filled"
+  lt-prop-color-role="brand"
+  lt-prop-size="base"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;Content&lt;/template&gt;
+&lt;/dtf-component&gt;</code></pre>
+        
+        
+              </div>
+    </div>
+  </section>
+
+</main>
+</div><!-- .page-content -->
+</div><!-- .page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script src="shared-page.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  var P = window.DTFPage;
+  var SIZES = P.SIZES;
+  var VARIANTS = ['text', 'rect', 'circle'];
+
+  /* ── Global state ────────────────────────────────── */
+  var G = { variant: 'text', size: 'base', animation: 'shimmer' };
+
+  /* ── Apply globals to synced skeleton ────────────── */
+  function applyGlobals() {
+    document.querySelectorAll('.synced-skel .skeleton').forEach(function(el) {
+      el.dataset.variant = G.variant;
+      el.dataset.size = G.size;
+      if (G.animation === 'pulse') {
+        el.dataset.animation = 'pulse';
+      } else {
+        delete el.dataset.animation;
+      }
+      /* Adjust width for circle */
+      if (G.variant === 'circle') {
+        el.style.width = '';
+      } else {
+        el.style.width = '240px';
+      }
+    });
+    renderDensity();
+    updateInspector();
+  }
+
+  /* ── Density strip ───────────────────────────────── */
+  function renderDensity() {
+    var strip = P.clr('densityStrip');
+    if (!strip) return;
+    SIZES.forEach(function(sz) {
+      var el = document.createElement('div');
+      el.className = 'skeleton';
+      el.dataset.variant = G.variant;
+      el.dataset.size = sz;
+      if (G.animation === 'pulse') el.dataset.animation = 'pulse';
+      if (G.variant !== 'circle') el.style.width = '60px';
+      var it = P.wrapDensityItem(el, sz);
+      strip.appendChild(it);
+    });
+  }
+
+  /* ── Inspector ───────────────────────────────────── */
+  function updateInspector() {
+    var el = document.querySelector('.synced-skel .skeleton');
+    if (!el) return;
+    var cs = getComputedStyle(el);
+    var heightProp = G.variant === 'circle' ? '--skel-circle-size-' + G.size : '--skel-height-' + G.size;
+    var rows = [
+      [heightProp,                  cs.getPropertyValue(heightProp).trim(),                  ''],
+      ['--skel-radius-' + G.variant, cs.getPropertyValue('--skel-radius-' + G.variant).trim(), ''],
+      ['--skel-bg',                 cs.getPropertyValue('--skel-bg').trim(),                 ''],
+      ['--skel-shimmer-via',        cs.getPropertyValue('--skel-shimmer-via').trim(),        ''],
+      ['--skel-shimmer-width',      cs.getPropertyValue('--skel-shimmer-width').trim(),      ''],
+      ['--skel-animation-duration', cs.getPropertyValue('--skel-animation-duration').trim(), ''],
+      ['--skel-gap',                cs.getPropertyValue('--skel-gap').trim(),                '']
+    ];
+    P.buildInspector('heroInspector', 'Resolved Tokens (' + G.variant + ' / ' + G.size + ')', rows);
+  }
+
+  /* ── Playground grid ─────────────────────────────── */
+  function renderPlayground() {
+    var grid = P.clr('playgroundGrid');
+    if (!grid) return;
+    VARIANTS.forEach(function(v) {
+      var card = document.createElement('div');
+      card.className = 'playground-card';
+      var title = document.createElement('span');
+      title.className = 'playground-card-title';
+      title.textContent = v;
+      card.appendChild(title);
+
+      var el = document.createElement('div');
+      el.className = 'skeleton';
+      el.dataset.variant = v;
+      el.dataset.size = G.size;
+      if (G.animation === 'pulse') el.dataset.animation = 'pulse';
+      if (v !== 'circle') el.style.width = '140px';
+      card.appendChild(el);
+      grid.appendChild(card);
+    });
+  }
+
+  /* ── Wire pill bars ──────────────────────────────── */
+  P.wirePillBar('variantBar', 'ctrlVariant', function(v) { G.variant = v; applyGlobals(); });
+  P.wirePillBar('sizeBar',    'ctrlSize',    function(v) { G.size = v;    applyGlobals(); });
+  P.wirePillBar('animBar',    'ctrlAnimation', function(v) { G.animation = v; applyGlobals(); });
+
+  /* ── Framework tab switching ─────────────────────── */
+  document.querySelectorAll('.fw-snippet-tabs').forEach(function(tabs) {
+    tabs.addEventListener('click', function(e) {
+      var btn = e.target.closest('.fw-snippet-tab');
+      if (!btn) return;
+      var panel = btn.dataset.tab;
+      var snippet = tabs.closest('.fw-snippet');
+      snippet.querySelectorAll('.fw-snippet-tab').forEach(function(t) { t.setAttribute('aria-selected', 'false'); });
+      btn.setAttribute('aria-selected', 'true');
+      snippet.querySelectorAll('.fw-snippet-code').forEach(function(c) { delete c.dataset.active; });
+      var target = snippet.querySelector('[data-panel="' + panel + '"]');
+      if (target) target.dataset.active = '';
+    });
+  });
+
+  /* ── Initial render ──────────────────────────────── */
+  applyGlobals();
+  renderPlayground();
+  window.DTF = window.DTF || {};
+  window.DTF.onThemeChange = function() { applyGlobals(); };
+})();
+</script>
+</body>
+</html>

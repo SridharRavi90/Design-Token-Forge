@@ -1,0 +1,242 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — IconButton Token Defaults
+   Layer 0: System defaults for 120 icon-button variables.
+   All values reference global tokens — zero hardcoded visuals.
+
+   ORTHOGONAL MODEL
+   ────────────────
+   Structure (data-variant): filled | outlined | soft | ghost
+   Role (data-role):         brand | danger | warning | info | success | neutral
+
+   Token groups below use legacy names for backward compatibility:
+     primary  ≡ filled   (solid background, role-colored)
+     secondary ≡ outlined (border emphasis, role-colored)
+     tertiary ≡ soft     (tinted container, role-colored)
+     ghost    = ghost    (transparent, neutral by default)
+
+   All primary/secondary/tertiary tokens reference --brand-* semantic palette.
+   CSS role selectors remap --brand-* → --{role}-* at the element level,
+   so every structural variant × every role composes automatically.
+
+   danger/success/warning/neutral/outline/brand token groups below are
+   LEGACY shortcuts for filled+danger, filled+success, etc. They remain
+   for backward compatibility with data-variant="danger" syntax.
+   ════════════════════════════════════════════════════════════════ */
+
+.icon-btn {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode */
+  --icon-btn-radius-micro: var(--radius-sm);    /* 4px  — matches btn-micro */
+  --icon-btn-radius-tiny: var(--radius-sm);     /* 4px  — matches btn-tiny */
+  --icon-btn-radius-small: var(--radius-sm);    /* 4px */
+  --icon-btn-radius-base: var(--radius-md);     /* 6px  — matches btn-base */
+  --icon-btn-radius-medium: var(--radius-md);   /* 6px */
+  --icon-btn-radius-large: var(--radius-DEFAULT); /* 8px */
+  --icon-btn-radius-big: var(--radius-DEFAULT); /* 8px */
+   --icon-btn-radius-huge: var(--radius-lg);    /* 12px */
+   --icon-btn-radius-mega: var(--radius-lg);    /* 12px — capped; was xl */
+   --icon-btn-radius-ultra: var(--radius-xl);   /* 16px — capped; was 2xl */
+
+  /* Border */
+  --icon-btn-border-width: 1px;
+  --icon-btn-border-style: solid;
+
+  /* Shadow */
+  --icon-btn-shadow: var(--shadow-none);
+  --icon-btn-shadow-hover: var(--shadow-none);
+  --icon-btn-shadow-pressed: var(--shadow-none);
+  --icon-btn-shadow-strong: var(--shadow-sm);
+
+  /* Overflow */
+  --icon-btn-overflow: hidden;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (20 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Size per density mode (width = height, always square) */
+  --icon-btn-size-micro: var(--spacing-24);
+  --icon-btn-size-tiny: var(--spacing-28);
+  --icon-btn-size-small: var(--spacing-32);
+  --icon-btn-size-base: var(--spacing-36);
+  --icon-btn-size-medium: var(--spacing-40);
+  --icon-btn-size-large: var(--spacing-44);
+  --icon-btn-size-big: var(--spacing-48);
+  --icon-btn-size-huge: var(--spacing-56);
+  --icon-btn-size-mega: var(--spacing-64);
+  --icon-btn-size-ultra: var(--spacing-72);
+
+  /* Icon size per density mode */
+  --icon-btn-icon-size-micro: var(--spacing-12);
+  --icon-btn-icon-size-tiny: var(--spacing-14);
+  --icon-btn-icon-size-small: var(--spacing-16);
+  --icon-btn-icon-size-base: var(--spacing-18);
+  --icon-btn-icon-size-medium: var(--spacing-20);
+  --icon-btn-icon-size-large: var(--spacing-22);
+  --icon-btn-icon-size-big: var(--spacing-24);
+  --icon-btn-icon-size-huge: var(--spacing-28);
+  --icon-btn-icon-size-mega: var(--spacing-32);
+  --icon-btn-icon-size-ultra: var(--spacing-36);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (72 vars = 6 variants × 12 properties)
+     Pattern: --icon-btn-{variant}-{property}[-{state}]
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── PRIMARY ≡ FILLED (solid bg, reads --brand-* palette) ─────────────────────────────── */
+  --icon-btn-filled-bg: var(--brand-component-bg-default);
+  --icon-btn-filled-bg-hover: var(--brand-component-bg-hover);
+  --icon-btn-filled-bg-pressed: var(--brand-component-bg-pressed);
+  --icon-btn-filled-bg-disabled: var(--brand-component-bg-default);
+  --icon-btn-filled-fg: var(--brand-on-component);
+  --icon-btn-filled-fg-hover: var(--brand-on-component);
+  --icon-btn-filled-fg-disabled: var(--brand-on-component);
+  --icon-btn-filled-border-color: var(--brand-component-bg-default);
+  --icon-btn-filled-border-color-hover: var(--brand-component-bg-hover);
+  --icon-btn-filled-border-color-pressed: var(--brand-component-bg-pressed);
+  --icon-btn-filled-border-color-disabled: var(--brand-component-bg-default);
+  --icon-btn-filled-opacity-disabled: 0.5;
+
+  /* ── SECONDARY ≡ OUTLINED (border emphasis, --brand-* palette) ─────────── */
+  --icon-btn-outlined-bg: transparent;
+  --icon-btn-outlined-bg-hover: var(--brand-container-bg);
+  --icon-btn-outlined-bg-pressed: var(--brand-container-pressed);
+  --icon-btn-outlined-bg-disabled: transparent;
+  --icon-btn-outlined-fg: var(--brand-content-default);
+  --icon-btn-outlined-fg-hover: var(--brand-content-default);
+  --icon-btn-outlined-fg-disabled: var(--brand-content-default);
+  --icon-btn-outlined-border-color: var(--brand-component-outline-default);
+  --icon-btn-outlined-border-color-hover: var(--brand-component-outline-hover);
+  --icon-btn-outlined-border-color-pressed: var(--brand-component-outline-pressed);
+  --icon-btn-outlined-border-color-disabled: var(--brand-component-outline-default);
+  --icon-btn-outlined-opacity-disabled: 0.5;
+
+  /* ── GHOST (transparent bg, --surface-* by default) ──────────────────── */
+  --icon-btn-ghost-bg: transparent;
+  --icon-btn-ghost-bg-hover: var(--surface-base-subtle);
+  --icon-btn-ghost-bg-pressed: var(--surface-base-strong);
+  --icon-btn-ghost-bg-disabled: transparent;
+  --icon-btn-ghost-fg: var(--surface-base-ct-default);
+  --icon-btn-ghost-fg-hover: var(--surface-base-ct-default);
+  --icon-btn-ghost-fg-disabled: var(--surface-base-ct-default);
+  --icon-btn-ghost-border-color: transparent;
+  --icon-btn-ghost-border-color-hover: transparent;
+  --icon-btn-ghost-border-color-pressed: transparent;
+  --icon-btn-ghost-border-color-disabled: transparent;
+  --icon-btn-ghost-opacity-disabled: 0.5;
+
+  /* ── DANGER (legacy: filled + danger role) ───────────────────────────────── */
+  --icon-btn-danger-bg: var(--danger-component-bg-default);
+  --icon-btn-danger-bg-hover: var(--danger-component-bg-hover);
+  --icon-btn-danger-bg-pressed: var(--danger-component-bg-pressed);
+  --icon-btn-danger-bg-disabled: var(--danger-component-bg-default);
+  --icon-btn-danger-fg: var(--danger-on-component);
+  --icon-btn-danger-fg-hover: var(--danger-on-component);
+  --icon-btn-danger-fg-disabled: var(--danger-on-component);
+  --icon-btn-danger-border-color: var(--danger-component-bg-default);
+  --icon-btn-danger-border-color-hover: var(--danger-component-bg-hover);
+  --icon-btn-danger-border-color-pressed: var(--danger-component-bg-pressed);
+  --icon-btn-danger-border-color-disabled: var(--danger-component-bg-default);
+  --icon-btn-danger-opacity-disabled: 0.5;
+
+  /* ── NEUTRAL (legacy: filled + neutral/surface context) ───────────────────── */
+  --icon-btn-neutral-bg: var(--surface-base-cm-bg);
+  --icon-btn-neutral-bg-hover: var(--surface-base-cm-bg-hover);
+  --icon-btn-neutral-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --icon-btn-neutral-bg-disabled: var(--surface-base-cm-bg);
+  --icon-btn-neutral-fg: var(--surface-base-ct-default);
+  --icon-btn-neutral-fg-hover: var(--surface-base-ct-strong);
+  --icon-btn-neutral-fg-disabled: var(--surface-base-ct-default);
+  --icon-btn-neutral-border-color: var(--surface-base-cm-outline);
+  --icon-btn-neutral-border-color-hover: var(--surface-base-cm-outline-hover);
+  --icon-btn-neutral-border-color-pressed: var(--surface-base-cm-outline-pressed);
+  --icon-btn-neutral-border-color-disabled: var(--surface-base-cm-outline);
+  --icon-btn-neutral-opacity-disabled: 0.5;
+
+  /* ── TERTIARY ≡ SOFT (tinted container, --brand-* palette) ────────────────────────── */
+  --icon-btn-soft-bg: var(--brand-container-bg);
+  --icon-btn-soft-bg-hover: var(--brand-container-hover);
+  --icon-btn-soft-bg-pressed: var(--brand-container-pressed);
+  --icon-btn-soft-bg-disabled: var(--brand-container-bg);
+  --icon-btn-soft-fg: var(--brand-content-default);
+  --icon-btn-soft-fg-hover: var(--brand-content-default);
+  --icon-btn-soft-fg-disabled: var(--brand-content-default);
+  --icon-btn-soft-border-color: transparent;
+  --icon-btn-soft-border-color-hover: transparent;
+  --icon-btn-soft-border-color-pressed: transparent;
+  --icon-btn-soft-border-color-disabled: transparent;
+  --icon-btn-soft-opacity-disabled: 0.5;
+
+  /* ── SUCCESS (legacy: filled + success role) ─────────────────────────────── */
+  --icon-btn-success-bg: var(--success-component-bg-default);
+  --icon-btn-success-bg-hover: var(--success-component-bg-hover);
+  --icon-btn-success-bg-pressed: var(--success-component-bg-pressed);
+  --icon-btn-success-bg-disabled: var(--success-component-bg-default);
+  --icon-btn-success-fg: var(--success-on-component);
+  --icon-btn-success-fg-hover: var(--success-on-component);
+  --icon-btn-success-fg-disabled: var(--success-on-component);
+  --icon-btn-success-border-color: var(--success-component-bg-default);
+  --icon-btn-success-border-color-hover: var(--success-component-bg-hover);
+  --icon-btn-success-border-color-pressed: var(--success-component-bg-pressed);
+  --icon-btn-success-border-color-disabled: var(--success-component-bg-default);
+  --icon-btn-success-opacity-disabled: 0.5;
+
+  /* ── WARNING (legacy: filled + warning role) ─────────────────────────────── */
+  --icon-btn-warning-bg: var(--warning-component-bg-default);
+  --icon-btn-warning-bg-hover: var(--warning-component-bg-hover);
+  --icon-btn-warning-bg-pressed: var(--warning-component-bg-pressed);
+  --icon-btn-warning-bg-disabled: var(--warning-component-bg-default);
+  --icon-btn-warning-fg: var(--warning-on-component);
+  --icon-btn-warning-fg-hover: var(--warning-on-component);
+  --icon-btn-warning-fg-disabled: var(--warning-on-component);
+  --icon-btn-warning-border-color: var(--warning-component-bg-default);
+  --icon-btn-warning-border-color-hover: var(--warning-component-bg-hover);
+  --icon-btn-warning-border-color-pressed: var(--warning-component-bg-pressed);
+  --icon-btn-warning-border-color-disabled: var(--warning-component-bg-default);
+  --icon-btn-warning-opacity-disabled: 0.5;
+
+  /* ── BRAND (legacy: filled + brand role) ───────────────────────── */
+  --icon-btn-brand-bg: var(--brand-component-bg-default);
+  --icon-btn-brand-bg-hover: var(--brand-component-bg-hover);
+  --icon-btn-brand-bg-pressed: var(--brand-component-bg-pressed);
+  --icon-btn-brand-bg-disabled: var(--brand-component-bg-default);
+  --icon-btn-brand-fg: var(--brand-on-component);
+  --icon-btn-brand-fg-hover: var(--brand-on-component);
+  --icon-btn-brand-fg-disabled: var(--brand-on-component);
+  --icon-btn-brand-border-color: var(--brand-component-bg-default);
+  --icon-btn-brand-border-color-hover: var(--brand-component-bg-hover);
+  --icon-btn-brand-border-color-pressed: var(--brand-component-bg-pressed);
+  --icon-btn-brand-border-color-disabled: var(--brand-component-bg-default);
+  --icon-btn-brand-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (2 vars)
+     ──────────────────────────────────────────────────────────── */
+  --icon-btn-icon-color: currentColor;
+  --icon-btn-icon-color-hover: currentColor;
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --icon-btn-transition-property: background-color, border-color, color, box-shadow, opacity, transform;
+  --icon-btn-transition-duration: var(--duration-normal);
+  --icon-btn-transition-easing: var(--easing-in-out);
+  --icon-btn-animation-enter: none;
+  --icon-btn-animation-exit: none;
+
+  /* Loader */
+  --icon-btn-loader-speed: 1.5s;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --icon-btn-focus-outline-width: var(--focus-outline-width);
+  --icon-btn-focus-outline-color: var(--brand-component-outline-default);
+  --icon-btn-focus-outline-offset: var(--focus-outline-offset);
+  --icon-btn-min-tap-target: 44px;
+  --icon-btn-radius-rounded: var(--radius-full);
+}

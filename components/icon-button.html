@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — IconButton Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/icon-button/icon-button.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/icon-button/icon-button.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Structure × Role</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Shape & Shadow</a>
+  <a href="#sec-motion"><span class="sn-num">7</span>Motion</a>
+  <a href="#sec-playground"><span class="sn-num">8</span>Context Playground<span class="sn-tag">New</span></a>
+  <a href="#sec-a11y"><span class="sn-num">9</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>IconButton Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">120 CSS Variables</span>
+    <span class="demo-badge">4 Structures × 7 Roles</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<nav class="global-controls" aria-label="Global icon-button preview controls">
+  <div class="control-group">
+    <label>Structure</label>
+    <div class="pill-bar" id="structBar" role="radiogroup" aria-label="Structure selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-struct="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="soft" type="button">Soft</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-struct="ghost" type="button">Ghost</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Role</label>
+    <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="brand" type="button">Brand</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Shape</label>
+    <div class="pill-bar" id="roundedBar" role="radiogroup" aria-label="Rounded toggle">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-rounded="false" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-rounded="true" type="button">Rounded</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- 1. HERO -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects the global variant and size controls. Inspector shows resolved token values (CSS custom properties). Note: the rendered element may be larger than the size token — <code>min-width/height: var(--icon-btn-min-tap-target)</code> enforces a 44px WCAG tap target. The size token is the <em>visual</em> intent; the tap area is transparent overflow.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview">
+          <button class="icon-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-label="Add item">
+            <span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span>
+          </button>
+        </div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- 2. VARIANT GALLERY -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Structure × Role</h2><span class="section-tag">Orthogonal</span></div>
+    <p class="section-desc"><strong>Structural variants</strong> define the surface treatment. <strong>Roles</strong> provide semantic color. Top row: all structures in the selected role. Bottom row: all roles in the selected structure.</p>
+    <div class="section-body">
+      <div class="sub-label">Structural Variants (in selected role)</div>
+      <div class="preview-grid" id="structGallery"></div>
+      <div style="border-top:1px solid var(--demo-border);margin:12px 0"></div>
+      <div class="sub-label">Role Gallery (in selected structure)</div>
+      <div class="preview-grid" id="roleGallery"></div>
+    </div>
+  </section>
+
+  <!-- 3. DENSITY SCALE -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes at the globally selected variant. Each maps 3 dimensions: container size, radius, and icon size.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- 4. STATE MATRIX -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every structural variant in every interactive state, using the selected role. Hover and focus to see live transitions.</p>
+    <div class="section-body"><div class="state-grid" id="stateMatrix"></div></div>
+  </section>
+
+  <!-- 5. SURFACE CONTEXT -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">All four structural variants on three background levels, using the selected role.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase"><span class="surface-panel-label">surface-base-bg</span></div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt"><span class="surface-panel-label">surface-base-subtle</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep"><span class="surface-panel-label">surface-deep-bg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SHAPE & SHADOW -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Default radius scales with density. Rounded mode forces a circle. Shadows reference global shadow tokens.</p>
+    <div class="section-body">
+      <div class="sub-label">Default radius per density</div>
+      <div class="density-strip" id="radiusScale"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Rounded (circle) per density</div>
+      <div class="density-strip" id="roundedScale"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Shadow presets</div>
+      <div class="shadow-strip" id="shadowStrip"></div>
+    </div>
+  </section>
+
+  <!-- 7. MOTION -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Transition durations, easing functions, and loading pulse. Hover over buttons to see transitions.</p>
+    <div class="section-body"><div class="motion-strip" id="motionDemo"></div></div>
+  </section>
+
+  <!-- 8. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how icon buttons adapt across surface contexts and semantic color roles. Two cards with independent surface + role — compare side by side.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="micro" type="button">micro</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="ultra" type="button">ultra</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <!-- Card A -->
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA">
+            <div class="pg-variant-row"><span class="pg-variant-label">Brand</span><button class="icon-btn pg-btn" data-variant="filled" data-role="brand" data-size="base" type="button" aria-label="Add"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Outlined</span><button class="icon-btn pg-btn" data-variant="outlined" data-size="base" type="button" aria-label="Edit"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5l2 2M2 11l7-7 2 2-7 7H2v-2z"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Ghost</span><button class="icon-btn pg-btn" data-variant="ghost" data-size="base" type="button" aria-label="More"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="3" r="0.5"/><circle cx="8" cy="8" r="0.5"/><circle cx="8" cy="13" r="0.5"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Danger</span><button class="icon-btn pg-btn" data-variant="filled" data-role="danger" data-size="base" type="button" aria-label="Delete"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V3h4v1M5 4v9h6V4"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Neutral</span><button class="icon-btn pg-btn" data-variant="filled" data-role="neutral" data-size="base" type="button" aria-label="Settings"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Disabled</span><button class="icon-btn pg-btn" data-variant="filled" data-role="brand" data-size="base" disabled type="button" aria-label="Disabled"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span></button></div>
+          </div>
+        </div>
+        <!-- Card B -->
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB">
+            <div class="pg-variant-row"><span class="pg-variant-label">Brand</span><button class="icon-btn pg-btn" data-variant="filled" data-role="brand" data-size="base" type="button" aria-label="Delete"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V3h4v1M5 4v9h6V4"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Outlined</span><button class="icon-btn pg-btn" data-variant="outlined" data-size="base" type="button" aria-label="Remove"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Ghost</span><button class="icon-btn pg-btn" data-variant="ghost" data-size="base" type="button" aria-label="Close"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Danger</span><button class="icon-btn pg-btn" data-variant="filled" data-role="danger" data-size="base" type="button" aria-label="Delete"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V3h4v1M5 4v9h6V4"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Neutral</span><button class="icon-btn pg-btn" data-variant="filled" data-role="neutral" data-size="base" type="button" aria-label="Settings"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span></button></div>
+            <div class="pg-variant-row"><span class="pg-variant-label">Disabled</span><button class="icon-btn pg-btn" data-variant="filled" data-role="brand" data-size="base" disabled type="button" aria-label="Disabled"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span></button></div>
+          </div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 9. ACCESSIBILITY -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, disabled states, reduced motion, forced-colors, and aria-label guidance for icon-only buttons.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to buttons. <code>:focus-visible</code> shows keyboard-only ring.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="icon-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-label="Add"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span></button>
+            <button class="icon-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-label="Edit"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5l2 2M2 11l7-7 2 2-7 7H2v-2z"/></svg></span></button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>disabled</code> and <code>data-disabled</code> apply per-variant opacity.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="icon-btn synced-btn" data-variant="filled" data-size="base" disabled type="button" aria-label="Disabled add"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span></button>
+            <button class="icon-btn synced-btn" data-variant="filled" data-size="base" data-disabled type="button" aria-label="Disabled delete"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V3h4v1M5 4v9h6V4"/></svg></span></button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Aria Label</div>
+          <p class="a11y-card-desc">Icon-only buttons <strong>must</strong> have <code>aria-label</code> for screen readers.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="icon-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-label="Add new item"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span></button>
+          </div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast uses <code>ButtonText</code>, <code>Highlight</code>, <code>GrayText</code>.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="icon-btn synced-btn" data-variant="filled" data-size="base" type="button" aria-label="HC test"><span class="icon-btn__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>IconButton Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-ib">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;button
+  className="icon-btn"
+  data-variant={variant}   {/* filled | outlined | soft | ghost */}
+  data-role={role}          {/* brand | danger | warning | info | success | neutral */}
+  data-size={size}
+  data-shape={shape}       {/* square | circle */}
+  data-rounded={rounded || undefined}
+  data-loading={loading || undefined}
+  disabled={disabled}
+  aria-label={ariaLabel}
+&gt;
+  &lt;span className="icon-btn__icon"&gt;{icon}&lt;/span&gt;
+&lt;/button&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;button
+  class="icon-btn"
+  :data-variant="variant ?? 'brand'"
+  :data-role="role ?? 'brand'"
+  :data-size="size ?? 'base'"
+  :data-shape="shape ?? 'square'"
+  :data-rounded="rounded || undefined"
+  :data-loading="loading || undefined"
+  :disabled="disabled"
+  :aria-label="ariaLabel"
+&gt;
+  &lt;span class="icon-btn__icon"&gt;&lt;slot /&gt;&lt;/span&gt;
+&lt;/button&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;button class="icon-btn" data-variant="filled" data-role="brand" data-size="base" data-shape="square" aria-label="Settings"&gt;
+  &lt;span class="icon-btn__icon"&gt;⚙&lt;/span&gt;
+&lt;/button&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--icon-btn-radius-{size}      /* border radius per density */
+--icon-btn-radius-rounded      /* pill override */
+--icon-btn-shadow / -hover
+--icon-btn-border-style / -width
+
+/* Dimension */
+--icon-btn-size-{size}         /* width = height per density */
+--icon-btn-icon-size-{size}    /* inner icon dimensions */
+--icon-btn-min-tap-target
+
+/* Surface */
+--icon-btn-{structure}-bg / -hover / -active / -disabled
+--icon-btn-{structure}-fg / -hover / -disabled
+--icon-btn-{structure}-border-color / -hover / -active
+--icon-btn-{structure}-opacity-disabled
+
+/* Motion */
+--icon-btn-transition-duration / -easing / -property
+--icon-btn-animation-enter / -exit
+
+/* A11y */
+--icon-btn-focus-outline-width / -offset / -color
+--icon-btn-ring-width / -color        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfIconButton } from '@design-token-forge/slyte';
+
+&lt;dtf-icon-button
+  lt-prop-color-role="brand"
+  lt-prop-size="base"
+  lt-prop-aria-label="Add item"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;
+    &lt;svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"&gt;
+      &lt;path d="M8 3v10M3 8h10"/&gt;
+    &lt;/svg&gt;
+  &lt;/template&gt;
+&lt;/dtf-icon-button&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var STRUCTS = ['filled','outlined','soft','ghost'];
+  var ROLES   = ['brand','danger','success','warning','info','neutral'];
+  var SIZES   = ['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var SIZE_HT = {micro:'24px',tiny:'28px',small:'32px',base:'36px',medium:'40px',large:'44px',big:'48px',huge:'56px',mega:'64px',ultra:'72px'};
+  var SHADOWS = ['none','xs','sm','DEFAULT','md','lg','xl','2xl'];
+
+  var ICON_PLUS='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>';
+  var ICON_EDIT='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5l2 2M2 11l7-7 2 2-7 7H2v-2z"/></svg>';
+  var ICON_TRASH='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V3h4v1M5 4v9h6V4"/></svg>';
+  var ICON_DOTS='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="3" r="0.5"/><circle cx="8" cy="8" r="0.5"/><circle cx="8" cy="13" r="0.5"/></svg>';
+  var ICON_GEAR='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>';
+  var ICON_CLOSE='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+  var ICON_CHECK='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>';
+
+  var STRUCT_ICONS={filled:ICON_PLUS,outlined:ICON_EDIT,soft:ICON_GEAR,ghost:ICON_DOTS};
+  var ROLE_LABELS={
+    brand:{filled:'Add',outlined:'Edit',soft:'Settings',ghost:'More'},
+    danger:{filled:'Delete',outlined:'Remove',soft:'Archive',ghost:'Undo'},
+    success:{filled:'Confirm',outlined:'Approve',soft:'Review',ghost:'OK'},
+    warning:{filled:'Alert',outlined:'Warn',soft:'Caution',ghost:'Skip'},
+    brand:{filled:'Start',outlined:'Learn',soft:'Try',ghost:'Skip'},
+    info:{filled:'Info',outlined:'Details',soft:'Help',ghost:'Tip'},
+    neutral:{filled:'Menu',outlined:'Close',soft:'Options',ghost:'More'}
+  };
+
+  var curStruct='filled',curRole='brand',curS='base',curRounded=false;
+
+  function makeBtn(struct,role,s,o){
+    o=o||{};
+    var b=document.createElement('button');
+    b.type='button'; b.className='icon-btn';
+    if(!o.noSync) b.classList.add('synced-btn');
+    b.dataset.variant=struct;
+    if(role&&role!=='brand'||struct==='ghost')b.dataset.role=role||'brand';
+    b.dataset.size=s;
+    var lbl=ROLE_LABELS[role||'brand'];
+    b.setAttribute('aria-label', o.label||(lbl&&lbl[struct])||struct);
+    if(o.disabled) b.disabled=true;
+    if(o.loading) b.dataset.loading='';
+    if(o.rounded||(curRounded&&!o.noRounded)) b.dataset.rounded='';
+    var ic=document.createElement('span');
+    ic.className='icon-btn__icon';
+    ic.innerHTML=o.svg||STRUCT_ICONS[struct]||ICON_PLUS;
+    b.appendChild(ic);
+    if(o.style){for(var k in o.style){if(o.style.hasOwnProperty(k))b.style.setProperty(k,o.style[k])}}
+    return b;
+  }
+
+  function wrapCard(b,t){var d=document.createElement('div');d.className='variant-card';d.appendChild(b);var l=document.createElement('span');l.className='variant-label';l.textContent=t;d.appendChild(l);return d}
+  function clr(id){var e=document.getElementById(id);e.innerHTML='';return e}
+  function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+  function renderStructGallery(){
+    var el=clr('structGallery');
+    STRUCTS.forEach(function(st){el.appendChild(wrapCard(makeBtn(st,curRole,curS,{noSync:true}),st))});
+  }
+  function renderRoleGallery(){
+    var el=clr('roleGallery');
+    ROLES.forEach(function(r){el.appendChild(wrapCard(makeBtn(curStruct,r,curS,{noSync:true}),r))});
+  }
+
+  function renderDensity(){
+    var el=clr('densityScale');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      var btn=makeBtn(curStruct,curRole,s,{noSync:true,style:{'min-width':'0','min-height':'0'}});
+      it.appendChild(btn);
+      var m=document.createElement('div');m.className='density-meta';
+      requestAnimationFrame(function(){
+        var v=getComputedStyle(btn).getPropertyValue('--icon-btn-size-'+s).trim();
+        m.textContent=v||'\u2014';
+      });
+      m.textContent='\u2026';
+      it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderStates(){
+    var el=clr('stateMatrix');
+    var sts=['Default','Hover','Active','Focus','Disabled','Loading'];
+    var corner=document.createElement('div');corner.className='state-header';el.appendChild(corner);
+    sts.forEach(function(s){var h=document.createElement('div');h.className='state-header';h.textContent=s;el.appendChild(h)});
+    STRUCTS.forEach(function(st){
+      var rl=document.createElement('div');rl.className='state-row-label';rl.textContent=st;el.appendChild(rl);
+      for(var i=0;i<4;i++){var c=document.createElement('div');c.appendChild(makeBtn(st,curRole,curS,{noSync:true}));el.appendChild(c)}
+      var dc=document.createElement('div');dc.appendChild(makeBtn(st,curRole,curS,{disabled:true,noSync:true}));el.appendChild(dc);
+      var lc=document.createElement('div');lc.appendChild(makeBtn(st,curRole,curS,{loading:true,noSync:true}));el.appendChild(lc);
+    });
+  }
+
+  var SURFACE_TOKENS=['bg','hover','pressed','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p=document.getElementById(id);
+      while(p.children.length>1) p.removeChild(p.lastChild);
+      if(id==='surfaceDeep'){applySurface(p,'deep');}
+      STRUCTS.forEach(function(st){p.appendChild(makeBtn(st,curRole,curS,{}))});
+    });
+  }
+
+  function renderRadius(){
+    var el=clr('radiusScale');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeBtn(curStruct,curRole,s,{noSync:true,style:{'min-width':'0','min-height':'0'}}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent=s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderRounded(){
+    var el=clr('roundedScale');
+    SIZES.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeBtn(curStruct,curRole,s,{rounded:true,noSync:true,style:{'min-width':'0','min-height':'0'}}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent=s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderShadows(){
+    var el=clr('shadowStrip');
+    SHADOWS.forEach(function(s){
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeBtn(curStruct,curRole,curS,{noSync:true,style:{'--icon-btn-shadow':'var(--shadow-'+s+')','--icon-btn-shadow-hover':'var(--shadow-'+s+')'}}));
+      var m=document.createElement('div');m.className='density-meta';m.textContent='--shadow-'+s;it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderMotion(){
+    var el=clr('motionDemo');
+    [{label:'Normal',sub:'duration-normal',opts:{}},{label:'Loading...',sub:'1.5s pulse',opts:{loading:true}},{label:'Fast',sub:'duration-fast',opts:{style:{'--icon-btn-transition-duration':'var(--duration-fast)','--icon-btn-transition-easing':'var(--easing-in)'}}},{label:'Slow bounce',sub:'duration-slow',opts:{style:{'--icon-btn-transition-duration':'var(--duration-slow)','--icon-btn-transition-easing':'var(--easing-bounce)'}}}].forEach(function(it){
+      var cd=document.createElement('div');cd.className='motion-card';
+      cd.appendChild(makeBtn(curStruct,curRole,curS,it.opts));
+      var l=document.createElement('span');l.className='motion-label';l.textContent=it.sub;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  /* ── Inspector ──────────────────────────────────── */
+  var IB_TOKENS={
+    size:{micro:'--spacing-24',tiny:'--spacing-28',small:'--spacing-32',base:'--spacing-36',medium:'--spacing-40',large:'--spacing-44',big:'--spacing-48',huge:'--spacing-56',mega:'--spacing-64',ultra:'--spacing-72'},
+    iconSize:{micro:'--spacing-12',tiny:'--spacing-14',small:'--spacing-16',base:'--spacing-18',medium:'--spacing-20',large:'--spacing-22',big:'--spacing-24',huge:'--spacing-28',mega:'--spacing-32',ultra:'--spacing-36'},
+    radius:{micro:'--radius-xs',tiny:'--radius-sm',small:'--radius-sm',base:'--radius-md',medium:'--radius-md',large:'--radius-DEFAULT',big:'--radius-DEFAULT',huge:'--radius-lg',mega:'--radius-xl',ultra:'--radius-xl'}
+  };
+  var STRUCT_TOKEN={filled:'brand',outlined:'secondary',soft:'tertiary',ghost:'ghost'};
+  var ROLE_PREFIX={danger:'danger',success:'success',warning:'warning',info:'info',neutral:'surface-base'};
+
+  function updateInspector(){
+    var hb=document.querySelector('.hero-preview .icon-btn');if(!hb)return;
+    var cs=getComputedStyle(hb),s=curS,tg=STRUCT_TOKEN[curStruct]||'brand';
+    var isN=curRole==='neutral';
+    /* Read the token value directly from the CSS custom property — NOT the
+       rendered bounding-box size. min-tap-target (44px WCAG) can expand the
+       rendered element above the token value; showing cs.width would report
+       44px even when the token is --spacing-36 = 36px, which is misleading. */
+    var sizeTokenVal = cs.getPropertyValue('--_ib-size').trim() || cs.width;
+    var rows=[
+      ['--icon-btn-size-'+s, IB_TOKENS.size[s], sizeTokenVal],
+      ['--icon-btn-icon-size-'+s, IB_TOKENS.iconSize[s], cs.getPropertyValue('--_ib-icon-size').trim()||'\u2014'],
+      [curRounded?'--icon-btn-radius-rounded':'--icon-btn-radius-'+s, curRounded?'--radius-full':IB_TOKENS.radius[s], cs.borderRadius],
+      ['--icon-btn-'+tg+'-bg', isN?'--surface-base-cm-bg':'--brand-component-bg-default', cs.backgroundColor],
+      ['--icon-btn-'+tg+'-fg', isN?'--surface-base-ct-default':'--brand-on-component', cs.color],
+      ['--icon-btn-'+tg+'-border-color', '\u2014', cs.borderColor],
+      ['--icon-btn-shadow', '\u2014', cs.boxShadow==='none'?'none':cs.boxShadow],
+      ['--icon-btn-transition-duration', '--duration-normal', cs.transitionDuration]
+    ];
+    var ins=document.getElementById('heroInspector');
+    ins.innerHTML='<div class="inspector-title">Resolved Tokens ('+curStruct+' / '+curRole+' / '+s+')</div>'+
+      rows.map(function(t){return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+t[2]+(t[1]!=='\u2014'?'<br><span style="opacity:0.5;font-size:9px">\u2192 '+t[1]+'</span>':'')+'</span></div>'}).join('');
+  }
+
+  /* ── Apply Global Controls ──────────────────────── */
+  function applyGlobals(){
+    var hb=document.querySelector('.hero-preview .icon-btn');
+    if(hb){
+      hb.dataset.variant=curStruct;
+      if(curRole!=='brand'||curStruct==='ghost'){hb.dataset.role=curRole}else{delete hb.dataset.role}
+      hb.dataset.size=curS;
+      if(curRounded)hb.dataset.rounded='';else delete hb.dataset.rounded;
+    }
+    document.querySelectorAll('.a11y-grid .synced-btn').forEach(function(b){
+      b.dataset.variant=curStruct;
+      if(curRole!=='brand'||curStruct==='ghost'){b.dataset.role=curRole}else{delete b.dataset.role}
+      b.dataset.size=curS;
+      if(curRounded)b.dataset.rounded='';else delete b.dataset.rounded;
+    });
+    renderStructGallery();renderRoleGallery();renderDensity();renderStates();
+    renderSurface();renderRadius();renderRounded();renderShadows();renderMotion();
+    requestAnimationFrame(updateInspector);
+  }
+
+  function wirePill(barId,attr,cb){
+    document.getElementById(barId).addEventListener('click',function(e){
+      var pill=e.target.closest('.pill');if(!pill)return;
+      this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+      pill.setAttribute('aria-pressed','true');cb(pill.dataset[attr]);
+    });
+  }
+
+  wirePill('structBar','ctrlStruct',function(v){curStruct=v;applyGlobals()});
+  wirePill('roleBar','ctrlRole',function(v){curRole=v;applyGlobals()});
+  wirePill('sizeBar','ctrlSize',function(v){curS=v;applyGlobals()});
+  wirePill('roundedBar','ctrlRounded',function(v){curRounded=v==='true';applyGlobals()});
+
+  window.DTF.onThemeChange=updateInspector;
+  applyGlobals();
+
+  /* ── Context Playground ─────────────────────────── */
+  var ROLE_REMAP=['component-bg-default','component-bg-hover','component-bg-pressed','on-component','content-default','content-strong','content-subtle','content-faint','component-outline-default','component-outline-hover','component-outline-pressed','component-separator','container-bg','container-hover','container-pressed','container-outline','container-separator','on-container'];
+  var pgSize='base';
+
+  function applySurface(el,sid){
+    if(sid==='base'){SURFACE_TOKENS.forEach(function(t){el.style.removeProperty('--surface-base-'+t)});el.style.background='var(--surface-base-bg)';el.removeAttribute('data-theme');}
+    else{SURFACE_TOKENS.forEach(function(t){el.style.setProperty('--surface-base-'+t,'var(--surface-'+sid+'-'+t+')')});el.style.background='var(--surface-'+sid+'-bg)';if(sid==='inverse'){el.setAttribute('data-theme','dark');}else{el.removeAttribute('data-theme');}}
+  }
+
+  function applyRole(el,rid){
+    if(rid==='brand'){ROLE_REMAP.forEach(function(t){el.style.removeProperty('--brand-'+t)})}
+    else if(rid==='neutral'){
+      el.style.setProperty('--brand-component-bg-default','var(--surface-base-cm-bg)');
+      el.style.setProperty('--brand-component-bg-hover','var(--surface-base-cm-bg-hover)');
+      el.style.setProperty('--brand-component-bg-pressed','var(--surface-base-cm-bg-pressed)');
+      el.style.setProperty('--brand-on-component','var(--surface-base-ct-default)');
+      el.style.setProperty('--brand-content-default','var(--surface-base-ct-default)');
+      el.style.setProperty('--brand-container-bg','var(--surface-base-subtle)');
+      el.style.setProperty('--brand-container-hover','var(--surface-base-strong)');
+      el.style.setProperty('--brand-container-pressed','var(--surface-base-strong)');
+      el.style.setProperty('--brand-component-outline-default','var(--surface-base-cm-outline)');
+      el.style.setProperty('--brand-component-outline-hover','var(--surface-base-cm-outline-hover)');
+      el.style.setProperty('--brand-component-outline-pressed','var(--surface-base-cm-outline-pressed)');
+    } else {
+      ROLE_REMAP.forEach(function(t){el.style.setProperty('--brand-'+t,'var(--'+rid+'-'+t+')')});
+    }
+  }
+
+  function pgBuildCard(card){
+    var body=document.getElementById('pgBody'+card);body.innerHTML='';
+    var role=document.querySelector('[data-pg-role="'+card+'"]').value;
+    STRUCTS.forEach(function(st){
+      var row=document.createElement('div');row.className='pg-variant-row';
+      var lbl=document.createElement('span');lbl.className='pg-variant-label';lbl.textContent=cap(st);row.appendChild(lbl);
+      row.appendChild(makeBtn(st,'brand',pgSize,{noSync:true}));
+      body.appendChild(row);
+    });
+    var drow=document.createElement('div');drow.className='pg-variant-row';
+    var dlbl=document.createElement('span');dlbl.className='pg-variant-label';dlbl.textContent='Disabled';drow.appendChild(dlbl);
+    drow.appendChild(makeBtn('filled','brand',pgSize,{disabled:true,noSync:true}));
+    body.appendChild(drow);
+  }
+  function pgApplyCard(card){
+    var body=document.getElementById('pgBody'+card);
+    applySurface(body,document.querySelector('[data-pg-surface="'+card+'"]').value);
+    applyRole(body,document.querySelector('[data-pg-role="'+card+'"]').value);
+    pgBuildCard(card);
+  }
+  function pgUpdateChain(){
+    var chain=document.getElementById('pgChain');
+    var s=document.querySelector('[data-pg-surface="A"]').value;
+    var r=document.querySelector('[data-pg-role="A"]').value;
+    var isN=(r==='neutral'),rp=isN?'surface-'+s:r;
+    var rows=[
+      {sec:'Filled ('+r+')'},
+      {label:'BG',token:'--icon-btn-filled-bg',via:'--'+rp+(isN?'-cm-bg':'-component-bg-default')},
+      {label:'FG',token:'--icon-btn-filled-fg',via:'--'+rp+(isN?'-ct-default':'-on-component')},
+      {sec:'Outlined ('+r+')'},
+      {label:'BG Hover',token:'--icon-btn-outlined-bg-hover',via:'--'+rp+(isN?'-subtle':'-container-bg')},
+      {label:'FG',token:'--icon-btn-outlined-fg',via:'--'+rp+(isN?'-ct-default':'-content-default')},
+      {sec:'Soft ('+r+')'},
+      {label:'BG',token:'--icon-btn-soft-bg',via:'--'+rp+(isN?'-subtle':'-container-bg')},
+      {label:'FG',token:'--icon-btn-soft-fg',via:'--'+rp+(isN?'-ct-default':'-content-default')},
+      {sec:'Ghost ('+r+')'},
+      {label:'BG Hover',token:'--icon-btn-ghost-bg-hover',via:isN?'--surface-'+s+'-subtle':'--'+r+'-container-bg'},
+      {label:'FG',token:'--icon-btn-ghost-fg',via:isN?'--surface-'+s+'-ct-default':'--'+r+'-content-default'}
+    ];
+    var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row){
+      if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return}
+      h+='<div class="pg-chain-row"><span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span></div>';
+    });
+    chain.innerHTML=h;
+  }
+
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+    sel.addEventListener('change',function(){var card=this.dataset.pgSurface||this.dataset.pgRole;pgApplyCard(card);requestAnimationFrame(pgUpdateChain)});
+  });
+  document.getElementById('pgDensityBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');pgSize=pill.dataset.pgSize;
+    pgApplyCard('A');pgApplyCard('B');requestAnimationFrame(pgUpdateChain);
+  });
+  pgApplyCard('A');pgApplyCard('B');requestAnimationFrame(pgUpdateChain);
+
+})();
+</script>
+</body>
+</html>

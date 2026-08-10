@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Input Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css?v=2">
+<link rel="stylesheet" href="../packages/components/src/input/input.tokens.css?v=2">
+<link rel="stylesheet" href="../packages/components/src/input/input.css?v=2">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+/* Input-specific overrides */
+.preview-grid{gap:24px;align-items:flex-start;background:var(--demo-surface)}
+.hero{min-height:220px}
+.pg-card-body{gap:20px}
+.pg-variant-row{flex-direction:column;gap:2px}
+.icon-search{display:block}
+.icon-close{display:block;cursor:pointer}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<!-- Explorer Nav -->
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">2</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-slots"><span class="sn-num">6</span>Slots &amp; Anatomy</a>
+  <a href="#sec-comparison"><span class="sn-num">7</span>Variant Comparison</a>
+  <a href="#sec-a11y"><span class="sn-num">8</span>Accessibility</a>
+  <a href="#sec-playground"><span class="sn-num">9</span>Context Playground<span class="sn-tag">New</span></a>
+  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<!-- Header -->
+<header class="demo-header">
+  <h1>Input Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">182 CSS Variables</span>
+    <span class="demo-badge">3 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<!-- Global Controls -->
+<nav class="global-controls" aria-label="Global input preview controls">
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="outlined" type="button">Outlined</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="filled" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="underline" type="button">Underline</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header">
+      <h2>Hero Inspector</h2>
+      <span class="section-tag">Interactive</span>
+    </div>
+    <p class="section-desc">Live input with inspector showing resolved token values. Try typing, focusing, and hovering.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview">
+          <div class="input-group" id="heroInput" data-variant="outlined" data-size="base" style="max-width:360px;width:100%">
+            <label class="input__label" for="heroField">Email Address</label>
+            <div class="input-field">
+              <span class="input__prefix"><svg class="icon-search" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+              <input type="email" id="heroField" placeholder="you@example.com">
+            </div>
+            <span class="input__helper">We'll never share your email.</span>
+          </div>
+        </div>
+        <div class="hero-inspector" id="inspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header">
+      <h2>Variant Gallery</h2>
+      <span class="section-tag">3 Variants</span>
+    </div>
+    <p class="section-desc">Outlined (default), Filled (bg + full border), and Underline — each with distinct surface treatment.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <div class="preview-col">
+          <span class="col-label">Outlined</span>
+          <div class="input-group" data-variant="outlined" data-size="base">
+            <label class="input__label">Username</label>
+            <div class="input-field">
+              <input type="text" placeholder="Enter username">
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Filled</span>
+          <div class="input-group" data-variant="filled" data-size="base">
+            <label class="input__label">Username</label>
+            <div class="input-field">
+              <input type="text" placeholder="Enter username">
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Underline</span>
+          <div class="input-group" data-variant="underline" data-size="base">
+            <label class="input__label">Username</label>
+            <div class="input-field">
+              <input type="text" placeholder="Enter username">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 3. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header">
+      <h2>Density Scale</h2>
+      <span class="section-tag">10 Sizes</span>
+    </div>
+    <p class="section-desc">From micro (24px) to ultra (80px). Height, padding, font-size, gap, and icon size all scale per density.</p>
+    <div class="section-body" id="densitySection">
+      <div class="preview-grid" style="flex-direction:column;gap:12px">
+        <div class="input-group" data-variant="outlined" data-size="micro" style="max-width:320px"><div class="input-field"><input type="text" placeholder="micro (24px)"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="tiny" style="max-width:340px"><div class="input-field"><input type="text" placeholder="tiny (28px)"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="small" style="max-width:360px"><div class="input-field"><input type="text" placeholder="small (32px)"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="base" style="max-width:380px"><div class="input-field"><input type="text" placeholder="base (36px) — default"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="medium" style="max-width:400px"><div class="input-field"><input type="text" placeholder="medium (40px)"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="large" style="max-width:420px"><div class="input-field"><input type="text" placeholder="large (44px)"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="big" style="max-width:440px"><div class="input-field"><input type="text" placeholder="big (48px)"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="huge" style="max-width:460px"><div class="input-field"><input type="text" placeholder="huge (56px)"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="mega" style="max-width:500px"><div class="input-field"><input type="text" placeholder="mega (64px)"></div></div>
+        <div class="input-group" data-variant="outlined" data-size="ultra" style="max-width:560px"><div class="input-field"><input type="text" placeholder="ultra (80px)"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 4. STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header">
+      <h2>State Matrix</h2>
+      <span class="section-tag">6 States × 3 Variants</span>
+    </div>
+    <p class="section-desc">Default, hover (try it), focus (click in), disabled, error, and readonly — across all three variants.</p>
+    <div class="section-body" id="stateSection">
+
+      <!-- Default -->
+      <div class="state-row">
+        <span class="state-label">Default</span>
+        <div class="input-group" data-variant="outlined" data-size="base" style="width:200px">
+          <div class="input-field"><input type="text" placeholder="Outlined"></div>
+        </div>
+        <div class="input-group" data-variant="filled" data-size="base" style="width:200px">
+          <div class="input-field"><input type="text" placeholder="Filled"></div>
+        </div>
+        <div class="input-group" data-variant="underline" data-size="base" style="width:200px">
+          <div class="input-field"><input type="text" placeholder="Underline"></div>
+        </div>
+      </div>
+
+      <!-- With value -->
+      <div class="state-row">
+        <span class="state-label">Value</span>
+        <div class="input-group" data-variant="outlined" data-size="base" style="width:200px">
+          <div class="input-field"><input type="text" value="hello@dtf.dev"></div>
+        </div>
+        <div class="input-group" data-variant="filled" data-size="base" style="width:200px">
+          <div class="input-field"><input type="text" value="hello@dtf.dev"></div>
+        </div>
+        <div class="input-group" data-variant="underline" data-size="base" style="width:200px">
+          <div class="input-field"><input type="text" value="hello@dtf.dev"></div>
+        </div>
+      </div>
+
+      <!-- Disabled -->
+      <div class="state-row">
+        <span class="state-label">Disabled</span>
+        <div class="input-group" data-variant="outlined" data-size="base" data-disabled style="width:200px">
+          <div class="input-field"><input type="text" placeholder="Outlined" disabled></div>
+        </div>
+        <div class="input-group" data-variant="filled" data-size="base" data-disabled style="width:200px">
+          <div class="input-field"><input type="text" placeholder="Filled" disabled></div>
+        </div>
+        <div class="input-group" data-variant="underline" data-size="base" data-disabled style="width:200px">
+          <div class="input-field"><input type="text" placeholder="Underline" disabled></div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="state-row">
+        <span class="state-label">Invalid</span>
+        <div class="input-group" data-variant="outlined" data-size="base" aria-invalid="true" style="width:200px">
+          <label class="input__label">Email</label>
+          <div class="input-field"><input type="text" value="not-an-email"></div>
+          <span class="input__helper">Invalid email address</span>
+        </div>
+        <div class="input-group" data-variant="filled" data-size="base" aria-invalid="true" style="width:200px">
+          <label class="input__label">Email</label>
+          <div class="input-field"><input type="text" value="not-an-email"></div>
+          <span class="input__helper">Invalid email address</span>
+        </div>
+        <div class="input-group" data-variant="underline" data-size="base" aria-invalid="true" style="width:200px">
+          <label class="input__label">Email</label>
+          <div class="input-field"><input type="text" value="not-an-email"></div>
+          <span class="input__helper">Invalid email address</span>
+        </div>
+      </div>
+
+      <!-- Readonly -->
+      <div class="state-row">
+        <span class="state-label">Readonly</span>
+        <div class="input-group" data-variant="outlined" data-size="base" data-readonly style="width:200px">
+          <div class="input-field"><input type="text" value="Read only" readonly></div>
+        </div>
+        <div class="input-group" data-variant="filled" data-size="base" data-readonly style="width:200px">
+          <div class="input-field"><input type="text" value="Read only" readonly></div>
+        </div>
+        <div class="input-group" data-variant="underline" data-size="base" data-readonly style="width:200px">
+          <div class="input-field"><input type="text" value="Read only" readonly></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════ 5. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Inputs on base, subtle, and deep backgrounds to verify contrast and border visibility.</p>
+    <div class="section-body">
+      <div class="surface-strip" id="surfaceStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. SLOTS SHOWCASE ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header">
+      <h2>Slots &amp; Anatomy</h2>
+      <span class="section-tag">Prefix + Suffix</span>
+    </div>
+    <p class="section-desc">Prefix icons, suffix icons, clear buttons, and label + helper text in all combinations.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <!-- Plain -->
+        <div class="preview-col">
+          <span class="col-label">Plain</span>
+          <div class="input-group" data-variant="outlined" data-size="base" style="width:260px">
+            <label class="input__label">Name</label>
+            <div class="input-field">
+              <input type="text" placeholder="John Doe">
+            </div>
+            <span class="input__helper">Your full name</span>
+          </div>
+        </div>
+        <!-- Prefix icon -->
+        <div class="preview-col">
+          <span class="col-label">Prefix Icon</span>
+          <div class="input-group" data-variant="outlined" data-size="base" style="width:260px">
+            <label class="input__label">Search</label>
+            <div class="input-field">
+              <span class="input__prefix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+              <input type="text" placeholder="Search...">
+            </div>
+          </div>
+        </div>
+        <!-- Suffix icon -->
+        <div class="preview-col">
+          <span class="col-label">Suffix Icon</span>
+          <div class="input-group" data-variant="outlined" data-size="base" style="width:260px">
+            <label class="input__label">Password</label>
+            <div class="input-field">
+              <input type="password" placeholder="••••••••">
+              <span class="input__suffix" role="button" aria-label="Toggle visibility"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <!-- Both -->
+        <div class="preview-col">
+          <span class="col-label">Both Affixes</span>
+          <div class="input-group" data-variant="outlined" data-size="base" style="width:260px">
+            <label class="input__label">Website</label>
+            <div class="input-field">
+              <span class="input__prefix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+              <input type="url" placeholder="https://example.com">
+              <span class="input__suffix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </div>
+            <span class="input__helper">Include https://</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. VARIANT × SLOTS ═══════════ -->
+  <section class="section" id="sec-comparison">
+    <div class="section-header">
+      <h2>Variant Comparison</h2>
+      <span class="section-tag">With Slots</span>
+    </div>
+    <p class="section-desc">All three variants with identical content to compare visual treatment.</p>
+    <div class="section-body">
+      <div class="preview-grid" id="variantCompare">
+        <div class="preview-col">
+          <span class="col-label">Outlined</span>
+          <div class="input-group" data-variant="outlined" data-size="base" style="width:280px">
+            <label class="input__label">Email</label>
+            <div class="input-field">
+              <span class="input__prefix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+              <input type="email" placeholder="you@example.com">
+            </div>
+            <span class="input__helper">Primary contact email</span>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Filled</span>
+          <div class="input-group" data-variant="filled" data-size="base" style="width:280px">
+            <label class="input__label">Email</label>
+            <div class="input-field">
+              <span class="input__prefix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+              <input type="email" placeholder="you@example.com">
+            </div>
+            <span class="input__helper">Primary contact email</span>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Underline</span>
+          <div class="input-group" data-variant="underline" data-size="base" style="width:280px">
+            <label class="input__label">Email</label>
+            <div class="input-field">
+              <span class="input__prefix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+              <input type="email" placeholder="you@example.com">
+            </div>
+            <span class="input__helper">Primary contact email</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. A11Y ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header">
+      <h2>Accessibility</h2>
+      <span class="section-tag">A11y</span>
+    </div>
+    <p class="section-desc">Focus outline, min tap target (44px), label association, error announcement, forced-colors support.</p>
+    <div class="section-body">
+      <div class="preview-grid">
+        <div class="preview-col">
+          <span class="col-label">Focus Ring</span>
+          <div class="input-group" data-variant="outlined" data-size="base" style="width:260px">
+            <label class="input__label" for="a11yFocus">Tab here</label>
+            <div class="input-field">
+              <input type="text" id="a11yFocus" placeholder="Focus to see ring">
+            </div>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Error + Helper</span>
+          <div class="input-group" data-variant="outlined" data-size="base" aria-invalid="true" style="width:260px">
+            <label class="input__label" for="a11yError">Required Field</label>
+            <div class="input-field">
+              <input type="text" id="a11yError" aria-invalid="true" aria-describedby="a11yErrorHelper">
+            </div>
+            <span class="input__helper" id="a11yErrorHelper" role="alert">This field is required</span>
+          </div>
+        </div>
+        <div class="preview-col">
+          <span class="col-label">Min Tap Target</span>
+          <div class="input-group" data-variant="outlined" data-size="micro" style="width:200px">
+            <label class="input__label">Micro (24px field, 44px tap)</label>
+            <div class="input-field">
+              <input type="text" placeholder="44px min-height">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 8. CONTEXT PLAYGROUND ═══════════ -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how inputs adapt across surface contexts and semantic color roles. Surface changes backgrounds and borders at rest. Role changes the <strong>focus accent</strong> — click into any input or switch roles to see the ring, caret, and label change color.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <!-- Card A -->
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="warning">Warning</option><option value="info">Info</option><option value="success">Success</option><option value="neutral">Neutral</option></select><span class="pg-role-swatch" id="pgSwatchA"></span></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA">
+            <div class="pg-role-bar" id="pgRoleBarA"></div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Outlined</span>
+              <div class="input-group pg-input" data-variant="outlined" data-size="base">
+                <label class="input__label">Email Address</label>
+                <div class="input-field">
+                  <span class="input__prefix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                  <input type="email" placeholder="you@example.com">
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Filled</span>
+              <div class="input-group pg-input" data-variant="filled" data-size="base">
+                <label class="input__label">Full Name</label>
+                <div class="input-field">
+                  <input type="text" placeholder="Jane Doe" value="Alex Morgan">
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Underline</span>
+              <div class="input-group pg-input" data-variant="underline" data-size="base">
+                <label class="input__label">Search</label>
+                <div class="input-field">
+                  <span class="input__prefix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                  <input type="text" placeholder="What are you looking for?">
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Invalid</span>
+              <div class="input-group pg-input" data-variant="outlined" data-size="base" aria-invalid="true">
+                <label class="input__label">Password</label>
+                <div class="input-field">
+                  <input type="password" value="abc">
+                </div>
+                <span class="input__helper">Must be at least 8 characters</span>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Disabled</span>
+              <div class="input-group pg-input" data-variant="filled" data-size="base" data-disabled>
+                <label class="input__label">Organization</label>
+                <div class="input-field">
+                  <input type="text" value="Acme Corp" disabled>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Card B -->
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="warning">Warning</option><option value="info">Info</option><option value="success">Success</option><option value="brand">Brand</option><option value="neutral">Neutral</option></select><span class="pg-role-swatch" id="pgSwatchB"></span></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB">
+            <div class="pg-role-bar" id="pgRoleBarB"></div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Outlined</span>
+              <div class="input-group pg-input" data-variant="outlined" data-size="base">
+                <label class="input__label">Delete Confirmation</label>
+                <div class="input-field">
+                  <input type="text" placeholder="Type DELETE to confirm">
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Filled</span>
+              <div class="input-group pg-input" data-variant="filled" data-size="base">
+                <label class="input__label">Reason</label>
+                <div class="input-field">
+                  <input type="text" placeholder="Why are you leaving?" value="Moving to competitor">
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Underline</span>
+              <div class="input-group pg-input" data-variant="underline" data-size="base">
+                <label class="input__label">Feedback</label>
+                <div class="input-field">
+                  <input type="text" placeholder="Any final thoughts?">
+                </div>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Invalid</span>
+              <div class="input-group pg-input" data-variant="outlined" data-size="base" aria-invalid="true">
+                <label class="input__label">Confirmation Code</label>
+                <div class="input-field">
+                  <input type="text" value="A3X">
+                </div>
+                <span class="input__helper">Invalid code format</span>
+              </div>
+            </div>
+            <div class="pg-variant-row">
+              <span class="pg-variant-label">Disabled</span>
+              <div class="input-group pg-input" data-variant="filled" data-size="base" data-disabled>
+                <label class="input__label">Account ID</label>
+                <div class="input-field">
+                  <input type="text" value="ACC-0042" disabled>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Input Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-inp">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;div
+  className="input-group"
+  data-variant={variant}   {/* outline | filled | underline */}
+  data-size={size}
+  aria-invalid={error || undefined}
+  data-disabled={disabled || undefined}
+  data-readonly={readOnly || undefined}
+&gt;
+  {label &amp;&amp; &lt;label className="input__label"&gt;{label}&lt;/label&gt;}
+  &lt;div className="input-field"&gt;
+    {prefix &amp;&amp; &lt;span className="input__prefix"&gt;{prefix}&lt;/span&gt;}
+    &lt;input value={value} onChange={onChange} disabled={disabled} {...rest} /&gt;
+    {suffix &amp;&amp; &lt;span className="input__suffix"&gt;{suffix}&lt;/span&gt;}
+  &lt;/div&gt;
+  {helper &amp;&amp; &lt;span className="input__helper"&gt;{helper}&lt;/span&gt;}
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;div class="input-group"
+  :data-variant="variant ?? 'outlined'"
+  :data-size="size ?? 'base'"
+  :aria-invalid="error || undefined"
+  :data-disabled="disabled || undefined"
+  :data-readonly="readonly || undefined"&gt;
+  &lt;label v-if="label" class="input__label"&gt;{{ label }}&lt;/label&gt;
+  &lt;div class="input-field"&gt;
+    &lt;input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" :disabled="disabled" /&gt;
+  &lt;/div&gt;
+  &lt;span v-if="helper" class="input__helper"&gt;{{ helper }}&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;div class="input-group" data-variant="outlined" data-size="base"&gt;
+  &lt;label class="input__label"&gt;Email&lt;/label&gt;
+  &lt;div class="input-field"&gt;
+    &lt;input type="email" placeholder="you@company.com"&gt;
+  &lt;/div&gt;
+  &lt;span class="input__helper"&gt;We'll never share your email&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--input-radius-{size}         /* border radius per density */
+--input-shadow / -focus
+--input-border-style
+--input-border-width-{t|r|b|l}
+--input-clip-path
+
+/* Dimension */
+--input-height-{size}
+--input-padding-x-{size} / --input-padding-y-{size}
+--input-gap-{size}            /* label↔field↔helper gap */
+--input-inline-size
+--input-min-width / --input-max-width
+
+/* Surface */
+--input-{variant}-bg / -hover / -focus / -disabled
+--input-{variant}-fg / -placeholder / -disabled
+--input-{variant}-border-color / -hover / -focus
+--input-invalid-border-color / -fg
+
+/* Typography */
+--input-font-family / -weight
+--input-font-size-{size}
+--input-letter-spacing / --input-line-height
+
+/* Slots */
+--input-prefix-color / --input-suffix-color
+--input-icon-size-{size}
+--input-padding-x-icon-{size}
+
+/* Motion */
+--input-transition-duration / -easing / -property
+--input-animation-enter / -exit
+
+/* A11y */
+--input-focus-outline-width / -offset / -color
+--input-ring-width / -offset / -color
+--input-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfInput } from '@design-token-forge/slyte';
+
+&lt;dtf-input
+  lt-prop-label="Email"
+  lt-prop-type="email"
+  lt-prop-placeholder="you@example.com"
+  lt-prop-size="base"
+  lt-prop-variant="outlined"&gt;
+&lt;/dtf-input&gt;
+
+&lt;!-- Error state --&gt;
+&lt;dtf-input lt-prop-label="Username" lt-prop-error="true" lt-prop-placeholder="Enter username"&gt;&lt;/dtf-input&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script src="shared-page.js"></script>
+<script>
+/* ── Global Controls ─────────────────────────────────── */
+let currentVariant = 'outlined';
+let currentSize = 'base';
+var P = window.DTFPage;
+
+function renderSurface() {
+  P.renderSurfacePanels('surfaceStrip', function(panel) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-direction:column;gap:12px;margin-top:12px';
+    ['outlined','filled','underline'].forEach(function(v) {
+      var g = document.createElement('div');
+      g.className = 'input-group';
+      g.setAttribute('data-variant', v);
+      g.setAttribute('data-size', currentSize);
+      var lbl = document.createElement('label');
+      lbl.className = 'input__label';
+      lbl.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+      g.appendChild(lbl);
+      var field = document.createElement('div');
+      field.className = 'input-field';
+      var inp = document.createElement('input');
+      inp.type = 'text';
+      inp.placeholder = 'Placeholder text';
+      field.appendChild(inp);
+      g.appendChild(field);
+      row.appendChild(g);
+    });
+    panel.appendChild(row);
+  });
+}
+
+function applyGlobals() {
+  const hero = document.getElementById('heroInput');
+  hero.setAttribute('data-variant', currentVariant);
+  hero.setAttribute('data-size', currentSize);
+  renderSurface();
+  updateInspector();
+}
+
+/* Variant bar */
+document.getElementById('variantBar').addEventListener('click', e => {
+  const pill = e.target.closest('[data-ctrl-variant]');
+  if (!pill) return;
+  document.querySelectorAll('#variantBar .pill').forEach(p => p.setAttribute('aria-pressed', 'false'));
+  pill.setAttribute('aria-pressed', 'true');
+  currentVariant = pill.dataset.ctrlVariant;
+  applyGlobals();
+});
+
+/* Size bar */
+document.getElementById('sizeBar').addEventListener('click', e => {
+  const pill = e.target.closest('[data-ctrl-size]');
+  if (!pill) return;
+  document.querySelectorAll('#sizeBar .pill').forEach(p => p.setAttribute('aria-pressed', 'false'));
+  pill.setAttribute('aria-pressed', 'true');
+  currentSize = pill.dataset.ctrlSize;
+  applyGlobals();
+});
+
+/* Hook theme toggle into inspector */
+window.DTF.onThemeChange = function(){ setTimeout(updateInspector, 50); };
+
+/* ── Inspector ───────────────────────────────────────── */
+const TOKEN_MAP = {
+  height: {micro:'--spacing-24',tiny:'--spacing-28',small:'--spacing-32',base:'--spacing-36',medium:'--spacing-40',large:'--spacing-44',big:'--spacing-48',huge:'--spacing-56',mega:'--spacing-64',ultra:'--spacing-80'},
+  px: {micro:'--spacing-6',tiny:'--spacing-8',small:'--spacing-10',base:'--spacing-12',medium:'--spacing-14',large:'--spacing-16',big:'--spacing-20',huge:'--spacing-24',mega:'--spacing-28',ultra:'--spacing-36'},
+  radius: {micro:'--radius-xs',tiny:'--radius-sm',small:'--radius-md',base:'--radius-DEFAULT',medium:'--radius-DEFAULT',large:'--radius-lg',big:'--radius-lg',huge:'--radius-xl',mega:'--radius-2xl',ultra:'--radius-3xl'},
+  gap: {micro:'--spacing-2',tiny:'--spacing-3',small:'--spacing-4',base:'--spacing-6',medium:'--spacing-6',large:'--spacing-8',big:'--spacing-10',huge:'--spacing-12',mega:'--spacing-14',ultra:'--spacing-16'},
+  fs: {micro:'--font-size-10',tiny:'--font-size-11',small:'--font-size-12',base:'--font-size-14',medium:'--font-size-14',large:'--font-size-16',big:'--font-size-16',huge:'--font-size-18',mega:'--font-size-20',ultra:'--font-size-24'},
+  affixPx: {micro:'--spacing-2',tiny:'--spacing-2',small:'--spacing-3',base:'--spacing-4',medium:'--spacing-4',large:'--spacing-5',big:'--spacing-6',huge:'--spacing-6',mega:'--spacing-8',ultra:'--spacing-10'},
+  iconPx: {micro:'--spacing-4',tiny:'--spacing-6',small:'--spacing-6',base:'--spacing-8',medium:'--spacing-10',large:'--spacing-10',big:'--spacing-12',huge:'--spacing-12',mega:'--spacing-16',ultra:'--spacing-20'},
+  affixSize: {micro:'--spacing-10',tiny:'--spacing-12',small:'--spacing-13',base:'--spacing-16',medium:'--spacing-16',large:'--spacing-18',big:'--spacing-18',huge:'--spacing-20',mega:'--spacing-24',ultra:'--spacing-28'}
+};
+
+const VARIANT_BG = {
+  outline: '--input-outlined-bg',
+  filled: '--input-filled-bg',
+  underline: '--input-underline-bg'
+};
+const VARIANT_BORDER = {
+  outline: '--input-outlined-border-color',
+  filled: '--input-filled-border-color',
+  underline: '--input-underline-border-color'
+};
+
+function updateInspector() {
+  const hero = document.getElementById('heroInput');
+  const field = hero.querySelector('.input-field');
+  const style = getComputedStyle(hero);
+  const fieldStyle = getComputedStyle(field);
+  const s = currentSize;
+  const v = currentVariant;
+  const tokens = [
+    ['--input-height-' + s, TOKEN_MAP.height[s], fieldStyle.height],
+    ['--input-padding-x-' + s, TOKEN_MAP.px[s], fieldStyle.paddingLeft],
+    ['--input-padding-x-icon-' + s, TOKEN_MAP.iconPx[s], fieldStyle.getPropertyValue('--_input-px-icon').trim() || fieldStyle.paddingLeft],
+    ['--input-radius-' + s, TOKEN_MAP.radius[s], fieldStyle.borderRadius],
+    ['--input-gap-' + s, TOKEN_MAP.gap[s], fieldStyle.gap],
+    ['--input-font-size-' + s, TOKEN_MAP.fs[s], fieldStyle.fontSize],
+    ['--input-affix-size-' + s, TOKEN_MAP.affixSize[s], style.getPropertyValue('--_input-affix-size').trim() || '—'],
+    ['--input-affix-px-' + s, TOKEN_MAP.affixPx[s], style.getPropertyValue('--_input-affix-px').trim() || '—'],
+    ['--input-' + v + '-bg', VARIANT_BG[v], fieldStyle.backgroundColor],
+    ['--input-' + v + '-fg', '—', fieldStyle.color],
+    ['--input-' + v + '-border-color', VARIANT_BORDER[v], fieldStyle.borderColor],
+    ['--input-caret-color', '--brand-component-bg-default', style.getPropertyValue('--input-caret-color').trim()],
+    ['--input-label-color', '--surface-base-ct-subtle', style.getPropertyValue('--input-label-color').trim()],
+    ['--input-helper-color', '--surface-base-ct-subtle', style.getPropertyValue('--input-helper-color').trim()],
+  ];
+  const container = document.getElementById('inspector');
+  container.innerHTML = '<div class="inspector-title">Resolved Tokens (' + v + ' / ' + s + ')</div>' +
+    tokens.map(([name, ref, val]) =>
+      '<div class="inspector-row"><span class="token-name">' + name + '</span><span class="token-val">' + val + (ref !== '—' ? '<br><span style="opacity:0.5;font-size:9px">→ ' + ref + '</span>' : '') + '</span></div>'
+    ).join('');
+}
+
+/* Init */
+applyGlobals();
+
+/* ── Context Playground ─────────────────────────────── */
+var SURFACE_TOKENS=[
+  'bg','hover','pressed','outline','separator',
+  'ct-default','ct-strong','ct-subtle','ct-faint',
+  'cm-bg','cm-bg-hover','cm-bg-pressed',
+  'cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'
+];
+var ROLE_TOKENS=[
+  'content-default','content-strong','content-subtle','content-faint',
+  'component-bg-default','component-bg-hover','component-bg-pressed',
+  'component-outline-default','component-outline-hover','component-outline-pressed',
+  'component-separator',
+  'container-bg','container-hover','container-pressed',
+  'container-outline','container-separator',
+  'on-component','on-container'
+];
+
+var ROLE_LABELS={
+  brand:{label:'Email Address',placeholder:'you@example.com',filledLabel:'Full Name',filledPlaceholder:'Jane Doe',underLabel:'Search',underPlaceholder:'What are you looking for?',errorLabel:'Password',errorHelper:'Must be at least 8 characters'},
+  brand:{label:'Join Waitlist',placeholder:'your@email.com',filledLabel:'Display Name',filledPlaceholder:'Choose a handle',underLabel:'Referral Code',underPlaceholder:'Who invited you?',errorLabel:'Invite Code',errorHelper:'Invalid invite code'},
+  danger:{label:'Delete Confirmation',placeholder:'Type DELETE to confirm',filledLabel:'Reason',filledPlaceholder:'Why are you leaving?',underLabel:'Feedback',underPlaceholder:'Any final thoughts?',errorLabel:'Confirmation Code',errorHelper:'Invalid code format'},
+  success:{label:'Verification Code',placeholder:'Enter 6-digit code',filledLabel:'New Password',filledPlaceholder:'Choose a strong password',underLabel:'Recovery Email',underPlaceholder:'backup@email.com',errorLabel:'Confirm Password',errorHelper:'Passwords do not match'},
+  warning:{label:'Override Value',placeholder:'This will replace existing',filledLabel:'Expiry Date',filledPlaceholder:'DD/MM/YYYY',underLabel:'Fallback URL',underPlaceholder:'https://fallback.example.com',errorLabel:'Rate Limit',errorHelper:'Value exceeds maximum threshold'},
+  info:{label:'Search Documentation',placeholder:'What are you looking for?',filledLabel:'Topic Filter',filledPlaceholder:'e.g. tokens, surfaces, roles',underLabel:'Page Number',underPlaceholder:'Jump to page...',errorLabel:'Query Syntax',errorHelper:'Unexpected token near position 4'}
+};
+
+function applySurface(bodyEl,surfaceId){
+  if(surfaceId==='base'){
+    SURFACE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--surface-base-'+tok);});
+    bodyEl.style.background='var(--surface-base-bg)';
+    bodyEl.removeAttribute('data-theme');
+  } else {
+    SURFACE_TOKENS.forEach(function(tok){
+      bodyEl.style.setProperty('--surface-base-'+tok,'var(--surface-'+surfaceId+'-'+tok+')');
+    });
+    bodyEl.style.background='var(--surface-'+surfaceId+'-bg)';
+    if(surfaceId==='inverse'){bodyEl.setAttribute('data-theme','dark');}else{bodyEl.removeAttribute('data-theme');}
+  }
+}
+
+function applyRole(bodyEl,roleId){
+  if(roleId==='brand'){
+    ROLE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--brand-'+tok);});
+  } else {
+    ROLE_TOKENS.forEach(function(tok){
+      bodyEl.style.setProperty('--brand-'+tok,'var(--'+roleId+'-'+tok+')');
+    });
+  }
+}
+
+function pgUpdateLabels(card){
+  var body=document.getElementById('pgBody'+card);
+  var role=document.querySelector('[data-pg-role="'+card+'"]').value;
+  var labels=ROLE_LABELS[role];
+  if(!labels)return;
+  var rows=body.querySelectorAll('.pg-variant-row');
+  // Row 0: Outline
+  var ig0=rows[0].querySelector('.input-group');
+  ig0.querySelector('.input__label').textContent=labels.label;
+  ig0.querySelector('input').placeholder=labels.placeholder;
+  // Row 1: Filled
+  var ig1=rows[1].querySelector('.input-group');
+  ig1.querySelector('.input__label').textContent=labels.filledLabel;
+  ig1.querySelector('input').placeholder=labels.filledPlaceholder;
+  // Row 2: Underline
+  var ig2=rows[2].querySelector('.input-group');
+  ig2.querySelector('.input__label').textContent=labels.underLabel;
+  ig2.querySelector('input').placeholder=labels.underPlaceholder;
+  // Row 3: Error
+  var ig3=rows[3].querySelector('.input-group');
+  ig3.querySelector('.input__label').textContent=labels.errorLabel;
+  var helper=ig3.querySelector('.input__helper');
+  if(helper)helper.textContent=labels.errorHelper;
+}
+
+function pgApplyCard(card){
+  var body=document.getElementById('pgBody'+card);
+  var surfSel=document.querySelector('[data-pg-surface="'+card+'"]');
+  var roleSel=document.querySelector('[data-pg-role="'+card+'"]');
+  applySurface(body,surfSel.value);
+  applyRole(body,roleSel.value);
+  pgUpdateLabels(card);
+  /* Role color indicators */
+  var roleColor='var(--'+roleSel.value+'-component-outline-default)';
+  var bar=document.getElementById('pgRoleBar'+card);
+  var swatch=document.getElementById('pgSwatch'+card);
+  if(bar)bar.style.backgroundColor=roleColor;
+  if(swatch)swatch.style.backgroundColor=roleColor;
+}
+
+function pgApplyDensity(size){
+  document.querySelectorAll('.pg-input').forEach(function(g){g.dataset.size=size});
+}
+
+function pgUpdateChain(){
+  var body=document.getElementById('pgBodyA');
+  var surfSel=document.querySelector('[data-pg-surface="A"]');
+  var roleSel=document.querySelector('[data-pg-role="A"]');
+  var input=body.querySelector('.input-group[data-variant="outlined"] .input-field');
+  if(!input)return;
+  var cs=getComputedStyle(input);
+  var chain=document.getElementById('pgChain');
+  var s=surfSel.value,r=roleSel.value;
+    var rows=[
+      {sec:'Outlined Variant'},
+      {label:'Border',token:'--input-outlined-border-color',via:'--surface-'+s+'-cm-outline',val:cs.borderColor},
+      {label:'Border Hover',token:'--input-outlined-border-color-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {label:'Border Focus',token:'--input-outlined-border-color-focus',via:'--'+r+'-component-outline-default'},
+      {label:'Border Error',token:'--input-outlined-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Border Disabled',token:'--input-outlined-border-color-disabled',via:'--surface-'+s+'-cm-outline'},
+      {label:'FG',token:'--input-outlined-fg',via:'--surface-'+s+'-ct-default',val:cs.color},
+      {label:'FG Disabled',token:'--input-outlined-fg-disabled',via:'--surface-'+s+'-ct-faint'},
+      {label:'Placeholder',token:'--input-outlined-placeholder',via:'--surface-'+s+'-ct-faint'},
+      {sec:'Filled Variant'},
+      {label:'BG',token:'--input-filled-bg',via:'--surface-'+s+'-cm-bg'},
+      {label:'BG Hover',token:'--input-filled-bg-hover',via:'--surface-'+s+'-cm-bg-hover'},
+      {label:'FG',token:'--input-filled-fg',via:'--surface-'+s+'-ct-default'},
+      {label:'Border',token:'--input-filled-border-color',via:'--surface-'+s+'-cm-outline'},
+      {label:'Border Hover',token:'--input-filled-border-color-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {label:'Border Focus',token:'--input-filled-border-color-focus',via:'--'+r+'-component-outline-default'},
+      {label:'Border Error',token:'--input-filled-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Placeholder',token:'--input-filled-placeholder',via:'--surface-'+s+'-ct-faint'},
+      {sec:'Underline Variant'},
+      {label:'FG',token:'--input-underline-fg',via:'--surface-'+s+'-ct-default'},
+      {label:'Border',token:'--input-underline-border-color',via:'--surface-'+s+'-cm-outline'},
+      {label:'Border Hover',token:'--input-underline-border-color-hover',via:'--surface-'+s+'-ct-subtle'},
+      {label:'Border Focus',token:'--input-underline-border-color-focus',via:'--'+r+'-component-outline-default'},
+      {label:'Border Error',token:'--input-underline-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Placeholder',token:'--input-underline-placeholder',via:'--surface-'+s+'-ct-faint'},
+      {sec:'Shared / Labels'},
+      {label:'Label',token:'--input-label-color',via:'--surface-'+s+'-ct-subtle'},
+      {label:'Label Focus',token:'--input-label-color-focus',via:'--'+r+'-content-default'},
+      {label:'Label Error',token:'--input-label-color-invalid',via:'--danger-content-default'},
+      {label:'Label Disabled',token:'--input-label-color-disabled',via:'--surface-'+s+'-ct-faint'},
+      {label:'Helper',token:'--input-helper-color',via:'--surface-'+s+'-ct-subtle'},
+      {label:'Helper Error',token:'--input-helper-color-invalid',via:'--danger-content-default'},
+      {label:'Caret',token:'--input-caret-color',via:'--'+r+'-component-bg-default'},
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring',token:'--input-focus-outline-color',via:'--'+r+'-component-outline-default'}
+    ];
+  var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+  rows.forEach(function(row){
+    if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+    h+='<div class="pg-chain-row">';
+    if(row.val){h+='<span class="pg-swatch" style="background:'+row.val+'"></span>';}
+    h+='<span>'+row.label+'</span> <span class="pg-chain-arrow">→</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">→</span> <span>'+row.via+'</span>';
+    if(row.val){h+=' <span class="pg-chain-arrow">→</span> <span style="font-weight:600">'+row.val+'</span>';}
+    h+='</div>';
+  });
+  chain.innerHTML=h;
+}
+
+document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+  sel.addEventListener('change',function(){
+    var card=this.dataset.pgSurface||this.dataset.pgRole;
+    pgApplyCard(card);
+    requestAnimationFrame(pgUpdateChain);
+    /* Auto-focus first input on role change for instant visual feedback */
+    if(this.dataset.pgRole){
+      var body=document.getElementById('pgBody'+card);
+      var firstInput=body.querySelector('.pg-variant-row:first-child .input-group:not([data-disabled]):not([aria-invalid="true"]) input');
+      if(firstInput)setTimeout(function(){firstInput.focus();},50);
+    }
+  });
+});
+
+document.getElementById('pgDensityBar').addEventListener('click',function(e){
+  var pill=e.target.closest('.pill');if(!pill)return;
+  this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+  pill.setAttribute('aria-pressed','true');
+  pgApplyDensity(pill.dataset.pgSize);
+  requestAnimationFrame(pgUpdateChain);
+});
+
+/* Init playground */
+pgApplyCard('A');
+pgApplyCard('B');
+requestAnimationFrame(pgUpdateChain);
+</script>
+</body>
+</html>

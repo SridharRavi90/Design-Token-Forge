@@ -1,0 +1,71 @@
+{
+  "id": "slate-demo",
+  "name": "Slate demo",
+  "owner": "Gowthamrg20",
+  "description": "Design tokens for Slate demo",
+  "created": "2026-05-11",
+  "paletteKeys": {
+    "brand": "#286CE5",
+    "danger": "#DC2626",
+    "warning": "#D97706",
+    "info": "#0EA5E9",
+    "success": "#16A34A",
+    "greyscale": "#747474",
+    "desaturated": "#71747C"
+  },
+  "semanticMap": {
+    "light": {
+      "content-default": "550",
+      "content-strong": "600",
+      "content-subtle": "350",
+      "content-faint": "200",
+      "component-bg-default": "500",
+      "component-bg-hover": "550",
+      "component-bg-pressed": "600",
+      "component-outline-default": "300",
+      "component-outline-hover": "350",
+      "component-outline-pressed": "450",
+      "component-separator": "100",
+      "container-bg": "50",
+      "container-hover": "75",
+      "container-pressed": "100",
+      "container-outline": "200",
+      "container-separator": "100",
+      "on-component": "fixed-white",
+      "on-container": "600"
+    },
+    "dark": {
+      "content-default": "150",
+      "content-strong": "100",
+      "content-subtle": "200",
+      "content-faint": "350",
+      "component-bg-default": "450",
+      "component-bg-hover": "350",
+      "component-bg-pressed": "300",
+      "component-outline-default": "450",
+      "component-outline-hover": "350",
+      "component-outline-pressed": "300",
+      "component-separator": "750",
+      "container-bg": "800",
+      "container-hover": "750",
+      "container-pressed": "700",
+      "container-outline": "550",
+      "container-separator": "750",
+      "on-component": "fixed-white",
+      "on-container": "100"
+    }
+  },
+  "surfacePaletteSrc": {
+    "bright": "greyscale",
+    "base": "greyscale",
+    "dim": "greyscale",
+    "deep": "greyscale",
+    "accent": "brand",
+    "float": "greyscale",
+    "inverse": "greyscale",
+    "card": "greyscale",
+    "modal": "greyscale"
+  },
+  "paletteAnchor": "exact",
+  "schemaVersion": 2
+}

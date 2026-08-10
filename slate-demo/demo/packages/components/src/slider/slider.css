@@ -1,0 +1,661 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Slider Component CSS
+   Variable-driven rendering. Zero hardcoded visual values.
+   Compound component: track (rail) + fill (value bar) + thumb (handle).
+   Uses internal (--_sl-*) vars set by size selectors.
+   Value position via --_slider-pct (set by JS, 0–100).
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Loading pulse animation ────────────────────────────────── */
+@keyframes slider-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BASE STRUCTURE — root container
+   ════════════════════════════════════════════════════════════════ */
+
+.slider {
+  --_slider-pct: 50;                          /* JS sets this (0–100) */
+
+  display: flex;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+
+  min-width: var(--slider-track-min-w);
+  width: 100%;
+
+  /* Ensure tap target meets a11y */
+  min-height: var(--slider-min-tap-target);
+
+  /* Motion */
+  transition-property: var(--slider-transition-property);
+  transition-duration: var(--slider-transition-duration);
+  transition-timing-function: var(--slider-transition-easing);
+
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;                         /* Prevent scroll while dragging */
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TRACK — the background rail
+   ════════════════════════════════════════════════════════════════ */
+
+.slider__track {
+  position: relative;
+  width: 100%;
+  height: var(--_sl-track-h);
+  border-radius: var(--slider-track-radius);
+  border: var(--slider-track-border-width) var(--slider-track-border-style) var(--slider-track-border-color);
+  background-color: var(--slider-track-bg);
+  box-shadow: var(--slider-track-shadow);
+  overflow: var(--slider-track-overflow);
+
+  /* Motion */
+  transition-property: background-color, border-color;
+  transition-duration: var(--slider-transition-duration);
+  transition-timing-function: var(--slider-transition-easing);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FILL — the value indicator bar (left → thumb position)
+   ════════════════════════════════════════════════════════════════ */
+
+.slider__fill {
+  display: var(--slider-fill-display);
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: calc(var(--_slider-pct) * 1%);
+  border-radius: var(--slider-fill-radius);
+  background-color: var(--slider-fill-bg);
+
+  transition-property: background-color;
+  transition-duration: var(--slider-transition-duration);
+  transition-timing-function: var(--slider-transition-easing);
+}
+
+/* Range mode: fill sits between two thumbs */
+.slider[data-range] .slider__fill {
+  left: calc(var(--_slider-pct-start, 0) * 1%);
+  width: calc((var(--_slider-pct, 100) - var(--_slider-pct-start, 0)) * 1%);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   THUMB — the draggable handle
+   ════════════════════════════════════════════════════════════════ */
+
+.slider__thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: absolute;
+
+  width: var(--_sl-thumb-w);
+  height: var(--_sl-thumb-h);
+  border-radius: var(--slider-thumb-radius);
+
+  background-color: var(--slider-thumb-bg);
+  border: var(--slider-thumb-border-width) var(--slider-thumb-border-style) var(--slider-thumb-border-color);
+  box-shadow: var(--slider-thumb-shadow);
+
+  /* Position: centered vertically on track, horizontally by value */
+  top: 50%;
+  left: calc(var(--_slider-pct) * 1%);
+  transform: translate(-50%, -50%);
+
+  /* Motion — do NOT transition transform; position jumps must be instant */
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: var(--slider-thumb-transition-duration);
+  transition-timing-function: var(--slider-thumb-transition-easing);
+
+  z-index: 2;
+}
+
+/* Thumb icon slot (e.g., grip dots) */
+.slider__thumb-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--slider-thumb-icon-color);
+  font-size: var(--slider-thumb-icon-size);
+  pointer-events: none;
+}
+.slider__thumb-icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+/* Thumb ::after for CSS-driven content (grip lines etc) */
+.slider__thumb::after {
+  content: var(--slider-thumb-content);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Halo — Material-style hover ring (pseudo-element on thumb) */
+.slider__thumb::before {
+  content: '';
+  position: absolute;
+  width: var(--_sl-halo-size);
+  height: var(--_sl-halo-size);
+  border-radius: var(--radius-full);
+  background: var(--slider-thumb-halo-bg);
+  opacity: 0;
+  transition: opacity var(--slider-thumb-transition-duration) var(--slider-thumb-transition-easing);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Range mode: second thumb positioned by --_slider-pct-start */
+.slider[data-range] .slider__thumb[data-thumb="start"] {
+  left: calc(var(--_slider-pct-start, 0) * 1%);
+}
+.slider[data-range] .slider__thumb[data-thumb="end"] {
+  left: calc(var(--_slider-pct, 100) * 1%);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TOOLTIP — optional value bubble above thumb
+   ════════════════════════════════════════════════════════════════ */
+
+.slider__tooltip {
+  display: var(--slider-tooltip-display);
+  position: absolute;
+  left: calc(var(--_slider-pct) * 1%);
+  bottom: calc(50% + var(--_sl-thumb-h) / 2 + var(--slider-tooltip-offset));
+  transform: translateX(-50%);
+
+  padding-block: var(--slider-tooltip-padding-y);
+  padding-inline: var(--slider-tooltip-padding-x);
+  border-radius: var(--slider-tooltip-radius);
+  background: var(--slider-tooltip-bg);
+  color: var(--slider-tooltip-fg);
+  border: var(--slider-tooltip-border-width) var(--slider-tooltip-border-style) var(--slider-tooltip-border-color);
+  box-shadow: var(--slider-tooltip-shadow);
+
+  font-family: var(--slider-tooltip-font-family);
+  font-size: var(--_sl-tooltip-fs);
+  font-weight: var(--slider-tooltip-font-weight);
+  white-space: var(--slider-tooltip-white-space);
+  pointer-events: none;
+
+  transition: opacity var(--slider-tooltip-transition-duration) ease;
+  z-index: 10;
+}
+
+/* Tooltip arrow */
+.slider__tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: var(--slider-tooltip-arrow-size) solid transparent;
+  border-top-color: var(--slider-tooltip-bg);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TICK MARKS — optional step indicators
+   ════════════════════════════════════════════════════════════════ */
+
+.slider__ticks {
+  display: var(--slider-ticks-display);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + var(--_sl-track-h) / 2 + var(--slider-tick-offset));
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.slider__tick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--slider-label-offset);
+}
+
+.slider__tick::before {
+  content: '';
+  display: block;
+  width: var(--slider-tick-w);
+  height: var(--slider-tick-h);
+  border-radius: var(--radius-full);
+  background: var(--slider-tick-color);
+  transition: background-color var(--slider-transition-duration) var(--slider-transition-easing);
+}
+
+/* Active ticks (within the filled range) — colored via JS adding data-active */
+.slider__tick[data-active]::before {
+  background: var(--slider-tick-color-pressed);
+}
+
+/* Tick label text */
+.slider__tick-label {
+  font-size: var(--slider-tick-label-font-size);
+  font-weight: var(--slider-tick-label-font-weight);
+  color: var(--slider-tick-label-color);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIZE SELECTORS — map tokens → active internal vars
+   ════════════════════════════════════════════════════════════════ */
+
+.slider:not([data-size]),
+.slider[data-size="base"] {
+  --_sl-track-h: var(--slider-track-h-base);
+  --_sl-thumb-w: var(--slider-thumb-w-base);
+  --_sl-thumb-h: var(--slider-thumb-h-base);
+  --_sl-halo-size: var(--slider-thumb-halo-size-base);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-base);
+}
+
+.slider[data-size="micro"] {
+  --_sl-track-h: var(--slider-track-h-micro);
+  --_sl-thumb-w: var(--slider-thumb-w-micro);
+  --_sl-thumb-h: var(--slider-thumb-h-micro);
+  --_sl-halo-size: var(--slider-thumb-halo-size-micro);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-micro);
+}
+
+.slider[data-size="tiny"] {
+  --_sl-track-h: var(--slider-track-h-tiny);
+  --_sl-thumb-w: var(--slider-thumb-w-tiny);
+  --_sl-thumb-h: var(--slider-thumb-h-tiny);
+  --_sl-halo-size: var(--slider-thumb-halo-size-tiny);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-tiny);
+}
+
+.slider[data-size="small"] {
+  --_sl-track-h: var(--slider-track-h-small);
+  --_sl-thumb-w: var(--slider-thumb-w-small);
+  --_sl-thumb-h: var(--slider-thumb-h-small);
+  --_sl-halo-size: var(--slider-thumb-halo-size-small);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-small);
+}
+
+.slider[data-size="medium"] {
+  --_sl-track-h: var(--slider-track-h-medium);
+  --_sl-thumb-w: var(--slider-thumb-w-medium);
+  --_sl-thumb-h: var(--slider-thumb-h-medium);
+  --_sl-halo-size: var(--slider-thumb-halo-size-medium);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-medium);
+}
+
+.slider[data-size="large"] {
+  --_sl-track-h: var(--slider-track-h-large);
+  --_sl-thumb-w: var(--slider-thumb-w-large);
+  --_sl-thumb-h: var(--slider-thumb-h-large);
+  --_sl-halo-size: var(--slider-thumb-halo-size-large);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-large);
+}
+
+.slider[data-size="big"] {
+  --_sl-track-h: var(--slider-track-h-big);
+  --_sl-thumb-w: var(--slider-thumb-w-big);
+  --_sl-thumb-h: var(--slider-thumb-h-big);
+  --_sl-halo-size: var(--slider-thumb-halo-size-big);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-big);
+}
+
+.slider[data-size="huge"] {
+  --_sl-track-h: var(--slider-track-h-huge);
+  --_sl-thumb-w: var(--slider-thumb-w-huge);
+  --_sl-thumb-h: var(--slider-thumb-h-huge);
+  --_sl-halo-size: var(--slider-thumb-halo-size-huge);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-huge);
+}
+
+.slider[data-size="mega"] {
+  --_sl-track-h: var(--slider-track-h-mega);
+  --_sl-thumb-w: var(--slider-thumb-w-mega);
+  --_sl-thumb-h: var(--slider-thumb-h-mega);
+  --_sl-halo-size: var(--slider-thumb-halo-size-mega);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-mega);
+}
+
+.slider[data-size="ultra"] {
+  --_sl-track-h: var(--slider-track-h-ultra);
+  --_sl-thumb-w: var(--slider-thumb-w-ultra);
+  --_sl-thumb-h: var(--slider-thumb-h-ultra);
+  --_sl-halo-size: var(--slider-thumb-halo-size-ultra);
+  --_sl-tooltip-fs: var(--slider-tooltip-font-size-ultra);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT SELECTORS — filled (default) | soft
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Filled (default) ───────────────────────────────────────── */
+/* No override needed — token defaults already read --brand-component-*.
+   Filled is the zero-config path. */
+
+/* ── Soft ────────────────────────────────────────────────────── */
+/* Fill uses lighter container-level tint; thumb stays solid. */
+.slider[data-variant="soft"] {
+  --slider-fill-bg: var(--slider-soft-fill-bg);
+  --slider-fill-bg-hover: var(--slider-soft-fill-bg-hover);
+  --slider-fill-bg-pressed: var(--slider-soft-fill-bg-pressed);
+  --slider-fill-bg-disabled: var(--slider-soft-fill-bg-disabled);
+  --slider-tooltip-bg: var(--slider-soft-tooltip-bg);
+  --slider-tooltip-fg: var(--slider-soft-tooltip-fg);
+  --slider-tick-color-pressed: var(--slider-soft-tick-color-pressed);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ROLE SELECTORS — orthogonal to variants
+   Remap the --brand-* palette → chosen role.
+   Both filled and soft tokens reference --brand-*, so
+   swapping at the palette level works for all variants.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── data-role="brand" ────────────────────────────────────── */
+/* Default — no override needed. Tokens already read --brand-*. */
+
+/* ── data-role="danger" ─────────────────────────────────────── */
+.slider[data-role="danger"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-bg-hover: var(--danger-component-bg-hover);
+  --brand-component-bg-pressed: var(--danger-component-bg-pressed);
+  --brand-on-component: var(--danger-on-component);
+  --brand-content-default: var(--danger-content-default);
+  --brand-container-bg: var(--danger-container-bg);
+  --brand-container-hover: var(--danger-container-hover);
+  --brand-container-pressed: var(--danger-container-pressed);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+}
+
+/* ── data-role="success" ────────────────────────────────────── */
+.slider[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-bg-hover: var(--success-component-bg-hover);
+  --brand-component-bg-pressed: var(--success-component-bg-pressed);
+  --brand-on-component: var(--success-on-component);
+  --brand-content-default: var(--success-content-default);
+  --brand-container-bg: var(--success-container-bg);
+  --brand-container-hover: var(--success-container-hover);
+  --brand-container-pressed: var(--success-container-pressed);
+  --brand-component-outline-default: var(--success-component-outline-default);
+}
+
+/* ── data-role="warning" ────────────────────────────────────── */
+.slider[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-bg-hover: var(--warning-component-bg-hover);
+  --brand-component-bg-pressed: var(--warning-component-bg-pressed);
+  --brand-on-component: var(--warning-on-component);
+  --brand-content-default: var(--warning-content-default);
+  --brand-container-bg: var(--warning-container-bg);
+  --brand-container-hover: var(--warning-container-hover);
+  --brand-container-pressed: var(--warning-container-pressed);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+}
+
+/* ── data-role="info" ───────────────────────────────────────── */
+.slider[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-bg-hover: var(--info-component-bg-hover);
+  --brand-component-bg-pressed: var(--info-component-bg-pressed);
+  --brand-on-component: var(--info-on-component);
+  --brand-content-default: var(--info-content-default);
+  --brand-container-bg: var(--info-container-bg);
+  --brand-container-hover: var(--info-container-hover);
+  --brand-container-pressed: var(--info-container-pressed);
+  --brand-component-outline-default: var(--info-component-outline-default);
+}
+
+/* ── data-role="neutral" ────────────────────────────────────── */
+.slider[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg);
+  --brand-component-bg-hover: var(--surface-base-cm-bg-hover);
+  --brand-component-bg-pressed: var(--surface-base-cm-bg-pressed);
+  --brand-on-component: var(--surface-base-ct-default);
+  --brand-content-default: var(--surface-base-ct-default);
+  --brand-container-bg: var(--surface-base-subtle);
+  --brand-container-hover: var(--surface-base-strong);
+  --brand-container-pressed: var(--surface-base-strong);
+  --brand-component-outline-default: var(--surface-base-cm-outline);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HOVER
+   ════════════════════════════════════════════════════════════════ */
+
+.slider:hover .slider__track {
+  background-color: var(--slider-track-bg-hover);
+  box-shadow: var(--slider-track-shadow-hover);
+}
+
+.slider:hover .slider__fill {
+  background-color: var(--slider-fill-bg-hover);
+}
+
+.slider:hover .slider__thumb {
+  background-color: var(--slider-thumb-bg-hover);
+  border-color: var(--slider-thumb-border-color-hover);
+  box-shadow: var(--slider-thumb-shadow-hover);
+}
+
+/* Show halo on hover */
+.slider:hover .slider__thumb::before {
+  opacity: var(--slider-thumb-halo-opacity);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ACTIVE (DRAGGING)
+   ════════════════════════════════════════════════════════════════ */
+
+.slider:active .slider__fill,
+.slider[data-dragging] .slider__fill {
+  background-color: var(--slider-fill-bg-pressed);
+}
+
+.slider:active .slider__thumb,
+.slider[data-dragging] .slider__thumb {
+  background-color: var(--slider-thumb-bg-pressed);
+  border-color: var(--slider-thumb-border-color-pressed);
+  box-shadow: var(--slider-thumb-shadow-pressed);
+}
+
+.slider:active .slider__thumb::before,
+.slider[data-dragging] .slider__thumb::before {
+  background: var(--slider-thumb-halo-bg-pressed);
+  opacity: var(--slider-thumb-halo-opacity);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   STATES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Focus-visible — keyboard focus ring on the thumb */
+.slider:focus-visible {
+  outline: none;
+}
+
+.slider:focus-visible .slider__thumb {
+  outline: var(--slider-focus-outline-width) var(--slider-outline-style) var(--slider-focus-outline-color);
+  outline-offset: var(--slider-focus-outline-offset);
+}
+
+/* Disabled */
+.slider[data-disabled],
+.slider[aria-disabled="true"] {
+
+  pointer-events: none;
+  opacity: var(--slider-opacity-disabled);
+}
+
+.slider[data-disabled] .slider__track,
+.slider[aria-disabled="true"] .slider__track {
+  background-color: var(--slider-track-bg-disabled);
+  border-color: var(--slider-track-border-color-disabled);
+  box-shadow: var(--slider-track-shadow-disabled);
+}
+
+.slider[data-disabled] .slider__fill,
+.slider[aria-disabled="true"] .slider__fill {
+  background-color: var(--slider-fill-bg-disabled);
+}
+
+.slider[data-disabled] .slider__thumb,
+.slider[aria-disabled="true"] .slider__thumb {
+  background-color: var(--slider-thumb-bg-disabled);
+  border-color: var(--slider-thumb-border-color-disabled);
+  box-shadow: var(--slider-thumb-shadow-disabled);
+}
+
+.slider[data-disabled] .slider__tick::before,
+.slider[aria-disabled="true"] .slider__tick::before {
+  background: var(--slider-tick-color-disabled);
+}
+
+/* Loading — pulse on track */
+.slider[data-loading] {
+  cursor: wait;
+  pointer-events: none;
+  animation: slider-pulse var(--slider-loader-speed) ease-in-out infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   LABEL WRAPPER — slider + text side by side
+   ════════════════════════════════════════════════════════════════ */
+
+.slider-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--slider-label-gap);
+}
+
+.slider-label__text {
+  font-family: var(--slider-label-font-family);
+  font-size: var(--slider-label-font-size);
+  font-weight: var(--slider-label-font-weight);
+  line-height: var(--slider-label-line-height);
+  color: var(--slider-label-color);
+}
+
+.slider-label__value {
+  font-family: var(--slider-label-font-family);
+  font-size: var(--slider-value-font-size);
+  font-weight: var(--slider-label-font-weight);
+  color: var(--slider-value-color);
+}
+
+.slider-label:has(.slider[data-disabled]) .slider-label__text,
+.slider-label:has(.slider[aria-disabled="true"]) .slider-label__text {
+  color: var(--slider-label-color-disabled);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   VERTICAL ORIENTATION
+   ════════════════════════════════════════════════════════════════ */
+
+.slider[data-orientation="vertical"] {
+  writing-mode: vertical-lr;
+  width: auto;
+  min-width: auto;
+  min-height: var(--slider-track-min-w);
+  height: var(--slider-vertical-height);
+}
+
+.slider[data-orientation="vertical"] .slider__fill {
+  width: 100%;
+  height: calc(var(--_slider-pct) * 1%);
+  top: auto;
+  bottom: 0;
+}
+
+.slider[data-orientation="vertical"] .slider__thumb {
+  left: 50%;
+  top: auto;
+  bottom: calc(var(--_slider-pct) * 1%);
+  transform: translate(-50%, 50%);
+}
+
+.slider[data-orientation="vertical"]:active .slider__thumb,
+.slider[data-orientation="vertical"][data-dragging] .slider__thumb {
+  transform: translate(-50%, 50%);
+}
+
+.slider[data-orientation="vertical"] .slider__tooltip {
+  left: calc(50% + var(--_sl-thumb-w) / 2 + var(--slider-tooltip-offset));
+  bottom: calc(var(--_slider-pct) * 1%);
+  top: auto;
+  transform: translateY(50%);
+}
+
+.slider[data-orientation="vertical"] .slider__tooltip::after {
+  top: 50%;
+  left: auto;
+  right: 100%;
+  transform: translateY(-50%);
+  border: var(--slider-tooltip-arrow-size) solid transparent;
+  border-right-color: var(--slider-tooltip-bg);
+  border-top-color: transparent;
+}
+
+.slider[data-orientation="vertical"] .slider__ticks {
+  left: calc(50% + var(--_sl-track-h) / 2 + var(--slider-tick-offset));
+  top: 0;
+  bottom: 0;
+  right: auto;
+  flex-direction: column-reverse;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FORCED COLORS (Windows High Contrast)
+   ════════════════════════════════════════════════════════════════ */
+
+@media (forced-colors: active) {
+  .slider__track {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+  }
+  .slider__fill {
+    background: Highlight;
+  }
+  .slider__thumb {
+    background: Highlight;
+    border: 2px solid ButtonText;
+  }
+  .slider[data-disabled] .slider__track,
+  .slider[aria-disabled="true"] .slider__track {
+    border-color: GrayText;
+  }
+  .slider[data-disabled] .slider__fill,
+  .slider[aria-disabled="true"] .slider__fill {
+    background: GrayText;
+  }
+  .slider[data-disabled] .slider__thumb,
+  .slider[aria-disabled="true"] .slider__thumb {
+    background: GrayText;
+    border-color: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .slider,
+  .slider__track,
+  .slider__fill,
+  .slider__thumb,
+  .slider__tooltip {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

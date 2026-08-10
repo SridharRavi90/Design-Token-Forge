@@ -1,0 +1,3005 @@
+/* ════════════════════════════════════════════════════════════
+   Design Token Forge — Editor v2 layout
+   Step 1: shell only (3 panes, top bar, save bar). No logic.
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Chrome token isolation ───────────────────────────────
+   The editor UI (topbar, tier rail, lists, panels, modals)
+   uses --ev2-chrome-* tokens, NOT --surface-base-* directly.
+   This decouples chrome from project edits: when a user
+   tweaks T2/base in their project, the chrome stays stable.
+   Default source = surface-bright (lightest neutral every
+   project ships). Override [data-ev2-chrome-surface] on
+   <html> to swap (e.g. "base", "deep") without touching CSS.
+   ──────────────────────────────────────────────────────── */
+:root,
+html[data-ev2-chrome-surface="bright"]{
+  --ev2-chrome-bg:                 var(--surface-bright-bg);
+  --ev2-chrome-subtle:             var(--surface-bright-subtle);
+  --ev2-chrome-strong:             var(--surface-bright-strong);
+  --ev2-chrome-outline:            var(--surface-bright-outline);
+  --ev2-chrome-separator:          var(--surface-bright-separator);
+  --ev2-chrome-ct-default:         var(--surface-bright-ct-default);
+  --ev2-chrome-ct-subtle:          var(--surface-bright-ct-subtle);
+  --ev2-chrome-ct-faint:           var(--surface-bright-ct-faint);
+  --ev2-chrome-ct-strong:          var(--surface-bright-ct-strong);
+  --ev2-chrome-cm-bg:              var(--surface-bright-cm-bg);
+  --ev2-chrome-cm-separator:       var(--surface-bright-cm-separator);
+  --ev2-chrome-cm-outline-default: var(--surface-bright-cm-outline);
+  --ev2-chrome-cm-outline-hover:   var(--surface-bright-cm-outline-hover);
+}
+html[data-ev2-chrome-surface="base"]{
+  --ev2-chrome-bg:                 var(--surface-base-bg);
+  --ev2-chrome-subtle:             var(--surface-base-subtle);
+  --ev2-chrome-strong:             var(--surface-base-strong);
+  --ev2-chrome-outline:            var(--surface-base-outline);
+  --ev2-chrome-separator:          var(--surface-base-separator);
+  --ev2-chrome-ct-default:         var(--surface-base-ct-default);
+  --ev2-chrome-ct-subtle:          var(--surface-base-ct-subtle);
+  --ev2-chrome-ct-faint:           var(--surface-base-ct-faint);
+  --ev2-chrome-ct-strong:          var(--surface-base-ct-strong);
+  --ev2-chrome-cm-bg:              var(--surface-base-cm-bg);
+  --ev2-chrome-cm-separator:       var(--surface-base-cm-separator);
+  --ev2-chrome-cm-outline-default: var(--surface-base-cm-outline);
+  --ev2-chrome-cm-outline-hover:   var(--surface-base-cm-outline-hover);
+}
+
+/* Editor chrome tooltip tokens. These are intentionally NOT bound
+   to --surface-inverse-* because many projects ship a broken/black
+   inverse pair in dark mode (see /memories/repo/). The tooltip is
+   editor chrome, not preview content — its contrast must be
+   guaranteed regardless of project token health. */
+:root,
+html[data-theme="light"]{
+  --ev2-tip-bg:     var(--neutral-900, #1a1d24);
+  --ev2-tip-ct:     var(--color-fixed-white, #ffffff);
+  --ev2-tip-border: var(--neutral-800, #2a2e38);
+}
+html[data-theme="dark"]{
+  --ev2-tip-bg:     var(--neutral-100, #f1f3f7);
+  --ev2-tip-ct:     var(--neutral-900, #1a1d24);
+  --ev2-tip-border: var(--neutral-300, #d4d8e0);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{
+  font-family:var(--font-family-sans,system-ui,-apple-system,sans-serif);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-default);
+  line-height:1.45;
+  overflow:hidden;        /* the workspace owns scrolling */
+}
+
+/* ── Top bar ──────────────────────────────────────────── */
+.ev2-topbar{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:24px;
+  padding:10px 20px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-cm-bg);
+  height:52px;
+}
+.ev2-topbar-l{display:flex;align-items:center;gap:14px;min-width:0}
+.ev2-topbar-c{display:flex;justify-content:center}
+.ev2-topbar-r{display:flex;align-items:center;justify-content:flex-end;gap:14px}
+
+.ev2-back{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:var(--radius-md,6px);
+  color:var(--ev2-chrome-ct-subtle);text-decoration:none;
+  border:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+  transition:all 120ms ease;
+}
+.ev2-back:hover{color:var(--ev2-chrome-ct-strong);border-color:var(--ev2-chrome-cm-outline-hover)}
+
+.ev2-title{display:flex;flex-direction:column;line-height:1.1}
+.ev2-title-main{font-size:13px;font-weight:600;color:var(--ev2-chrome-ct-strong)}
+.ev2-title-sub{font-size:10px;font-weight:500;color:var(--ev2-chrome-ct-faint);text-transform:uppercase;letter-spacing:.06em}
+
+/* Project chip itself now uses the unified .nav-project pill from
+   demo/shared.css. The pill clips its inner action buttons via
+   overflow:hidden, so the dropdown panel cannot live inside it —
+   we wrap pill + panel in a position:relative host instead. */
+.nav-project-host{position:relative;display:inline-flex;align-items:center}
+.ev2-proj-panel{
+  position:absolute;top:calc(100% + 6px);left:0;
+  min-width:240px;max-width:320px;max-height:340px;overflow-y:auto;
+  padding:5px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-cm-bg);
+  box-shadow:var(--shadow-lg,0 8px 28px rgba(0,0,0,.14));
+  z-index:300;
+}
+.ev2-proj-panel[hidden]{display:none}
+.ev2-proj-row{
+  display:flex;align-items:center;gap:8px;width:100%;
+  padding:8px 10px;
+  border:0;border-radius:var(--radius-sm,4px);
+  background:transparent;text-align:left;
+  font:inherit;font-size:12px;
+  color:var(--ev2-chrome-ct-strong);
+  cursor:pointer;
+  transition:background 120ms ease;
+}
+.ev2-proj-row:hover{background:var(--ev2-chrome-subtle)}
+.ev2-proj-row[aria-current="true"]{background:var(--brand-container-bg,#EAF2FF);color:var(--brand-content-default,#286CE5);font-weight:600}
+.ev2-proj-row-name{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Slug stays muted even when its parent row is selected (the
+   parent flips to brand-content-default), so the active row reads
+   as one bold name + a quiet identifier, not two competing brand-
+   coloured labels. Slug column shrinks before name does so the
+   project name never gets truncated by a long slug. */
+.ev2-proj-row-id{flex:0 1 auto;min-width:0;font-size:10px;color:var(--ev2-chrome-ct-faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev2-proj-row[aria-current="true"] .ev2-proj-row-id{color:var(--ev2-chrome-ct-subtle);font-weight:400}
+.ev2-proj-row-check{width:14px;height:14px;color:var(--brand-content-default,#286CE5);flex-shrink:0}
+.ev2-proj-empty{padding:14px;text-align:center;font-size:12px;color:var(--ev2-chrome-ct-subtle)}
+.ev2-proj-loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px;font-size:12px;color:var(--ev2-chrome-ct-subtle)}
+.ev2-proj-loading-spin{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--ev2-chrome-outline);
+  border-top-color:var(--brand-content-default,#286CE5);
+  animation:ev2-proj-spin .7s linear infinite;
+}
+@keyframes ev2-proj-spin{to{transform:rotate(360deg)}}
+.ev2-proj-foot{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:6px 12px;border-top:1px solid var(--ev2-chrome-outline);
+  font-size:11px;color:var(--ev2-chrome-ct-faint);
+}
+.ev2-proj-foot-status{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev2-proj-foot-refresh{
+  appearance:none;border:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:11px;font-weight:600;
+  padding:3px 8px;border-radius:var(--radius-sm,4px);cursor:pointer;
+  transition:background 120ms,color 120ms;
+}
+.ev2-proj-foot-refresh:hover{background:var(--ev2-chrome-subtle)}
+.ev2-proj-foot-refresh:disabled{opacity:.5}
+.ev2-proj-foot-new{
+  font:inherit;font-size:11px;font-weight:600;
+  color:var(--brand-content-default,#286CE5);
+  text-decoration:none;
+  padding:3px 6px;border-radius:var(--radius-sm,4px);
+  transition:background 120ms;
+}
+.ev2-proj-foot-new:hover{background:var(--brand-container-bg,#EAF2FF)}
+
+/* Topbar icon-button actions for the active project (rename / delete)
+   now use the unified .nav-project-action treatment from demo/shared.css
+   (sits inside the .nav-project pill, separated by a 1px vertical rule). */
+
+/* (Top-bar UI/editing-mode toggle removed — single source of truth
+   is the in-panel "Editing" toggle inside each role card head.
+   See .ev2-edit-toggle below.) */
+.ev2-mode{
+  padding:5px 14px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  font:inherit;font-size:12px;font-weight:600;
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+  transition:all 120ms ease;
+}
+.ev2-mode[aria-checked="true"]{
+  background:var(--ev2-chrome-cm-bg);
+  color:var(--ev2-chrome-ct-strong);
+  box-shadow:var(--shadow-xs,0 1px 2px rgba(0,0,0,.06));
+}
+
+/* CSS-name visibility toggle \u2014 icon-only button (text 'CSS names'
+   would otherwise eat ~80px in a row that already houses the
+   Edit-mode segmented + Reset). Tooltip carries the explanation;
+   aria-pressed drives the visual state. */
+.ev2-css-toggle{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;
+  border:1px solid var(--demo-border);
+  border-radius:var(--radius-sm,4px);
+  background:transparent;
+  color:var(--demo-fg-subtle);
+  cursor:pointer;
+  user-select:none;
+  transition:color 120ms ease,border-color 120ms ease,background 120ms ease;
+  flex-shrink:0;
+}
+.ev2-css-toggle:hover{border-color:var(--demo-fg-faint);color:var(--demo-fg-strong)}
+.ev2-css-toggle svg{color:inherit}
+.ev2-css-toggle[aria-pressed="true"]{
+  background:var(--brand-container-bg-subtle,#EAF2FF);
+  border-color:var(--brand-component-bg,#3366f0);
+  color:var(--brand-content-default,#2253CC);
+}
+.ev2-css-toggle:focus-visible{
+  outline:2px solid var(--brand-component-bg,#3366f0);
+  outline-offset:2px;
+}
+
+/* Topbar icon button — square chip used for History next to Publish.
+   Sits in slot="action" of <dtf-topbar>, so it must visually match
+   the demo's ghost button density (28px tall, 6px radius). */
+.ev2-topbar-icon-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 10px;height:28px;line-height:1;
+  border:1px solid var(--demo-border);
+  border-radius:var(--radius-md,6px);
+  background:transparent;
+  color:var(--demo-fg-subtle);
+  font:inherit;font-size:11px;font-weight:600;
+  cursor:pointer;
+  transition:all 120ms ease;
+  font-family:inherit;
+}
+.ev2-topbar-icon-btn:hover{border-color:var(--demo-fg-faint);color:var(--demo-fg-strong)}
+.ev2-topbar-icon-btn:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px}
+
+/* Topbar status cluster — folds the old bottom savebar (change count,
+   "backed up X ago", History link) into the top action area so the
+   entire editor state lives in one persistent strip. */
+.ev2-topbar-status{
+  display:inline-flex;align-items:center;gap:8px;
+  height:28px;line-height:1;
+  padding:0 12px 0 4px;
+  font-size:11px;
+  color:var(--demo-fg-subtle);
+  white-space:nowrap;
+}
+.ev2-topbar-status .ev2-changes{font-weight:600;color:var(--demo-fg-strong)}
+.ev2-topbar-status .ev2-autosave{font-style:italic;color:var(--demo-fg-faint);cursor:help}
+.ev2-topbar-status .ev2-savebar-sep,
+.ev2-topbar-status-sep{color:var(--demo-fg-faint)}
+.ev2-topbar-status-sep[hidden]{display:none}
+/* Hide the trailing separator+History when there are no changes
+   so the bar reads "No changes" cleanly. */
+.ev2-topbar-status:has(.ev2-savebar-sep[hidden]) .ev2-topbar-status-sep{display:none}
+.ev2-topbar-linkbtn{
+  appearance:none;border:0;background:transparent;padding:0;
+  font:inherit;font-size:11px;font-weight:600;
+  color:var(--demo-fg-subtle);
+  cursor:pointer;
+  text-decoration:underline;text-decoration-color:var(--demo-border);
+  text-underline-offset:3px;
+  transition:color 120ms ease,text-decoration-color 120ms ease;
+}
+.ev2-topbar-linkbtn:hover{color:var(--demo-fg-strong);text-decoration-color:var(--demo-fg-faint)}
+.ev2-topbar-linkbtn:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:3px;border-radius:2px}
+
+/* Ghost discard button sitting next to Publish. Visually quieter
+   than the brand-solid Publish CTA so a slip-click is unlikely,
+   but still a real button (not a text link) — Discard is destructive
+   enough that it deserves a hit target. */
+.ev2-topbar-ghost-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;height:28px;line-height:1;
+  border:1px solid var(--demo-border);
+  border-radius:var(--radius-md,6px);
+  background:transparent;
+  color:var(--demo-fg-subtle);
+  font:inherit;font-size:11px;font-weight:600;
+  cursor:pointer;
+  transition:all 120ms ease;
+  font-family:inherit;
+}
+.ev2-topbar-ghost-btn:hover:not(:disabled){border-color:var(--danger-component-outline-default,#D61D20);color:var(--danger-content-default,#D61D20)}
+.ev2-topbar-ghost-btn:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px}
+.ev2-topbar-ghost-btn:disabled{opacity:.45}
+
+.ev2-history-btn,
+.ev2-preview-link{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 10px;height:28px;line-height:1;
+  border:1px solid var(--demo-border);
+  border-radius:var(--radius-md,6px);
+  background:transparent;
+  color:var(--demo-fg-subtle);
+  font:inherit;font-size:11px;font-weight:600;
+  text-decoration:none;
+  cursor:pointer;
+  transition:all 120ms ease;
+  font-family:inherit;
+}
+.ev2-history-btn:hover,
+.ev2-preview-link:hover{
+  color:var(--demo-fg-strong);
+  border-color:var(--demo-fg-faint);
+  background:var(--demo-surface-alt);
+}
+.ev2-history-btn svg,
+.ev2-preview-link svg{opacity:.8}
+
+.ev2-deploy{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 12px;height:28px;line-height:1;
+  border:1px solid var(--brand-component-bg-default);
+  border-radius:var(--radius-md,6px);
+  background:var(--brand-component-bg-default);
+  color:var(--brand-on-component);
+  font:inherit;font-size:11px;font-weight:600;
+  cursor:pointer;
+  transition:all 120ms ease;
+  font-family:inherit;
+}
+.ev2-deploy:hover:not(:disabled){background:var(--brand-component-bg-hover);border-color:var(--brand-component-bg-hover)}
+.ev2-deploy:disabled{opacity:.4}
+.ev2-deploy-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 6px;
+  border-radius:999px;
+  background:rgba(255,255,255,.22);
+  font-size:10px;font-weight:700;
+}
+
+/* ── Workspace shell ──────────────────────────────────
+   Top: horizontal tier rail (T0 · T1 · T2 · T3 + draft status).
+   Below: list | resizer | preview grid. The left "items rail" called
+   out in editor-v2-tier-architecture.md §5.1 D1 will land in build
+   step 1 (T1 Property-Card refactor) — this commit only wires the
+   tier-switch navigation contract. */
+.ev2-workspace{
+  display:flex;flex-direction:column;
+  height:calc(100vh - 52px);
+  min-height:0;
+}
+.ev2-panes{
+  flex:1;min-height:0;
+  display:grid;
+  /* Default split favours the editor (list) — that's where every
+     interaction happens. Preview gets a stable, readable width
+     (~480–640px) — wide enough to render the brand surfaces &
+     component cards at a meaningful size without dominating. List
+     (1fr) soaks up the rest, so on wide monitors the editor grows
+     instead of leaving dead space.
+     1280 → 754 list / 520 preview (59/41)
+     1440 → 882 list / 552 preview (61/39)
+     1920 → 1274 list / 640 preview (66/34)
+     2560 → 1914 list / 640 preview (75/25) */
+  grid-template-columns:var(--ev2-list-w, minmax(480px, 1fr)) 6px clamp(480px, 33vw, 640px);
+}
+
+/* Visible vertical divider between list and preview */
+.ev2-list{border-right:1px solid var(--ev2-chrome-outline);min-width:0;overflow-x:hidden}
+
+/* Drag handle between list and preview. Sits in its own grid track. */
+.ev2-resizer{
+  position:relative;
+  background:transparent;
+  cursor:col-resize;
+  user-select:none;
+  z-index:5;
+}
+.ev2-resizer::before{
+  content:'';
+  position:absolute;inset:0;
+  margin-inline:auto;
+  width:1px;background:var(--ev2-chrome-outline);
+  transition:background 120ms,width 120ms;
+}
+.ev2-resizer:hover::before,
+.ev2-resizer[data-dragging="true"]::before,
+.ev2-resizer:focus-visible::before{
+  width:3px;background:var(--brand-component-bg-default,#3366f0);
+}
+.ev2-resizer:focus-visible{outline:none}
+body[data-pane-dragging="true"]{cursor:col-resize}
+body[data-pane-dragging="true"] .ev2-preview-frame{pointer-events:none}
+
+/* ── TOP: tier rail (horizontal) ──────────────────────── */
+.ev2-tierbar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:8px 16px;
+  background:var(--ev2-chrome-bg);
+  border-bottom:1px solid var(--ev2-chrome-outline);
+  flex-shrink:0;
+}
+.ev2-tierbar-segs{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px;
+  background:var(--ev2-chrome-subtle);
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,8px);
+}
+.ev2-tier{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 12px;
+  border:1px solid transparent;
+  border-radius:var(--radius-sm,6px);
+  background:transparent;
+  text-align:left;cursor:pointer;
+  font:inherit;
+  color:var(--ev2-chrome-ct-subtle);
+  transition:background 120ms ease, color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+.ev2-tier:hover{
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+}
+.ev2-tier[aria-current="true"]{
+  background:var(--ev2-chrome-bg);
+  border-color:var(--ev2-chrome-cm-outline-default);
+  color:var(--ev2-chrome-ct-strong);
+  box-shadow:var(--shadow-xs,0 1px 2px rgba(0,0,0,.05));
+}
+.ev2-tier:focus-visible{
+  outline:2px solid var(--brand-component-bg-default,#3366f0);
+  outline-offset:2px;
+}
+.ev2-tier-badge{
+  flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;
+  border-radius:var(--radius-xs,4px);
+  background:var(--ev2-chrome-strong);
+  color:var(--ev2-chrome-ct-strong);
+  font-size:10px;font-weight:700;
+  letter-spacing:.02em;
+}
+.ev2-tier[aria-current="true"] .ev2-tier-badge{
+  background:var(--brand-component-bg-default);
+  color:var(--brand-on-component);
+}
+.ev2-tier-name{font-size:13px;font-weight:600;line-height:1;white-space:nowrap}
+
+.ev2-tierbar-meta{
+  display:inline-flex;align-items:center;gap:12px;
+  min-width:0;
+}
+.ev2-draft-status{
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;color:var(--ev2-chrome-ct-subtle);
+  white-space:nowrap;
+}
+.ev2-draft-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--ev2-chrome-ct-faint);
+  flex-shrink:0;
+}
+.ev2-draft-status[data-state="saved"] .ev2-draft-dot{background:var(--success-component-bg-default,#0B8D28)}
+.ev2-draft-status[data-state="saving"] .ev2-draft-dot{background:var(--warning-component-bg-default,#A66208);animation:ev2-pulse 1s ease-in-out infinite}
+.ev2-draft-status[data-state="error"] .ev2-draft-dot{background:var(--danger-component-bg-default,#D61D20)}
+@keyframes ev2-pulse{50%{opacity:.4}}
+
+/* "Version history" link sitting next to the draft-status pill in
+   the tier rail. Reads as a regular text link (blue, underline-on-
+   hover) so it's clearly tappable but doesn't carry the visual
+   weight of a button. */
+.ev2-tierbar-link{
+  appearance:none;border:0;background:transparent;padding:0;margin:0;
+  font:inherit;font-size:11px;font-weight:600;
+  color:var(--brand-content-default,#2253CC);
+  cursor:pointer;
+  text-decoration:underline;
+  text-decoration-color:color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset:3px;
+  transition:text-decoration-color 120ms ease, color 120ms ease;
+}
+.ev2-tierbar-link:hover{text-decoration-color:currentColor}
+.ev2-tierbar-link:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:3px;border-radius:2px}
+
+
+/* ── CENTER: token list ───────────────────────────────── */
+.ev2-list{
+  display:flex;flex-direction:column;
+  background:var(--ev2-chrome-bg);
+  min-height:0;
+}
+.ev2-list-head{
+  padding:18px 24px 14px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+  flex-shrink:0;
+}
+.ev2-list-titlerow{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+}
+.ev2-list-titlewrap{min-width:0;flex:1}
+.ev2-list-title{font-size:18px;font-weight:700;color:var(--ev2-chrome-ct-strong);margin-bottom:4px}
+.ev2-list-sub{font-size:12px;color:var(--ev2-chrome-ct-subtle);line-height:1.5}
+
+.ev2-section-reset{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 11px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-bg);
+  font:inherit;font-size:11px;font-weight:600;
+  color:var(--ev2-chrome-ct-strong);
+  cursor:pointer;
+  transition:background 120ms ease, border-color 120ms ease, color 120ms ease;
+  flex-shrink:0;
+}
+.ev2-section-reset:hover:not(:disabled){
+  background:var(--ev2-chrome-cm-bg);
+  border-color:var(--ev2-chrome-ct-faint);
+}
+.ev2-section-reset:focus-visible{
+  outline:2px solid var(--brand-component-outline-default);
+  outline-offset:2px;
+}
+.ev2-section-reset:disabled{opacity:.4}
+.ev2-section-reset svg{flex-shrink:0;opacity:.7}
+
+/* T0 sub-view inline switch \u2014 ghost link styling, lower visual
+   weight than the Reset section button so it reads as secondary
+   navigation, not a primary action. */
+.ev2-t0-switch{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 10px;
+  border:1px solid transparent;
+  border-radius:var(--radius-md,6px);
+  background:transparent;
+  font:inherit;font-size:11px;font-weight:600;
+  color:var(--brand-content-default,#286CE5);
+  cursor:pointer;flex-shrink:0;
+  transition:background 120ms ease, color 120ms ease;
+}
+.ev2-t0-switch:hover{background:var(--brand-container-bg,#EAF2FF)}
+.ev2-t0-switch:focus-visible{outline:2px solid var(--brand-component-outline-default);outline-offset:2px}
+.ev2-search{
+  margin-top:12px;width:100%;
+  padding:8px 12px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-cm-bg);
+  font:inherit;font-size:12px;
+  color:var(--ev2-chrome-ct-strong);
+}
+.ev2-search:focus{outline:2px solid var(--brand-component-outline-default);outline-offset:1px}
+
+.ev2-list-body{flex:1;min-height:0;overflow-y:auto;padding:18px 24px 32px}
+
+/* Sibling sticky footer mount for the Tt tier (and any future tier
+   that wants a pinned action bar). Lives OUTSIDE .ev2-list-body so
+   it never overlays scrolling content — it's a flex sibling that
+   sits below the scroll area and consumes its own row of the rail. */
+.ev2-list-sticky{
+  flex-shrink:0;
+  background:var(--ev2-chrome-bg);
+  border-top:1px solid var(--ev2-chrome-outline);
+  box-shadow:0 -6px 12px -8px rgba(0,0,0,.08);
+  padding:10px 24px 14px;
+}
+.ev2-list-sticky[hidden]{display:none !important}
+
+.ev2-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;
+  color:var(--ev2-chrome-ct-subtle);
+}
+.ev2-empty-icon{font-size:42px;opacity:.4;margin-bottom:14px;font-family:serif}
+.ev2-empty-title{font-size:14px;font-weight:600;color:var(--ev2-chrome-ct-strong);margin-bottom:4px}
+.ev2-empty-sub{font-size:12px;color:var(--ev2-chrome-ct-faint)}
+
+/* ── T0 Palette intent: role tabs ──────────────────────
+   Now lives INSIDE .ev2-intent as the card's top strip, so
+   "pick a role" and "edit that role" read as one decision in
+   one card (no separate floating pill rail above). */
+.ev2-roles{
+  display:flex;gap:4px;padding:8px 10px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-subtle);
+  border-top-left-radius:inherit;
+  border-top-right-radius:inherit;
+  flex-wrap:wrap;
+}
+.ev2-role{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 12px 5px 8px;
+  border:0;border-radius:999px;
+  background:transparent;
+  font:inherit;font-size:11px;font-weight:600;
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+  transition:all 120ms ease;
+}
+.ev2-role:hover{color:var(--ev2-chrome-ct-strong)}
+.ev2-role[aria-selected="true"],
+.ev2-role[aria-current="true"]{
+  background:var(--ev2-chrome-cm-bg);
+  color:var(--ev2-chrome-ct-strong);
+  box-shadow:var(--shadow-sm,0 1px 3px rgba(0,0,0,.08));
+  outline:1.5px solid var(--brand-component-bg-default,#3366f0);
+  outline-offset:-1.5px;
+}
+.ev2-role-dot{
+  width:14px;height:14px;border-radius:50%;
+  border:1px solid rgba(0,0,0,.08);
+  flex-shrink:0;
+  transition:transform 120ms ease;
+}
+.ev2-role[data-changed="true"] .ev2-role-dot{box-shadow:0 0 0 2px var(--brand-component-outline-default,#286CE5)}
+.ev2-role-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:16px;height:16px;padding:0 5px;
+  border-radius:999px;
+  background:var(--brand-component-bg-default,#3366f0);
+  color:var(--brand-on-component,#fff);
+  font-size:10px;font-weight:700;line-height:1;
+  margin-left:2px;
+  cursor:help;
+}
+.ev2-role[aria-selected="true"] .ev2-role-badge,
+.ev2-role[aria-current="true"] .ev2-role-badge{
+  background:var(--brand-component-bg-hover,var(--brand-component-bg-default,#286CE5));
+}
+
+/* ── Intent card ─────────────────────────────────────── */
+.ev2-intent{
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-lg,8px);
+  background:var(--ev2-chrome-cm-bg);
+  /* Note: no overflow:hidden — would clip [data-tip] tooltips rising above
+     buttons inside the card (e.g. "Why is this for?", WCAG badges). */
+  margin-bottom:14px;
+}
+.ev2-intent-head{
+  display:flex;align-items:center;
+  padding:8px 12px;
+  gap:10px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+}
+/* In-panel "Editing" toggle \u2014 switches which mode's tokens you're
+   editing. Lives in the section head; the page UI theme is
+   controlled in sync (editing mode IS the UI theme). The wordy
+   'EDITING' kicker was dropped \u2014 the sun/moon icons + Light/Dark
+   labels are self-explanatory, and the tooltip carries the long
+   explanation. */
+.ev2-edit-toggle{
+  display:inline-flex;align-items:center;
+  padding:2px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:999px;
+  background:var(--ev2-chrome-subtle);
+  gap:2px;
+  flex-shrink:0;
+}
+.ev2-edit-toggle-label{display:none}  /* legacy: kicker removed */
+.ev2-edit-mode{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  font:inherit;font-size:11px;font-weight:600;
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+  transition:all 120ms ease;
+}
+.ev2-edit-mode svg{flex-shrink:0;opacity:.75}
+.ev2-edit-mode[aria-checked="true"]{
+  background:var(--ev2-chrome-cm-bg);
+  color:var(--ev2-chrome-ct-strong);
+  box-shadow:var(--shadow-xs,0 1px 2px rgba(0,0,0,.06));
+}
+.ev2-edit-mode[aria-checked="true"] svg{opacity:1}
+.ev2-edit-mode:focus-visible{
+  outline:2px solid var(--brand-component-outline-default);
+  outline-offset:2px;
+}
+.ev2-intent-hint{
+  font-size:11px;font-weight:500;font-style:italic;
+  color:var(--ev2-chrome-ct-faint);
+  margin-left:2px;
+}
+.ev2-role-reset{margin-left:auto}
+.ev2-role-reset{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 9px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-bg);
+  font:inherit;font-size:10px;font-weight:600;
+  color:var(--ev2-chrome-ct-strong);
+  cursor:pointer;
+  transition:background 120ms ease, border-color 120ms ease;
+  flex-shrink:0;
+}
+.ev2-role-reset:hover:not(:disabled){
+  background:var(--ev2-chrome-cm-bg);
+  border-color:var(--ev2-chrome-ct-faint);
+}
+.ev2-role-reset:focus-visible{
+  outline:2px solid var(--brand-component-outline-default);
+  outline-offset:2px;
+}
+.ev2-role-reset:disabled{opacity:.35}
+.ev2-role-reset svg{flex-shrink:0;opacity:.7}
+.ev2-intent-body{padding:16px}
+
+/* Big lever row: swatch + hex + picker */
+.ev2-lever{
+  display:flex;align-items:stretch;gap:12px;
+  margin-bottom:14px;
+}
+.ev2-swatch{
+  width:60px;height:60px;
+  border-radius:var(--radius-md,6px);
+  border:1px solid var(--ev2-chrome-outline);
+  flex-shrink:0;
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:border-color 120ms ease,transform 120ms ease;
+}
+.ev2-swatch:hover{border-color:var(--ev2-chrome-cm-outline-hover);transform:scale(1.02)}
+/* Small pencil badge bottom-right — affords "click to edit" without
+   relying on the user discovering the whole tile is clickable. */
+.ev2-swatch::after{
+  content:"";
+  position:absolute;
+  right:4px;bottom:4px;
+  width:18px;height:18px;
+  border-radius:50%;
+  background:#FFFFFF
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%231A1A1A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z'/></svg>")
+    center / 10px 10px no-repeat;
+  box-shadow:0 1px 2px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.08);
+  pointer-events:none;
+  opacity:.85;
+  transition:opacity 120ms ease, transform 120ms ease;
+}
+.ev2-swatch:hover::after{opacity:1;transform:scale(1.08)}
+.ev2-swatch input{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:0;cursor:pointer;border:0;padding:0;
+}
+.ev2-lever-fields{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}
+.ev2-hex-row{display:flex;gap:8px;align-items:stretch}
+.ev2-hex{
+  flex:1;padding:8px 12px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:13px;font-weight:600;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  text-transform:uppercase;letter-spacing:.02em;
+}
+.ev2-hex:focus{outline:2px solid var(--brand-component-outline-default);outline-offset:1px;border-color:var(--brand-component-outline-default)}
+.ev2-hex[aria-invalid="true"]{border-color:var(--danger-component-outline-default,#D61D20)}
+.ev2-reset{
+  padding:0 12px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-subtle);
+  font:inherit;font-size:11px;font-weight:500;
+  cursor:pointer;
+  transition:all 120ms ease;
+  white-space:nowrap;
+}
+.ev2-reset:hover:not(:disabled){color:var(--ev2-chrome-ct-strong);border-color:var(--ev2-chrome-cm-outline-hover)}
+.ev2-reset:disabled{opacity:.35}
+
+.ev2-anchor{
+  display:flex;gap:6px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:999px;
+  background:var(--ev2-chrome-subtle);
+  padding:3px;
+  align-self:flex-start;
+}
+.ev2-anchor button{
+  padding:4px 12px;border:0;border-radius:999px;
+  background:transparent;
+  font:inherit;font-size:11px;font-weight:600;
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+}
+.ev2-anchor button[aria-checked="true"]{
+  background:var(--brand-component-bg-default,#286CE5);
+  color:var(--brand-on-component,#fff);
+  box-shadow:0 1px 2px rgba(0,0,0,.08);
+}
+
+/* Tooltip on anchor (and any element with data-tip).
+   Pseudo-element-only fallback (used until JS-managed portal tip activates).
+   Note: pseudo tips get clipped by any ancestor overflow — the JS portal in
+   editor-v2.js (#ev2-tip-portal) is what users actually see. We hide the
+   pseudo tip when JS has taken over to avoid double tooltips. */
+html.ev2-tip-js [data-tip]::after,
+html.ev2-tip-js [data-tip]::before { content:none !important; display:none !important; }
+
+[data-tip]{position:relative}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{
+  content:attr(data-tip);
+  position:absolute;
+  bottom:calc(100% + 8px);left:50%;
+  transform:translateX(-50%);
+  padding:8px 10px;
+  width:max-content;max-width:260px;
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-tip-bg);
+  color:var(--ev2-tip-ct);
+  border:1px solid var(--ev2-tip-border);
+  font-size:11px;font-weight:500;line-height:1.4;
+  text-transform:none;letter-spacing:0;
+  box-shadow:var(--shadow-lg,0 8px 24px rgba(0,0,0,.18));
+  pointer-events:none;
+  z-index:9999;
+  white-space:normal;
+}
+[data-tip]:hover::before,[data-tip]:focus-visible::before{
+  content:'';
+  position:absolute;
+  bottom:calc(100% + 2px);left:50%;
+  transform:translateX(-50%) rotate(45deg);
+  width:8px;height:8px;
+  background:var(--ev2-tip-bg);
+  border-right:1px solid var(--ev2-tip-border);
+  border-bottom:1px solid var(--ev2-tip-border);
+  z-index:9999;
+  pointer-events:none;
+}
+
+/* JS-managed portal tooltip (escapes all overflow clipping).
+   Painted with the inverse-surface tokens so the tooltip naturally
+   inverts against editor chrome — and any project that retunes the
+   inverse surface picks up the new look here without further work.
+   The previous --surface-strong-bg token never existed; tips were
+   silently falling back to a hardcoded #1F2330. */
+.ev2-tip-portal{
+  position:fixed;
+  z-index:10000;
+  padding:8px 10px;
+  max-width:280px;
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-tip-bg);
+  color:var(--ev2-tip-ct);
+  border:1px solid var(--ev2-tip-border);
+  font-size:11px;font-weight:500;line-height:1.4;
+  text-transform:none;letter-spacing:0;
+  box-shadow:var(--shadow-lg,0 8px 24px rgba(0,0,0,.22));
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(2px);
+  transition:opacity 90ms ease,transform 90ms ease;
+  white-space:normal;
+  word-break:break-word;
+}
+.ev2-tip-portal[data-show="1"]{opacity:1;transform:translateY(0)}
+.ev2-tip-portal::after{
+  content:'';
+  position:absolute;
+  left:var(--ev2-arrow-x,50%);
+  width:8px;height:8px;
+  background:inherit;
+  transform:translateX(-50%) rotate(45deg);
+}
+.ev2-tip-portal[data-place="top"]::after{bottom:-3px}
+.ev2-tip-portal[data-place="bottom"]::after{top:-3px}
+
+/* Busy overlay — blocks all interaction while a destructive
+   long-running GH op (delete project, rename, restore) is in
+   flight. Sits above modals so it can be raised mid-confirmation. */
+.ev2-busy{position:fixed;inset:0;z-index:700;display:flex;align-items:center;justify-content:center;background:rgba(15,18,25,.55);backdrop-filter:blur(3px)}
+.ev2-busy[hidden]{display:none}
+.ev2-busy-card{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  padding:24px 32px;
+  border-radius:var(--radius-md,8px);
+  background:var(--ev2-chrome-cm-bg);
+  border:1px solid var(--ev2-chrome-outline);
+  box-shadow:var(--shadow-lg,0 12px 40px rgba(0,0,0,.22));
+  min-width:240px;max-width:380px;text-align:center;
+}
+.ev2-busy-spinner{
+  width:34px;height:34px;border-radius:50%;
+  border:3px solid var(--ev2-chrome-outline);
+  border-top-color:var(--brand-content-default,#286CE5);
+  animation:ev2-spin 800ms linear infinite;
+}
+.ev2-busy-title{font-size:13px;font-weight:600;color:var(--ev2-chrome-ct-strong)}
+.ev2-busy-sub{font-size:11px;color:var(--ev2-chrome-ct-subtle);line-height:1.5}
+@keyframes ev2-spin{to{transform:rotate(360deg)}}
+
+/* Modal */
+.ev2-modal{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center}
+.ev2-modal[hidden]{display:none}
+.ev2-modal-backdrop{position:absolute;inset:0;background:rgba(15,18,25,.5);backdrop-filter:blur(2px)}
+.ev2-modal-card{
+  position:relative;
+  width:min(420px,calc(100vw - 32px));
+  padding:20px 22px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-lg,8px);
+  background:var(--ev2-chrome-cm-bg);
+  box-shadow:var(--shadow-xl,0 16px 48px rgba(0,0,0,.22));
+}
+.ev2-modal-title{font-size:15px;font-weight:700;color:var(--ev2-chrome-ct-strong);margin-bottom:8px}
+.ev2-modal-body{font-size:13px;color:var(--ev2-chrome-ct-subtle);line-height:1.5;margin-bottom:18px}
+.ev2-modal-actions{display:flex;justify-content:flex-end;gap:8px}
+.ev2-modal-btn{
+  padding:7px 14px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 120ms ease;
+}
+.ev2-modal-btn:hover{background:var(--ev2-chrome-subtle)}
+.ev2-modal-btn-primary{background:var(--brand-component-bg-default);border-color:var(--brand-component-bg-default);color:var(--brand-on-component)}
+.ev2-modal-btn-primary:hover{background:var(--brand-component-bg-hover);border-color:var(--brand-component-bg-hover)}
+
+/* Top-right close (X) — shared across dialogs */
+.ev2-modal-close{
+  position:absolute;top:8px;right:8px;
+  width:30px;height:30px;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0;
+  border:1px solid transparent;
+  border-radius:var(--radius-md,6px);
+  background:transparent;
+  color:var(--ev2-chrome-ct-subtle);
+  font-size:22px;line-height:1;font-weight:400;
+  cursor:pointer;
+  transition:background 120ms,color 120ms,border-color 120ms;
+}
+.ev2-modal-close:hover{background:var(--ev2-chrome-subtle);color:var(--ev2-chrome-ct-strong);border-color:var(--ev2-chrome-outline)}
+.ev2-modal-close:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px}
+.ev2-modal-btn-danger{background:var(--danger-component-bg-default,#D61D20);border-color:var(--danger-component-bg-default,#D61D20);color:#fff}
+.ev2-modal-btn-danger:hover{background:var(--danger-component-bg-hover,#B81618);border-color:var(--danger-component-bg-hover,#B81618);color:#fff}
+.ev2-modal-btn-danger:active{background:var(--danger-component-bg-pressed,#9E1314);border-color:var(--danger-component-bg-pressed,#9E1314)}
+.ev2-modal-btn-danger:focus-visible{outline:2px solid var(--danger-component-bg-default,#D61D20);outline-offset:2px}
+.ev2-modal-btn:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px}
+.ev2-modal-btn:disabled,.ev2-modal-btn[disabled]{opacity:.5}
+
+/* Optional input field inside confirm modal (used by destructive
+   actions that need PAT re-entry). Kept hidden unless openModal()
+   asks for it. */
+.ev2-modal-field{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.ev2-modal-field[hidden]{display:none !important}
+.ev2-modal-field-label{font-size:12px;font-weight:600;color:var(--ev2-chrome-ct-strong)}
+.ev2-modal-field-input{
+  padding:8px 10px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  letter-spacing:.02em;
+}
+.ev2-modal-field-input:focus{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:1px;border-color:var(--brand-component-bg-default,#3366f0)}
+.ev2-modal-field-input[aria-invalid="true"]{border-color:var(--danger-component-outline-default,#D61D20)}
+.ev2-modal-field-hint{font-size:11px;line-height:1.4;color:var(--ev2-chrome-ct-faint)}
+.ev2-modal-field-hint[aria-invalid="true"]{color:var(--danger-content-default,#D61D20);font-weight:500}
+
+/* Disclosure rows (steps + affects) */
+.ev2-disc{
+  border-top:1px solid var(--ev2-chrome-outline);
+  margin:0 -16px;padding:0 16px;
+}
+.ev2-disc-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:11px 0;cursor:pointer;
+  font-size:12px;font-weight:600;
+  color:var(--ev2-chrome-ct-strong);
+  user-select:none;
+}
+.ev2-disc-head::after{
+  content:'';
+  width:7px;height:7px;
+  border-right:1.5px solid var(--ev2-chrome-ct-faint);
+  border-bottom:1.5px solid var(--ev2-chrome-ct-faint);
+  transform:rotate(-45deg);
+  transition:transform 120ms ease;
+}
+.ev2-disc[data-open] .ev2-disc-head::after{transform:rotate(45deg)}
+.ev2-disc-meta{font-weight:500;color:var(--ev2-chrome-ct-faint);font-size:11px;margin-left:auto;margin-right:8px}
+.ev2-disc-body{display:none;padding:6px 0 14px}
+.ev2-disc[data-open] .ev2-disc-body{display:block}
+
+/* Step ladder */
+.ev2-ladder{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(64px,1fr));
+  gap:6px;
+}
+.ev2-step{
+  position:relative;
+  display:flex;flex-direction:column;align-items:stretch;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,4px);
+  overflow:hidden;
+  background:var(--ev2-chrome-bg);
+}
+.ev2-step[data-changed="true"]{border-color:var(--brand-cm-accent,var(--ev2-chrome-cm-outline-hover))}
+.ev2-step[data-changed="true"]::after{
+  content:'';position:absolute;top:4px;right:4px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--brand-cm-accent,#3366f0);
+  box-shadow:0 0 0 2px var(--ev2-chrome-bg);
+  pointer-events:none;
+}
+.ev2-step-sw{height:38px}
+.ev2-step-meta{padding:4px 5px;font-size:9px;line-height:1.25}
+.ev2-step-name{font-weight:700;color:var(--ev2-chrome-ct-strong);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em}
+.ev2-step-hex{color:var(--ev2-chrome-ct-faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;text-transform:uppercase}
+
+/* Affects list */
+.ev2-affects{display:flex;flex-wrap:wrap;gap:5px}
+.ev2-aff-chip{
+  padding:3px 9px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:999px;
+  background:var(--ev2-chrome-subtle);
+  font-size:10.5px;font-weight:500;
+  color:var(--ev2-chrome-ct-subtle);
+}
+
+/* T1 Roles — inline step-interval line removed (now picked directly
+   via the per-lever palette strip). The .ev2-spread-* link styles
+   below survive only as a thin link utility but are no longer
+   referenced by any markup; safe to keep until next sweep. */
+.ev2-spread-link{
+  background:none;border:none;padding:0;
+  font:inherit;color:var(--brand-content-default,#3553ee);
+  text-decoration:underline;text-underline-offset:2px;
+  cursor:pointer;
+}
+.ev2-spread-link:hover{color:var(--brand-content-strong,#204ed1)}
+.ev2-spread-link:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px;border-radius:2px}
+
+/* WCAG contrast bar (above levers) */
+.ev2-wcag-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;margin:0 0 14px;
+  border-radius:var(--radius-md,6px);
+  border:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+  font-size:11.5px;
+}
+.ev2-wcag-bar[data-grade="aa"]{
+  border-color:var(--success-component-outline-default,#7ABF7A);
+  background:var(--success-container-bg,#E9F7EA);
+  color:var(--success-content-default,#1F6B33);
+}
+.ev2-wcag-bar[data-grade="fail"]{
+  border-color:var(--danger-component-outline-default,#E89090);
+  background:var(--danger-container-bg,#FCEBEB);
+  color:var(--danger-content-default,#A12A2A);
+}
+.ev2-wcag-bar-icon{font-weight:700;font-size:13px}
+.ev2-wcag-bar-text{flex:1;font-weight:600}
+.ev2-wcag-bar-info{font-size:11px}
+.ev2-wcag-bar-fix{
+  background:var(--danger-component-bg-default,#D04A4A);
+  color:#fff;border:none;
+  padding:5px 12px;
+  border-radius:999px;
+  font-size:11px;font-weight:700;cursor:pointer;
+  transition:background 140ms;
+}
+.ev2-wcag-bar-fix:hover{background:var(--danger-component-bg-hover,#B83C3C)}
+.ev2-wcag-bar-fix:focus-visible{outline:2px solid var(--danger-component-bg-default,#D04A4A);outline-offset:2px}
+
+/* WCAG badge — used inline in the lever-step header to score the
+   currently picked step. (Reused from the old segmented design.) */
+.ev2-seg-wcag{
+  display:inline-flex;align-items:center;
+  padding:1px 5px;
+  border-radius:999px;
+  font-size:9px;font-weight:700;letter-spacing:.02em;
+  line-height:1.4;
+  pointer-events:auto;
+}
+.ev2-seg-wcag[data-grade="aaa"]{background:#1F6B33;color:#fff}
+.ev2-seg-wcag[data-grade="aa"]{background:#2F8049;color:#fff}
+.ev2-seg-wcag[data-grade="fail"]{background:#C2392B;color:#fff}
+
+/* T1 Roles — lever blocks + segmented controls + slots table */
+.ev2-levers{display:flex;flex-direction:column;gap:10px}
+/* onComponent compact ladder: starts with white/black, can now
+   grow to include any AA-passing palette step. Auto-fit so rows
+   wrap naturally instead of two big tiles forcing extras to a
+   lonely line below. */
+.ev2-pc-ladder[data-pc-ladder-compact="true"]{
+  grid-template-columns:repeat(auto-fill, 44px);
+  justify-content:start;
+  gap:8px;
+}
+.ev2-pc-ladder[data-pc-ladder-compact="true"] .ev2-pc-ladder-step{
+  aspect-ratio:1;
+  width:44px;
+}
+.ev2-lever-block{
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,8px);
+  padding:10px 12px;
+  background:var(--ev2-chrome-bg);
+  transition:border-color 140ms,box-shadow 140ms;
+}
+.ev2-lever-block:hover{
+  border-color:var(--brand-component-outline-default,#6593fe);
+  box-shadow:0 0 0 3px rgba(99,147,254,.10);
+}
+.ev2-lever-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.ev2-lever-title{font-size:12px;font-weight:700;color:var(--ev2-chrome-ct-strong);letter-spacing:.01em;text-transform:uppercase}
+.ev2-lever-sub{font-size:11px;color:var(--ev2-chrome-ct-faint);line-height:1.3;flex:1;min-width:120px}
+.ev2-lever-step{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--ev2-chrome-ct-default);
+  white-space:nowrap;
+}
+.ev2-lever-step strong{font-weight:700;color:var(--ev2-chrome-ct-strong)}
+.ev2-lever-step-chip{
+  display:inline-block;width:14px;height:14px;border-radius:3px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);
+}
+
+/* 20-step palette strip — the lever picker. One swatch per ladder
+   step; click commits, the picked step gets the brand ring, AA
+   failures dim. */
+.ev2-pal{
+  display:grid;
+  grid-template-columns:repeat(22, 1fr);
+  gap:2px;
+  padding:3px;
+  border-radius:var(--radius-sm,6px);
+  border:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-subtle);
+}
+.ev2-pal-sw{
+  position:relative;
+  height:36px;
+  border:none;
+  border-radius:3px;
+  padding:0;
+  cursor:pointer;
+  transition:transform 100ms ease, box-shadow 120ms ease, opacity 120ms ease;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.10);
+  overflow:hidden;
+}
+.ev2-pal-sw:hover{transform:translateY(-1px);box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 2px 4px rgba(0,0,0,.10)}
+.ev2-pal-sw:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px;z-index:2}
+.ev2-pal-sw[aria-checked="true"]{
+  /* Two-tone ring (white inner + dark outer) so the selection stays
+     visible against ANY brand colour, including extremes like bright
+     yellow / lime / cyan where a brand-tinted ring would blend in. */
+  box-shadow:0 0 0 2px #fff, 0 0 0 4px rgba(0,0,0,.72), 0 1px 3px rgba(0,0,0,.12);
+  z-index:1;
+}
+.ev2-pal-sw[data-pass="false"]{opacity:.45}
+.ev2-pal-sw[data-pass="false"]::after{
+  content:"";
+  position:absolute;inset:auto 2px 2px auto;
+  width:6px;height:6px;border-radius:50%;
+  background:#C2392B;
+  box-shadow:0 0 0 1.5px #fff;
+}
+.ev2-pal-sw-step{
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  font-size:9px;font-weight:700;
+  color:rgba(255,255,255,.0);
+  pointer-events:none;
+  text-shadow:0 1px 2px rgba(0,0,0,.45);
+  letter-spacing:.01em;
+}
+.ev2-pal-sw[aria-checked="true"] .ev2-pal-sw-step{color:#fff}
+.ev2-pal-sw:hover .ev2-pal-sw-step{color:#fff}
+.ev2-lever-css{
+  display:none;
+  margin-top:8px;
+  padding:6px 8px;
+  background:var(--ev2-chrome-subtle);
+  border-radius:4px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:10px;
+  color:var(--ev2-chrome-ct-strong);
+}
+.ev2-lever-css span{color:var(--ev2-chrome-ct-faint)}
+.ev2-show-css .ev2-lever-css{display:block}
+
+/* CSS-name line under T0 step swatches */
+.ev2-step-css{
+  display:none;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:8.5px;color:var(--ev2-chrome-ct-faint);
+  margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ev2-show-css .ev2-step-css{display:block}
+
+.ev2-slots{display:flex;flex-direction:column;gap:2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px}
+.ev2-slot-group-head{font-family:var(--demo-font-sans,system-ui);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ev2-chrome-ct-subtle);padding:10px 8px 4px;border-bottom:1px solid var(--ev2-chrome-outline);margin-bottom:2px}
+.ev2-slot-group-head:first-child{padding-top:2px}
+.ev2-slot-row{
+  display:grid;
+  grid-template-columns:18px 1fr auto auto;
+  gap:10px;align-items:center;
+  padding:5px 8px;
+  border-radius:4px;
+}
+.ev2-slot-row:hover{background:var(--ev2-chrome-subtle)}
+.ev2-slot-sw{width:18px;height:18px;border-radius:3px;border:1px solid var(--ev2-chrome-outline)}
+.ev2-slot-name{color:var(--ev2-chrome-ct-strong)}
+.ev2-slot-step{color:var(--ev2-chrome-ct-faint);font-size:10px}
+.ev2-slot-hex{color:var(--ev2-chrome-ct-subtle);text-transform:uppercase;font-size:10px;min-width:54px;text-align:right}
+
+/* Reload button on preview header (legacy class kept for any code
+   still referencing it; new markup uses .ev2-preview-iconbtn). */
+.ev2-preview-reload{
+  width:28px;height:28px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,4px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-subtle);
+  font-size:14px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:all 120ms ease;
+}
+.ev2-preview-reload:hover{color:var(--ev2-chrome-ct-strong);border-color:var(--ev2-chrome-cm-outline-hover)}
+
+/* ── RIGHT: preview ───────────────────────────────────── */
+.ev2-preview{
+  display:flex;flex-direction:column;
+  background:var(--surface-deep-bg,var(--ev2-chrome-strong));
+  min-height:0;
+}
+.ev2-preview-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-cm-bg);
+  flex-shrink:0;
+  min-height:48px;
+}
+.ev2-preview-titlewrap{display:flex;align-items:center;min-width:0;flex:0 1 auto}
+.ev2-preview-title{
+  font-size:13px;font-weight:700;
+  color:var(--ev2-chrome-ct-strong);
+  letter-spacing:.01em;
+  white-space:nowrap;
+}
+/* Right-cluster: surface picker + icon buttons in a tight group so
+   nothing wraps or hugs awkwardly when the preview pane is narrow. */
+.ev2-preview-actions{
+  display:flex;align-items:center;gap:6px;flex:0 0 auto;
+}
+.ev2-preview-hint{display:none}  /* legacy: subtitle removed for density */
+.ev2-preview-pick{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--ev2-chrome-ct-subtle);font-weight:500}
+.ev2-preview-pick select{
+  padding:5px 8px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,4px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:12px;font-weight:500;
+  cursor:pointer;
+}
+/* Preview surface override \u2014 lets the designer audit each surface
+   family by repainting the preview canvas without changing what they
+   are currently editing. Empty value = follow the editor's active
+   surface (default behaviour). Self-labelling via the 'Follow editor'
+   placeholder option \u2014 no separate label needed for density. */
+.ev2-preview-surface-select{
+  height:28px;
+  padding:0 26px 0 10px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,4px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:11px;font-weight:600;
+  cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  /* Inline chevron so the control stays compact across browsers. */
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 4l3 3 3-3' fill='none' stroke='currentColor' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 8px center;
+  background-size:10px 10px;
+}
+.ev2-preview-surface-select:hover{border-color:var(--ev2-chrome-cm-outline-hover)}
+.ev2-preview-surface-select:focus-visible{
+  outline:2px solid var(--brand-component-bg,#3D5EFC);
+  outline-offset:1px;
+}
+/* When overriding (any non-empty value) signal it with a brand tint
+   so the designer can tell at a glance the preview is decoupled from
+   the editor. */
+.ev2-preview-surface-select[data-override="1"]{
+  border-color:var(--brand-component-bg,#3D5EFC);
+  color:var(--brand-component-bg,#3D5EFC);
+}
+
+/* Compact icon buttons (Open in new tab / Reload) \u2014 unified style
+   so the right cluster reads as a single toolbar instead of three
+   visually different controls. */
+.ev2-preview-iconbtn{
+  width:28px;height:28px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,4px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+  text-decoration:none;
+  transition:color 120ms ease,border-color 120ms ease,background 120ms ease;
+}
+.ev2-preview-iconbtn:hover{
+  color:var(--ev2-chrome-ct-strong);
+  border-color:var(--ev2-chrome-cm-outline-hover);
+}
+.ev2-preview-iconbtn:focus-visible{
+  outline:2px solid var(--brand-component-bg,#3D5EFC);
+  outline-offset:1px;
+}
+.ev2-preview-pills{display:flex;gap:6px;flex-wrap:wrap}
+
+.ev2-preview-stage{
+  flex:1;min-height:0;
+  display:flex;align-items:stretch;justify-content:stretch;
+  padding:24px;
+  background:
+    linear-gradient(45deg, var(--ev2-chrome-subtle) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--ev2-chrome-subtle) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--ev2-chrome-subtle) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--ev2-chrome-subtle) 75%);
+  background-size:18px 18px;
+  background-position:0 0, 0 9px, 9px -9px, -9px 0px;
+  /* Smooth-in: don't show the raw checkerboard until the frame is
+     ready. Starts as the chrome bg, fades to checkerboard after
+     the frame loads (body gets ev2-frame-loaded class). */
+  background-color:var(--ev2-chrome-bg);
+  transition:background-color 0.3s ease;
+}
+body.ev2-frame-loaded .ev2-preview-stage{
+  background-color:transparent;
+}
+.ev2-preview-frame{
+  flex:1;min-height:0;
+  width:100%;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-cm-bg);
+  box-shadow:var(--shadow-md,0 4px 12px rgba(0,0,0,.06));
+  /* Fade in the iframe once it has content */
+  opacity:0;
+  transition:opacity 0.2s ease;
+}
+body.ev2-frame-loaded .ev2-preview-frame{
+  opacity:1;
+}
+
+/* ── Save bar (bottom of preview pane) ────────────────── */
+.ev2-savebar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;
+  border-top:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-cm-bg);
+  flex-shrink:0;
+  font-size:12px;
+}
+.ev2-savebar-l{display:flex;align-items:center;gap:8px;color:var(--ev2-chrome-ct-subtle)}
+.ev2-savebar-r{display:flex;align-items:center;gap:8px}
+.ev2-savebar-sep{color:var(--ev2-chrome-ct-faint)}
+.ev2-changes{font-weight:600;color:var(--ev2-chrome-ct-strong)}
+.ev2-autosave{font-style:italic}
+
+.ev2-discard{
+  padding:6px 12px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,4px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-subtle);
+  font:inherit;font-size:12px;font-weight:500;
+  cursor:pointer;
+  transition:all 120ms ease;
+}
+.ev2-discard:hover:not(:disabled){color:var(--danger-content-default,#D61D20);border-color:var(--danger-component-outline-default,#D61D20)}
+.ev2-discard:disabled{opacity:.4}
+
+/* ── Toast ──────────────────────────────────────────────
+   Toasts float above the editor canvas, so they paint on the
+   inverse surface (dark on light, light on dark). The kind chip
+   on the left is the only role-colored element — keeps the toast
+   readable on any surface AND lets a project retune the inverse
+   theme to brand its toasts in one place. */
+.ev2-toast{
+  position:fixed;top:64px;right:20px;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 14px 10px 12px;
+  border:1px solid var(--ev2-tip-border);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-tip-bg);
+  color:var(--ev2-tip-ct);
+  font-size:12px;font-weight:500;
+  box-shadow:var(--shadow-lg,0 8px 24px rgba(0,0,0,.28));
+  opacity:0;transform:translateY(-8px);
+  pointer-events:none;
+  transition:opacity 180ms ease,transform 180ms ease;
+  /* Must sit above .ev2-modal (500) and .ev2-busy (700) so
+     status messages during long-running ops (restore, publish,
+     delete) aren't buried under the spinner overlay. Kept below
+     tooltips (9999) which are ephemeral hover hints. */
+  z-index:800;
+}
+.ev2-toast::before{
+  content:'';
+  width:8px;height:8px;border-radius:50%;
+  background:var(--ev2-tip-ct);
+  opacity:.55;
+  flex-shrink:0;
+}
+.ev2-toast[data-show]{opacity:1;transform:translateY(0);pointer-events:auto}
+.ev2-toast[data-kind="ok"]::before{background:var(--success-component-bg-default,#0B8D28)}
+.ev2-toast[data-kind="err"]::before{background:var(--danger-component-bg-default,#D61D20)}
+.ev2-toast[data-kind="warn"]::before{background:var(--warning-component-bg-default,#A66208)}
+/* Error toasts can carry multi-line GitHub API messages and stick
+   around until dismissed — give them more room to breathe. */
+.ev2-toast[data-kind="err"]{
+  max-width:520px;align-items:flex-start;padding:12px 10px 12px 14px;
+  border-color:var(--danger-component-outline-default,#D61D20);
+}
+.ev2-toast[data-kind="err"]::before{margin-top:6px}
+.ev2-toast-msg{flex:1 1 auto;line-height:1.45;white-space:normal;word-break:break-word}
+.ev2-toast-dismiss{
+  flex-shrink:0;background:transparent;border:0;color:inherit;
+  font-size:18px;line-height:1;cursor:pointer;padding:0 4px;
+  opacity:.7;border-radius:4px;
+}
+.ev2-toast-dismiss:hover{opacity:1;background:rgba(255,255,255,.08)}
+.ev2-toast-dismiss:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px}
+
+/* ══════════════════════════════════════════════════════════════
+   T2 Surfaces — surface picker + Property Card primitive
+   Step 4 (docs §11). Property Card is the one frozen primitive
+   from §4 and will be reused by T1 migration + T3.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Surface picker — compact single-row scrollable rail. Each pill
+   shows just a swatch + name; the full description hangs off
+   data-tip and the surface-pane header shows it for the active one.
+   This buys ~140px of vertical room over the old 2-row grid. */
+.ev2-surfaces{
+  display:flex;
+  flex-wrap:nowrap;
+  gap:6px;
+  padding:10px 24px 10px 4px;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+}
+.ev2-surface{
+  display:inline-flex;align-items:center;gap:8px;
+  flex:0 0 auto;
+  padding:6px 12px 6px 8px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:999px;
+  background:var(--ev2-chrome-bg);
+  text-align:left;cursor:pointer;font:inherit;
+  transition:border-color 120ms,box-shadow 120ms,background 120ms;
+  position:relative;
+}
+.ev2-surface:hover{background:var(--ev2-chrome-subtle)}
+.ev2-surface[aria-current="true"]{
+  border-color:var(--brand-component-bg-default,#3366f0);
+  box-shadow:0 0 0 1px var(--brand-component-bg-default,#3366f0) inset;
+}
+.ev2-surface:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px}
+.ev2-surface-sw{
+  flex-shrink:0;
+  width:20px;height:20px;
+  border-radius:50%;
+  border:1px solid var(--ev2-chrome-outline);
+}
+.ev2-surface-name{font-size:12px;font-weight:600;color:var(--ev2-chrome-ct-strong);line-height:1.2;white-space:nowrap}
+.ev2-surface-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--brand-component-bg-default,#3366f0);
+  margin-inline-start:2px;
+}
+
+/* Surface editing pane — header + family groups */
+.ev2-surface-pane{padding:8px 0 32px}
+.ev2-surface-head{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:18px 24px;
+  border-bottom:1px solid var(--ev2-chrome-separator);
+}
+.ev2-surface-head-l{display:flex;align-items:center;gap:14px;min-width:0}
+.ev2-surface-head-sw{
+  flex-shrink:0;
+  width:44px;height:44px;
+  border-radius:var(--radius-md,8px);
+  border:1px solid var(--ev2-chrome-outline);
+}
+.ev2-surface-head-txt{min-width:0}
+.ev2-surface-head-name{font-size:16px;font-weight:700;color:var(--ev2-chrome-ct-strong);line-height:1.2;margin-bottom:2px}
+.ev2-surface-head-sub{font-size:12px;color:var(--ev2-chrome-ct-subtle);line-height:1.4}
+.ev2-surface-head-sub code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11px;
+  padding:1px 5px;border-radius:3px;
+  background:var(--ev2-chrome-subtle);
+  color:var(--ev2-chrome-ct-strong);
+}
+
+/* Right-hand control cluster: source-palette picker + mode toggle.
+   Stacked vertically so the surface name stays the headline and the
+   controls read as a compact toolbox. */
+.ev2-surface-head-r{
+  display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;
+}
+
+/* Source-palette picker. The <select> is a native control styled to
+   match the rest of the editor; CUSTOM pill + reset button appear
+   inline only when the surface is on a non-default palette. */
+.ev2-surface-head-palette{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;color:var(--ev2-chrome-ct-subtle);
+}
+.ev2-surface-head-palette-label{
+  font-weight:600;letter-spacing:.02em;
+}
+.ev2-surface-head-palette-sel{
+  font:inherit;font-size:12px;font-weight:600;
+  padding:5px 26px 5px 10px;
+  border-radius:var(--radius-sm,6px);
+  border:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23737E88' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+    no-repeat right 8px center;
+  color:var(--ev2-chrome-ct-strong);
+  -webkit-appearance:none;appearance:none;
+  cursor:pointer;
+}
+.ev2-surface-head-palette-sel:focus-visible{
+  outline:2px solid var(--brand-fill);
+  outline-offset:2px;
+}
+.ev2-surface-head-palette[data-custom="true"] .ev2-surface-head-palette-sel{
+  border-color:var(--warning-fill,#C97C0E);
+}
+/* Custom popover trigger. Matches the visual weight of the old
+   <select> but is a real button so the popover can render grouped
+   sections + separators + an empty-state slot for "Custom palettes"
+   (browsers don't let CSS style optgroup headings reliably). */
+.ev2-surface-head-palette-trigger{
+  font:inherit;font-size:12px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 8px 5px 10px;
+  border-radius:var(--radius-sm,6px);
+  border:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  cursor:pointer;
+  line-height:1;
+}
+.ev2-surface-head-palette-trigger:hover{
+  border-color:var(--ev2-chrome-ct-subtle);
+}
+.ev2-surface-head-palette-trigger:focus-visible{
+  outline:2px solid var(--brand-fill);
+  outline-offset:2px;
+}
+.ev2-surface-head-palette-trigger[aria-expanded="true"]{
+  border-color:var(--brand-fill);
+}
+.ev2-surface-head-palette-trigger-caret{
+  color:var(--ev2-chrome-ct-subtle);
+  transition:transform .12s ease;
+}
+.ev2-surface-head-palette-trigger[aria-expanded="true"] .ev2-surface-head-palette-trigger-caret{
+  transform:rotate(180deg);
+}
+.ev2-surface-head-palette[data-custom="true"] .ev2-surface-head-palette-trigger{
+  border-color:var(--warning-fill,#C97C0E);
+}
+.ev2-surface-head-palette-pill{
+  font-size:10px;font-weight:700;letter-spacing:.06em;
+  padding:2px 6px;border-radius:3px;
+  background:var(--warning-container,#FFF4D6);
+  color:var(--warning-on-container,#5A3A00);
+}
+.ev2-surface-head-palette-reset{
+  font:inherit;font-size:11px;font-weight:600;
+  padding:3px 8px;border-radius:var(--radius-sm,6px);
+  border:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+}
+.ev2-surface-head-palette-reset:hover{color:var(--ev2-chrome-ct-strong)}
+
+/* Editing mode toggle (Light / Dark). The button styles live in
+   the canonical .ev2-edit-mode block above (icon + label, pill,
+   aria-checked driven). This row-wrapper class is used by some
+   intent-head instances of the same toggle. */
+.ev2-edit-mode-row{
+  display:inline-flex;align-items:center;
+  padding:3px;border-radius:var(--radius-md,8px);
+  background:var(--ev2-chrome-subtle);
+  border:1px solid var(--ev2-chrome-outline);
+}
+
+/* Family group containing N Property Cards */
+.ev2-pc-group{padding:20px 24px 8px}
+.ev2-pc-group + .ev2-pc-group{border-top:1px solid var(--ev2-chrome-separator)}
+.ev2-pc-group-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:8px;
+}
+.ev2-pc-group-title{font-size:13px;font-weight:700;color:var(--ev2-chrome-ct-strong);text-transform:uppercase;letter-spacing:.04em}
+/* Anchor reference chip: small pill that shows "follows bg · step N"
+   so users know what the family is derived from. */
+.ev2-pc-group-anchor{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:3px 8px 3px 4px;border-radius:999px;
+  background:var(--ev2-chrome-subtle);
+  border:1px solid var(--ev2-chrome-outline);
+  font-size:11px;color:var(--ev2-chrome-ct-subtle);
+  font-variant-numeric:tabular-nums;
+}
+.ev2-pc-group-anchor-sw{
+  width:14px;height:14px;border-radius:50%;
+  border:1px solid var(--ev2-chrome-outline);
+}
+.ev2-pc-group-anchor-lbl code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:10.5px;font-weight:600;
+  color:var(--ev2-chrome-ct-default);
+}
+.ev2-pc-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+
+/* ── Property Card (frozen primitive — docs §4) ──────────
+   Anatomy: swatch | name + step + chip | WCAG | ± stepper + reset.
+   WCAG sits left of controls so the eye reads "what's wrong"
+   before "what to do"; controls are flush-right on every row.
+   Border style on the swatch communicates detached vs default
+   (solid = user override, dashed = following default). */
+.ev2-pc{
+  display:grid;
+  grid-template-columns:32px 1fr auto auto;
+  align-items:center;gap:12px;
+  padding:8px 12px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,8px);
+  background:var(--ev2-chrome-bg);
+  transition:border-color 120ms,box-shadow 120ms;
+}
+.ev2-pc:hover{border-color:var(--ev2-chrome-cm-outline-hover,#C8D0D8)}
+.ev2-pc[data-detached="true"]{
+  border-color:var(--brand-component-bg-default,#3366f0);
+  box-shadow:0 0 0 1px var(--brand-component-bg-default,#3366f0) inset;
+}
+/* T1 cards: drop the detached brand-ring on the card itself. The
+   CUSTOM pill in the meta + the selected step ring in the ladder
+   already communicate detached state; the outer ring just shouts
+   over the card content. T2 keeps it because T2 rows are dense
+   and the ring helps spot custom rows in a long column. */
+.ev2-pc[data-pc-tier="t1"][data-detached="true"]{
+  border-color:var(--ev2-chrome-outline);
+  box-shadow:none;
+}
+.ev2-pc-sw{
+  position:relative;
+  width:32px;height:32px;
+  border-radius:var(--radius-sm,6px);
+  border:2px dashed var(--ev2-chrome-outline);
+  padding:0;
+  cursor:pointer;
+  font:inherit;
+  transition:transform 120ms,border-color 120ms,box-shadow 120ms;
+}
+.ev2-pc-sw:hover{transform:scale(1.06);border-color:var(--brand-component-bg-default,#3366f0)}
+.ev2-pc-sw:focus-visible{
+  outline:2px solid var(--brand-component-bg-default,#3366f0);
+  outline-offset:2px;
+}
+.ev2-pc[data-detached="true"] .ev2-pc-sw{border-style:solid}
+.ev2-pc[data-expanded="true"]{
+  border-color:var(--ev2-chrome-cm-outline-hover,#C8D0D8);
+  background:var(--ev2-chrome-subtle);
+}
+.ev2-pc[data-expanded="true"][data-detached="true"]{
+  border-color:var(--brand-component-bg-default,#3366f0);
+}
+.ev2-pc[data-pc-tier="t1"][data-expanded="true"][data-detached="true"]{
+  border-color:var(--ev2-chrome-cm-outline-hover,#C8D0D8);
+}
+.ev2-pc-main{min-width:0}
+.ev2-pc-name{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:12px;font-weight:600;
+  color:var(--ev2-chrome-ct-strong);
+  line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+/* T1 lever cards use a friendly label ("Component fill") instead of
+   a monospaced CSS variable name. Switch font + size accordingly. */
+.ev2-pc[data-pc-tier="t1"] .ev2-pc-name{
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:700;
+  letter-spacing:-.005em;
+  color:var(--ev2-chrome-ct-default);
+}
+.ev2-pc-sub{
+  font-size:11.5px;
+  color:var(--ev2-chrome-ct-subtle);
+  line-height:1.35;
+  margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ev2-pc-meta{display:flex;align-items:center;gap:8px;margin-top:3px}
+.ev2-pc-step{
+  font-size:11px;font-weight:600;
+  color:var(--ev2-chrome-ct-subtle);
+  font-variant-numeric:tabular-nums;
+}
+.ev2-pc-chip{
+  font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 6px;border-radius:3px;
+  background:var(--brand-container-bg,#EAF1FF);
+  color:var(--brand-content-default,#3366f0);
+}
+.ev2-pc-chip-muted{background:var(--ev2-chrome-subtle);color:var(--ev2-chrome-ct-faint)}
+/* Linked chip: shows "+1 from bg" for cards that follow a parent.
+   Visually quieter than 'custom' (which uses brand fill) so the user
+   can scan a column of mostly-linked rows and spot the rare detached
+   one. Uses dashed border to echo the dashed swatch style. */
+.ev2-pc-chip-link{
+  background:transparent;
+  border:1px dashed var(--ev2-chrome-outline);
+  color:var(--ev2-chrome-ct-subtle);
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+
+/* Tree indent: child rows nudge in to make parent-child obvious.
+   16px per level, with a faint guide line so the eye can track
+   which parent the indented row belongs to. */
+.ev2-pc[data-level="1"]{margin-left:16px;position:relative}
+.ev2-pc[data-level="2"]{margin-left:32px;position:relative}
+.ev2-pc[data-level="1"]::before,
+.ev2-pc[data-level="2"]::before{
+  content:'';
+  position:absolute;
+  left:-9px;top:50%;
+  width:8px;height:1px;
+  background:var(--ev2-chrome-outline);
+  pointer-events:none;
+}
+.ev2-pc[data-level="1"]::after,
+.ev2-pc[data-level="2"]::after{
+  content:'';
+  position:absolute;
+  left:-9px;top:-7px;bottom:50%;
+  width:1px;
+  background:var(--ev2-chrome-outline);
+  pointer-events:none;
+}
+.ev2-pc-controls{display:inline-flex;align-items:center;gap:4px}
+.ev2-pc-step-btn,.ev2-pc-reset,.ev2-pc-disclose{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,6px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:13px;cursor:pointer;
+  transition:background 120ms,border-color 120ms,transform 160ms;
+}
+.ev2-pc-step-btn:hover,.ev2-pc-reset:not(:disabled):hover,.ev2-pc-disclose:hover{background:var(--ev2-chrome-subtle);border-color:var(--ev2-chrome-cm-outline-hover,#C8D0D8)}
+.ev2-pc-step-btn:focus-visible,.ev2-pc-reset:focus-visible,.ev2-pc-disclose:focus-visible{
+  outline:2px solid var(--brand-component-bg-default,#3366f0);
+  outline-offset:1px;
+}
+.ev2-pc-reset:disabled{opacity:.35;cursor:default}
+.ev2-pc-more{font-size:15px;line-height:1;letter-spacing:.05em;color:var(--ev2-chrome-ct-subtle,#5b6068);display:none}
+.ev2-pc-more[aria-expanded="true"]{display:none}
+.ev2-pc-disclose svg{transition:transform 160ms}
+.ev2-pc[data-expanded="true"] .ev2-pc-disclose svg{transform:rotate(180deg)}
+.ev2-pc[data-expanded="true"] .ev2-pc-disclose{
+  background:var(--brand-component-bg-default,#3366f0);
+  border-color:var(--brand-component-bg-default,#3366f0);
+  color:#fff;
+}
+.ev2-pc-wcag{
+  font-size:11px;font-weight:600;
+  padding:3px 7px;border-radius:3px;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.ev2-pc-wcag[data-grade="aaa"]{background:var(--success-container-bg,#E8F5EB);color:var(--success-content-default,#0B8D28)}
+.ev2-pc-wcag[data-grade="aa"]{background:var(--success-container-bg,#E8F5EB);color:var(--success-content-default,#0B8D28)}
+.ev2-pc-wcag[data-grade="aa-large"]{background:var(--info-container-bg,#EAF4FF);color:var(--info-content-default,#0E6FE0)}
+.ev2-pc-wcag[data-grade="fail"]{background:var(--danger-container-bg,#FDEAEB);color:var(--danger-content-default,#D61D20)}
+/* Edge-intent (outline / cm-outline) below 3:1 is informational —
+   the border is fine as long as it's paired with shadow/spacing.
+   Show as a neutral note, not a red alarm. */
+.ev2-pc-wcag[data-grade="edge-soft"]{background:var(--warning-container-bg,#FFF3D6);color:var(--warning-content-default,#A66208)}
+
+/* Inline 20-step ladder picker (Property Card accordion). Appears
+   as a second row when the user clicks the swatch. Click any step
+   to pick it (writes through setT2Step). Current step gets a
+   filled ring; default step gets a subtle dot under it. */
+.ev2-pc-ladder{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:repeat(22, minmax(0, 1fr));
+  gap:4px;
+  margin-top:10px;
+  padding:8px;
+  background:var(--ev2-chrome-bg);
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,6px);
+}
+.ev2-pc-ladder-step{
+  position:relative;
+  aspect-ratio:1;
+  min-width:0;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:4px;
+  cursor:pointer;
+  padding:0;
+  transition:transform 80ms,box-shadow 120ms;
+}
+.ev2-pc-ladder-step:hover{transform:scale(1.12);z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.ev2-pc-ladder-step[data-current="true"]{
+  box-shadow:0 0 0 2px var(--brand-component-bg-default,#3366f0);
+  z-index:3;
+}
+.ev2-pc-ladder-step[data-default="true"]::after{
+  content:'';
+  position:absolute;left:50%;bottom:-6px;
+  width:4px;height:4px;border-radius:50%;
+  background:var(--ev2-chrome-ct-faint);
+  transform:translateX(-50%);
+}
+.ev2-pc-ladder-step:focus-visible{
+  outline:2px solid var(--brand-component-bg-default,#3366f0);
+  outline-offset:1px;
+  z-index:4;
+}
+/* Per-step pass/fail mark. T1 ladders annotate each of the 22 steps
+   with its WCAG outcome against the current lever's baseline. The
+   point is to flag failing steps WITHOUT lying about the color —
+   designers must see step N in T1 as the IDENTICAL hue/value they
+   saw in T0. We do not dim the swatch or stripe across it; we drop
+   a small corner mark instead. T2 doesn't set data-pass so this
+   rule is inert there. */
+/* The global `html.ev2-tip-js [data-tip]::before` catch-all (line
+   ~540) suppresses ::before with !important on every tipped
+   element. Ladder swatches carry data-tip, so we must re-arm both
+   `content` and `display` with !important to render the fail dot. */
+html.ev2-tip-js .ev2-pc-ladder-step[data-pass="false"]::before,
+.ev2-pc-ladder-step[data-pass="false"]::before{
+  content:" " !important;
+  display:block !important;
+  position:absolute;
+  top:1px;right:1px;
+  width:7px;height:7px;
+  border-radius:50%;
+  background:var(--danger-component-bg-default, #d33);
+  box-shadow:0 0 0 1.5px var(--ev2-chrome-bg, #fff);
+  pointer-events:none;
+}
+/* "soft" = best-of-failing for onComponent when neither white nor
+   black reaches AA against the role's worst fill state. Amber dot
+   matches the popover's "Best available" amber framing so the
+   ladder and recommendation agree visually. */
+html.ev2-tip-js .ev2-pc-ladder-step[data-pass="soft"]::before,
+.ev2-pc-ladder-step[data-pass="soft"]::before{
+  content:" " !important;
+  display:block !important;
+  position:absolute;
+  top:1px;right:1px;
+  width:7px;height:7px;
+  border-radius:50%;
+  background:var(--warning-component-bg-default, #c97a06);
+  box-shadow:0 0 0 1.5px var(--ev2-chrome-bg, #fff);
+  pointer-events:none;
+}
+
+/* T1 always-expanded cards: the swatch is decorative (no toggle
+   target). Drop the hover scale + cursor so users don't think
+   it's clickable. */
+.ev2-pc-sw[data-pc-noninteractive="true"]{
+  cursor:default;
+}
+.ev2-pc-sw[data-pc-noninteractive="true"]:hover{
+  transform:none;
+  border-color:var(--ev2-chrome-outline);
+}
+.ev2-pc[data-pc-tier="t1"][data-detached="true"] .ev2-pc-sw{
+  border-style:solid;
+}
+
+@media (max-width: 1100px){
+  .ev2-pc{grid-template-columns:32px 1fr auto;grid-template-areas:"sw main controls" "sw wcag controls";row-gap:6px}
+  .ev2-pc-sw{grid-area:sw}
+  .ev2-pc-main{grid-area:main}
+  .ev2-pc-wcag{grid-area:wcag;justify-self:start}
+  .ev2-pc-controls{grid-area:controls;align-self:start}
+}
+
+/* ── Responsive guard rails (no full responsive layout in v2 step 2) ── */
+@media (max-width: 1100px){
+  .ev2-panes{grid-template-columns:1fr 6px 1fr}
+}
+@media (max-width: 880px){
+  .ev2-workspace{height:auto}
+  .ev2-panes{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  .ev2-list,.ev2-preview{border-right:0;border-bottom:1px solid var(--ev2-chrome-outline)}
+  .ev2-resizer{display:none}
+  .ev2-tierbar{flex-wrap:wrap}
+}
+
+/* ── Deploy summary dialog ────────────────────────────── */
+.ev2-deploy-dialog{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center}
+.ev2-deploy-dialog[hidden]{display:none}
+.ev2-deploy-card{
+  position:relative;
+  width:min(720px, calc(100vw - 32px));
+  max-height:calc(100vh - 64px);
+  display:flex;flex-direction:column;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-lg,8px);
+  background:var(--ev2-chrome-cm-bg);
+  box-shadow:var(--shadow-xl,0 16px 48px rgba(0,0,0,.22));
+  overflow:hidden;
+}
+.ev2-deploy-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:24px;
+  padding:22px 26px 16px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+}
+.ev2-deploy-headtxt{min-width:0;flex:1}
+.ev2-deploy-title{font-size:17px;font-weight:700;color:var(--ev2-chrome-ct-strong);margin-bottom:5px}
+.ev2-deploy-sub{font-size:12px;color:var(--ev2-chrome-ct-subtle);line-height:1.5;max-width:480px}
+.ev2-deploy-meta{display:flex;flex-direction:column;gap:4px;flex-shrink:0;font-size:11px;align-items:flex-end}
+.ev2-deploy-meta-row{display:flex;gap:8px;align-items:baseline}
+.ev2-deploy-meta-k{color:var(--ev2-chrome-ct-faint);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:9px}
+.ev2-deploy-meta-v{color:var(--ev2-chrome-ct-strong);font-weight:600}
+.ev2-deploy-meta-total{
+  background:var(--brand-component-bg-default);color:var(--brand-on-component);
+  padding:1px 8px;border-radius:999px;font-size:11px;
+}
+
+.ev2-deploy-body{
+  flex:1;min-height:0;overflow-y:auto;
+  padding:18px 26px;background:var(--ev2-chrome-bg);
+}
+.ev2-deploy-empty{
+  text-align:center;padding:40px 20px;
+  color:var(--ev2-chrome-ct-subtle);font-size:13px;
+  border:1px dashed var(--ev2-chrome-outline);border-radius:var(--radius-md,6px);
+}
+
+.ev2-deploy-section{margin-bottom:20px}
+.ev2-deploy-section:last-child{margin-bottom:0}
+.ev2-deploy-section-head{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.ev2-deploy-section-tag{
+  display:inline-block;padding:2px 8px;
+  background:var(--ev2-chrome-cm-bg);
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-sm,4px);
+  font-size:10px;font-weight:700;color:var(--ev2-chrome-ct-strong);
+  letter-spacing:.04em;
+}
+.ev2-deploy-section-title{font-size:13px;font-weight:700;color:var(--ev2-chrome-ct-strong);line-height:1.25}
+.ev2-deploy-section-sub{font-size:11px;color:var(--ev2-chrome-ct-faint);margin-top:2px}
+
+.ev2-deploy-rows{
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-cm-bg);
+  overflow:hidden;
+}
+.ev2-deploy-row{
+  display:flex;align-items:center;gap:12px;
+  padding:9px 14px;
+  font-size:12px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+}
+.ev2-deploy-row:last-child{border-bottom:0}
+.ev2-deploy-row-dot{
+  width:14px;height:14px;border-radius:4px;
+  border:1px solid rgba(0,0,0,.1);flex-shrink:0;
+}
+.ev2-deploy-row-label{font-weight:600;color:var(--ev2-chrome-ct-strong);min-width:84px}
+.ev2-deploy-row-diff{
+  display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;
+  color:var(--ev2-chrome-ct-default);
+}
+.ev2-deploy-row-diff em{font-style:normal;font-weight:600;color:var(--ev2-chrome-ct-strong)}
+.ev2-deploy-row-diff code{
+  font-family:var(--font-family-mono,ui-monospace,SFMono-Regular,Menlo,monospace);
+  font-size:11px;padding:1px 6px;border-radius:3px;
+  border:1px solid var(--ev2-chrome-outline);background:var(--ev2-chrome-bg);
+}
+.ev2-deploy-from{color:var(--ev2-chrome-ct-faint)}
+.ev2-deploy-to{border-color:transparent !important;font-weight:700}
+.ev2-deploy-arrow{color:var(--ev2-chrome-ct-faint)}
+
+.ev2-deploy-actions{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px 26px;
+  border-top:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+}
+.ev2-deploy-hint{font-size:11px;color:var(--ev2-chrome-ct-subtle);max-width:380px;line-height:1.5}
+.ev2-deploy-btns{display:flex;gap:8px;flex-shrink:0}
+body.ev2-modal-open{overflow:hidden}
+
+/* ── Save-as-default form (snapshot metadata) ─────────── */
+.ev2-save-form{
+  margin:0 26px 4px;padding:14px 16px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:8px;
+  background:var(--ev2-chrome-subtle);
+}
+.ev2-save-form-title{
+  margin:0 0 4px;font-size:12px;font-weight:700;
+  color:var(--ev2-chrome-ct-strong);text-transform:uppercase;letter-spacing:.04em;
+}
+.ev2-save-form-sub{margin:0 0 12px;font-size:11px;color:var(--ev2-chrome-ct-subtle);line-height:1.5}
+.ev2-save-form-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:10px 14px}
+.ev2-save-field{display:flex;flex-direction:column;gap:4px}
+.ev2-save-field--desc{grid-column:1 / -1}
+.ev2-save-field-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ev2-chrome-ct-faint)}
+.ev2-save-field-label em{font-style:normal;font-weight:500;color:var(--ev2-chrome-ct-subtle);text-transform:none;letter-spacing:0}
+.ev2-save-field input[type="text"],
+.ev2-save-field textarea{
+  font:inherit;font-size:12px;
+  padding:6px 9px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:5px;
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  resize:vertical;
+}
+.ev2-save-field input[type="text"]:focus,
+.ev2-save-field textarea:focus{
+  outline:2px solid var(--brand-component-outline-default);
+  outline-offset:0;border-color:var(--brand-component-outline-default);
+}
+.ev2-save-field input[aria-invalid="true"]{border-color:var(--danger-component-outline-default,#DC2626)}
+.ev2-save-ver-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ev2-save-ver-prev{font-family:var(--font-family-mono,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:11px;color:var(--ev2-chrome-ct-faint)}
+.ev2-save-ver-arrow{color:var(--ev2-chrome-ct-faint);font-size:11px}
+.ev2-save-ver-next{font-family:var(--font-family-mono,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:11px;font-weight:700;color:var(--brand-content-default,#286CE5);padding:3px 7px;background:var(--brand-container-bg,rgba(40,108,229,.08));border-radius:4px}
+.ev2-save-ver-bump{display:inline-flex;gap:2px;background:var(--ev2-chrome-bg);border:1px solid var(--ev2-chrome-outline);border-radius:5px;padding:2px}
+.ev2-save-ver-bump button{
+  font:inherit;font-size:10px;font-weight:600;
+  padding:3px 8px;border:0;border-radius:3px;background:transparent;
+  color:var(--ev2-chrome-ct-subtle);cursor:pointer;transition:background 100ms,color 100ms;
+}
+.ev2-save-ver-bump button:hover{color:var(--ev2-chrome-ct-strong)}
+.ev2-save-ver-bump button[aria-checked="true"]{background:var(--brand-component-bg-default,#286CE5);color:var(--brand-on-component,#fff)}
+
+/* Section headers + hierarchy summary (used in both modes) */
+.ev2-deploy-section{margin-bottom:14px}
+.ev2-deploy-section:last-child{margin-bottom:0}
+.ev2-deploy-section-head{display:flex;align-items:flex-start;gap:10px;padding:6px 14px 8px;background:var(--ev2-chrome-subtle)}
+.ev2-deploy-section-tag{
+  font-size:10px;font-weight:700;letter-spacing:.04em;
+  padding:2px 7px;border-radius:3px;
+  background:var(--ev2-chrome-ct-strong);color:var(--ev2-chrome-bg);
+  flex-shrink:0;line-height:1.5;
+}
+.ev2-deploy-section-title{font-size:12px;font-weight:700;color:var(--ev2-chrome-ct-strong)}
+.ev2-deploy-section-sub{font-size:11px;color:var(--ev2-chrome-ct-subtle);margin-top:1px}
+.ev2-deploy-section-empty{padding:10px 14px;font-size:11px;font-style:italic;color:var(--ev2-chrome-ct-faint)}
+
+/* When in save-mode, the title gets a "saving" tone via a data attr */
+.ev2-deploy-dialog[data-mode="save"] .ev2-deploy-section-tag{background:var(--brand-content-default,#286CE5)}
+
+/* ── Publish timeline ───────────────────────────────────
+   Inline progress UI that replaces the form during publish.
+   Three steps; each is icon + label + sub. Icon glyph and color
+   are driven by data-state on the <li>. */
+.ev2-publish-timeline{padding:18px 24px;border-bottom:1px solid var(--ev2-chrome-outline)}
+.ev2-tl-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.ev2-tl-steps li{
+  display:grid;grid-template-columns:24px 1fr;column-gap:12px;row-gap:2px;
+  align-items:center;
+}
+.ev2-tl-icon{
+  grid-row:span 2;
+  width:22px;height:22px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--ev2-chrome-subtle);border:1px solid var(--ev2-chrome-outline);
+  color:var(--ev2-chrome-ct-faint);font-size:13px;font-weight:700;
+}
+.ev2-tl-label{font-size:13px;font-weight:600;color:var(--ev2-chrome-ct-strong);align-self:end}
+.ev2-tl-sub{font-size:11px;color:var(--ev2-chrome-ct-subtle);align-self:start}
+
+.ev2-tl-steps li[data-state="pending"] .ev2-tl-label,
+.ev2-tl-steps li[data-state="pending"] .ev2-tl-sub{opacity:.55}
+.ev2-tl-steps li[data-state="running"] .ev2-tl-icon{
+  background:var(--brand-component-bg-default,#3366f0);color:#fff;border-color:transparent;
+  animation:ev2-pulse 1s ease-in-out infinite;
+}
+.ev2-tl-steps li[data-state="running"] .ev2-tl-icon::after{content:""}
+.ev2-tl-steps li[data-state="ok"] .ev2-tl-icon{
+  background:var(--success-component-bg-default,#16A34A);color:#fff;border-color:transparent;
+}
+.ev2-tl-steps li[data-state="ok"] .ev2-tl-icon::after{content:"\2713"}
+.ev2-tl-steps li[data-state="warn"] .ev2-tl-icon{
+  background:var(--warning-component-bg-default,#A66208);color:#fff;border-color:transparent;
+}
+.ev2-tl-steps li[data-state="warn"] .ev2-tl-icon::after{content:"!"}
+.ev2-tl-steps li[data-state="fail"] .ev2-tl-icon{
+  background:var(--danger-component-bg-default,#D61D20);color:#fff;border-color:transparent;
+}
+.ev2-tl-steps li[data-state="fail"] .ev2-tl-icon::after{content:"\2715"}
+
+.ev2-tl-summary{
+  margin-top:14px;padding:10px 12px;border-radius:6px;
+  background:var(--ev2-chrome-subtle);
+  font-size:12px;line-height:1.5;color:var(--ev2-chrome-ct-default);
+}
+.ev2-deploy-dialog[data-mode="success"] .ev2-tl-summary{
+  background:var(--success-container-bg,rgba(22,163,74,.08));
+  border:1px solid var(--success-component-outline-default,rgba(22,163,74,.3));
+}
+.ev2-deploy-dialog[data-mode="partial"] .ev2-tl-summary{
+  background:var(--warning-container-bg,#FFF3D6);
+  border:1px solid var(--warning-component-outline-default,rgba(166,98,8,.3));
+}
+.ev2-deploy-dialog[data-mode="error"] .ev2-tl-summary{
+  background:var(--danger-container-bg,#FDEAEB);
+  border:1px solid var(--danger-component-outline-default,rgba(214,29,32,.3));
+}
+.ev2-tl-summary code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  padding:1px 4px;border-radius:3px;background:rgba(0,0,0,.06);
+}
+
+/* Field helper hint below name input. */
+.ev2-save-field-hint{
+  display:block;margin-top:4px;
+  font-size:10.5px;color:var(--ev2-chrome-ct-faint);
+}
+
+/* ── WCAG sentinel popover ──────────────────────────────
+   Click-stable panel anchored under a .ev2-pc-wcag chip. Shows the
+   failing pair previewed, the plain-language why, and a one-click
+   suggested step. */
+.ev2-pc-wcag{
+  /* chip is now a <button> — strip the button defaults */
+  border:0;
+  cursor:pointer;
+  font-family:inherit;
+}
+.ev2-pc-wcag:focus-visible{
+  outline:2px solid var(--brand-component-bg-default,#3366f0);
+  outline-offset:2px;
+}
+.ev2-wcag-pop{
+  position:fixed;
+  z-index:9100;
+  width:340px;
+  padding:14px 14px 12px;
+  background:var(--surface-float-bg, var(--ev2-chrome-bg, #fff));
+  border:1px solid var(--surface-float-outline, var(--ev2-chrome-outline, rgba(0,0,0,.12)));
+  border-radius:10px;
+  box-shadow:0 12px 36px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.08);
+  font-size:12px;
+  line-height:1.5;
+  color:var(--surface-float-ct-default, var(--ev2-chrome-ct-default, #1F2330));
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(-4px);
+  transition:opacity 120ms ease, transform 120ms ease;
+}
+.ev2-wcag-pop[data-show]{opacity:1;pointer-events:auto;transform:translateY(0)}
+.ev2-wcag-pop-head{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:10px;
+}
+.ev2-wcag-pop-name{
+  flex:1;min-width:0;
+  font-size:11px;color:var(--ev2-chrome-ct-subtle,#5b6068);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ev2-wcag-pop-name code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11px;color:inherit;
+}
+.ev2-wcag-pop-chip{
+  flex-shrink:0;
+  font-size:11px;font-weight:600;
+  padding:3px 7px;border-radius:3px;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.ev2-wcag-pop-chip[data-grade="aaa"]{background:var(--success-container-bg,#E8F5EB);color:var(--success-content-default,#0B8D28)}
+.ev2-wcag-pop-chip[data-grade="aa"]{background:var(--success-container-bg,#E8F5EB);color:var(--success-content-default,#0B8D28)}
+.ev2-wcag-pop-chip[data-grade="aa-large"]{background:var(--info-container-bg,#EAF4FF);color:var(--info-content-default,#0E6FE0)}
+.ev2-wcag-pop-chip[data-grade="fail"]{background:var(--danger-container-bg,#FDEAEB);color:var(--danger-content-default,#D61D20)}
+.ev2-wcag-pop-chip[data-grade="edge-soft"]{background:var(--warning-container-bg,#FFF3D6);color:var(--warning-content-default,#A66208)}
+.ev2-wcag-pop-close{
+  flex-shrink:0;
+  width:22px;height:22px;
+  border:0;background:transparent;cursor:pointer;
+  border-radius:4px;
+  font-size:16px;line-height:1;
+  color:var(--ev2-chrome-ct-subtle,#5b6068);
+}
+.ev2-wcag-pop-close:hover{background:var(--ev2-chrome-subtle,rgba(0,0,0,.04));color:inherit}
+.ev2-wcag-pop-prev{
+  display:flex;align-items:stretch;gap:8px;
+  padding:10px;
+  background:var(--ev2-chrome-subtle,rgba(0,0,0,.03));
+  border-radius:6px;
+  margin-bottom:10px;
+}
+.ev2-wcag-pop-prev-box{
+  flex:1;min-width:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:10px 8px;
+  border-radius:4px;
+  font-size:13px;
+  text-align:center;
+  min-height:42px;
+}
+.ev2-wcag-pop-arrow{
+  display:flex;align-items:center;
+  color:var(--ev2-chrome-ct-subtle,#888);
+  font-size:14px;
+}
+.ev2-wcag-pop-why{
+  font-size:12px;
+  color:var(--ev2-chrome-ct-default,#1F2330);
+  margin-bottom:10px;
+}
+.ev2-wcag-pop-fix{
+  padding:10px;
+  background:var(--info-container-bg,rgba(14,111,224,.06));
+  border:1px solid var(--info-content-default,rgba(14,111,224,.18));
+  border-radius:6px;
+}
+.ev2-wcag-pop-fix-empty{
+  background:var(--ev2-chrome-subtle,rgba(0,0,0,.03));
+  border-color:var(--ev2-chrome-outline,rgba(0,0,0,.12));
+  color:var(--ev2-chrome-ct-subtle,#5b6068);
+  font-size:11.5px;
+}
+/* "Best available" state — suggestion present but still under
+   threshold (typical for on-component when fills span too much
+   luminance for either white or black to pass AA). Amber framing
+   so it reads as cautionary, not as a green-light fix. */
+.ev2-wcag-pop-fix[data-soft="1"]{
+  background:var(--warning-container-bg,rgba(165,98,7,.06));
+  border-color:var(--warning-content-default,rgba(165,98,7,.28));
+}
+.ev2-wcag-pop-fix[data-soft="1"] .ev2-wcag-pop-fix-title{
+  color:var(--warning-content-default,#A56207);
+}
+.ev2-wcag-pop-fix-note{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid var(--ev2-chrome-outline,rgba(0,0,0,.10));
+  font-size:11.5px;
+  color:var(--ev2-chrome-ct-subtle,#5b6068);
+  line-height:1.45;
+}
+.ev2-wcag-pop-fix-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;
+}
+.ev2-wcag-pop-fix-title{
+  font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--info-content-default,#0E6FE0);
+}
+.ev2-wcag-pop-fix-body{
+  display:flex;align-items:center;gap:8px;
+}
+.ev2-wcag-pop-sw{
+  flex-shrink:0;
+  width:28px;height:28px;border-radius:4px;
+  border:1px solid rgba(0,0,0,.18);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);
+}
+.ev2-wcag-pop-fix-txt{
+  flex:1;min-width:0;
+  font-size:12px;
+}
+.ev2-wcag-pop-apply{
+  flex-shrink:0;
+  padding:6px 12px;
+  border:0;border-radius:4px;
+  background:var(--brand-component-bg-default,#3366f0);
+  color:#fff;
+  font-size:12px;font-weight:600;
+  cursor:pointer;
+  font-family:inherit;
+}
+.ev2-wcag-pop-apply:hover{filter:brightness(1.08)}
+.ev2-wcag-pop-apply:focus-visible{outline:2px solid #fff;outline-offset:-3px;box-shadow:0 0 0 4px var(--brand-component-bg-default,#3366f0)}
+.ev2-wcag-pop-alt{
+  margin-top:10px;
+  font-size:11.5px;
+  color:var(--ev2-chrome-ct-subtle,#5b6068);
+  line-height:1.5;
+}
+
+/* ── T2 row inline action chips ──────────────────────────
+   Horizontal bar inside the expanded Property Card, below the
+   step ladder. Replaces the old ⋯ overflow menu — chips only
+   exist when the card is open AND there's something useful to
+   do (detached row → Apply chips; dirty descendants → Reset
+   family chip). Keeps the resting row chrome to (− label + ↺)
+   and surfaces bulk ops in context. */
+.ev2-pc-actions{
+  grid-column:1 / -1;
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin-top:8px;padding-top:8px;
+  border-top:1px dashed var(--ev2-chrome-cm-separator,rgba(0,0,0,.08));
+}
+.ev2-pc-action{
+  display:inline-flex;align-items:center;gap:6px;
+  height:26px;padding:0 10px;
+  border:1px solid var(--ev2-chrome-outline,#D6DCE3);
+  border-radius:13px;
+  background:var(--ev2-chrome-bg,#fff);
+  color:var(--ev2-chrome-ct-default,#1F2330);
+  font:inherit;font-size:11.5px;font-weight:600;
+  letter-spacing:.01em;
+  cursor:pointer;
+  transition:background .12s, border-color .12s, color .12s;
+}
+.ev2-pc-action:hover{
+  background:var(--ev2-chrome-subtle,rgba(0,0,0,.04));
+  border-color:var(--ev2-chrome-cm-outline-hover,#C8D0D8);
+}
+.ev2-pc-action:focus-visible{
+  outline:2px solid var(--brand-content-default,#3D5EFC);
+  outline-offset:2px;
+}
+.ev2-pc-action-sw{
+  flex:0 0 auto;width:12px;height:12px;
+  border-radius:3px;
+  border:1px solid rgba(0,0,0,.14);
+}
+.ev2-pc-action[data-danger="true"]{
+  color:var(--danger-content-default,#C72D38);
+  border-color:var(--danger-cm-outline-default,rgba(199,45,56,.32));
+}
+.ev2-pc-action[data-danger="true"]:hover{
+  background:var(--danger-container-bg,rgba(199,45,56,.08));
+  border-color:var(--danger-content-default,#C72D38);
+}
+
+/* ── Surface source-palette popover ─────────────────────
+   Singleton popover positioned by JS (initSurfacePalettePicker
+   in editor-v2.js). Renders SURFACE_PALETTE_GROUPS as labeled
+   sections with a separator between groups + an empty-state
+   row for the "Custom palettes" group when the project has no
+   custom palettes. Hidden by default; JS sets data-show="1". */
+.ev2-pal-pop{
+  position:fixed;z-index:1100;
+  min-width:220px;max-width:280px;
+  background:var(--surface-float-bg,var(--ev2-chrome-bg));
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06);
+  padding:6px 0;
+  opacity:0;pointer-events:none;transform:translateY(-4px);
+  transition:opacity .12s ease, transform .12s ease;
+}
+.ev2-pal-pop[data-show]{opacity:1;pointer-events:auto;transform:translateY(0)}
+.ev2-pal-pop-group{padding:2px 0}
+.ev2-pal-pop-group-label{
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ev2-chrome-ct-subtle);
+  padding:6px 14px 4px;
+}
+.ev2-pal-pop-sep{
+  height:1px;background:var(--ev2-chrome-separator,var(--ev2-chrome-outline));
+  margin:4px 0;
+}
+.ev2-pal-pop-opt{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  width:100%;
+  padding:7px 14px;
+  background:transparent;border:0;cursor:pointer;
+  text-align:left;font:inherit;color:var(--ev2-chrome-ct-strong);
+}
+.ev2-pal-pop-opt:hover{background:var(--ev2-chrome-subtle,rgba(0,0,0,.04))}
+.ev2-pal-pop-opt:focus-visible{
+  outline:2px solid var(--brand-fill);outline-offset:-2px;
+}
+.ev2-pal-pop-opt[data-current="1"]{
+  background:var(--brand-container-bg,rgba(51,102,240,.08));
+}
+.ev2-pal-pop-opt-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.ev2-pal-pop-opt-label{
+  font-size:13px;font-weight:600;line-height:1.2;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.ev2-pal-pop-opt-default{
+  font-size:9px;font-weight:700;letter-spacing:.06em;
+  padding:1px 5px;border-radius:3px;
+  background:var(--ev2-chrome-subtle,rgba(0,0,0,.06));
+  color:var(--ev2-chrome-ct-subtle);
+  text-transform:uppercase;
+}
+.ev2-pal-pop-opt-desc{
+  font-size:11px;font-weight:400;line-height:1.3;
+  color:var(--ev2-chrome-ct-subtle);
+}
+.ev2-pal-pop-opt-check{
+  flex:0 0 auto;
+  color:var(--brand-fill);font-weight:700;
+  font-size:14px;line-height:1.2;
+}
+.ev2-pal-pop-empty{
+  font-size:11px;font-style:italic;line-height:1.4;
+  color:var(--ev2-chrome-ct-subtle);
+  padding:4px 14px 8px;
+}
+
+/* ── T0 system & custom palette panels ─────────────────
+   Below the primary role intent card. Surfaces the brand-coupled
+   greyscale + desaturated ladders + any project-discovered custom
+   palettes, with a subtle "+ Add palette" affordance. Visual
+   weight is intentionally lighter than the intent card so the
+   primary T0 editing surface (brand/status hex) stays the focus. */
+.ev2-sp-panel{
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-lg,8px);
+  background:var(--ev2-chrome-cm-bg);
+  margin-bottom:12px;
+}
+.ev2-sp-panel + .ev2-sp-panel{margin-top:0}
+.ev2-sp-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--ev2-chrome-separator,var(--ev2-chrome-outline));
+}
+.ev2-sp-titlewrap{display:flex;flex-direction:column;gap:1px;min-width:0}
+.ev2-sp-title{
+  font-size:12px;font-weight:600;
+  color:var(--ev2-chrome-ct-strong);
+}
+.ev2-sp-sub{
+  font-size:11px;font-weight:400;
+  color:var(--ev2-chrome-ct-subtle);
+}
+.ev2-sp-list{padding:8px 14px 12px;display:flex;flex-direction:column;gap:8px}
+.ev2-sp-row{
+  display:flex;flex-direction:column;gap:4px;
+  padding:6px 8px;
+  border-radius:6px;
+}
+.ev2-sp-row:hover{background:var(--ev2-chrome-subtle,rgba(0,0,0,.03))}
+.ev2-sp-rowhead{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+}
+.ev2-sp-name{
+  font-size:12px;font-weight:600;
+  color:var(--ev2-chrome-ct-strong);
+}
+.ev2-sp-meta{
+  font-size:10px;font-weight:500;letter-spacing:.02em;
+  color:var(--ev2-chrome-ct-subtle);
+}
+.ev2-sp-strip{
+  display:grid;
+  grid-template-columns:repeat(22, 1fr);
+  gap:1px;
+  height:14px;
+  border-radius:3px;
+  overflow:hidden;
+  border:1px solid var(--ev2-chrome-outline);
+}
+.ev2-sp-sw{display:block;width:100%;height:100%}
+.ev2-sp-empty{
+  font-size:11px;font-style:italic;line-height:1.5;
+  color:var(--ev2-chrome-ct-subtle);
+  padding:10px 14px 14px;
+}
+.ev2-sp-add{
+  font:inherit;font-size:11px;font-weight:600;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px dashed var(--ev2-chrome-outline);
+  background:transparent;
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+  transition:border-color .12s ease, color .12s ease, background .12s ease;
+}
+.ev2-sp-add:hover{
+  border-color:var(--brand-fill);
+  border-style:solid;
+  color:var(--brand-fill);
+  background:var(--brand-container-bg,rgba(51,102,240,.06));
+}
+.ev2-sp-add:focus-visible{
+  outline:2px solid var(--brand-fill);
+  outline-offset:2px;
+}
+.ev2-sp-add-glyph{font-size:13px;font-weight:700;line-height:1}
+
+/* ---------- Add / Rename custom palette modal ---------- */
+.ev2-addpal-card{width:min(460px,calc(100vw - 32px));padding:20px 22px 18px}
+.ev2-addpal-intro{margin-bottom:16px}
+.ev2-addpal-fields{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.ev2-addpal-field{display:flex;flex-direction:column;gap:6px}
+.ev2-addpal-label{
+  font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--ev2-chrome-ct-subtle);
+}
+.ev2-addpal-name{
+  padding:8px 12px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:13px;font-weight:600;
+}
+.ev2-addpal-name:focus{outline:2px solid var(--brand-component-outline-default);outline-offset:1px;border-color:var(--brand-component-outline-default)}
+.ev2-addpal-name[aria-invalid="true"]{border-color:var(--danger-component-outline-default,#D61D20)}
+.ev2-addpal-hint{font-size:11px;color:var(--ev2-chrome-ct-faint);line-height:1.4}
+.ev2-addpal-hint[aria-invalid="true"]{color:var(--danger-component-bg-default,#D61D20);font-weight:500}
+.ev2-addpal-lever{gap:12px}
+.ev2-addpal-strip{height:18px}
+.ev2-modal-btn-primary:disabled{opacity:.5}
+
+/* ---------- Custom palette row action buttons ---------- */
+.ev2-sp-row-actions{display:inline-flex;gap:4px;align-items:center;margin-left:auto}
+.ev2-sp-action{
+  width:24px;height:24px;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0;
+  border:1px solid transparent;
+  border-radius:var(--radius-sm,4px);
+  background:transparent;
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.ev2-sp-action:hover{
+  background:var(--ev2-chrome-subtle);
+  color:var(--ev2-chrome-ct-strong);
+  border-color:var(--ev2-chrome-outline);
+}
+.ev2-sp-action[data-danger]:hover{
+  color:var(--danger-component-bg-default,#D61D20);
+  border-color:var(--danger-component-outline-default,#D61D20);
+}
+.ev2-sp-action:focus-visible{outline:2px solid var(--brand-component-outline-default);outline-offset:1px}
+.ev2-sp-action svg{display:block;width:13px;height:13px}
+
+/* ---------- T0 sub-tabs (Roles | Palettes) ---------- */
+.ev2-t0-subs{
+  display:inline-flex;gap:4px;padding:4px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:999px;
+  background:var(--ev2-chrome-subtle);
+  margin-bottom:14px;
+}
+.ev2-t0-sub{
+  padding:5px 14px;
+  border:0;border-radius:999px;
+  background:transparent;
+  font:inherit;font-size:11px;font-weight:600;letter-spacing:.02em;
+  color:var(--ev2-chrome-ct-subtle);
+  cursor:pointer;
+  transition:all 120ms ease;
+}
+.ev2-t0-sub:hover{color:var(--ev2-chrome-ct-strong)}
+.ev2-t0-sub[aria-selected="true"]{
+  background:var(--ev2-chrome-cm-bg);
+  color:var(--ev2-chrome-ct-strong);
+  box-shadow:var(--shadow-sm,0 1px 3px rgba(0,0,0,.08));
+  outline:1.5px solid var(--brand-component-bg-default,#3366f0);
+  outline-offset:-1.5px;
+}
+.ev2-t0-sub:focus-visible{outline:2px solid var(--brand-component-bg-default,#3366f0);outline-offset:2px}
+
+/* Row-head meta + actions layout for custom palette rows */
+.ev2-sp-row .ev2-sp-rowhead{display:flex;align-items:center;gap:8px}
+.ev2-sp-row .ev2-sp-meta{margin-right:auto}
+
+/* ── First-boot migration banner ──────────────────────── */
+.ev2-migrate-banner{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 16px;
+  background:var(--warning-container-bg,#FEF3C7);
+  border-bottom:1px solid var(--warning-container-outline,#F59E0B);
+  color:var(--warning-on-container,#78350F);
+  font-size:12px;line-height:1.4;
+}
+.ev2-migrate-banner[hidden]{display:none}
+.ev2-migrate-icon{flex:0 0 auto;color:var(--warning-content-default,#B45309);margin-top:1px}
+.ev2-migrate-body{flex:1 1 auto;min-width:0}
+.ev2-migrate-title{font-weight:600;color:var(--warning-content-strong,#78350F);margin-bottom:1px}
+.ev2-migrate-sub{font-size:11.5px;opacity:.9}
+.ev2-migrate-actions{flex:0 0 auto;display:flex;align-items:center;gap:8px}
+.ev2-migrate-link,
+.ev2-migrate-ack{
+  font:inherit;font-size:11.5px;font-weight:600;
+  padding:5px 10px;
+  border-radius:var(--radius-sm,4px);
+  cursor:pointer;
+  border:1px solid var(--warning-component-outline-default,#D97706);
+  background:transparent;
+  color:var(--warning-content-strong,#78350F);
+  transition:all 120ms ease;
+}
+.ev2-migrate-ack{
+  background:var(--warning-component-bg-default,#D97706);
+  color:var(--warning-on-component,#fff);
+  border-color:var(--warning-component-bg-default,#D97706);
+}
+.ev2-migrate-link:hover{background:var(--warning-container-hover,#FDE68A)}
+.ev2-migrate-ack:hover{background:var(--warning-component-bg-hover,#B45309);border-color:var(--warning-component-bg-hover,#B45309)}
+.ev2-migrate-dismiss{
+  width:24px;height:24px;border:0;background:transparent;
+  color:var(--warning-content-default,#B45309);
+  font-size:20px;line-height:1;cursor:pointer;
+  border-radius:var(--radius-sm,4px);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.ev2-migrate-dismiss:hover{background:var(--warning-container-hover,#FDE68A)}
+
+/* ── Version history dialog ──────────────────────────── */
+.ev2-history-dialog{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center}
+.ev2-history-dialog[hidden]{display:none}
+.ev2-history-card{
+  position:relative;
+  width:min(640px, calc(100vw - 32px));
+  max-height:calc(100vh - 64px);
+  display:flex;flex-direction:column;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-lg,8px);
+  background:var(--ev2-chrome-cm-bg);
+  box-shadow:var(--shadow-xl,0 16px 48px rgba(0,0,0,.22));
+  overflow:hidden;
+}
+.ev2-history-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:24px;
+  padding:20px 24px 14px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+}
+.ev2-history-headtxt{min-width:0;flex:1}
+.ev2-history-title{font-size:17px;font-weight:700;color:var(--ev2-chrome-ct-strong);margin-bottom:5px}
+.ev2-history-sub{font-size:12px;color:var(--ev2-chrome-ct-subtle);line-height:1.5;max-width:520px}
+.ev2-history-close{
+  width:30px;height:30px;padding:0;
+  font-size:20px;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.ev2-history-body{flex:1;min-height:0;overflow:auto;padding:8px 0}
+
+/* In-dialog status line for Restore progress/errors. Sits between
+   header and list so it's adjacent to the row the user just acted
+   on. Uses the same role-colour vocab as toasts ('info' default,
+   'ok' success, 'warn' caution, 'err' failure) so call sites can
+   reuse the same kind strings. Errors stick (no auto-hide) because
+   they often carry multi-line GitHub messages with an action hint. */
+.ev2-history-status{
+  margin:10px 24px 0;
+  padding:10px 12px;
+  border-radius:var(--radius-md,6px);
+  font-size:12px;line-height:1.5;
+  border:1px solid var(--ev2-chrome-outline);
+  background:var(--ev2-chrome-bg);
+  color:var(--ev2-chrome-ct-default);
+}
+.ev2-history-status[hidden]{display:none}
+.ev2-history-status[data-kind="info"]{
+  border-color:var(--info-component-bg-default,#1d4ed8);
+  background:var(--info-component-container,#eef2ff);
+  color:var(--info-on-container,#1e3a8a);
+}
+.ev2-history-status[data-kind="ok"]{
+  border-color:var(--success-component-bg-default,#0b8d28);
+  background:var(--success-component-container,#ecfdf3);
+  color:var(--success-on-container,#065f1e);
+}
+.ev2-history-status[data-kind="warn"]{
+  border-color:var(--warning-component-bg-default,#a66208);
+  background:var(--warning-component-container,#fff7ec);
+  color:var(--warning-on-container,#7a3f00);
+}
+.ev2-history-status[data-kind="err"]{
+  border-color:var(--danger-component-bg-default,#d61d20);
+  background:var(--danger-component-container,#fef2f2);
+  color:var(--danger-on-container,#7a0a0c);
+}
+.ev2-history-empty{
+  padding:32px 24px;text-align:center;
+  color:var(--ev2-chrome-ct-subtle);font-size:12px;
+}
+.ev2-history-list{display:flex;flex-direction:column}
+.ev2-history-row{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;gap:14px;
+  padding:14px 24px;
+  border-bottom:1px solid var(--ev2-chrome-outline);
+}
+.ev2-history-row:last-child{border-bottom:0}
+.ev2-history-row[data-current="true"]{background:var(--ev2-chrome-bg)}
+.ev2-history-ver{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:700;color:var(--ev2-chrome-ct-strong);
+  font-variant-numeric:tabular-nums;
+  min-width:64px;
+}
+.ev2-history-live{
+  display:inline-block;
+  padding:1px 6px;
+  border-radius:999px;
+  background:var(--success-component-bg-default,#16A34A);
+  color:var(--success-on-component,#fff);
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+}
+.ev2-history-info{min-width:0;display:flex;flex-direction:column;gap:2px}
+.ev2-history-name{font-size:12px;font-weight:600;color:var(--ev2-chrome-ct-strong);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev2-history-meta{font-size:10px;color:var(--ev2-chrome-ct-faint);display:flex;gap:6px;flex-wrap:wrap}
+.ev2-history-meta-sep{opacity:.5}
+.ev2-history-desc{font-size:11px;color:var(--ev2-chrome-ct-subtle);line-height:1.4;margin-top:2px;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ev2-history-restore{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;
+  border:1px solid var(--ev2-chrome-outline);
+  border-radius:var(--radius-md,6px);
+  background:transparent;
+  color:var(--ev2-chrome-ct-strong);
+  font:inherit;font-size:11px;font-weight:600;
+  cursor:pointer;
+  transition:all 120ms ease;
+}
+.ev2-history-restore:hover:not(:disabled){
+  background:var(--brand-component-bg-default);
+  border-color:var(--brand-component-bg-default);
+  color:var(--brand-on-component);
+}
+.ev2-history-restore:disabled{opacity:.4}
+.ev2-history-restore[data-restoring="true"]{opacity:.7;cursor:progress}
+
+/* ── Tt Typography panel ────────────────────────────────
+   Rendered inside the list pane (ev2-list-body). Mirrors the
+   structure of T0/T1 cards — section heads + per-section
+   controls — using its own scoped classes so it can coexist
+   with palette/role widgets without selector collisions. */
+/* Panel layout for the Tt tier rail. Plain flex column — the
+   install/CTA footer is rendered as a sibling of .ev2-list-body
+   (see .ev2-list-sticky), so no scroll-clearance trickery is
+   needed here. */
+.ev2-typo-panel{display:flex;flex-direction:column;gap:14px}
+.ev2-typo-section{display:flex;flex-direction:column;gap:6px}
+.ev2-typo-section-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--demo-fg-strong,#111);margin:0;padding-bottom:4px;border-bottom:1px solid var(--ev2-chrome-outline,#e5e5e5)}
+.ev2-typo-help{font-size:11px;line-height:1.4;color:var(--demo-fg-subtle,#555);margin:0 0 2px}
+
+.ev2-typo-presets{
+  display:grid;
+  /* Two compact cards per row at typical list widths; collapses to
+     one column when the user drags the resizer narrow. The 180px
+     min ensures cards don't squish below the font-sample legibility
+     threshold, and `1fr` lets each card share the remaining width
+     equally without forcing a horizontal scrollbar (which was the
+     "resize portion broke" symptom on the previous wide cards). */
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:6px;
+}
+.ev2-typo-preset{display:flex;flex-direction:column;gap:6px;width:100%;min-width:0;text-align:left;padding:8px 10px;border:1px solid var(--ev2-chrome-outline,#e5e5e5);border-radius:6px;background:var(--demo-surface,#fff);cursor:pointer;transition:border-color 120ms ease,box-shadow 120ms ease;font:inherit;position:relative}
+.ev2-typo-preset:hover{border-color:var(--demo-fg-faint,#aaa)}
+.ev2-typo-preset[data-active]{border-color:var(--brand-content-default,#3D5EFC);box-shadow:0 0 0 2px var(--brand-container-bg,#e8edff)}
+.ev2-typo-preset[data-active]::after{content:'';position:absolute;top:8px;right:10px;width:6px;height:6px;border-radius:50%;background:var(--brand-content-default,#3D5EFC)}
+.ev2-typo-preset-head{display:flex;flex-direction:column;gap:1px;padding-right:14px;min-width:0}
+.ev2-typo-preset-label{font-size:11px;font-weight:700;color:var(--demo-fg-strong,#111);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev2-typo-preset-meta{font-size:9px;color:var(--demo-fg-faint,#999);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev2-typo-preset-fonts{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ev2-typo-font-row{display:grid;grid-template-columns:38px 1fr;align-items:baseline;gap:6px;line-height:1.15;min-width:0}
+.ev2-typo-font-row .role{font-size:8px;font-weight:700;color:var(--demo-fg-faint,#999);text-transform:uppercase;letter-spacing:.05em}
+.ev2-typo-font-row .sample{font-size:12px;font-weight:600;color:var(--demo-fg-strong,#111);letter-spacing:-0.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ev2-typo-font-row.body .sample{font-size:11px;font-weight:400;color:var(--demo-fg,#222)}
+.ev2-typo-font-row.code .sample{font-size:10px;color:var(--demo-fg-subtle,#555)}
+
+/* Separator between preset tiles and the Custom tile. Spans the
+   full grid width and uses a labelled hairline so the Custom tile
+   reads as a distinct group ("or bring your own"). */
+.ev2-typo-presets-sep{
+  grid-column:1 / -1;
+  display:flex;align-items:center;gap:10px;
+  margin:6px 0 2px;
+}
+.ev2-typo-presets-sep span{
+  font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--demo-fg-faint,#999);
+}
+.ev2-typo-presets-sep::before,
+.ev2-typo-presets-sep::after{
+  content:'';flex:1;height:1px;
+  background:var(--ev2-chrome-outline,#e5e5e5);
+}
+
+.ev2-typo-field{display:grid;grid-template-columns:130px 1fr;align-items:center;gap:10px;margin-bottom:6px}
+.ev2-typo-field label{font-size:11px;font-weight:600;color:var(--demo-fg-subtle,#555);text-transform:none;letter-spacing:0}
+.ev2-typo-field input[type=text]{padding:6px 10px;border:1px solid var(--ev2-chrome-outline,#e5e5e5);border-radius:5px;background:var(--demo-bg,#fff);color:var(--demo-fg,#222);font-size:11px;font-family:var(--font-family-mono,monospace);width:100%;box-sizing:border-box}
+.ev2-typo-field input[type=text]:focus{outline:2px solid var(--brand-content-default,#3D5EFC);outline-offset:1px;border-color:transparent}
+
+.ev2-typo-specimen{padding:14px 16px;border:1px solid var(--ev2-chrome-outline,#e5e5e5);border-radius:6px;background:var(--demo-surface,#fff)}
+.ev2-typo-specimen .display{font-family:var(--font-family-headline);font-size:26px;font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:var(--demo-fg-strong,#111);margin:0 0 4px}
+.ev2-typo-specimen .lede{font-family:var(--font-family-body);font-size:13px;line-height:1.5;color:var(--demo-fg-subtle,#555);margin:0 0 10px}
+.ev2-typo-specimen .heading{font-family:var(--font-family-headline);font-size:16px;font-weight:600;line-height:1.25;color:var(--demo-fg-strong,#111);margin:8px 0 4px}
+.ev2-typo-specimen .body{font-family:var(--font-family-body);font-size:12px;line-height:1.55;color:var(--demo-fg,#222);margin:0}
+.ev2-typo-specimen .code{font-family:var(--font-family-code);font-size:11px;background:var(--demo-surface-alt,#f4f4f4);padding:8px 10px;border-radius:5px;margin:8px 0 0;color:var(--demo-fg-strong,#111);white-space:pre-wrap}
+
+/* ── Tt Custom Fonts card + dialog ─────────────────────── */
+/* Custom card sits as another tile in the preset grid — same
+   width, same height as a preset card. Mapped to the editor's
+   outlined brand surface (container-bg + content-default border)
+   so it reads as a brand action without screaming like a filled
+   CTA — matches the "</>" code icon button in the topbar. */
+.ev2-typo-preset-custom{
+  background:var(--brand-container-bg,#e8edff);
+  color:var(--brand-content-default,#3D5EFC);
+  border:1px solid var(--brand-content-default,#3D5EFC);
+  transition:background 120ms ease,border-color 120ms ease,box-shadow 120ms ease;
+}
+.ev2-typo-preset-custom:hover{
+  background:var(--brand-container-bg-hover,var(--brand-container-bg,#e8edff));
+  border-color:var(--brand-content-default,#3D5EFC);
+  filter:brightness(0.97);
+}
+.ev2-typo-preset-custom:focus-visible{
+  outline:2px solid var(--brand-content-default,#3D5EFC);
+  outline-offset:2px;
+}
+.ev2-typo-preset-custom .ev2-typo-preset-label,
+.ev2-typo-preset-custom .ev2-typo-font-row .sample{color:var(--brand-content-default,#3D5EFC)}
+.ev2-typo-preset-custom .ev2-typo-preset-meta,
+.ev2-typo-preset-custom .ev2-typo-font-row .role{color:var(--brand-content-default,#3D5EFC);opacity:.7}
+.ev2-typo-preset-custom[data-active]::after{background:var(--brand-content-default,#3D5EFC)}
+
+/* Empty-state inner layout — vertical stack matching preset card
+   shape (head row + body area). Icon + caption mimic a font-row
+   for visual rhythm with the other tiles. */
+.ev2-typo-preset-add{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.ev2-typo-preset-add-row{display:flex;align-items:center;gap:8px;min-width:0}
+.ev2-typo-preset-add-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--brand-content-default,#3D5EFC);
+  color:var(--brand-on-component,#fff);
+  font-size:14px;font-weight:600;line-height:1;flex-shrink:0;
+}
+.ev2-typo-preset-add-text{display:flex;flex-direction:column;gap:0;line-height:1.2;min-width:0}
+.ev2-typo-preset-add-text strong{font-size:11px;font-weight:700;color:var(--brand-content-default,#3D5EFC);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev2-typo-preset-add-text em{font-size:9px;color:var(--brand-content-default,#3D5EFC);opacity:.75;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Modal — reuses the ev2-modal shell. */
+.ev2-tt-modal .ev2-modal-card{max-width:480px;width:90vw}
+.ev2-tt-modal-fields{display:flex;flex-direction:column;gap:12px;margin:14px 0 6px}
+
+/* ── Font-family upload zone ─────────────────────────── */
+/* Sits above the per-role rows as the primary upload path.
+   Reuses .ev2-tt-modal-file-pick styling for the button and
+   adds a summary strip that shows "FamilyName · Regular, Bold"
+   once files are staged. */
+.ev2-tt-family-zone{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px dashed var(--ev2-chrome-outline,#d4d4d4);border-radius:8px;background:var(--demo-surface-alt,#f8f8f8);flex-wrap:wrap}
+.ev2-tt-family-pick{font-size:12px;font-weight:600;padding:6px 12px}
+.ev2-tt-family-pick::before{content:"\2191\00a0";font-weight:700}
+.ev2-tt-family-summary{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;background:var(--ev2-chrome-outline,#e5e5e5);color:var(--demo-fg,#222);font-size:11px;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--ev2-chrome-outline,#d4d4d4)}
+.ev2-tt-family-summary[hidden]{display:none !important}
+.ev2-tt-family-summary::before{content:"\2713\00a0";color:var(--success-content-default,#0a7d3e);font-weight:700}
+.ev2-tt-family-divider{display:flex;align-items:center;gap:8px;color:var(--demo-fg-faint,#aaa);font-size:11px;margin:2px 0}
+.ev2-tt-family-divider::before,.ev2-tt-family-divider::after{content:'';flex:1;height:1px;background:var(--ev2-chrome-outline,#e5e5e5)}
+.ev2-tt-modal-row{display:grid;grid-template-columns:90px 1fr 44px;align-items:center;gap:10px 10px;grid-template-areas:"label input sample" ". fileops fileops"}
+.ev2-tt-modal-row > label{grid-area:label}
+.ev2-tt-modal-row > input[type="text"]{grid-area:input}
+.ev2-tt-modal-row > .ev2-tt-modal-sample{grid-area:sample}
+.ev2-tt-modal-row > .ev2-tt-modal-fileops{grid-area:fileops}
+.ev2-tt-modal-row label{font-size:12px;font-weight:600;color:var(--demo-fg-subtle,#555)}
+.ev2-tt-modal-row input[type="text"]{padding:8px 10px;border:1px solid var(--ev2-chrome-outline,#e5e5e5);border-radius:6px;background:var(--demo-bg,#fff);color:var(--demo-fg,#222);font-size:13px;width:100%;box-sizing:border-box}
+.ev2-tt-modal-row input[type="text"]:focus{outline:2px solid var(--brand-content-default,#3D5EFC);outline-offset:1px;border-color:transparent}
+.ev2-tt-modal-sample{display:inline-flex;align-items:center;justify-content:center;height:36px;border:1px solid var(--ev2-chrome-outline,#e5e5e5);border-radius:6px;background:var(--demo-surface-alt,#f8f8f8);font-size:18px;font-weight:600;color:var(--demo-fg-strong,#111)}
+/* Per-role font-file uploader. Sits under the family-name input so the
+   text name is the primary affordance and the upload is the opt-in
+   "embed it" power-user move. */
+.ev2-tt-modal-fileops{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:24px}
+.ev2-tt-modal-file-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.ev2-tt-modal-file-pick{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px dashed var(--ev2-chrome-outline,#d4d4d4);border-radius:6px;background:transparent;color:var(--demo-fg-subtle,#555);font-size:11px;font-weight:500;cursor:pointer;transition:border-color .12s,color .12s}
+.ev2-tt-modal-file-pick:hover{border-color:var(--brand-content-default,#3D5EFC);color:var(--brand-content-default,#3D5EFC)}
+.ev2-tt-modal-file-input:focus-visible + .ev2-tt-modal-file-pick,
+.ev2-tt-modal-file-pick:focus-within{outline:2px solid var(--brand-content-default,#3D5EFC);outline-offset:2px}
+.ev2-tt-modal-file-pick::before{content:"\2191";font-weight:700;line-height:1}
+.ev2-tt-modal-fileops[data-embedded] .ev2-tt-modal-file-pick{display:none}
+.ev2-tt-modal-file-name{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:4px;background:var(--ev2-chrome-outline,#e5e5e5);color:var(--demo-fg,#222);font-size:11px;font-weight:500;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--ev2-chrome-outline,#d4d4d4)}
+.ev2-tt-modal-file-name[hidden]{display:none !important}
+.ev2-tt-modal-file-name::before{content:"\2713";color:var(--success-content-default,#0a7d3e);font-weight:700}
+.ev2-tt-modal-file-clear{appearance:none;border:none;background:transparent;color:var(--demo-fg-subtle,#666);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:4px}
+.ev2-tt-modal-file-clear[hidden]{display:none !important}
+.ev2-tt-modal-file-clear:hover{background:var(--demo-surface-alt,#f0f0f0);color:var(--danger-content-default,#dc2626)}
+.ev2-tt-modal-hint{margin:6px 0 0;padding:8px 10px;border-radius:6px;background:var(--danger-component-bg-default,#fee2e2);color:var(--danger-on-component,#7f1d1d);font-size:12px;line-height:1.45}
+.ev2-tt-modal-hint[hidden]{display:none !important}
+.ev2-tt-modal-hint[data-tone="ok"]{background:var(--demo-surface-alt,#f3f4f6);color:var(--demo-fg,#222);border:1px solid var(--ev2-chrome-outline,#e5e5e5)}
+/* Breathing room between the last field row and the Cancel/Apply
+   actions — the default ev2-modal-actions sits flush against the
+   field, which crowds the primary action. */
+.ev2-tt-modal .ev2-modal-actions{margin-top:18px}
+.ev2-modal-btn-primary{background:var(--brand-component-bg-default,#3D5EFC);color:var(--brand-on-component,#fff);border-color:var(--brand-component-bg-default,#3D5EFC)}
+.ev2-modal-btn-primary:hover{background:var(--brand-component-bg-hover,#324edb);border-color:var(--brand-component-bg-hover,#324edb)}
+
+/* ── Tt Figma-parity status row ─────────────────────────
+   One-line install-status badge at the bottom of every preset
+   tile + the Custom tile. Authentic to typography-mock.html's
+   "Figma reality" lanes (Built-in / Google / Custom) without
+   restructuring the picker. Colour comes from existing role
+   tokens so it respects the active theme. */
+.ev2-typo-preset-parity{display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--ev2-chrome-outline,#e5e5e5);font-size:10px;line-height:1.2;color:var(--demo-fg-faint,#999)}
+.ev2-typo-preset-parity .dot{flex-shrink:0;width:6px;height:6px;border-radius:50%;background:currentColor}
+.ev2-typo-preset-parity .label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ev2-typo-preset-parity[data-parity="system"]{color:var(--success-content-default,#0a7d3e)}
+.ev2-typo-preset-parity[data-parity="google"]{color:var(--warning-content-default,#a06c00)}
+.ev2-typo-preset-parity[data-parity="custom"]{color:var(--demo-fg-faint,#999)}
+
+/* ── Tt Type-density segment ─────────────────────────────
+   Three side-by-side option cards (radio group). Active card
+   uses the same brand-outlined treatment as the Custom tile so
+   selection vocabulary stays consistent across the panel. */
+.ev2-typo-density{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.ev2-typo-density-opt{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px;border:1px solid var(--ev2-chrome-outline,#e5e5e5);border-radius:8px;background:var(--demo-surface,#fff);font:inherit;cursor:pointer;text-align:left;transition:border-color 120ms,background 120ms;min-width:0}
+.ev2-typo-density-opt:hover{border-color:var(--brand-content-default,#3D5EFC)}
+.ev2-typo-density-opt[data-active]{border-color:var(--brand-content-default,#3D5EFC);background:var(--brand-container-bg,#eef3ff)}
+.ev2-typo-density-opt[data-active] .ev2-typo-density-label{color:var(--brand-content-default,#3D5EFC)}
+.ev2-typo-density-label{font-size:12px;font-weight:700;color:var(--demo-fg-strong,#111);line-height:1.2}
+.ev2-typo-density-sample{font-weight:600;color:var(--demo-fg-strong,#111);line-height:1;margin:2px 0}
+.ev2-typo-density-sub{font-size:10px;color:var(--demo-fg-faint,#999);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+/* ── Tt Designer-install summary ─────────────────────────
+   Handoff list at the bottom of Tt. Empty state when only
+   system fonts are in play; row-per-family otherwise. Reuses
+   the colour cues from the per-card parity row so the
+   vocabulary matches. */
+.ev2-typo-install-ok{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border:1px solid var(--success-content-default,#0a7d3e);background:color-mix(in srgb,var(--success-container-bg,#e6f5ec) 60%,transparent);border-radius:8px;font-size:12px;line-height:1.45;color:var(--demo-fg-strong,#111)}
+.ev2-typo-install-ok-dot{flex-shrink:0;width:8px;height:8px;border-radius:50%;background:var(--success-content-default,#0a7d3e);margin-top:5px}
+.ev2-typo-install-list{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ev2-typo-install-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--ev2-chrome-outline,#e5e5e5);border-radius:6px;background:var(--demo-surface,#fff);min-width:0}
+.ev2-typo-install-dot{flex-shrink:0;width:8px;height:8px;border-radius:50%;background:currentColor}
+.ev2-typo-install-row[data-lane="google"]{color:var(--warning-content-default,#a06c00)}
+.ev2-typo-install-row[data-lane="custom"]{color:var(--demo-fg-faint,#999)}
+.ev2-typo-install-row[data-lane="system"]{color:var(--success-content-default,#0a7d3e)}
+.ev2-typo-install-body{display:flex;flex-direction:column;gap:1px;min-width:0}
+.ev2-typo-install-family{font-size:12px;font-weight:600;color:var(--demo-fg-strong,#111);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev2-typo-install-roles{font-size:10px;color:var(--demo-fg-faint,#999);text-transform:capitalize;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev2-typo-install-action{font-size:11px;font-weight:600;color:var(--brand-content-default,#3D5EFC);text-decoration:none;white-space:nowrap;padding:4px 8px;border:1px solid var(--brand-content-default,#3D5EFC);border-radius:4px;transition:background 120ms}
+.ev2-typo-install-action:hover{background:var(--brand-container-bg,#eef3ff)}
+
+/* ── Tt install sticky footer + dialog ───────────────────
+   Footer pins to the scrolling tier-body so the install
+   summary never scrolls out of sight, but stays out of the
+   way (single line). Click → opens the install dialog
+   (markup in index.html). */
+/* Designer-install footer content. Rendered into #ttStickyMount
+   (a sibling of .ev2-list-body) — see .ev2-list-sticky for the
+   chrome (background, border, shadow). This rule only styles the
+   inner button so older padding/border code does not double up. */
+.ev2-typo-install-sticky{display:block}
+.ev2-typo-install-stickybtn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border:1px solid var(--ev2-chrome-outline);border-radius:8px;background:var(--ev2-chrome-surface-2,var(--ev2-chrome-bg));font:inherit;font-size:12px;color:var(--ev2-chrome-ct-strong);cursor:pointer;text-align:left;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:background 120ms,border-color 120ms,box-shadow 120ms,transform 120ms}
+.ev2-typo-install-stickybtn:hover{border-color:var(--brand-content-default,#3D5EFC);box-shadow:0 2px 6px rgba(61,94,252,.18)}
+.ev2-typo-install-stickybtn:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.ev2-typo-install-stickybtn:focus-visible{outline:2px solid var(--brand-content-default,#3D5EFC);outline-offset:2px}
+.ev2-typo-install-sticky[data-tone="warn"] .ev2-typo-install-stickybtn{border-color:var(--warning-content-default,#a06c00);background:color-mix(in srgb,var(--warning-container-bg,#fff7e0) 35%,var(--ev2-chrome-bg))}
+.ev2-typo-install-sticky[data-tone="ok"] .ev2-typo-install-stickybtn{border-color:var(--success-content-default,#0a7d3e);background:color-mix(in srgb,var(--success-container-bg,#e8f7ec) 35%,var(--ev2-chrome-bg))}
+.ev2-typo-install-stickydot{flex-shrink:0;width:8px;height:8px;border-radius:50%;background:currentColor}
+.ev2-typo-install-sticky[data-tone="ok"] .ev2-typo-install-stickydot{color:var(--success-content-default,#0a7d3e)}
+.ev2-typo-install-sticky[data-tone="warn"] .ev2-typo-install-stickydot{color:var(--warning-content-default,#a06c00)}
+.ev2-typo-install-stickytxt{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev2-typo-install-stickymore{flex-shrink:0;font-size:11px;font-weight:600;color:var(--brand-content-default,#3D5EFC);white-space:nowrap}
+.ev2-tt-install-modal .ev2-modal-card{max-width:520px;width:92vw}
+.ev2-tt-install-modal .ev2-typo-install-list{max-height:50vh;overflow-y:auto;padding-right:4px}
+.ev2-tt-install-modal .ev2-modal-actions{margin-top:18px}

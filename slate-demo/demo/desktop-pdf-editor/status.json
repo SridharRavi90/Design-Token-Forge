@@ -1,0 +1,17 @@
+{
+  "connected": true,
+  "hash": "eab0a8589753",
+  "lastChanged": "2026-08-10T09:18:26.504Z",
+  "buildVersion": "v0.0.1",
+  "versionLabel": "May16 23:27",
+  "versionSavedAt": "2026-05-16T17:57:49.152Z",
+  "buildCommit": "dc76059",
+  "pendingChanges": 0,
+  "totalVariables": 745,
+  "totalCollections": 7,
+  "lastSyncedHash": "",
+  "project": {
+    "id": "desktop-pdf-editor",
+    "name": "Desktop PDF Editor"
+  }
+}

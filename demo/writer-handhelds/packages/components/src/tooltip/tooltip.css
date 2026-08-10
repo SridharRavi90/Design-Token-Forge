@@ -1,0 +1,238 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Tooltip
+   Variable-driven rendering — reads only from --tooltip-* tokens.
+
+   Markup:
+   <div class="tooltip" data-placement="top" data-size="base">
+     <span class="tooltip__icon"><svg>…</svg></span>
+     <div class="tooltip__content">
+       <div class="tooltip__title">Title</div>
+       <div class="tooltip__body">Body text</div>
+     </div>
+     <span class="tooltip__arrow"></span>
+   </div>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────
+   1.  BASE — Internal active variables
+   ──────────────────────────────────────────────────────────────── */
+.tooltip {
+  position: absolute;
+  display: inline-flex;
+  align-items: flex-start;
+  max-width: var(--_tt-max-w);
+  font-family: var(--tooltip-font-family);
+  font-weight: var(--tooltip-font-weight);
+  line-height: var(--tooltip-line-height);
+  letter-spacing: var(--tooltip-letter-spacing);
+  white-space: normal;
+  word-wrap: break-word;
+  pointer-events: var(--tooltip-pointer-events);
+  z-index: var(--tooltip-z-index);
+
+  /* Dimension active vars */
+  --_tt-py: var(--tooltip-padding-y-base);
+  --_tt-px: var(--tooltip-padding-x-base);
+  --_tt-fs: var(--tooltip-font-size-base);
+  --_tt-max-w: var(--tooltip-max-width-base);
+  --_tt-icon-size: var(--tooltip-icon-size-base);
+  --_tt-gap: var(--tooltip-gap-base);
+
+  /* Surface active vars */
+  --_tt-bg: var(--tooltip-bg);
+  --_tt-fg: var(--tooltip-fg);
+  --_tt-arrow-color: var(--tooltip-arrow-color);
+  --_tt-border-color: var(--tooltip-border-color);
+  --_tt-shadow: var(--tooltip-shadow);
+
+  padding: var(--_tt-py) var(--_tt-px);
+  gap: var(--_tt-gap);
+  font-size: var(--_tt-fs);
+  color: var(--_tt-fg);
+  background: var(--_tt-bg);
+  border: var(--tooltip-border-width) var(--tooltip-border-style) var(--_tt-border-color);
+  border-radius: var(--tooltip-radius);
+  box-shadow: var(--_tt-shadow);
+  transition-property: var(--tooltip-transition-property);
+  transition-duration: var(--tooltip-transition-duration);
+  transition-timing-function: var(--tooltip-transition-easing);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   2.  SIZE SELECTORS
+   ──────────────────────────────────────────────────────────────── */
+.tooltip[data-size="small"] {
+  --_tt-py: var(--tooltip-padding-y-small);
+  --_tt-px: var(--tooltip-padding-x-small);
+  --_tt-fs: var(--tooltip-font-size-small);
+  --_tt-max-w: var(--tooltip-max-width-small);
+  --_tt-icon-size: var(--tooltip-icon-size-small);
+  --_tt-gap: var(--tooltip-gap-small);
+}
+.tooltip[data-size="large"] {
+  --_tt-py: var(--tooltip-padding-y-large);
+  --_tt-px: var(--tooltip-padding-x-large);
+  --_tt-fs: var(--tooltip-font-size-large);
+  --_tt-max-w: var(--tooltip-max-width-large);
+  --_tt-icon-size: var(--tooltip-icon-size-large);
+  --_tt-gap: var(--tooltip-gap-large);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   3.  VARIANT SELECTORS
+   ──────────────────────────────────────────────────────────────── */
+.tooltip[data-variant="light"] {
+  --_tt-bg: var(--tooltip-light-bg);
+  --_tt-fg: var(--tooltip-light-fg);
+  --_tt-arrow-color: var(--tooltip-light-bg);
+  --_tt-border-color: var(--tooltip-light-border-color);
+  --_tt-shadow: var(--tooltip-light-shadow);
+}
+.tooltip[data-variant="danger"] {
+  --_tt-bg: var(--tooltip-danger-bg);
+  --_tt-fg: var(--tooltip-danger-fg);
+  --_tt-arrow-color: var(--tooltip-danger-arrow-color);
+}
+.tooltip[data-variant="warning"] {
+  --_tt-bg: var(--tooltip-warning-bg);
+  --_tt-fg: var(--tooltip-warning-fg);
+  --_tt-arrow-color: var(--tooltip-warning-arrow-color);
+}
+.tooltip[data-variant="info"] {
+  --_tt-bg: var(--tooltip-info-bg);
+  --_tt-fg: var(--tooltip-info-fg);
+  --_tt-arrow-color: var(--tooltip-info-arrow-color);
+}
+.tooltip[data-variant="success"] {
+  --_tt-bg: var(--tooltip-success-bg);
+  --_tt-fg: var(--tooltip-success-fg);
+  --_tt-arrow-color: var(--tooltip-success-arrow-color);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   4.  ARROW
+   ──────────────────────────────────────────────────────────────── */
+.tooltip__arrow {
+  position: absolute;
+  width: var(--tooltip-arrow-size);
+  height: var(--tooltip-arrow-size);
+  background: var(--_tt-arrow-color);
+  transform: rotate(45deg);
+}
+
+/* Placement: top (arrow at bottom) */
+.tooltip[data-placement="top"] .tooltip__arrow,
+.tooltip:not([data-placement]) .tooltip__arrow {
+  bottom: calc(var(--tooltip-arrow-size) / -2);
+  left: 50%;
+  margin-inline-start: calc(var(--tooltip-arrow-size) / -2);
+}
+/* Placement: bottom (arrow at top) */
+.tooltip[data-placement="bottom"] .tooltip__arrow {
+  top: calc(var(--tooltip-arrow-size) / -2);
+  left: 50%;
+  margin-inline-start: calc(var(--tooltip-arrow-size) / -2);
+}
+/* Placement: left (arrow at right) */
+.tooltip[data-placement="left"] .tooltip__arrow {
+  right: calc(var(--tooltip-arrow-size) / -2);
+  top: 50%;
+  margin-top: calc(var(--tooltip-arrow-size) / -2);
+}
+/* Placement: right (arrow at left) */
+.tooltip[data-placement="right"] .tooltip__arrow {
+  left: calc(var(--tooltip-arrow-size) / -2);
+  top: 50%;
+  margin-top: calc(var(--tooltip-arrow-size) / -2);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   5.  ICON
+   ──────────────────────────────────────────────────────────────── */
+.tooltip__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--tooltip-icon-color);
+}
+.tooltip__icon svg {
+  width: var(--_tt-icon-size);
+  height: var(--_tt-icon-size);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   6.  CONTENT (title + body)
+   ──────────────────────────────────────────────────────────────── */
+.tooltip__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tooltip-content-gap);
+  min-width: 0;
+}
+.tooltip__title {
+  font-weight: var(--tooltip-title-font-weight);
+}
+.tooltip__body {
+  opacity: 0.85;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   7.  SHOW / HIDE STATES
+   ──────────────────────────────────────────────────────────────── */
+.tooltip[data-state="hidden"] {
+  opacity: 0;
+  transform: scale(var(--tooltip-enter-scale));
+  visibility: hidden;
+}
+.tooltip[data-state="visible"] {
+  opacity: 1;
+  transform: scale(1);
+  visibility: visible;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   8.  DEMO POSITION HELPER (static for demos)
+   ──────────────────────────────────────────────────────────────── */
+.tooltip[data-demo] {
+  position: relative;
+  pointer-events: auto;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   9.  DISABLED
+   ────────────────────────────────────────────────────────────────── */
+.tooltip[data-disabled] {
+  opacity: var(--tooltip-disabled-opacity);
+  pointer-events: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   9.  FORCED COLORS
+   ──────────────────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .tooltip {
+    border: 1px solid CanvasText;
+  }
+  .tooltip__arrow {
+    background: CanvasText;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   9b. KEYFRAMES
+   ──────────────────────────────────────────────────────────────── */
+@keyframes tooltip-enter {
+  0% { opacity: 0; transform: scale(var(--tooltip-enter-scale)); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   10. REDUCED MOTION
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

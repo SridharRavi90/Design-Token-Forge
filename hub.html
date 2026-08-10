@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en" data-no-project-theme="1">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Projects</title>
+<!-- Hub is the project picker — no project is active here. Clear
+     dtf-active-project BEFORE any deferred script runs (shared.js
+     reads it to inject project tokens, the topbar reads it to
+     decide whether to show the page switcher). Without this, the
+     hub paints with the previously-active project's brand instead
+     of the package default blue. -->
+<script>try{localStorage.removeItem('dtf-active-project');}catch(e){}</script>
+<!-- Auth gate MUST be first, no defer, so body hides before paint. -->
+<script src="/components/auth-gate.js?v=7"></script>
+<!-- Catalyst user identity helper — reads Zoho user ID from Catalyst SDK. -->
+<script src="/components/catalyst-user.js?v=1" defer></script>
+<link rel="stylesheet" href="packages/tokens/src/index.css">
+<link rel="stylesheet" href="/components/shared.css?v=1008">
+<!-- Hub is brand-neutral. In the Pages deploy, every per-project mirror
+     ships a customized copy of packages/tokens/src/semantic.css, so the
+     stylesheet above can resolve to (e.g.) Pearl's pink. Pin the hub's
+     brand-* tokens to DTF default blue so the picker chrome stays neutral
+     regardless of which project mirror served this hub. Source of truth:
+     packages/tokens/src/semantic.css (light + dark blocks). -->
+<style id="hub-brand-defaults">
+  :root {
+    --brand-content-default:#2A5BE3;
+    --brand-content-strong:#204ED1;
+    --brand-content-subtle:#5586FD;
+    --brand-content-faint:#8FB2FE;
+    --brand-component-bg-default:#3366F0;
+    --brand-component-bg-hover:#2A5BE3;
+    --brand-component-bg-pressed:#204ED1;
+    --brand-component-outline-default:#6593FE;
+    --brand-component-outline-hover:#6593FE;
+    --brand-component-outline-pressed:#5586FD;
+    --brand-component-separator:#CDDDFF;
+    --brand-container-bg:#EAF1FF;
+    --brand-container-hover:#DDE9FF;
+    --brand-container-pressed:#CDDDFF;
+    --brand-container-outline:#CDDDFF;
+    --brand-container-separator:#CDDDFF;
+    --brand-on-component:#FFFFFF;
+    --brand-on-container:#204ED1;
+  }
+  [data-theme="dark"] {
+    --brand-content-default:#B8CFFF;
+    --brand-content-strong:#CDDDFF;
+    --brand-content-subtle:#8FB2FE;
+    --brand-content-faint:#5586FD;
+    --brand-component-bg-default:#3B6FF6;
+    --brand-component-bg-hover:#5586FD;
+    --brand-component-bg-pressed:#6593FE;
+    --brand-component-outline-default:#3B6FF6;
+    --brand-component-outline-hover:#5586FD;
+    --brand-component-outline-pressed:#5586FD;
+    --brand-component-separator:#5586FD;
+    --brand-container-bg:#021587;
+    --brand-container-hover:#0828A0;
+    --brand-container-pressed:#133BB9;
+    --brand-container-outline:#2A5BE3;
+    --brand-container-separator:#0828A0;
+    --brand-on-component:#FFFFFF;
+    --brand-on-container:#CDDDFF;
+  }
+</style>
+<script src="/components/dtf-topbar.js?v=9" defer></script>
+<script src="/components/shared.js?v=1105" defer></script>
+<style>
+  :root{ color-scheme: light dark; }
+  body{
+    background:var(--surface-base-bg);
+    color:var(--surface-base-ct-default);
+    font-family:var(--font-family-sans, system-ui, -apple-system, sans-serif);
+    min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+  .hub-top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 32px; border-bottom:1px solid var(--surface-base-outline);
+    background:var(--surface-base-bg);
+  }
+  .hub-brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:14px; color:var(--surface-base-ct-strong); letter-spacing:.01em}
+  .hub-brand .dot{width:12px; height:12px; border-radius:3px;
+    background:linear-gradient(135deg, var(--brand-component-bg-default,#286CE5), var(--info-component-bg-default,#0EA5E9));
+  }
+  .hub-top-actions{display:flex; align-items:center; gap:8px}
+  .hub-link{
+    font-size:12px; font-weight:600; color:var(--surface-base-ct-subtle);
+    text-decoration:none; padding:6px 10px; border-radius:var(--radius-sm,4px);
+    transition:background 120ms, color 120ms;
+  }
+  .hub-link:hover{background:var(--surface-base-subtle); color:var(--surface-base-ct-strong)}
+  .hub-link.primary{
+    background:var(--brand-component-bg-default,#286CE5);
+    color:var(--brand-on-component,#fff);
+    border:1px solid var(--brand-component-outline-default,#286CE5);
+  }
+  .hub-link.primary:hover{background:var(--brand-component-bg-hover,#1E54B8)}
+
+  .hub-hero{
+    padding:64px 32px 32px;
+    max-width:920px; margin:0 auto; width:100%;
+    text-align:center;
+  }
+  .hub-eyebrow{
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--brand-content-default,#286CE5);
+    padding:4px 10px; border-radius:999px;
+    background:var(--brand-container-bg, rgba(40,108,229,.08));
+    margin-bottom:14px;
+  }
+  .hub-hero h1{
+    font-size:34px; line-height:1.15; font-weight:800; letter-spacing:-.01em;
+    color:var(--surface-base-ct-strong); margin:0 0 12px;
+  }
+  .hub-hero p{
+    font-size:15px; line-height:1.55; color:var(--surface-base-ct-subtle);
+    max-width:600px; margin:0 auto 24px;
+  }
+
+  .hub-main{
+    flex:1;
+    max-width:1100px; width:100%; margin:0 auto;
+    padding:8px 32px 64px;
+  }
+  .hub-section-h{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    margin:32px 0 16px;
+  }
+  .hub-section-h h2{
+    font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--surface-base-ct-faint); margin:0;
+  }
+  .hub-section-h .sub{font-size:12px; color:var(--surface-base-ct-faint)}
+
+  .hub-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+  }
+  .proj-card{
+    display:flex; flex-direction:column;
+    padding:18px 18px 16px;
+    background:var(--surface-bright-bg, var(--surface-base-bg));
+    border:1px solid var(--surface-base-outline);
+    border-radius:var(--radius-lg, 10px);
+    text-decoration:none; color:inherit;
+    transition:border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    cursor:pointer;
+    position:relative;
+  }
+  .proj-card:hover{
+    border-color:var(--brand-component-outline-default,#286CE5);
+    box-shadow:0 8px 24px rgba(0,0,0,.06), 0 0 0 1px var(--brand-component-outline-default,#286CE5);
+    transform:translateY(-2px);
+  }
+  .proj-card-head{display:flex; align-items:center; gap:10px; margin-bottom:10px}
+  .proj-swatch{
+    width:28px; height:28px; border-radius:var(--radius-sm, 4px);
+    background:linear-gradient(135deg, var(--c1, #286CE5), var(--c2, #0EA5E9));
+    flex-shrink:0; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+  }
+  .proj-name{
+    font-size:15px; font-weight:700; color:var(--surface-base-ct-strong);
+    flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .proj-owner{
+    font-size:11px; font-family:var(--font-family-mono, ui-monospace, monospace);
+    color:var(--surface-base-ct-faint); margin-bottom:8px;
+  }
+  .proj-desc{
+    font-size:13px; line-height:1.45; color:var(--surface-base-ct-subtle);
+    margin-bottom:14px; min-height:36px;
+  }
+  .proj-cta{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:600;
+    color:var(--brand-content-default, #286CE5);
+    margin-top:auto;
+  }
+  .proj-card:hover .proj-cta{color:var(--brand-component-bg-hover,#1E54B8)}
+  .proj-cta svg{transition:transform 150ms ease}
+  .proj-card:hover .proj-cta svg{transform:translateX(2px)}
+
+  .hub-empty{
+    padding:48px 24px; text-align:center;
+    border:1px dashed var(--surface-base-outline);
+    border-radius:var(--radius-lg, 10px);
+    color:var(--surface-base-ct-faint); font-size:13px;
+  }
+
+  .hub-secondary{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;
+  }
+  .sec-card{
+    display:flex; flex-direction:column; gap:6px;
+    padding:16px 18px;
+    background:var(--surface-base-subtle);
+    border:1px solid var(--surface-base-outline);
+    border-radius:var(--radius-md, 8px);
+    text-decoration:none; color:inherit;
+    transition:background 150ms, border-color 150ms;
+  }
+  .sec-card:hover{background:var(--surface-base-cm-bg); border-color:var(--surface-base-ct-faint)}
+  .sec-card-t{font-size:13px; font-weight:700; color:var(--surface-base-ct-strong)}
+  .sec-card-d{font-size:12px; color:var(--surface-base-ct-subtle); line-height:1.45}
+
+  .hub-foot{
+    padding:24px 32px;
+    border-top:1px solid var(--surface-base-outline);
+    text-align:center;
+    font-size:11px; color:var(--surface-base-ct-faint);
+  }
+  .hub-foot a{color:var(--surface-base-ct-subtle); text-decoration:none}
+  .hub-foot a:hover{color:var(--brand-content-default,#286CE5); text-decoration:underline}
+
+  @media (max-width: 640px){
+    .hub-hero{padding:40px 20px 24px}
+    .hub-hero h1{font-size:26px}
+    .hub-main{padding:8px 20px 48px}
+  }
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<dtf-topbar label="Home"></dtf-topbar>
+
+<section class="hub-hero">
+  <span class="hub-eyebrow">Token Editor • Project-aware</span>
+  <h1>Pick a project to start theming</h1>
+  <p>Each project is an isolated brand: its own palette, semantic mapping, surfaces, and component tokens.
+     Open one to edit colors, preview live components, and commit back to the repository.</p>
+</section>
+
+<main class="hub-main">
+
+  <div class="hub-section-h">
+    <h2>Your projects</h2>
+    <span class="sub" id="projCount">…</span>
+  </div>
+  <div class="hub-grid" id="projGrid" aria-live="polite">
+    <div class="hub-empty">Loading projects…</div>
+  </div>
+
+  <div class="hub-section-h" style="margin-top:48px">
+    <h2>Explore</h2>
+  </div>
+  <div class="hub-secondary">
+    <a class="sec-card" href="/components/components.html">
+      <span class="sec-card-t">Component library →</span>
+      <span class="sec-card-d">Buttons, inputs, toggles, and 20+ more components — fully token-driven, theme-aware.</span>
+    </a>
+    <a class="sec-card" href="/components/color-tokens.html">
+      <span class="sec-card-t">Color tokens →</span>
+      <span class="sec-card-d">Browse the primitive → semantic → surface ladder that powers every theme.</span>
+    </a>
+    <a class="sec-card" href="/components/frameworks.html">
+      <span class="sec-card-t">Framework integration →</span>
+      <span class="sec-card-d">Drop-in snippets for React, Vue, Svelte, and vanilla projects.</span>
+    </a>
+  </div>
+
+</main>
+
+<footer class="hub-foot">
+  Design Token Forge · <a href="https://github.com/sridhar-ravi-2917/Design-Token-Forge" target="_blank" rel="noopener">GitHub</a>
+</footer>
+
+<script>
+(function(){
+  /* ── Theme toggle ─────────────────────────────────────── */
+  var THEME_KEY = 'dtf-theme';
+  var saved = localStorage.getItem(THEME_KEY);
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme','dark');
+  var tBtn = document.getElementById('themeToggle');
+  function syncThemeBtn(){
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (tBtn) tBtn.textContent = dark ? '☀️' : '🌙';
+  }
+  syncThemeBtn();
+  if (tBtn) tBtn.addEventListener('click', function(){
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (dark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem(THEME_KEY, 'light'); }
+    else { document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem(THEME_KEY, 'dark'); }
+    syncThemeBtn();
+  });
+
+  /* The hub is the project picker — it does not consume ?project=.
+     If we arrived here with one in the URL (e.g. via the topbar Home
+     button in an older build, or a stale back-button entry), strip it
+     so the address bar matches what the page actually shows. */
+  try {
+    if (location.search && /[?&]project=/.test(location.search)) {
+      var _u = new URL(location.href);
+      _u.searchParams.delete('project');
+      history.replaceState(null, '', _u.pathname + (_u.search ? _u.search : '') + _u.hash);
+    }
+  } catch (_e) {}
+
+  /* Home = no project selected. Without this, the topbar's page
+     switcher reads `dtf-active-project` from a previous visit and
+     re-appends `?project=<stale>` to every dropdown link — so
+     clicking "Button" from the hub would silently enter the last
+     project even though the hub itself shows nothing as selected.
+     Clear it on hub load; the user picks a project explicitly by
+     clicking a card (which sets the param + the editor restores
+     it). */
+  try { localStorage.removeItem('dtf-active-project'); } catch (_e2) {}
+
+  /* ── Project list ─────────────────────────────────────── */
+  var grid = document.getElementById('projGrid');
+  var countEl = document.getElementById('projCount');
+  // Try every plausible location for projects.json. The build mirrors
+  // `demo/` into every `dist/<project>/demo/` folder, but projects.json
+  // only lives at the dist root — so when the user lands on the
+  // per-project hub mirror (e.g. /Design-Token-Forge/components/demo/index.html)
+  // the file is actually one level higher than the usual `../` parent.
+  // Order: nearest-first so file:// + local dev still find the repo root
+  // copy without an extra 404.
+  /* Embedded fallback: used when ALL fetch candidates fail (e.g. Catalyst
+     Slate auth intercepts the XHR before the JSON is returned).
+     Keep in sync with root projects.json. New projects added via onboard
+     are saved to localStorage (dtf-known-projects) and take precedence. */
+  var _embeddedProjects = [{"id":"desktop-pdf-editor","name":"Desktop PDF Editor","owner":"sridhar-ravi-2917","ownerEmail":"sridhar.ravi@zohocorp.com","description":"Default project — the original DTF token set for the Desktop PDF Editor product."},{"id":"pearl","name":"Pearl","owner":"sridhar-ravi-2917","ownerEmail":"sridhar.ravi@zohocorp.com","description":"Design tokens for Pearl"},{"id":"writer-handhelds","name":"writer-handhelds","owner":"sridhar-ravi-2917","ownerEmail":"sridhar.ravi@zohocorp.com","description":""}];
+
+  var candidates = [
+    '/projects.json',
+    '../projects.json',
+    '/Design-Token-Forge/projects.json'
+  ];
+
+  /* ── Catalyst per-user project list ──────────────────────────────────
+     When running on the Catalyst host, fetch projects from the
+     listProjects function instead of the shared static projects.json.
+     Each user only sees their own projects. Credentials are supplied
+     automatically via the Zoho Catalyst session cookie. */
+  function _isCatalystHost() {
+    return window.location.hostname.indexOf('onslate.in') !== -1
+        || window.location.hostname.indexOf('catalystappsecure') !== -1;
+  }
+
+  function _fetchCatalystProjects() {
+    fetch('/server/listProjects', { credentials: 'include', cache: 'no-store' })
+      .then(function(r) {
+        if (!r.ok) throw new Error('listProjects HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(res) {
+        if (!res || res.status !== 'success' || !Array.isArray(res.data)) {
+          throw new Error(res && res.error ? res.error : 'Unexpected response');
+        }
+        var list = res.data.map(function(p) {
+          return {
+            id:          p.id          || p.project_id || '',
+            name:        p.name        || p.id || '',
+            description: p.description || '',
+            owner:       p.owner       || '',
+            ownerEmail:  p.ownerEmail  || ''
+          };
+        });
+        if (!list.length) { renderEmpty(); return; }
+        render(list);
+      })
+      .catch(function(err) {
+        console.warn('[DTF hub] Catalyst listProjects failed, falling back to static:', err);
+        tryFetch(0);   /* graceful degradation */
+      });
+  }
+
+  /* Catalyst auth: fetch projects.json and filter by the signed-in
+     user's Zoho email (dtf-catalyst-email in sessionStorage, set by
+     auth-gate.js / root index.html after Catalyst SDK resolves). */
+  function _getCatalystEmail() {
+    try {
+      var email = sessionStorage.getItem('dtf-catalyst-email') || '';
+      if (email) return email.toLowerCase();
+    } catch (_e) {}
+    if (window.DTF_AUTH && window.DTF_AUTH.user) return (window.DTF_AUTH.user.email || '').toLowerCase();
+    return '';
+  }
+
+  function _projectMatchesUser(p, userEmail) {
+    if (!userEmail) return true; /* no identity — show all */
+    if (p.ownerEmail && p.ownerEmail.toLowerCase() === userEmail) return true;
+    if (!p.ownerEmail && p.owner) {
+      var localPart = userEmail.split('@')[0].replace(/[.\-_]/g, '').toLowerCase();
+      var ownerNorm = p.owner.replace(/[.\-_]/g, '').toLowerCase();
+      return ownerNorm.indexOf(localPart) !== -1 || localPart.indexOf(ownerNorm) !== -1;
+    }
+    return false;
+  }
+
+  var _allProjectsList = null; /* cached full list for re-filtering */
+
+  function tryFetch(i){
+    var userEmail = _getCatalystEmail();
+    /* Try candidates in order until one returns a valid list */
+    if (i >= candidates.length) { renderFromLocalStorage(); return; }
+    fetch(candidates[i], { cache: 'no-store', credentials: 'include' })
+      .then(function(r){ if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function(list) {
+        if (!Array.isArray(list) || !list.length) throw new Error('empty');
+        _allProjectsList = list; /* cache for re-filter */
+        _applyUserFilter(list, userEmail);
+      })
+      .catch(function(){ tryFetch(i+1); });
+  }
+
+  function _applyUserFilter(list, userEmail) {
+    if (userEmail) {
+      var mine = list.filter(function(p) { return _projectMatchesUser(p, userEmail); });
+      /* If email is set but nothing matches, fall back to showing all projects.
+         This handles cases where the Catalyst SDK returns a slightly different
+         email format than what's stored in projects.json ownerEmail. */
+      if (mine.length) { render(mine); return; }
+      render(list);
+    } else {
+      /* No email yet — show all temporarily, then re-filter when auth resolves */
+      render(list);
+      /* Listen for auth-gate to set the email, then re-filter */
+      document.addEventListener('dtf-auth-ready', function onAuth(e) {
+        document.removeEventListener('dtf-auth-ready', onAuth);
+        var email = _getCatalystEmail();
+        if (!email && e && e.detail && e.detail.user) {
+          email = (e.detail.user.email || '').toLowerCase();
+        }
+        if (email && _allProjectsList) {
+          _applyUserFilter(_allProjectsList, email);
+        }
+      });
+    }
+  }
+
+  /* Fallback when every fetch candidate fails. Chrome blocks fetch()
+     for file:// pages, so opening demo/index.html by double-clicking
+     used to dead-end on "Couldn't load projects.json". Onboard
+     mirrors every created project into localStorage as
+     `dtf-known-projects`, so we surface that list as a graceful
+     fallback. Same shape as projects.json so render() just works. */
+  function renderFromLocalStorage(){
+    try {
+      var raw = localStorage.getItem('dtf-known-projects');
+      if (raw) {
+        var list = JSON.parse(raw);
+        if (Array.isArray(list) && list.length) { render(list); return; }
+      }
+    } catch (_e) {}
+    /* Last resort: use the list embedded at build time. Covers the case
+       where Catalyst Slate intercepts the XHR fetch before serving JSON. */
+    if (_embeddedProjects && _embeddedProjects.length) {
+      render(_embeddedProjects);
+      return;
+    }
+    renderError();
+  }
+
+  function colorFromId(id){
+    // Fallback gradient used until the project's brand color loads.
+    // Deterministic so cards don't flicker between renders.
+    var hash = 0;
+    for (var i=0; i<id.length; i++) hash = ((hash<<5)-hash) + id.charCodeAt(i);
+    var hue = Math.abs(hash) % 360;
+    return { c1: 'hsl(' + hue + ' 70% 52%)', c2: 'hsl(' + ((hue+40)%360) + ' 70% 60%)' };
+  }
+
+  /* Darken a hex color toward black by `amt` (0..1). Used to build
+     the brand swatch gradient (brand \u2192 ~25% darker brand) without
+     pulling in the full palette engine. */
+  function shadeHex(hex, amt){
+    var h = (hex || '').replace('#','');
+    if (h.length !== 6) return hex;
+    var r = parseInt(h.slice(0,2),16),
+        g = parseInt(h.slice(2,4),16),
+        b = parseInt(h.slice(4,6),16);
+    r = Math.max(0, Math.round(r * (1 - amt)));
+    g = Math.max(0, Math.round(g * (1 - amt)));
+    b = Math.max(0, Math.round(b * (1 - amt)));
+    var to = function(n){ var s = n.toString(16); return s.length < 2 ? '0'+s : s; };
+    return '#' + to(r) + to(g) + to(b);
+  }
+
+  /* Lazy-load each project's brand color from its config.json so
+     the swatch is the actual brand instead of a hash gradient.
+     Cached per page load. Falls back silently \u2014 the deterministic
+     hash gradient stays if config.json is missing. */
+  var _brandCache = {};
+
+  /* Extract the brand-500 hex from a live-preview CSS bundle written
+     by the editor, so the swatch reflects unsaved edits immediately. */
+  function brandHexFromLiveCSS(pid) {
+    try {
+      var css = localStorage.getItem('ev2-live-preview-' + (pid || '_')) || '';
+      if (!css) return null;
+      var m = css.match(/--prim-brand-500\s*:\s*(#[0-9a-fA-F]{3,8})/);
+      return m ? m[1] : null;
+    } catch (_e) { return null; }
+  }
+
+  function paintBrandSwatch(card, projId){
+    var swatch = card.querySelector('.proj-swatch');
+    if (!swatch) return;
+    function apply(hex){
+      if (!hex) return;
+      swatch.style.setProperty('--c1', hex);
+      swatch.style.setProperty('--c2', shadeHex(hex, 0.25));
+    }
+    /* Live editor override takes priority — reflects unsaved changes. */
+    var liveHex = brandHexFromLiveCSS(projId);
+    if (liveHex) { apply(liveHex); return; }
+    if (_brandCache[projId]) { apply(_brandCache[projId]); return; }
+    /* Prefer the localStorage stash seeded by fetchFromUserFork — it
+       holds the project owner's actual config.json, which is the only
+       way to get the real brand hex when the project lives on a
+       colleague's fork (same-origin /projects/<id>/config.json 404s
+       on the maintainer's Pages). */
+    try {
+      var stash = localStorage.getItem('dtf-project-config-' + projId);
+      if (stash) {
+        var cfg = JSON.parse(stash);
+        var hex = cfg && cfg.paletteKeys && cfg.paletteKeys.brand;
+        if (hex) { _brandCache[projId] = hex; apply(hex); return; }
+      }
+    } catch (_e) {}
+    /* Same-origin fallback for projects that DO live on this fork
+       (the maintainer's own projects, or local file:// dev). */
+    var urls = [
+      '../projects/' + projId + '/config.json',
+      '/Design-Token-Forge/projects/' + projId + '/config.json',
+      '/projects/' + projId + '/config.json'
+    ];
+    var i = 0;
+    (function tryNext(){
+      if (i >= urls.length) return;
+      fetch(urls[i++] + '?_cb=' + Date.now(), { cache: 'no-store' })
+        .then(function(r){ if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+        .then(function(cfg){
+          var hex = cfg && cfg.paletteKeys && cfg.paletteKeys.brand;
+          if (!hex) return;
+          _brandCache[projId] = hex;
+          apply(hex);
+        })
+        .catch(tryNext);
+    })();
+  }
+
+  function render(list){
+    if (!Array.isArray(list) || list.length === 0) { renderEmpty(); return; }
+    countEl.textContent = list.length + ' project' + (list.length === 1 ? '' : 's');
+    grid.innerHTML = '';
+    list.forEach(function(p){
+      var c = colorFromId(p.id || 'x');
+      var card = document.createElement('a');
+      card.className = 'proj-card';
+      card.href = '/components/editor/index.html?project=' + encodeURIComponent(p.id);
+      card.setAttribute('aria-label', 'Open ' + (p.name || p.id) + ' in editor');
+      card.innerHTML =
+        '<div class="proj-card-head">' +
+          '<span class="proj-swatch" style="--c1:' + c.c1 + ';--c2:' + c.c2 + '"></span>' +
+          '<span class="proj-name"></span>' +
+        '</div>' +
+        '<div class="proj-owner"></div>' +
+        '<div class="proj-desc"></div>' +
+        '<div class="proj-cta">Open editor <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg></div>';
+      card.querySelector('.proj-name').textContent = p.name || p.id;
+      card.querySelector('.proj-owner').textContent = p.owner ? '@' + p.owner : '';
+      card.querySelector('.proj-desc').textContent = p.description || 'Open to edit tokens, palette, and components.';
+      grid.appendChild(card);
+      // Async upgrade: fetch this project's config.json and recolor
+      // the swatch from its actual brand. Fallback hash stays in
+      // place if the fetch fails.
+      paintBrandSwatch(card, p.id);
+    });
+  }
+
+  function renderEmpty(){
+    countEl.textContent = '0 projects';
+    grid.innerHTML = '<div class="hub-empty">No projects yet. <a href="/onboard.html">Create your first project →</a></div>';
+  }
+
+  function renderError(){
+    countEl.textContent = '';
+    grid.innerHTML = '<div class="hub-empty">' +
+      'Couldn\u2019t load <code>projects.json</code>. ' +
+      'If you opened this file directly, your browser may be blocking local fetches \u2014 ' +
+      '<a href="/onboard.html">create a project</a> or ' +
+      '<a href="/components/editor/index.html">open the editor directly \u2192</a>' +
+    '</div>';
+  }
+
+  /* Wait until auth-gate resolves, then fetch projects.
+     On Catalyst host: call listProjects directly (per-user, no filter needed).
+     Elsewhere: fetch static projects.json and filter by email. */
+  function _ensureEmailThenFetch() {
+    if (_isCatalystHost()) { _fetchCatalystProjects(); return; }
+    var email = _getCatalystEmail();
+    if (email) { tryFetch(0); return; }
+
+    /* Email not yet set — try to get it from Catalyst SDK */
+    var sdk = window.catalyst || window.catalystApp;
+    if (sdk && sdk.auth && typeof sdk.auth().getCurrentUser === 'function') {
+      sdk.auth().getCurrentUser()
+        .then(function(details) {
+          /* DEBUG: log raw Catalyst response to console so we can see
+             which fields are actually populated for this account. */
+          try { console.log('[DTF auth] Catalyst user details:', JSON.stringify(details)); } catch(_) {}
+          var ud = (details && details.user_details) ? details.user_details : (details || {});
+          /* Try every possible email field name */
+          var userEmail = String(ud.email_id || ud.emailId || ud.email || ud.email_address || ud.emailAddress || '');
+          var userId    = String(ud.user_id   || ud.userId   || ud.id   || '');
+          var firstName = String(ud.first_name || ud.firstName || ud.name || '');
+          try { console.log('[DTF auth] parsed email:', userEmail, 'uid:', userId); } catch(_) {}
+          if (userEmail) {
+            try {
+              sessionStorage.setItem('dtf-auth-ok', '1');
+              sessionStorage.setItem('dtf-catalyst-email', userEmail);
+              sessionStorage.setItem('dtf-catalyst-uid',   userId);
+              sessionStorage.setItem('dtf-catalyst-name',  firstName);
+            } catch (_e) {}
+          }
+          tryFetch(0);
+        })
+        .catch(function(err) {
+          try { console.log('[DTF auth] getCurrentUser failed:', err); } catch(_) {}
+          tryFetch(0);
+        });
+    } else {
+      /* SDK not available yet — poll briefly */
+      var attempts = 0;
+      var iv = setInterval(function() {
+        attempts++;
+        var s = window.catalyst || window.catalystApp;
+        if (s && s.auth && typeof s.auth().getCurrentUser === 'function') {
+          clearInterval(iv);
+          _ensureEmailThenFetch();
+        } else if (attempts > 30) {
+          clearInterval(iv);
+          tryFetch(0); /* give up, show all or cached */
+        }
+      }, 100);
+    }
+  }
+
+  (window.DTF_AUTH_READY || Promise.resolve()).then(function(){ _ensureEmailThenFetch(); });
+
+  /* Poll for live-preview color changes so swatches update while the
+     editor is open in another tab — no reload needed. */
+  var _lastLiveHexes = {};
+  setInterval(function () {
+    var cards = grid ? grid.querySelectorAll('.proj-card') : [];
+    cards.forEach(function (card) {
+      var pid = (card.href || '').match(/project=([^&]+)/);
+      if (!pid) return;
+      pid = pid[1];
+      var liveHex = brandHexFromLiveCSS(pid);
+      if (liveHex && liveHex !== _lastLiveHexes[pid]) {
+        _lastLiveHexes[pid] = liveHex;
+        var swatch = card.querySelector('.proj-swatch');
+        if (swatch) {
+          swatch.style.setProperty('--c1', liveHex);
+          swatch.style.setProperty('--c2', shadeHex(liveHex, 0.25));
+        }
+      }
+    });
+  }, 400);
+})();
+
+/* ── Plugin link flow ─────────────────────────────────────────
+   When opened with ?dtf-link=<challenge>, this page acts as the
+   "link-plugin.html" landing: it calls generatePluginToken and
+   shows a success/error message overlay. The challenge comes from
+   the Figma plugin which opens this URL in the user's browser.
+   No separate link-plugin.html file needed — hub.html is always
+   deployed. ─────────────────────────────────────────────────── */
+(function () {
+  function getParam(name) {
+    var s = window.location.search.slice(1).split('&');
+    for (var i = 0; i < s.length; i++) {
+      var p = s[i].split('=');
+      if (decodeURIComponent(p[0]) === name) return decodeURIComponent(p[1] || '');
+    }
+    return '';
+  }
+
+  var challenge = getParam('dtf-link');
+  if (!challenge || challenge.replace(/[^a-fA-F0-9]/g, '').length < 16) return;
+
+  /* Overlay the whole page with a minimal status card */
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:var(--surface-base-bg,#F8FAFC);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
+  overlay.innerHTML = '<div style="text-align:center;max-width:360px;padding:40px 32px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;">' +
+    '<div id="_lnk_icon" style="font-size:36px;margin-bottom:14px">⏳</div>' +
+    '<h2 id="_lnk_h" style="font-size:18px;font-weight:600;margin:0 0 8px">Linking your plugin…</h2>' +
+    '<p id="_lnk_p" style="font-size:13px;color:#64748B;line-height:1.5;margin:0">Connecting your Figma plugin to your DTF account.</p>' +
+  '</div>';
+  document.body.appendChild(overlay);
+
+  var SERVERLESS = 'https://project-rainfall-60080440486.development.catalystserverless.in';
+  fetch(SERVERLESS + '/server/generatePluginToken?challenge=' + encodeURIComponent(challenge), {
+    credentials: 'include', cache: 'no-store'
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(body) {
+    if (body.status === 'success') {
+      document.getElementById('_lnk_icon').textContent = '✅';
+      document.getElementById('_lnk_h').textContent = 'Plugin linked!';
+      document.getElementById('_lnk_p').textContent = 'Your Figma plugin is now connected. You can close this tab.';
+      document.getElementById('_lnk_p').style.color = '#15803D';
+    } else {
+      document.getElementById('_lnk_icon').textContent = '❌';
+      document.getElementById('_lnk_h').textContent = 'Linking failed';
+      document.getElementById('_lnk_p').textContent = (body.error || 'Unknown error') + ' — close this tab and try again from the plugin.';
+      document.getElementById('_lnk_p').style.color = '#B91C1C';
+    }
+  })
+  .catch(function(err) {
+    document.getElementById('_lnk_icon').textContent = '❌';
+    document.getElementById('_lnk_h').textContent = 'Network error';
+    document.getElementById('_lnk_p').textContent = (err.message || String(err)) + ' — check your connection and try again.';
+    document.getElementById('_lnk_p').style.color = '#B91C1C';
+  });
+}());
+</script>
+
+</body>
+</html>

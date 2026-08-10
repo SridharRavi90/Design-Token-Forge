@@ -1,0 +1,284 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Spinner Component CSS
+   Variable-driven rendering. Zero hardcoded visual values.
+   Uses internal (--_sp-*) vars set by variant/size/role selectors.
+
+   Markup (ring variant):
+   <span class="spinner" data-size="base" data-role="brand"
+         role="status" aria-label="Loading">
+     <svg class="spinner__ring" viewBox="0 0 50 50">
+       <circle class="spinner__track" cx="25" cy="25" r="20"/>
+       <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+     </svg>
+     <span class="spinner__label">Loading…</span>
+   </span>
+
+   Markup (dots variant):
+   <span class="spinner" data-variant="dots" data-size="base" data-role="brand"
+         role="status" aria-label="Loading">
+     <span class="spinner__dot"></span>
+     <span class="spinner__dot"></span>
+     <span class="spinner__dot"></span>
+     <span class="spinner__label">Loading…</span>
+   </span>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ──────────────────────────────────────────────── */
+@keyframes spin-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes spin-dot-pulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%           { transform: scale(1);   opacity: 1; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   1.  BASE STRUCTURE
+   ════════════════════════════════════════════════════════════════ */
+.spinner {
+  /* Internal bridge vars — defaults = base size, brand role */
+  --_sp-size:        var(--spin-size-base);
+  --_sp-track-w:     var(--spin-track-width-base);
+  --_sp-gap:         var(--spin-label-gap-base);
+  --_sp-fs:          var(--spin-font-size-base);
+  --_sp-color:       var(--spin-brand-color);
+  --_sp-dot-size:    var(--spin-dot-size-base);
+  --_sp-dot-gap:     var(--spin-dot-gap-base);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--_sp-gap);
+  vertical-align: middle;
+  color: var(--_sp-color);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   2.  SIZE SELECTORS
+   ════════════════════════════════════════════════════════════════ */
+.spinner:not([data-size]),
+.spinner[data-size="base"] {
+  --_sp-size:     var(--spin-size-base);
+  --_sp-track-w:  var(--spin-track-width-base);
+  --_sp-gap:      var(--spin-label-gap-base);
+  --_sp-fs:       var(--spin-font-size-base);
+  --_sp-dot-size: var(--spin-dot-size-base);
+  --_sp-dot-gap:  var(--spin-dot-gap-base);
+}
+
+.spinner[data-size="micro"] {
+  --_sp-size:     var(--spin-size-micro);
+  --_sp-track-w:  var(--spin-track-width-micro);
+  --_sp-gap:      var(--spin-label-gap-micro);
+  --_sp-fs:       var(--spin-font-size-micro);
+  --_sp-dot-size: var(--spin-dot-size-micro);
+  --_sp-dot-gap:  var(--spin-dot-gap-micro);
+}
+
+.spinner[data-size="tiny"] {
+  --_sp-size:     var(--spin-size-tiny);
+  --_sp-track-w:  var(--spin-track-width-tiny);
+  --_sp-gap:      var(--spin-label-gap-tiny);
+  --_sp-fs:       var(--spin-font-size-tiny);
+  --_sp-dot-size: var(--spin-dot-size-tiny);
+  --_sp-dot-gap:  var(--spin-dot-gap-tiny);
+}
+
+.spinner[data-size="small"] {
+  --_sp-size:     var(--spin-size-small);
+  --_sp-track-w:  var(--spin-track-width-small);
+  --_sp-gap:      var(--spin-label-gap-small);
+  --_sp-fs:       var(--spin-font-size-small);
+  --_sp-dot-size: var(--spin-dot-size-small);
+  --_sp-dot-gap:  var(--spin-dot-gap-small);
+}
+
+.spinner[data-size="medium"] {
+  --_sp-size:     var(--spin-size-medium);
+  --_sp-track-w:  var(--spin-track-width-medium);
+  --_sp-gap:      var(--spin-label-gap-medium);
+  --_sp-fs:       var(--spin-font-size-medium);
+  --_sp-dot-size: var(--spin-dot-size-medium);
+  --_sp-dot-gap:  var(--spin-dot-gap-medium);
+}
+
+.spinner[data-size="large"] {
+  --_sp-size:     var(--spin-size-large);
+  --_sp-track-w:  var(--spin-track-width-large);
+  --_sp-gap:      var(--spin-label-gap-large);
+  --_sp-fs:       var(--spin-font-size-large);
+  --_sp-dot-size: var(--spin-dot-size-large);
+  --_sp-dot-gap:  var(--spin-dot-gap-large);
+}
+
+.spinner[data-size="big"] {
+  --_sp-size:     var(--spin-size-big);
+  --_sp-track-w:  var(--spin-track-width-big);
+  --_sp-gap:      var(--spin-label-gap-big);
+  --_sp-fs:       var(--spin-font-size-big);
+  --_sp-dot-size: var(--spin-dot-size-big);
+  --_sp-dot-gap:  var(--spin-dot-gap-big);
+}
+
+.spinner[data-size="huge"] {
+  --_sp-size:     var(--spin-size-huge);
+  --_sp-track-w:  var(--spin-track-width-huge);
+  --_sp-gap:      var(--spin-label-gap-huge);
+  --_sp-fs:       var(--spin-font-size-huge);
+  --_sp-dot-size: var(--spin-dot-size-huge);
+  --_sp-dot-gap:  var(--spin-dot-gap-huge);
+}
+
+.spinner[data-size="mega"] {
+  --_sp-size:     var(--spin-size-mega);
+  --_sp-track-w:  var(--spin-track-width-mega);
+  --_sp-gap:      var(--spin-label-gap-mega);
+  --_sp-fs:       var(--spin-font-size-mega);
+  --_sp-dot-size: var(--spin-dot-size-mega);
+  --_sp-dot-gap:  var(--spin-dot-gap-mega);
+}
+
+.spinner[data-size="ultra"] {
+  --_sp-size:     var(--spin-size-ultra);
+  --_sp-track-w:  var(--spin-track-width-ultra);
+  --_sp-gap:      var(--spin-label-gap-ultra);
+  --_sp-fs:       var(--spin-font-size-ultra);
+  --_sp-dot-size: var(--spin-dot-size-ultra);
+  --_sp-dot-gap:  var(--spin-dot-gap-ultra);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   3.  ROLE SELECTORS
+   ════════════════════════════════════════════════════════════════ */
+.spinner:not([data-role]),
+.spinner[data-role="brand"] {
+  --_sp-color: var(--spin-brand-color);
+}
+.spinner[data-role="danger"] {
+  --_sp-color: var(--spin-danger-color);
+}
+.spinner[data-role="success"] {
+  --_sp-color: var(--spin-success-color);
+}
+.spinner[data-role="warning"] {
+  --_sp-color: var(--spin-warning-color);
+}
+.spinner[data-role="info"] {
+  --_sp-color: var(--spin-info-color);
+}
+.spinner[data-role="neutral"] {
+  --_sp-color: var(--spin-neutral-color);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   4.  RING VARIANT (default)
+   ════════════════════════════════════════════════════════════════ */
+.spinner__ring {
+  width: var(--_sp-size);
+  height: var(--_sp-size);
+  flex-shrink: 0;
+  animation: spin-rotate var(--spin-duration) var(--spin-easing) infinite;
+}
+
+.spinner__track {
+  fill: none;
+  stroke: var(--spin-track-color);
+  stroke-width: var(--_sp-track-w);
+  opacity: var(--spin-track-opacity);
+}
+
+.spinner__arc {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--_sp-track-w);
+  stroke-linecap: round;
+  stroke-dasharray: calc(var(--spin-arc-length) * 125.66) 125.66;
+  /* 125.66 = 2 * PI * 20 (radius in viewBox) */
+}
+
+/* ════════════════════════════════════════════════════════════════
+   5.  DOTS VARIANT
+   ════════════════════════════════════════════════════════════════ */
+.spinner[data-variant="dots"] {
+  gap: var(--_sp-dot-gap);
+}
+
+.spinner[data-variant="dots"] .spinner__ring {
+  display: none;
+}
+
+.spinner__dot {
+  display: none;
+  width: var(--_sp-dot-size);
+  height: var(--_sp-dot-size);
+  border-radius: var(--radius-full);
+  background-color: currentColor;
+  animation: spin-dot-pulse var(--spin-dots-duration) var(--spin-dots-easing) infinite;
+}
+
+.spinner[data-variant="dots"] .spinner__dot {
+  display: block;
+}
+
+.spinner__dot:nth-child(1) { animation-delay: 0ms; }
+.spinner__dot:nth-child(2) { animation-delay: 150ms; }
+.spinner__dot:nth-child(3) { animation-delay: 300ms; }
+
+/* ════════════════════════════════════════════════════════════════
+   6.  LABEL
+   ════════════════════════════════════════════════════════════════ */
+.spinner__label {
+  font-family: var(--spin-font-family);
+  font-size: var(--_sp-fs);
+  font-weight: var(--spin-font-weight);
+  line-height: var(--spin-line-height);
+  letter-spacing: var(--spin-label-letter-spacing);
+  color: var(--spin-label-color);
+  opacity: var(--spin-label-opacity);
+  padding-inline: 0px;  /* RTL-ready logical property */
+}
+
+/* ════════════════════════════════════════════════════════════════
+   7.  DISABLED STATE
+   ════════════════════════════════════════════════════════════════ */
+.spinner[data-disabled] {
+  opacity: var(--spin-opacity-disabled);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   8.  FORCED COLORS (High Contrast)
+   ════════════════════════════════════════════════════════════════ */
+@media (forced-colors: active) {
+  .spinner__track {
+    stroke: GrayText;
+  }
+  .spinner__arc {
+    stroke: Highlight;
+  }
+  .spinner__dot {
+    background-color: Highlight;
+  }
+  .spinner[data-disabled] .spinner__arc {
+    stroke: GrayText;
+  }
+  .spinner[data-disabled] .spinner__dot {
+    background-color: GrayText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   9.  REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .spinner__ring {
+    animation-duration: 1.5s;
+  }
+  .spinner__dot {
+    animation: none;
+    opacity: 0.7;
+  }
+  .spinner__dot:nth-child(2) { opacity: 0.85; }
+  .spinner__dot:nth-child(3) { opacity: 1; }
+}

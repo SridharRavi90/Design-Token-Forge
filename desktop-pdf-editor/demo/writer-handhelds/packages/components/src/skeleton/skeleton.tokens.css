@@ -1,0 +1,91 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Skeleton Token Defaults
+   Layer 0: System defaults for ~45 skeleton variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ────────────────────────────────────────────────────────────────
+   ANATOMY:
+     .skeleton (placeholder shape)
+       └─ ::after (shimmer highlight band)
+
+   VARIANTS  (data-variant):  text (default) | rect | circle
+   ROLES:    none
+   ════════════════════════════════════════════════════════════════ */
+
+.skeleton {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --skel-radius-text:   var(--radius-sm);
+  --skel-radius-rect:   var(--radius-md);
+  --skel-radius-circle: var(--radius-full);
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (31 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Height per density (text/rect lines) */
+  --skel-height-micro:   8px;
+  --skel-height-tiny:    10px;
+  --skel-height-small:   12px;
+  --skel-height-base:    16px;
+  --skel-height-medium:  20px;
+  --skel-height-large:   24px;
+  --skel-height-big:     28px;
+  --skel-height-huge:    32px;
+  --skel-height-mega:    36px;
+  --skel-height-ultra:   40px;
+
+  /* Circle diameter per density */
+  --skel-circle-size-micro:   16px;
+  --skel-circle-size-tiny:    20px;
+  --skel-circle-size-small:   24px;
+  --skel-circle-size-base:    32px;
+  --skel-circle-size-medium:  40px;
+  --skel-circle-size-large:   48px;
+  --skel-circle-size-big:     56px;
+  --skel-circle-size-huge:    64px;
+  --skel-circle-size-mega:    80px;
+  --skel-circle-size-ultra:   96px;
+
+  /* Default widths */
+  --skel-width-text:    100%;
+  --skel-width-rect:    100%;
+
+  /* Gap between stacked lines */
+  --skel-gap:           var(--spacing-10);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --skel-bg:            var(--surface-base-outline);
+  --skel-shimmer-from:  transparent;
+  --skel-shimmer-via:   rgba(255, 255, 255, 0.45);
+  --skel-shimmer-to:    transparent;
+
+  /* ────────────────────────────────────────────────────────────
+     🔤 TYPOGRAPHY  (0 vars — skeleton has no text)
+     ──────────────────────────────────────────────────────────── */
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (1 var)
+     ──────────────────────────────────────────────────────────── */
+
+  --skel-shimmer-width: 60%;
+
+  /* ────────────────────────────────────────────────────────────
+     🎬 MOTION  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --skel-animation-duration: 1.8s;
+  --skel-animation-mode:     shimmer;
+  --skel-easing:             ease-in-out;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ A11Y  (1 var)
+     ──────────────────────────────────────────────────────────── */
+
+  --skel-min-contrast: 0px; /* non-interactive, no contrast enforcement */
+}

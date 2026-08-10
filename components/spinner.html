@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Spinner Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/spinner/spinner.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/spinner/spinner.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+  .spinner-stage{display:flex;gap:24px;flex-wrap:wrap;align-items:center;padding:24px}
+  .density-strip{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;padding:24px}
+  .density-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .density-meta{font-size:10px;opacity:.5;font-weight:600;font-variant-numeric:tabular-nums}
+  .variant-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .variant-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);background:var(--demo-card-bg);display:flex;flex-direction:column;align-items:center;gap:16px}
+  .variant-card-title{font-weight:600;font-size:13px;text-transform:capitalize}
+  .role-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+  .role-card{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;border-radius:8px;border:1px solid var(--demo-border)}
+  .role-card-label{font-size:11px;font-weight:600;text-transform:capitalize;opacity:.6}
+  .surface-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-radius:12px;overflow:hidden}
+  .surface-panel{padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .surface-panel--base{background:var(--surface-base-bg)}
+  .surface-panel--alt{background:var(--surface-base-subtle)}
+  .surface-panel--deep{background:var(--surface-deep-bg)}
+  .surface-panel-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.5;margin-bottom:8px}
+  .shape-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .shape-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .shape-card-title{font-weight:600;font-size:12px;opacity:.7}
+  .motion-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .motion-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .motion-card-title{font-weight:600;font-size:13px}
+  .motion-card-desc{font-size:11px;opacity:.6;text-align:center}
+  .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .a11y-card{padding:20px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;gap:8px}
+  .a11y-card-title{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;opacity:.6}
+  .a11y-card-desc{font-size:13px;line-height:1.5}
+  .playground-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .playground-card{padding:24px;border-radius:12px;border:1px solid var(--demo-border);display:flex;flex-direction:column;align-items:center;gap:16px}
+  .playground-card-title{font-weight:600;font-size:13px}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<!-- ═══════════════════ GLOBAL CONTROLS ═══════════════════ -->
+<nav class="global-controls" aria-label="Global spinner preview controls">
+
+  <div class="control-group">
+    <label>Role</label>
+    <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-role="brand" type="button">Brand</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true"  data-ctrl-variant="ring" type="button">Ring</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="dots" type="button">Dots</button>
+    </div>
+  </div>
+
+</nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">01</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">02</span>Variant Gallery</a>
+  <a href="#sec-density"><span class="sn-num">03</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">04</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">05</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">06</span>Shape &amp; Shadow</a>
+  <a href="#sec-slots"><span class="sn-num">07</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">08</span>Motion</a>
+  <a href="#sec-a11y"><span class="sn-num">09</span>Accessibility</a>
+  <a href="#sec-playground"><span class="sn-num">10</span>Context Playground</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Spinner Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~85 CSS Variables</span>
+    <span class="demo-badge">6 Roles</span>
+    <span class="demo-badge">2 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<main class="demo-main">
+
+  <!-- ═══════════ 1. HERO + INSPECTOR ═══════════ -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects global controls. Inspector shows resolved computed values for the active size and role.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" style="display:flex;align-items:center;justify-content:center;min-height:120px">
+          <span class="spinner synced-spinner" data-size="base" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+          </span>
+        </div>
+        <div class="hero-inspector" id="heroInspector">
+          <div class="inspector-title">Resolved Tokens</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. VARIANT GALLERY ═══════════ -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">Structure</span></div>
+    <p class="section-desc">Ring (default) uses an SVG arc. Dots uses three pulsing circles.</p>
+    <div class="section-body">
+      <div class="variant-grid">
+        <div class="variant-card">
+          <span class="variant-card-title">Ring</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+        </div>
+        <div class="variant-card">
+          <span class="variant-card-title">Dots</span>
+          <span class="spinner" data-variant="dots" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 3. DENSITY SCALE ═══════════ -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes, micro (12px) to ultra (64px).</p>
+    <div class="section-body">
+      <div class="density-strip" id="densityStrip"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 4. STATE MATRIX ═══════════ -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Spinner states: default and disabled.</p>
+    <div class="section-body">
+      <div class="spinner-stage">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span class="spinner synced-spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+          </span>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Default</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span class="spinner synced-spinner" data-size="large" data-role="brand" data-disabled role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+          </span>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Disabled</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 5. SURFACE CONTEXT ═══════════ -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Spinner adapts to surrounding surface context.</p>
+    <div class="section-body">
+      <div class="surface-strip" id="surfaceStrip">
+        <div class="surface-panel surface-panel--base">
+          <span class="surface-panel-label">surface-base-bg</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+        </div>
+        <div class="surface-panel surface-panel--alt">
+          <span class="surface-panel-label">surface-base-subtle</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+        </div>
+        <div class="surface-panel surface-panel--deep">
+          <span class="surface-panel-label">surface-deep-bg</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 6. SHAPE & SHADOW ═══════════ -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Track width scales with density. The ring is always fully circular.</p>
+    <div class="section-body">
+      <div class="shape-grid">
+        <div class="shape-card">
+          <span class="shape-card-title">Thin (micro track)</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading" style="--spin-track-width-large:1px">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+        </div>
+        <div class="shape-card">
+          <span class="shape-card-title">Default (3px)</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+        </div>
+        <div class="shape-card">
+          <span class="shape-card-title">Thick (6px)</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading" style="--spin-track-width-large:6px">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. SLOTS & ANATOMY ═══════════ -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Spinner anatomy: track (background), arc (indicator), optional label.</p>
+    <div class="section-body">
+      <div class="spinner-stage">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Ring only</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+            <span class="spinner__label">Loading&hellip;</span>
+          </span>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Ring + Label</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span class="spinner" data-variant="dots" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+          </span>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Dots only</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span class="spinner" data-variant="dots" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+            <span class="spinner__label">Please wait&hellip;</span>
+          </span>
+          <span style="font-size:11px;font-weight:600;opacity:.6">Dots + Label</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 8. MOTION ═══════════ -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Ring rotates continuously; dots pulse with staggered delays.</p>
+    <div class="section-body">
+      <div class="motion-grid">
+        <div class="motion-card">
+          <span class="motion-card-title">Fast (400ms)</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading" style="--spin-duration:400ms">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+          <span class="motion-card-desc">--spin-duration: 400ms</span>
+        </div>
+        <div class="motion-card">
+          <span class="motion-card-title">Default (800ms)</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+          <span class="motion-card-desc">--spin-duration: 800ms</span>
+        </div>
+        <div class="motion-card">
+          <span class="motion-card-title">Slow (1600ms)</span>
+          <span class="spinner" data-size="large" data-role="brand" role="status" aria-label="Loading" style="--spin-duration:1600ms">
+            <svg class="spinner__ring" viewBox="0 0 50 50">
+              <circle class="spinner__track" cx="25" cy="25" r="20"/>
+              <circle class="spinner__arc" cx="25" cy="25" r="20"/>
+            </svg>
+          </span>
+          <span class="motion-card-desc">--spin-duration: 1600ms</span>
+        </div>
+        <div class="motion-card">
+          <span class="motion-card-title">Dots Pulse</span>
+          <span class="spinner" data-variant="dots" data-size="large" data-role="brand" role="status" aria-label="Loading">
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+            <span class="spinner__dot"></span>
+          </span>
+          <span class="motion-card-desc">--spin-dots-duration: 1200ms</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 9. ACCESSIBILITY ═══════════ -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Spinner uses role="status" for live-region announcements and supports prefers-reduced-motion.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <span class="a11y-card-title">Screen Reader</span>
+          <span class="a11y-card-desc">Uses <code>role="status"</code> and <code>aria-label="Loading"</code> so assistive tech announces the loading state without interrupting the user.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Reduced Motion</span>
+          <span class="a11y-card-desc">When <code>prefers-reduced-motion: reduce</code> is set, ring slows to 1.5s and dots freeze in a static staggered-opacity pattern.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Forced Colors</span>
+          <span class="a11y-card-desc">In Windows High Contrast mode, arc uses <code>Highlight</code> and track uses <code>GrayText</code> for maximum visibility.</span>
+        </div>
+        <div class="a11y-card">
+          <span class="a11y-card-title">Disabled State</span>
+          <span class="a11y-card-desc"><code>data-disabled</code> reduces opacity to 40% and removes pointer events. Use when loading is cancelled but element stays in DOM.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 10. CONTEXT PLAYGROUND ═══════════ -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface &times; Role</span></div>
+    <p class="section-desc">All 6 roles on different surface levels.</p>
+    <div class="section-body">
+      <div class="playground-cards" id="playgroundGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 11. FRAMEWORK SNIPPETS ═══════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Copy-paste ready code for React, Vue, HTML, and CSS token overrides.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-tabs">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css">CSS Tokens</button>
+        </div>
+        <pre class="fw-snippet-code" data-panel="react"><code>&lt;Spinner size="base" role="brand" label="Loading&hellip;" /&gt;
+&lt;Spinner variant="dots" size="large" role="success" /&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="vue"><code>&lt;DtfSpinner size="base" role="brand" label="Loading&hellip;" /&gt;
+&lt;DtfSpinner variant="dots" size="large" role="success" /&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="html"><code>&lt;span class="spinner" data-size="base" data-role="brand"
+      role="status" aria-label="Loading"&gt;
+  &lt;svg class="spinner__ring" viewBox="0 0 50 50"&gt;
+    &lt;circle class="spinner__track" cx="25" cy="25" r="20"/&gt;
+    &lt;circle class="spinner__arc" cx="25" cy="25" r="20"/&gt;
+  &lt;/svg&gt;
+  &lt;span class="spinner__label"&gt;Loading&hellip;&lt;/span&gt;
+&lt;/span&gt;</code></pre>
+        <pre class="fw-snippet-code" data-panel="css"><code>/* Override spinner tokens */
+.my-spinner {
+  --spin-size-base: 24px;
+  --spin-track-width-base: 4px;
+  --spin-duration: 600ms;
+  --spin-brand-color: var(--brand-content-default);
+}</code></pre>
+        <pre class="fw-snippet-code" data-panel="slyte" data-active><code>import { DtfComponent } from '@design-token-forge/slyte';
+
+&lt;dtf-component
+  lt-prop-variant="filled"
+  lt-prop-color-role="brand"
+  lt-prop-size="base"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;Content&lt;/template&gt;
+&lt;/dtf-component&gt;</code></pre>
+        
+        
+              </div>
+    </div>
+  </section>
+
+</main>
+</div><!-- .page-content -->
+</div><!-- .page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script src="shared-page.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  var P = window.DTFPage;
+  var SIZES = P.SIZES;
+  var ROLES = ['brand','success','warning','danger','info','neutral'];
+
+  /* ── Global state ────────────────────────────────── */
+  var G = { role:'brand', size:'base', variant:'ring' };
+
+  /* ── Spinner factory ─────────────────────────────── */
+  function makeSpinner(opts) {
+    var o = opts || {};
+    var size = o.size || G.size;
+    var role = o.role || G.role;
+    var variant = o.variant || G.variant;
+    var label = o.label || '';
+    var disabled = o.disabled || false;
+
+    var el = document.createElement('span');
+    el.className = 'spinner' + (o.cls ? ' ' + o.cls : '');
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-label', label || 'Loading');
+    el.dataset.size = size;
+    el.dataset.role = role;
+    if (variant !== 'ring') el.dataset.variant = variant;
+    if (disabled) el.dataset.disabled = '';
+
+    // SVG ring (hidden in dots variant via CSS)
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'spinner__ring');
+    svg.setAttribute('viewBox', '0 0 50 50');
+    var track = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    track.setAttribute('class', 'spinner__track');
+    track.setAttribute('cx', '25');
+    track.setAttribute('cy', '25');
+    track.setAttribute('r', '20');
+    var arc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    arc.setAttribute('class', 'spinner__arc');
+    arc.setAttribute('cx', '25');
+    arc.setAttribute('cy', '25');
+    arc.setAttribute('r', '20');
+    svg.appendChild(track);
+    svg.appendChild(arc);
+    el.appendChild(svg);
+
+    // Dots (hidden in ring variant via CSS)
+    for (var i = 0; i < 3; i++) {
+      var dot = document.createElement('span');
+      dot.className = 'spinner__dot';
+      el.appendChild(dot);
+    }
+
+    // Optional label
+    if (label) {
+      var lbl = document.createElement('span');
+      lbl.className = 'spinner__label';
+      lbl.textContent = label;
+      el.appendChild(lbl);
+    }
+
+    return el;
+  }
+
+  /* ── Apply globals to synced spinners ────────────── */
+  function applyGlobals() {
+    document.querySelectorAll('.synced-spinner').forEach(function(el) {
+      el.dataset.size = G.size;
+      el.dataset.role = G.role;
+      if (G.variant === 'ring') {
+        delete el.dataset.variant;
+      } else {
+        el.dataset.variant = G.variant;
+      }
+    });
+    renderDensity();
+    updateInspector();
+  }
+
+  /* ── Density strip ───────────────────────────────── */
+  function renderDensity() {
+    var strip = P.clr('densityStrip');
+    if (!strip) return;
+    SIZES.forEach(function(sz) {
+      var sp = makeSpinner({ size: sz });
+      var it = P.wrapDensityItem(sp, sz);
+      strip.appendChild(it);
+    });
+  }
+
+  /* ── Inspector ───────────────────────────────────── */
+  function updateInspector() {
+    var el = document.querySelector('.spinner.synced-spinner');
+    if (!el) return;
+    var cs = getComputedStyle(el);
+    var rows = [
+      ['--spin-size-' + G.size,       cs.getPropertyValue('--spin-size-' + G.size).trim(),       cs.getPropertyValue('--_sp-size').trim() || cs.width],
+      ['--spin-track-width-' + G.size, cs.getPropertyValue('--spin-track-width-' + G.size).trim(), ''],
+      ['--spin-' + G.role + '-color', cs.getPropertyValue('--spin-' + G.role + '-color').trim(), ''],
+      ['--spin-track-opacity',        cs.getPropertyValue('--spin-track-opacity').trim(),        ''],
+      ['--spin-duration',             cs.getPropertyValue('--spin-duration').trim(),             ''],
+      ['--spin-easing',               cs.getPropertyValue('--spin-easing').trim(),               ''],
+      ['--spin-font-size-' + G.size,  cs.getPropertyValue('--spin-font-size-' + G.size).trim(), ''],
+      ['--spin-label-gap-' + G.size,  cs.getPropertyValue('--spin-label-gap-' + G.size).trim(), '']
+    ];
+    P.buildInspector('heroInspector', 'Resolved Tokens (' + G.role + ' / ' + G.size + ')', rows);
+  }
+
+  /* ── Playground grid ─────────────────────────────── */
+  function renderPlayground() {
+    var grid = P.clr('playgroundGrid');
+    if (!grid) return;
+    ROLES.forEach(function(role) {
+      var card = document.createElement('div');
+      card.className = 'playground-card';
+      var title = document.createElement('span');
+      title.className = 'playground-card-title';
+      title.textContent = role;
+      card.appendChild(title);
+      card.appendChild(makeSpinner({ role: role, size: 'large' }));
+      card.appendChild(makeSpinner({ role: role, size: 'large', variant: 'dots' }));
+      grid.appendChild(card);
+    });
+  }
+
+  /* ── Wire pill bars ──────────────────────────────── */
+  P.wirePillBar('roleBar',    'ctrlRole',    function(v) { G.role = v;    applyGlobals(); });
+  P.wirePillBar('sizeBar',    'ctrlSize',    function(v) { G.size = v;    applyGlobals(); });
+  P.wirePillBar('variantBar', 'ctrlVariant', function(v) { G.variant = v; applyGlobals(); });
+
+  /* ── Framework tab switching ─────────────────────── */
+  document.querySelectorAll('.fw-snippet-tabs').forEach(function(tabs) {
+    tabs.addEventListener('click', function(e) {
+      var btn = e.target.closest('.fw-snippet-tab');
+      if (!btn) return;
+      var panel = btn.dataset.tab;
+      var snippet = tabs.closest('.fw-snippet');
+      snippet.querySelectorAll('.fw-snippet-tab').forEach(function(t) { t.setAttribute('aria-selected', 'false'); });
+      btn.setAttribute('aria-selected', 'true');
+      snippet.querySelectorAll('.fw-snippet-code').forEach(function(c) { delete c.dataset.active; });
+      var target = snippet.querySelector('[data-panel="' + panel + '"]');
+      if (target) target.dataset.active = '';
+    });
+  });
+
+  /* ── Initial render ──────────────────────────────── */
+  applyGlobals();
+  renderPlayground();
+  window.DTF = window.DTF || {};
+  window.DTF.onThemeChange = function() { applyGlobals(); };
+})();
+</script>
+</body>
+</html>

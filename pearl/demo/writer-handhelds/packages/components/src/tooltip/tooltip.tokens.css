@@ -1,0 +1,139 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Tooltip Token Defaults
+   Layer 0: System defaults for ~60 tooltip variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.tooltip {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --tooltip-radius: var(--radius-sm);
+  --tooltip-border-width: 1px;
+  --tooltip-border-style: solid;
+  --tooltip-border-color: transparent;
+
+  /* Arrow */
+  --tooltip-arrow-size: 6px;
+  --tooltip-arrow-offset: 12px;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Padding per density */
+  --tooltip-padding-y-small: var(--spacing-4);
+  --tooltip-padding-x-small: var(--spacing-8);
+  --tooltip-padding-y-base: var(--spacing-6);
+  --tooltip-padding-x-base: var(--spacing-10);
+  --tooltip-padding-y-large: var(--spacing-8);
+  --tooltip-padding-x-large: var(--spacing-14);
+
+  /* Max width */
+  --tooltip-max-width-small: 180px;
+  --tooltip-max-width-base: 240px;
+  --tooltip-max-width-large: 320px;
+
+  /* Gap between icon and label */
+  --tooltip-gap-small: var(--spacing-4);
+  --tooltip-gap-base:  var(--spacing-6);
+  --tooltip-gap-large: var(--spacing-8);
+
+  /* Content gap (title ↔ body) */
+  --tooltip-content-gap: 2px;
+
+  /* Offset from trigger */
+  --tooltip-offset: var(--spacing-8);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── DEFAULT (dark bg, light text) ────────────────── */
+  --tooltip-bg: var(--surface-base-ct-default);
+  --tooltip-fg: var(--surface-base-cn-bg);
+  --tooltip-arrow-color: var(--surface-base-ct-default);
+
+  /* ── LIGHT (inverted — light bg, dark text) ────────── */
+  --tooltip-light-bg: var(--surface-base-cn-bg);
+  --tooltip-light-fg: var(--surface-base-ct-default);
+  --tooltip-light-border-color: var(--surface-base-cm-outline);
+  --tooltip-light-arrow-color: var(--surface-base-cn-bg);
+
+  /* ── DANGER (error feedback) ────────────────────────────── */
+  --tooltip-danger-bg: var(--danger-component-bg-default);
+  --tooltip-danger-fg: var(--danger-on-component);
+  --tooltip-danger-arrow-color: var(--danger-component-bg-default);
+
+  /* ── WARNING (caution feedback) ─────────────────────────── */
+  --tooltip-warning-bg: var(--warning-component-bg-default);
+  --tooltip-warning-fg: var(--warning-on-component);
+  --tooltip-warning-arrow-color: var(--warning-component-bg-default);
+
+  /* ── INFO (informational feedback) ──────────────────────── */
+  --tooltip-info-bg: var(--info-component-bg-default);
+  --tooltip-info-fg: var(--info-on-component);
+  --tooltip-info-arrow-color: var(--info-component-bg-default);
+
+  /* ── SUCCESS (success feedback) ─────────────────────────── */
+  --tooltip-success-bg: var(--success-component-bg-default);
+  --tooltip-success-fg: var(--success-on-component);
+  --tooltip-success-arrow-color: var(--success-component-bg-default);
+
+  /* Hover/pressed fills — tooltip is display-only; these equal default fill.
+     Required so the AA on-component derivation check covers all fill states. */
+  --tooltip-danger-bg-hover:   var(--danger-component-bg-default);
+  --tooltip-danger-bg-pressed: var(--danger-component-bg-default);
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+  --tooltip-font-family: var(--font-family-sans);
+  --tooltip-font-weight: var(--font-weight-normal);
+  --tooltip-line-height: 1.4;
+  --tooltip-letter-spacing: 0em;
+
+  /* Font size per density */
+  --tooltip-font-size-small: var(--font-size-11);
+  --tooltip-font-size-base: var(--font-size-12);
+  --tooltip-font-size-large: var(--font-size-14);
+
+  --tooltip-title-font-weight: var(--font-weight-semibold);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+  --tooltip-icon-size-small: var(--spacing-14);
+  --tooltip-icon-size-base: var(--spacing-16);
+  --tooltip-icon-size-large: var(--spacing-18);
+  --tooltip-icon-color: currentColor;
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --tooltip-transition-property: opacity, transform;
+  --tooltip-transition-duration: var(--duration-fast);
+  --tooltip-transition-easing: var(--easing-in-out);
+  --tooltip-enter-scale: 0.96;
+  --tooltip-show-delay: 200ms;
+  --tooltip-hide-delay: 0ms;
+  --tooltip-animation-enter: tooltip-enter 0.15s var(--easing-in-out);
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (2 vars)
+     ──────────────────────────────────────────────────────────── */
+  --tooltip-z-index: 1000;
+  --tooltip-pointer-events: none;
+
+  /* ────────────────────────────────────────────────────────────
+     🚫 STATE  (1 var)
+     ──────────────────────────────────────────────────────────── */
+  --tooltip-disabled-opacity: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🖼️ SHADOW  (2 vars)
+     ──────────────────────────────────────────────────────────── */
+  --tooltip-shadow: var(--shadow-sm);
+  --tooltip-light-shadow: var(--shadow-md);
+}

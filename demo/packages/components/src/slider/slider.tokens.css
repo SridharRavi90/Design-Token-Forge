@@ -1,0 +1,275 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Slider Token Defaults
+   Layer 0: System defaults for slider variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ----------------------------------------------------------------
+   ANATOMY:
+     .slider (wrapper, role="slider")
+       └─ .slider__track     (rail)
+            └─ .slider__fill (value range)
+            └─ .slider__tick (optional ticks)
+       └─ .slider__thumb     (handle, owns focus)
+            └─ .slider__halo (hover/focus ring)
+       └─ .slider__tooltip   (optional value bubble)
+       └─ .slider__label / .slider__value (optional rows)
+
+   VARIANTS  (data-variant):   filled (default) | soft
+   ROLES     (data-role):       brand (default) | danger | success | warning | info | neutral
+   STATES    (selectors):       default | hover | focus-visible | pressed | disabled
+
+   ROLE REMAPPING
+     Roles override --brand-* palette vars; all variant tokens read --brand-*
+     so role swap works for both filled and soft variants automatically.
+   ════════════════════════════════════════════════════════════════ */
+
+.slider {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (16 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Track */
+  --slider-track-radius: var(--radius-full);
+  --slider-track-border-width: 0px;
+  --slider-track-border-style: solid;
+  --slider-track-shadow: var(--shadow-none);
+
+  /* Fill */
+  --slider-fill-radius: var(--slider-track-radius);
+
+  /* Thumb */
+  --slider-thumb-radius: var(--radius-full);
+  --slider-thumb-border-width: 2px;
+  --slider-thumb-border-style: solid;
+  --slider-thumb-shadow: var(--shadow-sm);
+  --slider-thumb-shadow-hover: var(--shadow-md);
+  --slider-thumb-shadow-pressed: var(--shadow-sm);
+
+  /* Outline */
+  --slider-outline-style: solid;
+  --slider-outline-width: 2px;
+
+  /* Tooltip */
+  --slider-tooltip-radius: var(--radius-md);
+  --slider-tooltip-shadow: var(--shadow-sm);
+  --slider-tooltip-border-width: 1px;
+  --slider-tooltip-border-style: solid;
+
+  /* Track overflow */
+  --slider-track-overflow: hidden;
+
+  /* Clip */
+  --slider-clip-path: none;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (39 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Track height (thickness) per density */
+  --slider-track-h-micro: 2px;
+  --slider-track-h-tiny: 3px;
+  --slider-track-h-small: 4px;
+  --slider-track-h-base: 6px;
+  --slider-track-h-medium: 8px;
+  --slider-track-h-large: 10px;
+  --slider-track-h-big: 14px;
+  --slider-track-h-huge: 18px;
+  --slider-track-h-mega: 24px;
+  --slider-track-h-ultra: 32px;
+
+  /* Thumb width per density */
+  --slider-thumb-w-micro: 10px;
+  --slider-thumb-w-tiny: 12px;
+  --slider-thumb-w-small: 14px;
+  --slider-thumb-w-base: 18px;
+  --slider-thumb-w-medium: 20px;
+  --slider-thumb-w-large: 24px;
+  --slider-thumb-w-big: 28px;
+  --slider-thumb-w-huge: 32px;
+  --slider-thumb-w-mega: 40px;
+  --slider-thumb-w-ultra: 48px;
+
+  /* Thumb height per density (separate for non-circular shapes) */
+  --slider-thumb-h-micro: 10px;
+  --slider-thumb-h-tiny: 12px;
+  --slider-thumb-h-small: 14px;
+  --slider-thumb-h-base: 18px;
+  --slider-thumb-h-medium: 20px;
+  --slider-thumb-h-large: 24px;
+  --slider-thumb-h-big: 28px;
+  --slider-thumb-h-huge: 32px;
+  --slider-thumb-h-mega: 40px;
+  --slider-thumb-h-ultra: 48px;
+
+  /* Track minimum width */
+  --slider-track-min-w: 120px;
+
+  /* Tick mark dimensions */
+  --slider-tick-w: 2px;
+  --slider-tick-h: 8px;
+
+  /* Tooltip dimensions */
+  --slider-tooltip-padding-x: var(--spacing-8);
+  --slider-tooltip-padding-y: var(--spacing-4);
+  --slider-tooltip-offset: var(--spacing-8);
+  --slider-tooltip-arrow-size: 5px;
+
+  /* Halo size per density (≈2× thumb width) */
+  --slider-thumb-halo-size-micro: 20px;
+  --slider-thumb-halo-size-tiny: 24px;
+  --slider-thumb-halo-size-small: 28px;
+  --slider-thumb-halo-size-base: 36px;
+  --slider-thumb-halo-size-medium: 40px;
+  --slider-thumb-halo-size-large: 48px;
+  --slider-thumb-halo-size-big: 56px;
+  --slider-thumb-halo-size-huge: 64px;
+  --slider-thumb-halo-size-mega: 80px;
+  --slider-thumb-halo-size-ultra: 96px;
+
+  /* Vertical orientation */
+  --slider-vertical-height: 200px;
+
+  /* Spacing */
+  --slider-tick-offset: var(--spacing-4);
+  --slider-label-offset: var(--spacing-2);
+  --slider-gap: var(--spacing-8);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — FILLED variant (default)
+     Reads from --brand-* palette; role selectors remap automatically.
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── Track (unfilled rail) — neutral, not role-colored ── */
+  --slider-track-bg: var(--surface-base-cm-outline-hover);
+  --slider-track-bg-hover: var(--surface-base-cm-outline-pressed, var(--surface-base-cm-outline-hover));
+  --slider-track-bg-disabled: var(--surface-base-cm-outline);
+  --slider-track-border-color: transparent;
+  --slider-track-border-color-disabled: transparent;
+  --slider-track-shadow-hover: var(--shadow-none);
+  --slider-track-shadow-pressed: var(--shadow-none);
+  --slider-track-shadow-disabled: var(--shadow-none);
+
+  /* ── Fill (value indicator) ── */
+  --slider-fill-bg: var(--brand-component-bg-default);
+  --slider-fill-bg-hover: var(--brand-component-bg-hover);
+  --slider-fill-bg-pressed: var(--brand-component-bg-pressed);
+  --slider-fill-bg-disabled: var(--brand-component-bg-default);
+
+  /* ── Thumb — white fill + colored border = distinct from fill bar ── */
+  --slider-thumb-bg: var(--color-fixed-white);
+  --slider-thumb-bg-hover: var(--color-fixed-white);
+  --slider-thumb-bg-pressed: var(--color-fixed-white);
+  --slider-thumb-bg-disabled: var(--color-fixed-white);
+  --slider-thumb-border-color: var(--brand-component-bg-default);
+  --slider-thumb-border-color-hover: var(--brand-component-bg-hover);
+  --slider-thumb-border-color-pressed: var(--brand-component-bg-pressed);
+  --slider-thumb-border-color-disabled: var(--color-fixed-white);
+  --slider-thumb-shadow-disabled: var(--shadow-none);
+
+  /* ── Halo (Material-style hover ring around thumb) ── */
+  --slider-thumb-halo-bg: var(--brand-container-bg);
+  --slider-thumb-halo-bg-pressed: var(--brand-container-pressed);
+  --slider-thumb-halo-opacity: 0.2;
+
+  /* ── Tick marks ── */
+  --slider-tick-color: var(--surface-base-cm-outline);
+  --slider-tick-color-pressed: var(--brand-component-bg-default);
+  --slider-tick-color-disabled: var(--surface-base-cm-outline);
+
+  /* ── Tooltip ── */
+  --slider-tooltip-bg: var(--brand-component-bg-default);
+  --slider-tooltip-fg: var(--brand-on-component);
+  --slider-tooltip-border-color: transparent;
+
+  /* ── Disabled ── */
+  --slider-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — SOFT variant
+     Fill uses container-level tint; thumb stays solid.
+     Role selectors remap --brand-* automatically.
+     ──────────────────────────────────────────────────────────── */
+
+  --slider-soft-fill-bg: var(--brand-container-bg);
+  --slider-soft-fill-bg-hover: var(--brand-container-hover);
+  --slider-soft-fill-bg-pressed: var(--brand-container-pressed);
+  --slider-soft-fill-bg-disabled: var(--brand-container-bg);
+  --slider-soft-tooltip-bg: var(--brand-container-bg);
+  --slider-soft-tooltip-fg: var(--brand-content-default);
+  --slider-soft-tick-color-pressed: var(--brand-container-bg);
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (11 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Label */
+  --slider-label-font-family: var(--font-family-sans);
+  --slider-label-font-size: var(--font-size-14);
+  --slider-label-font-weight: var(--font-weight-regular);
+  --slider-label-line-height: var(--line-height-normal);
+
+  /* Tooltip */
+  --slider-tooltip-font-family: var(--font-family-sans);
+  --slider-tooltip-font-weight: var(--font-weight-medium);
+
+  /* Tooltip font-size per density */
+  --slider-tooltip-font-size-micro: var(--font-size-10);
+  --slider-tooltip-font-size-tiny: var(--font-size-10);
+  --slider-tooltip-font-size-small: var(--font-size-11);
+  --slider-tooltip-font-size-base: var(--font-size-12);
+  --slider-tooltip-font-size-medium: var(--font-size-13);
+  --slider-tooltip-font-size-large: var(--font-size-14);
+  --slider-tooltip-font-size-big: var(--font-size-14);
+  --slider-tooltip-font-size-huge: var(--font-size-16);
+  --slider-tooltip-font-size-mega: var(--font-size-18);
+  --slider-tooltip-font-size-ultra: var(--font-size-20);
+
+  /* Tick labels */
+  --slider-tick-label-font-size: var(--font-size-11);
+  --slider-tick-label-font-weight: var(--font-weight-regular);
+  --slider-tick-label-color: var(--surface-base-ct-subtle);
+
+  /* Value display */
+  --slider-value-font-size: var(--font-size-14);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (8 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --slider-thumb-scale-pressed: 1.15;
+  --slider-thumb-icon-size: 0.6em;
+  --slider-thumb-icon-color: var(--brand-on-component);
+  --slider-tooltip-display: none;
+  --slider-ticks-display: none;
+  --slider-fill-display: block;
+  --slider-tooltip-white-space: nowrap;
+  --slider-label-gap: var(--spacing-8);
+  --slider-thumb-content: none;
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (7 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --slider-transition-property: background-color, border-color, box-shadow, opacity;
+  --slider-transition-duration: var(--duration-normal);
+  --slider-transition-easing: var(--easing-in-out);
+  --slider-thumb-transition-duration: var(--duration-fast);
+  --slider-thumb-transition-easing: var(--easing-spring);
+  --slider-tooltip-transition-duration: var(--duration-fast);
+  --slider-loader-speed: 1.5s;
+  --slider-animation-loading: none;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (9 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --slider-focus-outline-width: var(--focus-outline-width);
+  --slider-focus-outline-color: var(--brand-component-outline-default);
+  --slider-focus-outline-offset: var(--focus-outline-offset);
+  --slider-min-tap-target: 44px;
+  --slider-label-color: var(--surface-base-ct-default);
+  --slider-label-color-disabled: var(--surface-base-ct-subtle);
+  --slider-required-indicator: '*';
+  --slider-required-color: var(--danger-content-default);
+  --slider-value-color: var(--surface-base-ct-default);
+}

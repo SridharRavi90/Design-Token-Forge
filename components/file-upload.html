@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — File Upload Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/file-upload/file-upload.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/file-upload/file-upload.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+  .fu-stage{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:24px}
+  .fu-card{flex:1;min-width:280px;display:flex;flex-direction:column;gap:6px}
+  .fu-card-label{font-size:11px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.04em}
+  .density-strip{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;padding:24px}
+  .density-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .density-meta{font-size:10px;opacity:.5;font-weight:600;font-variant-numeric:tabular-nums}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">01</span>Hero Inspector</a>
+  <a href="#sec-variants"><span class="sn-num">02</span>Variant Gallery</a>
+  <a href="#sec-modes"><span class="sn-num">03</span>Modes</a>
+  <a href="#sec-density"><span class="sn-num">04</span>Density Scale</a>
+  <a href="#sec-state"><span class="sn-num">05</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">06</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">07</span>Shape &amp; Shadow</a>
+  <a href="#sec-filelist"><span class="sn-num">08</span>File List</a>
+  <a href="#sec-slots"><span class="sn-num">09</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">10</span>Motion</a>
+  <a href="#sec-a11y"><span class="sn-num">11</span>Accessibility</a>
+  <a href="#sec-playground"><span class="sn-num">12</span>Playground</a>
+  <a href="#sec-framework"><span class="sn-num">13</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>File Upload Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">~162 CSS Variables</span>
+    <span class="demo-badge">1 Variant</span>
+    <span class="demo-badge">6 Roles</span>
+    <span class="demo-badge">2 Modes</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<!-- ─── GLOBAL CONTROLS ─────────────────────────────────── -->
+<nav class="global-controls" aria-label="Global file upload preview controls">
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="outlined" type="button">Outline</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="filled" type="button">Filled</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Mode</label>
+    <div class="pill-bar" id="modeBar" role="radiogroup" aria-label="Mode selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-mode="dropzone" type="button">Dropzone</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-mode="button" type="button">Button</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Role</label>
+    <div class="pill-bar" id="roleBar" role="radiogroup" aria-label="Role selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-role="brand" type="button">Brand</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="danger" type="button">Danger</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="success" type="button">Success</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="warning" type="button">Warning</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="info" type="button">Info</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-role="neutral" type="button">Neutral</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Shape</label>
+    <div class="pill-bar" id="roundedBar" role="radiogroup" aria-label="Shape selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-rounded="false" type="button">Default</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-rounded="true" type="button">Rounded</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- ─── 1. HERO + INSPECTOR ─────────────────────────── -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Reflects global variant, mode, and size controls. Inspector shows resolved token → alias → computed value.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" id="heroPreview" style="width:100%"></div>
+        <div class="hero-inspector" id="heroInspector"></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- ─── 2. VARIANT GALLERY ──────────────────────────── -->
+  <section class="section" id="sec-variants">
+    <div class="section-header"><h2>Variant Gallery</h2><span class="section-tag">2 Variants</span></div>
+    <p class="section-desc">Outline (dashed border, transparent bg) and Filled (tinted background). Both in dropzone mode.</p>
+    <div class="section-body"><div class="fu-stage" id="variantGallery"></div></div>
+  </section>
+
+  <!-- ─── 3. MODES ────────────────────────────────────── -->
+  <section class="section" id="sec-modes">
+    <div class="section-header"><h2>Modes</h2><span class="section-tag">2 Modes</span></div>
+    <p class="section-desc">Dropzone for drag-and-drop, button for compact trigger. Both share the same token layer.</p>
+    <div class="section-body"><div class="fu-stage" id="modesDemo" style="flex-direction:column"></div></div>
+  </section>
+
+  <!-- ─── 4. DENSITY SCALE ────────────────────────────── -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">10 Sizes</span></div>
+    <p class="section-desc">Micro → Ultra in button mode. Height, padding, font-size, radius, icon-size, and gap scale per density.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- ─── 5. STATE MATRIX ─────────────────────────────── -->
+  <section class="section" id="sec-state">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">Variant × State</span></div>
+    <p class="section-desc">Each variant in default, drag-over, error, and disabled states.</p>
+    <div class="section-body" id="stateMatrix"></div>
+  </section>
+
+  <!-- ─── 6. SURFACE CONTEXT ──────────────────────────── -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">3 BG Levels</span></div>
+    <p class="section-desc">File upload on base, strong, and sunken backgrounds to verify border and shadow visibility.</p>
+    <div class="section-body"><div class="surface-strip" id="surfaceStrip"></div></div>
+  </section>
+
+  <!-- ─── 7. SHAPE & SHADOW ───────────────────────────── -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">10 Radii + Shadow</span></div>
+    <p class="section-desc">Border radius scales per density. Toggle Rounded to see pill shape. Shadow appears on hover.</p>
+    <div class="section-body">
+      <div id="shapeStrip" style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start"></div>
+      <div id="shadowStrip" style="display:flex;flex-wrap:wrap;gap:24px;align-items:center;margin-top:32px"></div>
+    </div>
+  </section>
+
+  <!-- ─── 8. FILE LIST ────────────────────────────────── -->
+  <section class="section" id="sec-filelist">
+    <div class="section-header"><h2>File List</h2><span class="section-tag">Upload State</span></div>
+    <p class="section-desc">Attached file items with progress bars. Shows uploading, success, and error states.</p>
+    <div class="section-body" style="padding:24px" id="fileListDemo"></div>
+  </section>
+
+  <!-- ─── 9. SLOTS & ANATOMY ──────────────────────────── -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">6 Sub-elements</span></div>
+    <p class="section-desc">Label, icon, text, CTA link, hint, helper, and file list. All slots are optional except the input.</p>
+    <div class="section-body"><div class="fu-stage" style="flex-direction:column;gap:32px" id="slotsGallery"></div></div>
+  </section>
+
+  <!-- ─── 10. MOTION ──────────────────────────────────── -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">3 Animations</span></div>
+    <p class="section-desc">Loading shimmer on CTA text, pulsing border on dragover, and enter animation. Reduced motion disables all.</p>
+    <div class="section-body">
+      <div id="motionDemo" style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start"></div>
+    </div>
+  </section>
+
+  <!-- ─── 11. ACCESSIBILITY ───────────────────────────── -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, disabled state, error validation, and forced colors support.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to the upload zone. <code>:focus-visible</code> shows a <code>2px</code> keyboard-only outline. Outline width, color, and offset are tokenised.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Native Input</div>
+          <p class="a11y-card-desc">Hidden <code>&lt;input type="file"&gt;</code> covers the full zone. Screen readers announce file input natively. Label uses <code>for</code> attribute.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast shows <code>ButtonText</code> border, <code>Highlight</code> on hover, <code>GrayText</code> when disabled, <code>LinkText</code> for CTA.</p>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Reduced Motion</div>
+          <p class="a11y-card-desc">All transitions resolve to instant (0.01ms) when <code>prefers-reduced-motion: reduce</code> is active. Progress bars included.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 13. FRAMEWORK ───────────────────────────────── -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>File Upload Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;div
+  className="file-upload"
+  data-variant={variant}        {/* outline | filled */}
+  data-mode={mode}              {/* dropzone | button */}
+  data-size={size}              {/* micro … ultra */}
+  data-error={error ? '' : undefined}
+  data-disabled={disabled ? '' : undefined}
+  data-dragover={dragover ? '' : undefined}
+&gt;
+  &lt;label className="file-upload__label" htmlFor={inputId}&gt;{label}&lt;/label&gt;
+  {mode === 'dropzone' ? (
+    &lt;div className="file-upload__zone"&gt;
+      &lt;span className="file-upload__icon"&gt;{icon}&lt;/span&gt;
+      &lt;span className="file-upload__text"&gt;
+        Drag &amp; drop or &lt;span className="file-upload__cta"&gt;browse&lt;/span&gt;
+      &lt;/span&gt;
+      &lt;span className="file-upload__hint"&gt;{hint}&lt;/span&gt;
+      &lt;input type="file" id={inputId} className="file-upload__input"
+        multiple={multiple} accept={accept}
+        onChange={onFilesChange} disabled={disabled} /&gt;
+    &lt;/div&gt;
+  ) : (
+    &lt;div className="file-upload__trigger"&gt;
+      &lt;span className="file-upload__icon"&gt;{icon}&lt;/span&gt;
+      &lt;span className="file-upload__trigger-text"&gt;Choose file&lt;/span&gt;
+      &lt;input type="file" id={inputId} className="file-upload__input"
+        onChange={onFilesChange} disabled={disabled} /&gt;
+    &lt;/div&gt;
+  )}
+  &lt;div className="file-upload__list"&gt;{fileItems}&lt;/div&gt;
+  &lt;span className="file-upload__helper"&gt;{helper}&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;div
+  class="file-upload"
+  :data-variant="variant ?? 'outline'"
+  :data-mode="mode ?? 'dropzone'"
+  :data-size="size ?? 'base'"
+  :aria-invalid="error || undefined"
+  :data-disabled="disabled || undefined"
+  :data-dragover="dragover || undefined"
+&gt;
+  &lt;label class="file-upload__label" :for="inputId"&gt;{{ label }}&lt;/label&gt;
+  &lt;div v-if="mode === 'dropzone'" class="file-upload__zone"&gt;
+    &lt;span class="file-upload__icon"&gt;&lt;slot name="icon" /&gt;&lt;/span&gt;
+    &lt;span class="file-upload__text"&gt;
+      Drag &amp; drop or &lt;span class="file-upload__cta"&gt;browse&lt;/span&gt;
+    &lt;/span&gt;
+    &lt;span class="file-upload__hint"&gt;{{ hint }}&lt;/span&gt;
+    &lt;input type="file" :id="inputId" class="file-upload__input"
+      :multiple="multiple" :accept="accept"
+      @change="onFilesChange" :disabled="disabled" /&gt;
+  &lt;/div&gt;
+  &lt;div v-else class="file-upload__trigger"&gt;
+    &lt;span class="file-upload__icon"&gt;&lt;slot name="icon" /&gt;&lt;/span&gt;
+    &lt;span class="file-upload__trigger-text"&gt;Choose file&lt;/span&gt;
+    &lt;input type="file" :id="inputId" class="file-upload__input"
+      @change="onFilesChange" :disabled="disabled" /&gt;
+  &lt;/div&gt;
+  &lt;span class="file-upload__helper"&gt;{{ helper }}&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;div class="file-upload" data-variant="outlined" data-mode="dropzone" data-size="base"&gt;
+  &lt;label class="file-upload__label" for="f1"&gt;Attachments&lt;/label&gt;
+  &lt;div class="file-upload__zone"&gt;
+    &lt;span class="file-upload__icon"&gt;&lt;svg …&gt;&lt;/svg&gt;&lt;/span&gt;
+    &lt;span class="file-upload__text"&gt;
+      Drag &amp;amp; drop files here or
+      &lt;span class="file-upload__cta"&gt;browse&lt;/span&gt;
+    &lt;/span&gt;
+    &lt;span class="file-upload__hint"&gt;PNG, JPG, PDF up to 10 MB&lt;/span&gt;
+    &lt;input type="file" id="f1" class="file-upload__input" multiple /&gt;
+  &lt;/div&gt;
+  &lt;span class="file-upload__helper"&gt;Max 5 files&lt;/span&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* ── Shape ── */
+--file-upload-radius-{size}              /* border radius per density */
+--file-upload-border-width / -style
+--file-upload-shadow / -hover / -active
+--file-upload-clip-path
+
+/* ── Dimension ── */
+--file-upload-btn-height-{size}          /* button mode height */
+--file-upload-drop-min-height-{size}     /* dropzone min height */
+--file-upload-padding-x-{size}           /* horizontal padding */
+--file-upload-padding-y-{size}           /* vertical padding */
+--file-upload-gap-{size}                 /* icon↔text gap */
+--file-upload-max-width / -inline-size
+
+/* ── Surface (per variant) ── */
+--file-upload-{variant}-bg / -hover / -active / -disabled / -dragover
+--file-upload-{variant}-fg / -disabled
+--file-upload-{variant}-border-color / -hover / -dragover / -disabled / -error
+--file-upload-{variant}-opacity-disabled
+--file-upload-accent-color / -hover      /* CTA link color */
+--file-upload-label-color / -error / -disabled
+--file-upload-helper-color / -error
+
+/* ── Typography ── */
+--file-upload-font-family / -weight / -weight-cta
+--file-upload-font-size-{size}
+
+/* ── Slots ── */
+--file-upload-icon-size-{size} / -color / -dragover
+--file-upload-item-* / -progress-*       /* file list tokens */
+
+/* ── Motion ── */
+--file-upload-transition-property / -duration / -easing
+
+/* ── A11y ── */
+--file-upload-focus-outline-width / -color / -offset
+--file-upload-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfFileUpload } from '@design-token-forge/slyte';
+
+&lt;dtf-file-upload
+  lt-prop-size="base"
+  lt-prop-mode="button"
+  lt-prop-accept="image/*"
+  lt-prop-multiple="true"
+  on-files="{{method('onFiles')}}"&gt;
+  &lt;template is="registerYield" yield-name="yield"&gt;Upload image&lt;/template&gt;
+&lt;/dtf-file-upload&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+  <!-- ─── 12. CONTEXT PLAYGROUND ──────────────────────── -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">Mix any surface background with any semantic role. Compare two configurations side by side.</p>
+    <div class="section-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" id="playgroundGrid">
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-title">Card A</span>
+            <select id="pgSurfaceA" class="pg-select" aria-label="Surface A">
+              <option value="var(--surface-base-bg)">Base</option>
+              <option value="var(--surface-base-cm-bg)">Elevated</option>
+              <option value="var(--surface-base-cm-bg-pressed)">Sunken</option>
+              <option value="var(--surface-accent-bg)">Accent</option>
+              <option value="var(--surface-dim-bg)">Dim</option>
+            </select>
+            <select id="pgRoleA" class="pg-select" aria-label="Role A">
+              <option value="brand">Brand</option>
+              <option value="danger">Danger</option>
+              <option value="success">Success</option>
+              <option value="warning">Warning</option>
+              
+              <option value="info">Info</option>
+              <option value="neutral">Neutral</option>
+            </select>
+          </div>
+          <div class="pg-card-body" id="pgBodyA"></div>
+        </div>
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-title">Card B</span>
+            <select id="pgSurfaceB" class="pg-select" aria-label="Surface B">
+              <option value="var(--surface-base-bg)">Base</option>
+              <option value="var(--surface-base-cm-bg)">Elevated</option>
+              <option value="var(--surface-base-cm-bg-pressed)">Sunken</option>
+              <option value="var(--surface-accent-bg)">Accent</option>
+              <option value="var(--surface-dim-bg)">Dim</option>
+            </select>
+            <select id="pgRoleB" class="pg-select" aria-label="Role B">
+              
+              <option value="danger" selected>Danger</option>
+              <option value="success">Success</option>
+              <option value="warning">Warning</option>
+              
+              <option value="info">Info</option>
+              <option value="neutral">Neutral</option>
+            </select>
+          </div>
+          <div class="pg-card-body" id="pgBodyB"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div></div>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script src="shared-page.js"></script>
+<script>
+(function(){
+  'use strict';
+  var P = window.DTFPage;
+
+  var VARIANTS = ['outline','filled'];
+  var MODES    = ['dropzone','button'];
+  var SIZES    = ['small','base','large'];
+  var ROLES    = ['brand','danger','success','warning','info','neutral'];
+
+  var ICON_UPLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>';
+  var ICON_FILE  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  var ICON_X     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+  var G = { variant:'outline', mode:'dropzone', size:'base', role:'brand', rounded:false };
+
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1) }
+  function clr(id){ var e=document.getElementById(id); if(e) e.innerHTML=''; return e }
+
+  function makeFU(opts){
+    opts = opts || {};
+    var v = opts.variant || G.variant;
+    var s = opts.size || G.size;
+    var m = opts.mode || G.mode;
+    var role = opts.role || G.role;
+    var rounded = opts.rounded !== undefined ? opts.rounded : G.rounded;
+    var wrap = document.createElement('div');
+    wrap.className = 'file-upload';
+    wrap.dataset.variant = v;
+    wrap.dataset.size = s;
+    wrap.dataset.mode = m;
+    if (role && role !== 'brand') wrap.dataset.role = role;
+    if (rounded) wrap.dataset.rounded = '';
+    if (opts.disabled) wrap.dataset.disabled = '';
+    if (opts.error) wrap.setAttribute('aria-invalid', 'true');
+    if (opts.dragover) wrap.dataset.dragover = '';
+    if (opts.loading) wrap.dataset.loading = '';
+    if (opts.style) { for (var k in opts.style) { if (opts.style.hasOwnProperty(k)) wrap.style.setProperty(k, opts.style[k]) } }
+
+    if (opts.label !== false) {
+      var lbl = document.createElement('label');
+      lbl.className = 'file-upload__label';
+      lbl.textContent = opts.label || 'Attachments';
+      wrap.appendChild(lbl);
+    }
+
+    if (m === 'dropzone') {
+      var zone = document.createElement('div');
+      zone.className = 'file-upload__zone';
+      var ico = document.createElement('span');
+      ico.className = 'file-upload__icon';
+      ico.innerHTML = ICON_UPLOAD;
+      zone.appendChild(ico);
+      var txt = document.createElement('span');
+      txt.className = 'file-upload__text';
+      txt.innerHTML = 'Drag & drop files here or <span class="file-upload__cta">browse</span>';
+      zone.appendChild(txt);
+      var hint = document.createElement('span');
+      hint.className = 'file-upload__hint';
+      hint.textContent = opts.hint || 'PNG, JPG, PDF up to 10 MB';
+      zone.appendChild(hint);
+      var inp = document.createElement('input');
+      inp.type = 'file';
+      inp.className = 'file-upload__input';
+      inp.multiple = true;
+      if (opts.disabled) inp.disabled = true;
+      zone.appendChild(inp);
+      wrap.appendChild(zone);
+    } else {
+      var trig = document.createElement('div');
+      trig.className = 'file-upload__trigger';
+      var ico2 = document.createElement('span');
+      ico2.className = 'file-upload__icon';
+      ico2.innerHTML = ICON_UPLOAD;
+      trig.appendChild(ico2);
+      var tt = document.createElement('span');
+      tt.className = 'file-upload__trigger-text';
+      tt.textContent = opts.triggerText || 'Choose file';
+      trig.appendChild(tt);
+      var inp2 = document.createElement('input');
+      inp2.type = 'file';
+      inp2.className = 'file-upload__input';
+      if (opts.disabled) inp2.disabled = true;
+      trig.appendChild(inp2);
+      wrap.appendChild(trig);
+    }
+
+    if (opts.helper) {
+      var h = document.createElement('span');
+      h.className = 'file-upload__helper';
+      h.textContent = opts.helper;
+      wrap.appendChild(h);
+    }
+    return wrap;
+  }
+
+  function makeFileItem(name, size, progress, status) {
+    var item = document.createElement('div');
+    item.className = 'file-upload__item';
+    if (status) item.dataset.status = status;
+    var ico = document.createElement('span');
+    ico.className = 'file-upload__item-icon';
+    ico.innerHTML = ICON_FILE;
+    item.appendChild(ico);
+    var n = document.createElement('span');
+    n.className = 'file-upload__item-name';
+    n.textContent = name;
+    item.appendChild(n);
+    if (typeof progress === 'number') {
+      var pb = document.createElement('div');
+      pb.className = 'file-upload__progress';
+      var fill = document.createElement('div');
+      fill.className = 'file-upload__progress-fill';
+      fill.style.width = progress + '%';
+      pb.appendChild(fill);
+      item.appendChild(pb);
+    }
+    var sz = document.createElement('span');
+    sz.className = 'file-upload__item-size';
+    sz.textContent = size;
+    item.appendChild(sz);
+    var rm = document.createElement('button');
+    rm.type = 'button';
+    rm.className = 'file-upload__item-remove';
+    rm.innerHTML = ICON_X;
+    rm.setAttribute('aria-label', 'Remove ' + name);
+    item.appendChild(rm);
+    return item;
+  }
+
+  /* ── Inspector ─────────────────────────────────────── */
+  function getInspectRows() {
+    var s = G.size;
+    var isDrop = G.mode === 'dropzone';
+    return [
+      [isDrop ? '--file-upload-drop-min-height-'+s : '--file-upload-btn-height-'+s, '--spacing-*'],
+      ['--file-upload-padding-x-'+s,   '--spacing-*'],
+      ['--file-upload-padding-y-'+s,   '--spacing-*'],
+      ['--file-upload-radius-'+s,      '--radius-*'],
+      ['--file-upload-gap-'+s,         '--spacing-*'],
+      ['--file-upload-font-size-'+s,   '--font-size-*'],
+      ['--file-upload-icon-size-'+s,   '--spacing-*'],
+      ['--file-upload-'+G.variant+'-bg','--surface-*'],
+      ['--file-upload-'+G.variant+'-border-color','--surface-base-cm-outline'],
+      ['--file-upload-border-width',   '2px'],
+      ['--file-upload-border-style',   'dashed'],
+      ['--file-upload-transition-duration','--duration-normal']
+    ];
+  }
+
+  function renderInspector() {
+    var el = clr('heroInspector');
+    var hero = document.querySelector('#heroPreview .file-upload');
+    if (!el || !hero) return;
+    var isDrop = G.mode === 'dropzone';
+    var target = isDrop ? hero.querySelector('.file-upload__zone') : hero.querySelector('.file-upload__trigger');
+    if (!target) return;
+    var cs = getComputedStyle(target);
+    getInspectRows().forEach(function(row) {
+      var r = document.createElement('div');
+      r.className = 'inspector-row';
+      var v = cs.getPropertyValue(row[0]).trim() || '—';
+      r.innerHTML = '<span class="inspector-token">'+row[0]+'</span>'+
+                    '<span class="inspector-alias">'+row[1]+'</span>'+
+                    '<span class="inspector-computed">'+v+'</span>';
+      el.appendChild(r);
+    });
+  }
+
+  /* ── Section Renderers ──────────────────────────────── */
+
+  function renderHero() {
+    var el = clr('heroPreview');
+    el.appendChild(makeFU({ label:'Upload Files', helper:'Max 5 files, 10 MB each' }));
+    renderInspector();
+  }
+
+  function renderVariants() {
+    var el = clr('variantGallery');
+    VARIANTS.forEach(function(v) {
+      var card = document.createElement('div');
+      card.className = 'fu-card';
+      var lbl = document.createElement('span');
+      lbl.className = 'fu-card-label';
+      lbl.textContent = cap(v);
+      card.appendChild(lbl);
+      card.appendChild(makeFU({ variant:v, label:'Upload — '+cap(v), helper:'Supports PNG, JPG, PDF' }));
+      el.appendChild(card);
+    });
+  }
+
+  function renderModes() {
+    var el = clr('modesDemo');
+    MODES.forEach(function(m) {
+      var card = document.createElement('div');
+      card.className = 'fu-card';
+      card.style.width = '100%';
+      var lbl = document.createElement('span');
+      lbl.className = 'fu-card-label';
+      lbl.textContent = cap(m) + ' Mode';
+      card.appendChild(lbl);
+      card.appendChild(makeFU({
+        mode:m, label:'Upload — '+cap(m),
+        helper: m === 'dropzone' ? 'Drag files or click to browse' : 'Click to select files'
+      }));
+      el.appendChild(card);
+    });
+  }
+
+  function renderDensity() {
+    var el = clr('densityScale');
+    SIZES.forEach(function(s) {
+      var item = document.createElement('div');
+      item.className = 'density-item';
+      var fu = makeFU({ size:s, mode:'button', label:false, triggerText:cap(s) });
+      var trig = fu.querySelector('.file-upload__trigger');
+      if (trig) trig.style.minHeight = '0';
+      item.appendChild(fu);
+      var m = document.createElement('div');
+      m.className = 'density-meta';
+      m.textContent = s;
+      item.appendChild(m);
+      el.appendChild(item);
+    });
+  }
+
+  function renderStateMatrix() {
+    var el = clr('stateMatrix');
+    var states = [
+      { label:'Default',   st:{} },
+      { label:'Drag Over', st:{dragover:true} },
+      { label:'Error',     st:{error:true} },
+      { label:'Disabled',  st:{disabled:true} }
+    ];
+    var cols = states.length;
+    var hdr = document.createElement('div');
+    hdr.style.cssText = 'display:grid;grid-template-columns:120px repeat('+cols+',1fr);gap:12px;margin-bottom:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;opacity:.6';
+    hdr.innerHTML = '<span></span>';
+    states.forEach(function(s) { hdr.innerHTML += '<span>'+s.label+'</span>' });
+    el.appendChild(hdr);
+
+    VARIANTS.forEach(function(v) {
+      MODES.forEach(function(m) {
+        var row = document.createElement('div');
+        row.style.cssText = 'display:grid;grid-template-columns:120px repeat('+cols+',1fr);gap:12px;align-items:start;margin-bottom:12px;padding:8px 0';
+        var rl = document.createElement('span');
+        rl.style.cssText = 'font-size:12px;font-weight:600;padding-top:12px';
+        rl.textContent = cap(v)+' / '+cap(m);
+        row.appendChild(rl);
+        states.forEach(function(s) {
+          var cell = document.createElement('div');
+          var opts = { variant:v, mode:m, label:false,
+            style:m==='dropzone'?{'max-width':'280px','--file-upload-inline-size':'100%'}:undefined };
+          if (s.st.dragover) opts.dragover = true;
+          if (s.st.error) opts.error = true;
+          if (s.st.disabled) opts.disabled = true;
+          cell.appendChild(makeFU(opts));
+          row.appendChild(cell);
+        });
+        el.appendChild(row);
+      });
+    });
+  }
+
+  function renderSurface() {
+    P.renderSurfacePanels('surfaceStrip', function(panel){
+      var fu = makeFU({ label:false, hint:'Drop files here' });
+      fu.style.maxWidth = '320px';
+      fu.style.marginTop = '12px';
+      panel.appendChild(fu);
+    });
+  }
+
+  function renderFileList() {
+    var el = clr('fileListDemo');
+    var wrap = makeFU({ label:'Project Files', helper:'3 files attached' });
+    var list = document.createElement('div');
+    list.className = 'file-upload__list';
+    list.appendChild(makeFileItem('design-mockup.png', '2.4 MB', 100, 'success'));
+    list.appendChild(makeFileItem('requirements.pdf', '1.1 MB', 72));
+    list.appendChild(makeFileItem('corrupted-file.zip', '0.3 MB', 35, 'error'));
+    list.appendChild(makeFileItem('notes.txt', '12 KB', 100, 'success'));
+    wrap.appendChild(list);
+    el.appendChild(wrap);
+  }
+
+  function renderSlots() {
+    var el = clr('slotsGallery');
+    // Full dropzone with all slots
+    var full = document.createElement('div');
+    full.className = 'fu-card';
+    full.style.width = '100%';
+    var fullLbl = document.createElement('span');
+    fullLbl.className = 'fu-card-label';
+    fullLbl.textContent = 'Full — All Slots';
+    full.appendChild(fullLbl);
+    full.appendChild(makeFU({ label:'Attachments', helper:'Max 10 MB per file', hint:'PNG, JPG, PDF, DOCX' }));
+    el.appendChild(full);
+
+    // Minimal dropzone — no label, no helper
+    var minimal = document.createElement('div');
+    minimal.className = 'fu-card';
+    minimal.style.width = '100%';
+    var minLbl = document.createElement('span');
+    minLbl.className = 'fu-card-label';
+    minLbl.textContent = 'Minimal — No Label/Helper';
+    minimal.appendChild(minLbl);
+    minimal.appendChild(makeFU({ label:false }));
+    el.appendChild(minimal);
+
+    // Button mode with helper
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:24px;flex-wrap:wrap';
+    var btn1 = document.createElement('div');
+    btn1.className = 'fu-card';
+    var btn1Lbl = document.createElement('span');
+    btn1Lbl.className = 'fu-card-label';
+    btn1Lbl.textContent = 'Button — With Helper';
+    btn1.appendChild(btn1Lbl);
+    btn1.appendChild(makeFU({ mode:'button', label:'Resume', helper:'PDF only, max 5 MB' }));
+    btnRow.appendChild(btn1);
+
+    var btn2 = document.createElement('div');
+    btn2.className = 'fu-card';
+    var btn2Lbl = document.createElement('span');
+    btn2Lbl.className = 'fu-card-label';
+    btn2Lbl.textContent = 'Button — Error State';
+    btn2.appendChild(btn2Lbl);
+    btn2.appendChild(makeFU({ mode:'button', label:'Avatar', error:true, helper:'File too large' }));
+    btnRow.appendChild(btn2);
+    el.appendChild(btnRow);
+  }
+
+  /* ── Master render ─────────────────────────────────── */
+  function renderShape() {
+    var el = clr('shapeStrip');
+    SIZES.forEach(function(s) {
+      var card = document.createElement('div');
+      card.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px';
+      card.appendChild(makeFU({ size:s, mode:'button', label:false, triggerText:cap(s) }));
+      var meta = document.createElement('div');
+      meta.style.cssText = 'font-size:11px;opacity:.6;text-align:center';
+      meta.textContent = s;
+      card.appendChild(meta);
+      el.appendChild(card);
+    });
+
+    var shadowEl = clr('shadowStrip');
+    var shadowNote = document.createElement('div');
+    shadowNote.style.cssText = 'width:100%;font-size:13px;font-weight:600;opacity:.7;margin-bottom:4px';
+    shadowNote.textContent = 'Shadow on hover — move mouse over each:';
+    shadowEl.appendChild(shadowNote);
+    var shadowLevels = [
+      { label:'None',   token:'--shadow-none' },
+      { label:'XS',     token:'--shadow-xs' },
+      { label:'SM',     token:'--shadow-sm' },
+      { label:'MD',     token:'--shadow-md' }
+    ];
+    shadowLevels.forEach(function(sh) {
+      var card = document.createElement('div');
+      card.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px';
+      var fu = makeFU({ label:false, mode:'button', triggerText:sh.label });
+      fu.style.setProperty('--file-upload-shadow-hover', 'var('+sh.token+')');
+      card.appendChild(fu);
+      var m = document.createElement('div');
+      m.style.cssText = 'font-size:11px;opacity:.6';
+      m.textContent = sh.token;
+      card.appendChild(m);
+      shadowEl.appendChild(card);
+    });
+  }
+
+  function renderMotion() {
+    var el = clr('motionDemo');
+
+    // Loading shimmer
+    var shimmerCard = document.createElement('div');
+    shimmerCard.style.cssText = 'display:flex;flex-direction:column;gap:12px;max-width:360px';
+    var shimmerTitle = document.createElement('div');
+    shimmerTitle.style.cssText = 'font-size:13px;font-weight:600';
+    shimmerTitle.textContent = 'Loading Shimmer (CTA text)';
+    shimmerCard.appendChild(shimmerTitle);
+    shimmerCard.appendChild(makeFU({ loading:true, label:'Uploading…', hint:'Please wait' }));
+    shimmerCard.appendChild(makeFU({ loading:true, mode:'button', label:false, triggerText:'Uploading…' }));
+    el.appendChild(shimmerCard);
+
+    // Pulse on dragover
+    var pulseCard = document.createElement('div');
+    pulseCard.style.cssText = 'display:flex;flex-direction:column;gap:12px;max-width:360px';
+    var pulseTitle = document.createElement('div');
+    pulseTitle.style.cssText = 'font-size:13px;font-weight:600';
+    pulseTitle.textContent = 'Dragover Pulse (border)';
+    pulseCard.appendChild(pulseTitle);
+    pulseCard.appendChild(makeFU({ dragover:true, label:'Drop here', hint:'Pulsing border animation' }));
+    el.appendChild(pulseCard);
+
+    // Reduced motion note
+    var noteCard = document.createElement('div');
+    noteCard.style.cssText = 'display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:8px;background:var(--surface-base-cm-bg);max-width:320px';
+    noteCard.innerHTML = '<div style="font-size:13px;font-weight:600">Reduced Motion</div>' +
+      '<p style="font-size:12px;margin:0;opacity:.7">When <code>prefers-reduced-motion: reduce</code> is active, all animations are disabled and transitions resolve to 0.01ms.</p>';
+    el.appendChild(noteCard);
+  }
+
+  function renderPlayground() {
+    ['A','B'].forEach(function(id) {
+      var body = clr('pgBody'+id);
+      var surfaceEl = document.getElementById('pgSurface'+id);
+      var roleEl = document.getElementById('pgRole'+id);
+      var bg = surfaceEl.value;
+      var role = roleEl.value;
+      body.style.cssText = 'background:'+bg+';padding:24px;border-radius:8px;display:flex;flex-wrap:wrap;gap:16px;min-height:120px;align-items:flex-start';
+      VARIANTS.forEach(function(v) {
+        body.appendChild(makeFU({ variant:v, role:role, label:false, mode:'button', triggerText:cap(v), rounded:G.rounded }));
+      });
+      VARIANTS.forEach(function(v) {
+        var fu = makeFU({ variant:v, role:role, label:false, hint:'Drop files', style:{'max-width':'280px','--file-upload-inline-size':'100%'}, rounded:G.rounded });
+        body.appendChild(fu);
+      });
+    });
+
+    document.getElementById('pgSurfaceA').onchange = function(){ renderPlayground() };
+    document.getElementById('pgSurfaceB').onchange = function(){ renderPlayground() };
+    document.getElementById('pgRoleA').onchange = function(){ renderPlayground() };
+    document.getElementById('pgRoleB').onchange = function(){ renderPlayground() };
+  }
+
+  function applyGlobals() {
+    renderHero();
+    renderVariants();
+    renderModes();
+    renderDensity();
+    renderStateMatrix();
+    renderSurface();
+    renderShape();
+    renderFileList();
+    renderSlots();
+    renderMotion();
+    renderPlayground();
+  }
+
+  function wirePillBar(id, cb) {
+    var bar = document.getElementById(id);
+    if (!bar) return;
+    bar.addEventListener('click', function(e) {
+      var pill = e.target.closest('.pill');
+      if (!pill) return;
+      this.querySelectorAll('.pill').forEach(function(p) { p.setAttribute('aria-pressed','false') });
+      pill.setAttribute('aria-pressed','true');
+      cb(pill);
+    });
+  }
+  wirePillBar('variantBar', function(p) { G.variant=p.dataset.ctrlVariant; applyGlobals() });
+  wirePillBar('modeBar',    function(p) { G.mode=p.dataset.ctrlMode;       applyGlobals() });
+  wirePillBar('sizeBar',    function(p) { G.size=p.dataset.ctrlSize;       applyGlobals() });
+  wirePillBar('roleBar',    function(p) { G.role=p.dataset.ctrlRole;       applyGlobals() });
+  wirePillBar('roundedBar', function(p) { G.rounded=p.dataset.ctrlRounded==='true'; applyGlobals() });
+
+  document.querySelectorAll('.fw-snippet-tabs').forEach(function(tabs) {
+    tabs.addEventListener('click', function(e) {
+      var btn = e.target.closest('.fw-snippet-tab');
+      if (!btn) return;
+      var panel = btn.dataset.tab;
+      var snippet = tabs.closest('.fw-snippet');
+      snippet.querySelectorAll('.fw-snippet-tab').forEach(function(t) { t.setAttribute('aria-selected','false') });
+      btn.setAttribute('aria-selected','true');
+      snippet.querySelectorAll('.fw-snippet-code').forEach(function(c) { delete c.dataset.active });
+      var target = snippet.querySelector('[data-panel="'+panel+'"]');
+      if (target) target.dataset.active = '';
+    });
+  });
+
+  applyGlobals();
+  window.DTF.onThemeChange = function() { applyGlobals() };
+})();
+</script>
+</body>
+</html>

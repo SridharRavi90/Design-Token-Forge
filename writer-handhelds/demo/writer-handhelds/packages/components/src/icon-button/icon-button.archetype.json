@@ -1,0 +1,26 @@
+{
+  "archetype": "action",
+  "tokenPrefix": "icon-btn",
+  "axes": ["shape", "dimension", "surface", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "pressed", "disabled", "focus-visible"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined", "soft", "ghost"],
+  "onComponentTokens": [
+    {
+      "token": "--icon-btn-filled-fg",
+      "fillStates": ["--icon-btn-filled-bg", "--icon-btn-filled-bg-hover", "--icon-btn-filled-bg-pressed"],
+      "derivation": "auto-aa",
+      "wcag": "AA-non-text"
+    }
+  ],
+  "editorExposureOverrides": {
+    "--icon-btn-min-tap-target": "required",
+    "--icon-btn-focus-outline-offset": "advanced"
+  },
+  "figmaBindingPrefix": "icon-btn/",
+  "notes": [
+    "Icon-only action: square aspect ratio, no label slot.",
+    "AA standard is non-text contrast (3:1) since the surface is the visual content.",
+    "min-tap-target is required (44px WCAG) — icon-btns at small sizes need pseudo-element tap area."
+  ]
+}

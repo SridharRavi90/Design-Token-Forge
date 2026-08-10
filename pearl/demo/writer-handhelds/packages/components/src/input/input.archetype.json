@@ -1,0 +1,37 @@
+{
+  "archetype": "form-text",
+  "tokenPrefix": "input",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "focus-visible", "disabled", "readonly", "invalid"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["outlined", "filled", "underline"],
+  "onComponentTokens": [
+    {
+      "token": "--input-caret-color",
+      "fillStates": ["--input-outlined-bg", "--input-filled-bg"],
+      "derivation": "manual",
+      "wcag": "AA-non-text",
+      "notes": "Caret reads against the field bg; tied to --brand-component-bg-default so it follows the role remap."
+    }
+  ],
+  "editorExposureOverrides": {
+    "--input-min-tap-target": "required",
+    "--input-required-indicator": "required",
+    "--input-required-color": "required",
+    "--input-radius-rounded": "advanced",
+    "--input-focus-outline-offset": "advanced",
+    "--input-label-gap": "advanced",
+    "--input-helper-gap": "advanced",
+    "--input-shadow-focus": "advanced",
+    "--input-caret-color": "advanced"
+  },
+  "figmaBindingPrefix": "input/",
+  "notes": [
+    "Form-text archetype: text-entry field with optional prefix/suffix slots and label/helper rows. Sets the gold standard for textarea + select (same archetype family).",
+    "Three variants: outlined (default, transparent fill + border), filled (tinted fill + border), underline (Material-style bottom border only). All ship 15+ surface tokens per variant.",
+    "Roles brand|danger|warning|info|success|neutral remap via [data-role=...] overriding --brand-* palette vars. Affects focus ring, focus border, focus label color, and caret. Role does NOT override the default border (use aria-invalid for that).",
+    "aria-invalid='true' overrides role and applies danger-coloured border across all three variants. Invalid is a STATE, not a role.",
+    "Border-width is a per-side primitive (4 vars) to support asymmetric variants like underline (b=1px, others=0).",
+    "Prefix/suffix wrappers have independent per-density padding (--input-affix-px-*) tighter than label-side padding for visual balance."
+  ]
+}

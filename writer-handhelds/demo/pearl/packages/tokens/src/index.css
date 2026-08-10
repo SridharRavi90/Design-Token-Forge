@@ -1,0 +1,9 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Global Token Index
+   Aggregates all token layers for build-tool consumption.
+   ════════════════════════════════════════════════════════════════ */
+
+@import './primitives.css';
+@import './semantic.css';
+@import './surfaces.css';
+@import './extras.css';

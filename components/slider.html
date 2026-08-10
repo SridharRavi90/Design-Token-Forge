@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Slider Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/slider/slider.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/slider/slider.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+/* Slider demo-specific styles */
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+.preset-card{padding:20px 24px;border:1px solid var(--demo-border);border-radius:10px;display:flex;flex-direction:column;gap:12px}
+.preset-card .preset-title{font-size:13px;font-weight:600;color:var(--demo-fg)}
+.preset-card .preset-desc{font-size:11px;color:var(--demo-fg-faint);margin-bottom:4px}
+.preset-card .slider{width:100%}
+.design-tokens-note{font-size:11px;color:var(--demo-fg-faint);line-height:1.5;padding:8px 12px;border-left:3px solid var(--demo-border);margin-top:12px}
+.design-tokens-note code{font-size:10px;background:var(--demo-cm-bg);padding:1px 4px;border-radius:3px}
+.slider-row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;padding:16px 0}
+.slider-col{flex:1;min-width:200px;max-width:320px;display:flex;flex-direction:column;gap:6px}
+.slider-col-label{font-size:11px;font-weight:600;color:var(--demo-fg-faint);text-transform:uppercase;letter-spacing:0.5px}
+/* Slider needs explicit width in shared-CSS flex containers */
+.density-item{min-width:160px;flex:1}
+.variant-card{min-width:200px;flex:1;align-items:stretch}
+.slot-card,.motion-card{min-width:200px;flex:1;align-items:stretch}
+.surface-panel{align-items:stretch}
+.a11y-card .slider{width:100%}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-styles"><span class="sn-num">2</span>Design Styles</a>
+  <a href="#sec-density"><span class="sn-num">3</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">4</span>State Matrix</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-shape"><span class="sn-num">6</span>Shape &amp; Shadow</a>
+  <a href="#sec-slots"><span class="sn-num">7</span>Slots &amp; Anatomy</a>
+  <a href="#sec-motion"><span class="sn-num">8</span>Motion</a>
+  <a href="#sec-playground"><span class="sn-num">9</span>Context Playground</a>
+  <a href="#sec-a11y"><span class="sn-num">10</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">11</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Slider Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">120 CSS Variables</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+    <span class="demo-badge">Range Mode</span>
+  </div>
+</header>
+
+<nav class="global-controls" aria-label="Global slider preview controls">
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- 1. HERO -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Drag the thumb or click the track. Inspector shows resolved token values for the current size.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" id="heroPreview" style="display:flex;flex-direction:column;align-items:stretch;gap:16px;width:100%">
+          <!-- Slider injected by JS -->
+        </div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- 2. DESIGN STYLES -->
+  <section class="section" id="sec-styles">
+    <div class="section-header"><h2>Design Styles</h2><span class="section-tag">Presets</span></div>
+    <p class="section-desc">Every slider below is the <em>same component</em> — only CSS custom properties differ. No variants, no modes, no code changes. Any design system's slider can be replicated by tuning variables alone.</p>
+    <div class="section-body">
+      <div class="preset-grid" id="presetGrid"></div>
+      <div class="design-tokens-note">All presets above are achieved by overriding <code>--slider-track-h-*</code>, <code>--slider-thumb-radius</code>, <code>--slider-thumb-w-*</code>, <code>--slider-thumb-h-*</code>, and surface tokens. No class changes needed.</div>
+    </div>
+  </section>
+
+  <!-- 3. DENSITY SCALE -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes showing track height and thumb size independent scaling. Drag any slider.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- 4. STATE MATRIX -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every interactive state: default, hover (move over it), pressed (drag), focus-visible (tab), disabled, loading.</p>
+    <div class="section-body"><div id="stateMatrix" style="display:flex;flex-wrap:wrap;gap:16px"></div></div>
+  </section>
+
+  <!-- 5. SURFACE CONTEXT -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Sliders on three background levels. Track and fill adapt to surface context.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase"><span class="surface-panel-label">surface-base-bg</span></div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt"><span class="surface-panel-label">surface-base-subtle</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep"><span class="surface-panel-label">surface-deep-bg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SHAPE & SHADOW -->
+  <section class="section" id="sec-shape">
+    <div class="section-header"><h2>Shape &amp; Shadow</h2><span class="section-tag">Shape</span></div>
+    <p class="section-desc">Track radius, thumb radius, and shadow depth — three independent shape axes.</p>
+    <div class="section-body">
+      <div class="sub-label">Track radius</div>
+      <div class="slider-row" id="trackRadiusRow"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Thumb shape</div>
+      <div class="slider-row" id="thumbShapeRow"></div>
+      <div style="border-top:1px solid var(--demo-border)"></div>
+      <div class="sub-label">Shadow depth on thumb</div>
+      <div class="slider-row" id="shadowRow"></div>
+    </div>
+  </section>
+
+  <!-- 7. SLOTS & ANATOMY -->
+  <section class="section" id="sec-slots">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Optional layers: tooltip, tick marks with labels, and thumb icon. All toggled by CSS custom properties.</p>
+    <div class="section-body"><div class="slot-grid" id="slotsDemo"></div></div>
+  </section>
+
+  <!-- 8. MOTION -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Thumb drag feedback uses spring easing. Halo appears on hover with configurable opacity and size. Loading state pulses entire track.</p>
+    <div class="section-body"><div class="motion-strip" id="motionDemo"></div></div>
+  </section>
+
+  <!-- 9. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how sliders adapt across surface contexts and semantic color roles. Two cards with independent surface + role.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">Small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">Base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">Large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">Huge</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option><option value="dim">Dim</option><option value="deep">Deep</option><option value="accent">Accent</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA"></div>
+        </div>
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="container" selected>Container</option><option value="over-container">Over-container</option><option value="float">Float</option><option value="dim">Dim</option><option value="deep">Deep</option><option value="accent">Accent</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="success">Success</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB"></div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 10. ACCESSIBILITY -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, role="slider", aria-valuenow, keyboard nav (arrows ←→ ↑↓, Home, End), disabled, and forced-colors handling.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to focus the slider. <code>:focus-visible</code> ring wraps the thumb.</p>
+          <div id="a11yFocus" style="padding:8px 0"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Keyboard Nav</div>
+          <p class="a11y-card-desc">← → arrows ±1, Home = 0, End = 100.</p>
+          <div id="a11yKeyboard" style="padding:8px 0"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>data-disabled</code> reduces opacity, blocks pointer.</p>
+          <div id="a11yDisabled" style="padding:8px 0"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast: <code>Highlight</code>, <code>ButtonText</code>, <code>GrayText</code>.</p>
+          <div id="a11yForced" style="padding:8px 0"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Slider Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-sl">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">export function Slider({ value, min = 0, max = 100, size = 'base', disabled, onChange }) {
+  const pct = ((value - min) / (max - min)) * 100;
+  const ref = useRef(null);
+
+  return (
+    &lt;div
+      className="slider"
+      role="slider"
+      aria-valuemin={min}
+      aria-valuemax={max}
+      aria-valuenow={value}
+      data-size={size}
+      data-disabled={disabled || undefined}
+      tabIndex={0}
+      style={{ '--_slider-pct': pct }}
+      ref={ref}
+    &gt;
+      &lt;div className="slider__track"&gt;
+        &lt;div className="slider__fill" /&gt;
+      &lt;/div&gt;
+      &lt;div className="slider__thumb" /&gt;
+    &lt;/div&gt;
+  );
+}</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;template&gt;
+  &lt;div
+    class="slider"
+    role="slider"
+    :aria-valuemin="min"
+    :aria-valuemax="max"
+    :aria-valuenow="modelValue"
+    :data-size="size ?? 'base'"
+    :data-disabled="disabled || undefined"
+    tabindex="0"
+    :style="{ '--_slider-pct': pct }"
+  &gt;
+    &lt;div class="slider__track"&gt;
+      &lt;div class="slider__fill" /&gt;
+    &lt;/div&gt;
+    &lt;div class="slider__thumb" /&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+const props = defineProps({ modelValue: Number, min: { default: 0 }, max: { default: 100 }, size: String, disabled: Boolean });
+const pct = computed(() =&gt; ((props.modelValue - props.min) / (props.max - props.min)) * 100);
+&lt;/script&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;div class="slider" role="slider"
+     aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+     data-size="base"
+     tabindex="0"
+     style="--_slider-pct: 50"&gt;
+  &lt;div class="slider__track"&gt;
+    &lt;div class="slider__fill"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="slider__thumb"&gt;&lt;/div&gt;
+&lt;/div&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* ── Shape ── */
+--slider-track-radius              /* track corners (full = pill) */
+--slider-thumb-radius              /* thumb corners (full = circle) */
+--slider-thumb-border-width        /* thumb outline width */
+--slider-thumb-shadow / -hover / -pressed
+--slider-track-shadow              /* inset for depth effect */
+
+/* ── Dimension ── */
+--slider-track-h-{size}            /* track thickness per density */
+--slider-thumb-w-{size}            /* thumb width per density */
+--slider-thumb-h-{size}            /* thumb height (separate for non-circular) */
+--slider-track-min-w               /* minimum slider width */
+--slider-tick-w / --slider-tick-h  /* tick mark dimensions */
+--slider-tooltip-padding-x / -y / -offset / -arrow-size
+
+/* ── Surface ── */
+--slider-track-bg / -hover / -disabled
+--slider-fill-bg / -hover / -pressed / -disabled
+--slider-thumb-bg / -hover / -pressed / -disabled
+--slider-thumb-border-color / -hover / -pressed
+--slider-thumb-halo-bg / -pressed / -size / -opacity
+--slider-tick-color / -pressed / -disabled
+--slider-tooltip-bg / -fg / -border-color
+--slider-opacity-disabled
+
+/* ── Typography ── */
+--slider-label-font-family / -size / -weight / -line-height
+--slider-tooltip-font-family / -size / -weight
+--slider-tick-label-font-size / -weight / -color
+--slider-value-font-size
+
+/* ── Slots ── */
+--slider-thumb-scale-pressed        /* scale on drag */
+--slider-thumb-icon-size / -color  /* grip icon in thumb */
+--slider-tooltip-display           /* none | block */
+--slider-ticks-display             /* none | flex */
+--slider-fill-display              /* block | none */
+
+/* ── Motion ── */
+--slider-transition-property / -duration / -easing
+--slider-thumb-transition-duration / -easing
+--slider-tooltip-transition-duration
+
+/* ── A11y ── */
+--slider-focus-outline-width / -color / -offset
+--slider-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfSlider } from '@design-token-forge/slyte';
+
+&lt;dtf-slider
+  lt-prop-label="Volume"
+  lt-prop-color-role="brand"
+  lt-prop-min="0"
+  lt-prop-max="100"
+  lt-prop-value="40"
+  on-change="{{method('onVolume')}}"&gt;
+&lt;/dtf-slider&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var SIZES=['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var TRACK_H={micro:'2px',tiny:'3px',small:'4px',base:'6px',medium:'8px',large:'10px',big:'14px',huge:'18px',mega:'24px',ultra:'32px'};
+  var THUMB_W={micro:'10px',tiny:'12px',small:'14px',base:'18px',medium:'20px',large:'24px',big:'28px',huge:'32px',mega:'40px',ultra:'48px'};
+  var SHADOWS=['none','xs','sm','md','lg','xl','2xl'];
+  var curS='base';
+
+  /* ═══════ Slider Factory ═══════ */
+
+  function makeSlider(size, opts){
+    opts=opts||{};
+    var value=opts.value!==undefined?opts.value:50;
+    var root=document.createElement('div');
+    root.className='slider';
+    root.setAttribute('role','slider');
+    root.setAttribute('aria-valuemin','0');
+    root.setAttribute('aria-valuemax','100');
+    root.setAttribute('aria-valuenow',String(value));
+    root.setAttribute('tabindex','0');
+    root.dataset.size=size;
+    root.style.setProperty('--_slider-pct',value);
+    if(opts.disabled){root.dataset.disabled='';root.setAttribute('aria-disabled','true');root.removeAttribute('tabindex')}
+    if(opts.loading)root.dataset.loading='';
+    if(opts.orientation)root.dataset.orientation=opts.orientation;
+
+    var track=document.createElement('div');track.className='slider__track';
+    var fill=document.createElement('div');fill.className='slider__fill';
+    track.appendChild(fill);
+    root.appendChild(track);
+
+    var thumb=document.createElement('div');thumb.className='slider__thumb';
+    if(opts.thumbIcon){
+      var icon=document.createElement('span');icon.className='slider__thumb-icon';icon.textContent=opts.thumbIcon;
+      thumb.appendChild(icon);
+    }
+    root.appendChild(thumb);
+
+    if(opts.showTooltip){
+      root.style.setProperty('--slider-tooltip-display','block');
+      var tooltip=document.createElement('div');tooltip.className='slider__tooltip';tooltip.textContent=value;
+      root.appendChild(tooltip);
+    }
+
+    if(opts.showTicks){
+      root.style.setProperty('--slider-ticks-display','flex');
+      var ticks=document.createElement('div');ticks.className='slider__ticks';
+      var numTicks=opts.numTicks||5;
+      for(var i=0;i<=numTicks;i++){
+        var tick=document.createElement('span');tick.className='slider__tick';
+        if(opts.tickLabels){
+          var lbl=document.createElement('span');lbl.className='slider__tick-label';
+          lbl.textContent=String(Math.round((100/numTicks)*i));
+          tick.appendChild(lbl);
+        }
+        var pctI=(i/numTicks)*100;
+        if(pctI<=value)tick.dataset.active='';
+        ticks.appendChild(tick);
+      }
+      root.appendChild(ticks);
+    }
+
+    if(opts.noFill)root.style.setProperty('--slider-fill-display','none');
+
+    if(opts.style){for(var k in opts.style){if(opts.style.hasOwnProperty(k))root.style.setProperty(k,opts.style[k])}}
+
+    if(!opts.disabled && !opts.loading) initSlider(root);
+    if(!opts.noSync) root.classList.add('synced-slider');
+    return root;
+  }
+
+  function initSlider(el){
+    var track=el.querySelector('.slider__track');
+
+    function pctFromPointer(e){
+      var rect=track.getBoundingClientRect();
+      if(el.dataset.orientation==='vertical'){
+        return Math.max(0,Math.min(100,((rect.bottom-e.clientY)/rect.height)*100));
+      }
+      return Math.max(0,Math.min(100,((e.clientX-rect.left)/rect.width)*100));
+    }
+
+    function updateValue(pct){
+      pct=Math.max(0,Math.min(100,Math.round(pct)));
+      el.style.setProperty('--_slider-pct',pct);
+      el.setAttribute('aria-valuenow',String(pct));
+      var tooltip=el.querySelector('.slider__tooltip');
+      if(tooltip)tooltip.textContent=pct;
+      /* Update active ticks */
+      el.querySelectorAll('.slider__tick').forEach(function(t,i,all){
+        var tickPct=(i/(all.length-1))*100;
+        if(tickPct<=pct)t.dataset.active='';else delete t.dataset.active;
+      });
+    }
+
+    el.addEventListener('pointerdown',function(e){
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
+      el.dataset.dragging='';
+      updateValue(pctFromPointer(e));
+      function onMove(ev){updateValue(pctFromPointer(ev))}
+      function onUp(){
+        delete el.dataset.dragging;
+        el.removeEventListener('pointermove',onMove);
+        el.removeEventListener('pointerup',onUp);
+      }
+      el.addEventListener('pointermove',onMove);
+      el.addEventListener('pointerup',onUp);
+    });
+
+    el.addEventListener('keydown',function(e){
+      var val=parseInt(el.getAttribute('aria-valuenow'))||0;
+      var step=e.shiftKey?10:1;
+      if(e.key==='ArrowRight'||e.key==='ArrowUp'){updateValue(val+step);e.preventDefault()}
+      if(e.key==='ArrowLeft'||e.key==='ArrowDown'){updateValue(val-step);e.preventDefault()}
+      if(e.key==='Home'){updateValue(0);e.preventDefault()}
+      if(e.key==='End'){updateValue(100);e.preventDefault()}
+    });
+  }
+
+  function wrapCard(el,title){
+    var d=document.createElement('div');d.className='variant-card';d.appendChild(el);
+    var l=document.createElement('span');l.className='variant-label';l.textContent=title;d.appendChild(l);return d;
+  }
+  function clr(id){var e=document.getElementById(id);e.innerHTML='';return e}
+
+  /* ═══════ Section Renderers ═══════ */
+
+  function renderHero(){
+    var el=clr('heroPreview');
+    var sl=makeSlider(curS,{value:50,showTooltip:true});
+    sl.id='heroSlider';
+    el.appendChild(sl);
+    /* Label row */
+    var row=document.createElement('div');row.style.cssText='display:flex;justify-content:space-between;font-size:12px;color:var(--demo-fg-faint)';
+    row.innerHTML='<span>0</span><span id="heroValue" style="font-weight:600;color:var(--demo-fg)">50</span><span>100</span>';
+    el.appendChild(row);
+    /* Live update value display */
+    sl.addEventListener('pointerdown',function startWatch(){
+      function watch(){
+        var v=sl.getAttribute('aria-valuenow');
+        document.getElementById('heroValue').textContent=v;
+        requestAnimationFrame(updateInspector);
+        if(sl.dataset.dragging!==undefined)requestAnimationFrame(watch);
+      }
+      watch();
+    });
+    sl.addEventListener('pointerup',function(){
+      document.getElementById('heroValue').textContent=sl.getAttribute('aria-valuenow');
+      requestAnimationFrame(updateInspector);
+    });
+  }
+
+  function renderPresets(){
+    var el=clr('presetGrid');
+    var presets=[
+      {
+        title:'Standard (Material)',
+        desc:'Thin track (4px), circular thumb with shadow, branded fill.',
+        opts:{value:60,noSync:true,style:{'--slider-track-h-base':'4px','--slider-thumb-w-base':'20px','--slider-thumb-h-base':'20px'}}
+      },
+      {
+        title:'Contained (iOS)',
+        desc:'Thick track matches thumb height. Thumb sits inside the rail with no overflow.',
+        opts:{value:45,noSync:true,style:{'--slider-track-h-base':'28px','--slider-thumb-w-base':'24px','--slider-thumb-h-base':'24px','--slider-track-radius':'var(--radius-full)','--slider-thumb-shadow':'none'}}
+      },
+      {
+        title:'Minimal (Figma)',
+        desc:'Hairline 2px track. Tiny subtle thumb. Maximum content density.',
+        opts:{value:70,noSync:true,style:{'--slider-track-h-base':'2px','--slider-thumb-w-base':'12px','--slider-thumb-h-base':'12px','--slider-thumb-shadow':'var(--shadow-xs)'}}
+      },
+      {
+        title:'Outlined',
+        desc:'Track has a visible border. Thumb uses bordered style with white fill.',
+        opts:{value:55,noSync:true,style:{
+          '--slider-track-border-width':'2px','--slider-track-bg':'transparent','--slider-track-border-color':'var(--surface-base-cm-outline)',
+          '--slider-thumb-bg':'var(--color-fixed-white)','--slider-thumb-border-width':'2px','--slider-thumb-border-color':'var(--brand-component-bg-default)',
+          '--slider-thumb-bg-hover':'var(--color-fixed-white)','--slider-thumb-border-color-hover':'var(--brand-component-bg-hover)',
+          '--slider-thumb-shadow':'var(--shadow-xs)'
+        }}
+      },
+      {
+        title:'Chunky',
+        desc:'Maximum thickness, large rounded-square thumb. Bold and playful.',
+        opts:{value:65,noSync:true,style:{
+          '--slider-track-h-base':'20px','--slider-thumb-w-base':'28px','--slider-thumb-h-base':'28px',
+          '--slider-thumb-radius':'var(--radius-DEFAULT)','--slider-track-radius':'var(--radius-DEFAULT)',
+          '--slider-thumb-shadow':'var(--shadow-md)'
+        }}
+      },
+      {
+        title:'No Fill',
+        desc:'Track only with no colored fill. Thumb position alone shows the value.',
+        opts:{value:40,noSync:true,noFill:true,style:{'--slider-track-h-base':'4px','--slider-thumb-w-base':'18px','--slider-thumb-h-base':'18px'}}
+      },
+      {
+        title:'With Tooltip',
+        desc:'Value bubble follows the thumb. Always visible for precise control.',
+        opts:{value:73,noSync:true,showTooltip:true}
+      },
+      {
+        title:'Stepped with Ticks',
+        desc:'Tick marks at fixed intervals with labels. For discrete value selection.',
+        opts:{value:60,noSync:true,showTicks:true,numTicks:5,tickLabels:true}
+      },
+    ];
+    presets.forEach(function(p){
+      var card=document.createElement('div');card.className='preset-card';
+      card.innerHTML='<div class="preset-title">'+p.title+'</div><div class="preset-desc">'+p.desc+'</div>';
+      card.appendChild(makeSlider('base',p.opts));
+      el.appendChild(card);
+    });
+  }
+
+  function renderDensity(){
+    var el=clr('densityScale');
+    SIZES.forEach(function(s, idx){
+      var densityValue = 38 + (idx * 7);
+      if (densityValue > 86) densityValue = 86;
+      var it=document.createElement('div');it.className='density-item';
+      it.appendChild(makeSlider(s,{value:densityValue,noSync:true}));
+      var m=document.createElement('div');m.className='density-meta';
+      m.textContent='track '+TRACK_H[s]+' / thumb '+THUMB_W[s];
+      it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderStates(){
+    var el=clr('stateMatrix');
+    var states=[
+      {label:'Default',opts:{value:50,noSync:true}},
+      {label:'Hover (move over)',opts:{value:60,noSync:true}},
+      {label:'Focus (tab to it)',opts:{value:40,noSync:true}},
+      {label:'Disabled',opts:{value:70,noSync:true,disabled:true}},
+      {label:'Loading',opts:{value:55,noSync:true,loading:true}},
+    ];
+    states.forEach(function(st){
+      el.appendChild(wrapCard(makeSlider(curS,st.opts),st.label));
+    });
+  }
+
+  var SURFACE_TOKENS=['bg','hover','pressed','outline','separator','ct-default','ct-strong','ct-subtle','ct-faint','cm-bg','cm-bg-hover','cm-bg-pressed','cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'];
+
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p=document.getElementById(id);
+      while(p.children.length>1)p.removeChild(p.lastChild);
+      if(id==='surfaceDeep'){applySurface(p,'deep');}
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;gap:12px;padding:8px 0;width:100%';
+      wrap.appendChild(makeSlider(curS,{value:60,noSync:true}));
+      wrap.appendChild(makeSlider(curS,{value:30,noSync:true}));
+      p.appendChild(wrap);
+    });
+  }
+
+  function renderTrackRadius(){
+    var el=clr('trackRadiusRow');
+    var radii=[
+      {label:'Pill (default)',val:'var(--radius-full)'},
+      {label:'Rounded',val:'var(--radius-lg)'},
+      {label:'Subtle',val:'var(--radius-sm)'},
+      {label:'Square',val:'0px'},
+    ];
+    radii.forEach(function(r){
+      var col=document.createElement('div');col.className='slider-col';
+      col.appendChild(makeSlider(curS,{value:60,noSync:true,style:{'--slider-track-radius':r.val,'--slider-fill-radius':r.val}}));
+      var lbl=document.createElement('div');lbl.className='slider-col-label';lbl.textContent=r.label;
+      col.appendChild(lbl);el.appendChild(col);
+    });
+  }
+
+  function renderThumbShape(){
+    var el=clr('thumbShapeRow');
+    var shapes=[
+      {label:'Circle (default)',style:{'--slider-thumb-radius':'var(--radius-full)'}},
+      {label:'Rounded Square',style:{'--slider-thumb-radius':'var(--radius-DEFAULT)'}},
+      {label:'Square',style:{'--slider-thumb-radius':'0px'}},
+      {label:'Wide Pill',style:{['--slider-thumb-w-'+curS]:'28px',['--slider-thumb-h-'+curS]:'14px','--slider-thumb-radius':'var(--radius-full)'}},
+    ];
+    shapes.forEach(function(s){
+      var col=document.createElement('div');col.className='slider-col';
+      col.appendChild(makeSlider(curS,{value:55,noSync:true,style:s.style}));
+      var lbl=document.createElement('div');lbl.className='slider-col-label';lbl.textContent=s.label;
+      col.appendChild(lbl);el.appendChild(col);
+    });
+  }
+
+  function renderShadows(){
+    var el=clr('shadowRow');
+    SHADOWS.forEach(function(s){
+      var col=document.createElement('div');col.className='slider-col';
+      col.appendChild(makeSlider(curS,{value:50,noSync:true,style:{'--slider-thumb-shadow':'var(--shadow-'+s+')'}}));
+      var lbl=document.createElement('div');lbl.className='slider-col-label';lbl.textContent='--shadow-'+s;
+      col.appendChild(lbl);el.appendChild(col);
+    });
+  }
+
+  function renderSlots(){
+    var el=clr('slotsDemo');
+    var combos=[
+      {label:'Track + Fill + Thumb',fn:function(){return makeSlider(curS,{value:50,noSync:true})}},
+      {label:'With Tooltip',fn:function(){return makeSlider(curS,{value:65,noSync:true,showTooltip:true})}},
+      {label:'With Tick Marks',fn:function(){return makeSlider(curS,{value:60,noSync:true,showTicks:true,numTicks:10})}},
+      {label:'Ticks + Labels',fn:function(){return makeSlider(curS,{value:40,noSync:true,showTicks:true,numTicks:5,tickLabels:true})}},
+      {label:'No Fill (thumb only)',fn:function(){return makeSlider(curS,{value:55,noSync:true,noFill:true})}},
+      {label:'Tooltip + Ticks',fn:function(){return makeSlider(curS,{value:75,noSync:true,showTooltip:true,showTicks:true,numTicks:4,tickLabels:true})}},
+    ];
+    combos.forEach(function(c){
+      var cd=document.createElement('div');cd.className='slot-card';
+      cd.appendChild(c.fn());
+      var l=document.createElement('span');l.className='slot-label';l.textContent=c.label;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  function renderMotion(){
+    var el=clr('motionDemo');
+    var items=[
+      {label:'spring (default)',sub:'easing-spring',opts:{value:50,noSync:true}},
+      {label:'Loading pulse',sub:'1.5s pulse',opts:{value:60,noSync:true,loading:true}},
+      {label:'Fast + linear',sub:'--duration-fast',opts:{value:45,noSync:true,style:{'--slider-thumb-transition-duration':'var(--duration-fast)','--slider-thumb-transition-easing':'var(--easing-linear)'}}},
+      {label:'Slow + bounce',sub:'--duration-slow',opts:{value:55,noSync:true,style:{'--slider-thumb-transition-duration':'var(--duration-slow)','--slider-thumb-transition-easing':'var(--easing-bounce)'}}},
+    ];
+    items.forEach(function(it){
+      var cd=document.createElement('div');cd.className='motion-card';
+      cd.appendChild(makeSlider(curS,it.opts));
+      var l=document.createElement('span');l.className='motion-label';l.textContent=it.sub;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  function renderA11y(){
+    ['a11yFocus','a11yKeyboard'].forEach(function(id){
+      var el=clr(id);el.appendChild(makeSlider(curS,{value:50,noSync:true}));
+    });
+    var dis=clr('a11yDisabled');dis.appendChild(makeSlider(curS,{value:70,noSync:true,disabled:true}));
+    var forced=clr('a11yForced');
+    forced.appendChild(makeSlider(curS,{value:50,noSync:true}));
+    forced.appendChild(makeSlider(curS,{value:40,noSync:true,disabled:true}));
+  }
+
+  /* ═══════ Inspector ═══════ */
+
+  function updateInspector(){
+    var hero=document.getElementById('heroSlider');
+    if(!hero)return;
+    var cs=getComputedStyle(hero);
+    var track=hero.querySelector('.slider__track');
+    var tcs=track?getComputedStyle(track):{};
+    var fill=hero.querySelector('.slider__fill');
+    var fcs=fill?getComputedStyle(fill):{};
+    var thumb=hero.querySelector('.slider__thumb');
+    var thcs=thumb?getComputedStyle(thumb):{};
+    var val=hero.getAttribute('aria-valuenow');
+    var s=curS;
+    var tokens=[
+      ['--slider-track-h-'+s, TRACK_H[s], tcs.height||'\u2014'],
+      ['--slider-thumb-w-'+s, THUMB_W[s], thcs.width||'\u2014'],
+      ['--slider-thumb-h-'+s, THUMB_W[s], thcs.height||'\u2014'],
+      ['--slider-track-radius', 'var(--radius-full)', tcs.borderRadius||'\u2014'],
+      ['--slider-thumb-radius', 'var(--radius-full)', thcs.borderRadius||'\u2014'],
+      ['--slider-track-bg', '\u2014', tcs.backgroundColor||'\u2014'],
+      ['--slider-fill-bg', '\u2014', fcs.backgroundColor||'\u2014'],
+      ['--slider-thumb-bg', '\u2014', thcs.backgroundColor||'\u2014'],
+      ['--slider-thumb-shadow', '\u2014', thcs.boxShadow||'\u2014'],
+      ['aria-valuenow', '', val],
+      ['--_slider-pct', '', val+'%'],
+    ];
+    var ins=document.getElementById('heroInspector');
+    ins.innerHTML='<div class="inspector-title">Resolved Tokens (value '+val+' / '+s+')</div>'+
+      tokens.map(function(t){
+        return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+t[2]+(t[1]&&t[1]!=='\u2014'?'<br><span style="opacity:0.5;font-size:9px">\u2192 '+t[1]+'</span>':'')+'</span></div>';
+      }).join('');
+  }
+
+  /* ═══════ Apply Globals ═══════ */
+
+  function applyGlobals(){
+    renderHero();renderPresets();renderDensity();renderStates();renderSurface();
+    renderTrackRadius();renderThumbShape();renderShadows();renderSlots();renderMotion();renderA11y();
+    requestAnimationFrame(updateInspector);
+  }
+
+  /* ═══════ Global Controls ═══════ */
+
+  document.getElementById('sizeBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');curS=pill.dataset.ctrlSize;applyGlobals();
+  });
+
+  window.DTF.onThemeChange=updateInspector;
+
+  applyGlobals();
+
+  /* ═══════ Context Playground ═══════ */
+
+  var ROLE_TOKENS=['content-default','content-strong','content-subtle','content-faint','component-bg-default','component-bg-hover','component-bg-pressed','component-outline-default','component-outline-hover','component-outline-pressed','component-separator','container-bg','container-hover','container-pressed','container-outline','container-separator','on-component','on-container'];
+
+  function applySurface(bodyEl,surfaceId){
+    if(surfaceId==='base'){
+      SURFACE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--surface-base-'+tok)});
+      bodyEl.style.background='var(--surface-base-bg)';
+      bodyEl.removeAttribute('data-theme');
+    }else{
+      SURFACE_TOKENS.forEach(function(tok){bodyEl.style.setProperty('--surface-base-'+tok,'var(--surface-'+surfaceId+'-'+tok+')')});
+      bodyEl.style.background='var(--surface-'+surfaceId+'-bg)';
+      if(surfaceId==='inverse'){bodyEl.setAttribute('data-theme','dark');}else{bodyEl.removeAttribute('data-theme');}
+    }
+  }
+
+  function applyRole(bodyEl,roleId){
+    if(roleId==='brand'){ROLE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--brand-'+tok)})}
+    else{ROLE_TOKENS.forEach(function(tok){bodyEl.style.setProperty('--brand-'+tok,'var(--'+roleId+'-'+tok+')')})}
+  }
+
+  function pgRender(card){
+    var body=document.getElementById('pgBody'+card);
+    body.querySelectorAll('.slider').forEach(function(s){s.remove()});
+    body.appendChild(makeSlider(pgSize,{value:60,noSync:true}));
+    body.appendChild(makeSlider(pgSize,{value:35,noSync:true,showTooltip:true}));
+  }
+
+  var pgSize='base';
+
+  function pgApplyCard(card){
+    var body=document.getElementById('pgBody'+card);
+    var surfSel=document.querySelector('[data-pg-surface="'+card+'"]');
+    var roleSel=document.querySelector('[data-pg-role="'+card+'"]');
+    applySurface(body,surfSel.value);
+    applyRole(body,roleSel.value);
+    pgRender(card);
+  }
+
+  function pgUpdateChain(){
+    var surfSel=document.querySelector('[data-pg-surface="A"]');
+    var roleSel=document.querySelector('[data-pg-role="A"]');
+    var chain=document.getElementById('pgChain');
+    var s=surfSel.value,r=roleSel.value;
+    var rows=[
+      {sec:'Track'},
+      {label:'Track BG',token:'--slider-track-bg',via:'--surface-'+s+'-cm-outline-hover'},
+      {label:'Track BG Hover',token:'--slider-track-bg-hover',via:'--surface-'+s+'-cm-outline-pressed'},
+      {label:'Track BG Disabled',token:'--slider-track-bg-disabled',via:'--surface-'+s+'-cm-outline'},
+      {sec:'Fill'},
+      {label:'Fill BG',token:'--slider-fill-bg',via:'--'+r+'-component-bg-default'},
+      {label:'Fill BG Hover',token:'--slider-fill-bg-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Fill BG Active',token:'--slider-fill-bg-pressed',via:'--'+r+'-component-bg-pressed'},
+      {label:'Fill BG Disabled',token:'--slider-fill-bg-disabled',via:'--'+r+'-component-bg-default'},
+      {sec:'Thumb'},
+      {label:'Thumb BG',token:'--slider-thumb-bg',via:'--'+r+'-component-bg-default'},
+      {label:'Thumb BG Hover',token:'--slider-thumb-bg-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Thumb BG Active',token:'--slider-thumb-bg-pressed',via:'--'+r+'-component-bg-pressed'},
+      {label:'Thumb BG Disabled',token:'--slider-thumb-bg-disabled',via:'--'+r+'-component-bg-default'},
+      {label:'Thumb Border',token:'--slider-thumb-border-color',via:'--color-fixed-white'},
+      {label:'Thumb Halo BG',token:'--slider-thumb-halo-bg',via:'--'+r+'-container-bg'},
+      {label:'Thumb Halo Active',token:'--slider-thumb-halo-bg-pressed',via:'--'+r+'-container-pressed'},
+      {sec:'Ticks'},
+      {label:'Tick Color',token:'--slider-tick-color',via:'--surface-'+s+'-cm-outline'},
+      {label:'Tick Active',token:'--slider-tick-color-pressed',via:'--'+r+'-component-bg-default'},
+      {label:'Tick Disabled',token:'--slider-tick-color-disabled',via:'--surface-'+s+'-cm-outline'},
+      {sec:'Tooltip'},
+      {label:'Tooltip BG',token:'--slider-tooltip-bg',via:'--'+r+'-component-bg-default'},
+      {label:'Tooltip FG',token:'--slider-tooltip-fg',via:'--'+r+'-on-component'},
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring',token:'--slider-focus-outline-color',via:'--'+r+'-component-outline-default'}
+    ];
+    var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row){
+      if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+      h+='<div class="pg-chain-row">';
+      h+='<span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span>';
+      h+='</div>';
+    });
+    chain.innerHTML=h;
+  }
+
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var card=this.dataset.pgSurface||this.dataset.pgRole;
+      pgApplyCard(card);requestAnimationFrame(pgUpdateChain);
+    });
+  });
+
+  document.getElementById('pgDensityBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');pgSize=pill.dataset.pgSize;
+    pgApplyCard('A');pgApplyCard('B');requestAnimationFrame(pgUpdateChain);
+  });
+
+  pgApplyCard('A');pgApplyCard('B');requestAnimationFrame(pgUpdateChain);
+
+})();
+</script>
+</body>
+</html>

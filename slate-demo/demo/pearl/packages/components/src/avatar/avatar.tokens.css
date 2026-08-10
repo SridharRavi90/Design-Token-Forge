@@ -1,0 +1,166 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Avatar Token Defaults
+   Layer 0: System defaults for ~80 avatar variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.avatar {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (16 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode */
+  --avatar-radius-micro: var(--radius-full);
+  --avatar-radius-tiny: var(--radius-full);
+  --avatar-radius-small: var(--radius-full);
+  --avatar-radius-base: var(--radius-full);
+  --avatar-radius-medium: var(--radius-full);
+  --avatar-radius-large: var(--radius-full);
+  --avatar-radius-big: var(--radius-full);
+  --avatar-radius-huge: var(--radius-full);
+  --avatar-radius-mega: var(--radius-full);
+  --avatar-radius-ultra: var(--radius-full);
+
+  /* Shape variants — override via data-shape */
+  --avatar-radius-squircle: 25%;
+  --avatar-radius-rounded-square: var(--radius-lg);
+
+  /* Border */
+  --avatar-border-width: 0px;
+  --avatar-border-style: solid;
+  --avatar-border-color: var(--surface-base-cm-outline);
+
+  /* Shadow */
+  --avatar-shadow: var(--shadow-none);
+  --avatar-shadow-strong: var(--shadow-sm);
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Size (width & height) per density mode */
+  --avatar-size-micro: var(--spacing-20);
+  --avatar-size-tiny: var(--spacing-24);
+  --avatar-size-small: var(--spacing-28);
+  --avatar-size-base: var(--spacing-32);
+  --avatar-size-medium: var(--spacing-36);
+  --avatar-size-large: var(--spacing-40);
+  --avatar-size-big: var(--spacing-48);
+  --avatar-size-huge: var(--spacing-56);
+  --avatar-size-mega: var(--spacing-64);
+  --avatar-size-ultra: var(--spacing-72);
+
+  /* Group: overlap offset per density */
+  --avatar-group-offset-micro: calc(var(--spacing-20) * -0.25);
+  --avatar-group-offset-tiny: calc(var(--spacing-24) * -0.25);
+  --avatar-group-offset-small: calc(var(--spacing-28) * -0.25);
+  --avatar-group-offset-base: calc(var(--spacing-32) * -0.25);
+  --avatar-group-offset-medium: calc(var(--spacing-36) * -0.25);
+  --avatar-group-offset-large: calc(var(--spacing-40) * -0.25);
+  --avatar-group-offset-big: calc(var(--spacing-48) * -0.25);
+  --avatar-group-offset-huge: calc(var(--spacing-56) * -0.25);
+  --avatar-group-offset-mega: calc(var(--spacing-64) * -0.25);
+  --avatar-group-offset-ultra: calc(var(--spacing-72) * -0.25);
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Fallback bg (initials / icon mode) */
+  --avatar-bg: var(--surface-base-cm-bg);
+  --avatar-bg-hover: var(--surface-base-cm-bg-hover);
+  --avatar-fg: var(--surface-base-ct-default);
+
+  /* Semantic role overrides (6 roles × 2 = 12 vars) */
+  /* brand */
+  --avatar-brand-bg: var(--brand-container-bg);
+  --avatar-brand-fg: var(--brand-content-default);
+  /* info */
+  --avatar-info-bg: var(--info-container-bg);
+  --avatar-info-fg: var(--info-content-default);
+  /* danger */
+  --avatar-danger-bg: var(--danger-container-bg);
+  --avatar-danger-fg: var(--danger-content-default);
+  /* success */
+  --avatar-success-bg: var(--success-container-bg);
+  --avatar-success-fg: var(--success-content-default);
+  /* warning */
+  --avatar-warning-bg: var(--warning-container-bg);
+  --avatar-warning-fg: var(--warning-content-default);
+  /* neutral */
+  --avatar-neutral-bg: var(--surface-base-cm-bg);
+  --avatar-neutral-fg: var(--surface-base-ct-default);
+
+  /* Ring (e.g. online indicator) */
+  --avatar-ring-width: 2px;
+  --avatar-ring-color: var(--surface-base-bg);
+  --avatar-ring-offset: 2px;
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+  --avatar-font-family: var(--font-family-sans);
+  --avatar-font-weight: var(--font-weight-semibold);
+  --avatar-letter-spacing: var(--letter-spacing-normal);
+
+  /* Font size per density (for initials) */
+  --avatar-font-size-micro: var(--font-size-10);
+  --avatar-font-size-tiny: var(--font-size-10);
+  --avatar-font-size-small: var(--font-size-11);
+  --avatar-font-size-base: var(--font-size-12);
+  --avatar-font-size-medium: var(--font-size-14);
+  --avatar-font-size-large: var(--font-size-16);
+  --avatar-font-size-big: var(--font-size-18);
+  --avatar-font-size-huge: var(--font-size-20);
+  --avatar-font-size-mega: var(--font-size-24);
+  --avatar-font-size-ultra: var(--font-size-28);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (10 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Icon fallback size per density */
+  --avatar-icon-size-micro: var(--spacing-12);
+  --avatar-icon-size-tiny: var(--spacing-14);
+  --avatar-icon-size-small: var(--spacing-16);
+  --avatar-icon-size-base: var(--spacing-18);
+  --avatar-icon-size-medium: var(--spacing-20);
+  --avatar-icon-size-large: var(--spacing-22);
+  --avatar-icon-size-big: var(--spacing-24);
+  --avatar-icon-size-huge: var(--spacing-28);
+  --avatar-icon-size-mega: var(--spacing-32);
+  --avatar-icon-size-ultra: var(--spacing-40);
+
+  /* Status badge */
+  --avatar-badge-size: 25%;
+  --avatar-badge-border-width: 2px;
+  --avatar-badge-border-color: var(--surface-base-bg);
+  --avatar-badge-online: var(--success-component-bg-default);
+  --avatar-badge-offline: var(--surface-base-ct-faint);
+  --avatar-badge-busy: var(--danger-component-bg-default);
+  --avatar-badge-away: var(--warning-component-bg-default);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (7 vars)
+     ──────────────────────────────────────────────────────────── */
+  --avatar-transition-property: background-color, box-shadow, opacity;
+  --avatar-transition-duration: var(--duration-normal);
+  --avatar-transition-easing: var(--easing-in-out);
+  --avatar-animation-pulse: avatar-pulse 2s ease-in-out infinite;
+  --avatar-animation-skeleton: avatar-skeleton 1.5s linear infinite;
+  --avatar-loading-bg: var(--surface-base-cm-bg);
+  --avatar-loading-shimmer: var(--surface-base-cm-bg-hover);
+
+  /* ────────────────────────────────────────────────────────────
+     🚫 STATE  (1 var)
+     ──────────────────────────────────────────────────────────── */
+  --avatar-disabled-opacity: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+  --avatar-focus-outline-width: var(--focus-outline-width);
+  --avatar-focus-outline-color: var(--brand-component-outline-default);
+  --avatar-focus-outline-offset: var(--focus-outline-offset);
+}

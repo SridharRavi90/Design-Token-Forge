@@ -1,0 +1,270 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Avatar
+   Variable-driven rendering — reads only from --avatar-* tokens.
+
+   Markup:
+   <div class="avatar" data-size="base" data-shape="circle">
+     <img class="avatar__image" src="..." alt="User name">
+   </div>
+
+   Initials:
+   <div class="avatar" data-size="base">
+     <span class="avatar__initials">JD</span>
+   </div>
+
+   Icon fallback:
+   <div class="avatar" data-size="base">
+     <span class="avatar__icon"><svg>…</svg></span>
+   </div>
+
+   With status badge:
+   <div class="avatar" data-size="base">
+     <img …>
+     <span class="avatar__badge" data-status="online"></span>
+   </div>
+
+   Group:
+   <div class="avatar-group" data-size="base">
+     <div class="avatar">…</div>
+     <div class="avatar">…</div>
+     <div class="avatar avatar--count"><span class="avatar__initials">+3</span></div>
+   </div>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────
+   1.  BASE — Internal active variables (default = base, circle)
+   ──────────────────────────────────────────────────────────────── */
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  font-family: var(--avatar-font-family);
+  font-weight: var(--avatar-font-weight);
+  letter-spacing: var(--avatar-letter-spacing);
+  user-select: none;
+  vertical-align: middle;
+
+  /* Dimension active vars */
+  --_av-size: var(--avatar-size-base);
+  --_av-radius: var(--avatar-radius-base);
+  --_av-fs: var(--avatar-font-size-base);
+  --_av-icon-size: var(--avatar-icon-size-base);
+  --_av-group-offset: var(--avatar-group-offset-base);
+
+  /* Surface active vars (default neutral) */
+  --_av-bg: var(--avatar-bg);
+  --_av-fg: var(--avatar-fg);
+
+  width: var(--_av-size);
+  height: var(--_av-size);
+  border-radius: var(--_av-radius);
+  background: var(--_av-bg);
+  color: var(--_av-fg);
+  font-size: var(--_av-fs);
+  border: var(--avatar-border-width) var(--avatar-border-style) var(--avatar-border-color);
+  transition-property: var(--avatar-transition-property);
+  transition-duration: var(--avatar-transition-duration);
+  transition-timing-function: var(--avatar-transition-easing);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   2.  SIZE SELECTORS
+   ──────────────────────────────────────────────────────────────── */
+.avatar[data-size="micro"]{--_av-size:var(--avatar-size-micro);--_av-radius:var(--avatar-radius-micro);--_av-fs:var(--avatar-font-size-micro);--_av-icon-size:var(--avatar-icon-size-micro);--_av-group-offset:var(--avatar-group-offset-micro)}
+.avatar[data-size="tiny"]{--_av-size:var(--avatar-size-tiny);--_av-radius:var(--avatar-radius-tiny);--_av-fs:var(--avatar-font-size-tiny);--_av-icon-size:var(--avatar-icon-size-tiny);--_av-group-offset:var(--avatar-group-offset-tiny)}
+.avatar[data-size="small"]{--_av-size:var(--avatar-size-small);--_av-radius:var(--avatar-radius-small);--_av-fs:var(--avatar-font-size-small);--_av-icon-size:var(--avatar-icon-size-small);--_av-group-offset:var(--avatar-group-offset-small)}
+.avatar[data-size="base"]{--_av-size:var(--avatar-size-base);--_av-radius:var(--avatar-radius-base);--_av-fs:var(--avatar-font-size-base);--_av-icon-size:var(--avatar-icon-size-base);--_av-group-offset:var(--avatar-group-offset-base)}
+.avatar[data-size="medium"]{--_av-size:var(--avatar-size-medium);--_av-radius:var(--avatar-radius-medium);--_av-fs:var(--avatar-font-size-medium);--_av-icon-size:var(--avatar-icon-size-medium);--_av-group-offset:var(--avatar-group-offset-medium)}
+.avatar[data-size="large"]{--_av-size:var(--avatar-size-large);--_av-radius:var(--avatar-radius-large);--_av-fs:var(--avatar-font-size-large);--_av-icon-size:var(--avatar-icon-size-large);--_av-group-offset:var(--avatar-group-offset-large)}
+.avatar[data-size="big"]{--_av-size:var(--avatar-size-big);--_av-radius:var(--avatar-radius-big);--_av-fs:var(--avatar-font-size-big);--_av-icon-size:var(--avatar-icon-size-big);--_av-group-offset:var(--avatar-group-offset-big)}
+.avatar[data-size="huge"]{--_av-size:var(--avatar-size-huge);--_av-radius:var(--avatar-radius-huge);--_av-fs:var(--avatar-font-size-huge);--_av-icon-size:var(--avatar-icon-size-huge);--_av-group-offset:var(--avatar-group-offset-huge)}
+.avatar[data-size="mega"]{--_av-size:var(--avatar-size-mega);--_av-radius:var(--avatar-radius-mega);--_av-fs:var(--avatar-font-size-mega);--_av-icon-size:var(--avatar-icon-size-mega);--_av-group-offset:var(--avatar-group-offset-mega)}
+.avatar[data-size="ultra"]{--_av-size:var(--avatar-size-ultra);--_av-radius:var(--avatar-radius-ultra);--_av-fs:var(--avatar-font-size-ultra);--_av-icon-size:var(--avatar-icon-size-ultra);--_av-group-offset:var(--avatar-group-offset-ultra)}
+
+/* ────────────────────────────────────────────────────────────────
+   3.  SHAPE VARIANTS
+   ──────────────────────────────────────────────────────────────── */
+.avatar[data-shape="squircle"] { --_av-radius: var(--avatar-radius-squircle); }
+.avatar[data-shape="rounded-square"] { --_av-radius: var(--avatar-radius-rounded-square); }
+
+/* ────────────────────────────────────────────────────────────────
+   6.  ROLE COLOR OVERRIDES (brand | info | danger | success | warning | neutral)
+   ──────────────────────────────────────────────────────────────── */
+/* Brand */
+.avatar[data-role="brand"]{--_av-bg:var(--avatar-brand-bg);--_av-fg:var(--avatar-brand-fg)}
+/* Info */
+.avatar[data-role="info"]{--_av-bg:var(--avatar-info-bg);--_av-fg:var(--avatar-info-fg)}
+/* Danger */
+.avatar[data-role="danger"]{--_av-bg:var(--avatar-danger-bg);--_av-fg:var(--avatar-danger-fg)}
+/* Success */
+.avatar[data-role="success"]{--_av-bg:var(--avatar-success-bg);--_av-fg:var(--avatar-success-fg)}
+/* Warning */
+.avatar[data-role="warning"]{--_av-bg:var(--avatar-warning-bg);--_av-fg:var(--avatar-warning-fg)}
+/* Neutral */
+.avatar[data-role="neutral"]{--_av-bg:var(--avatar-neutral-bg);--_av-fg:var(--avatar-neutral-fg)}
+
+/* ────────────────────────────────────────────────────────────────
+   5.  IMAGE
+   ──────────────────────────────────────────────────────────────── */
+.avatar__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   6.  INITIALS
+   ──────────────────────────────────────────────────────────────── */
+.avatar__initials {
+  line-height: 1;
+  text-transform: uppercase;
+  /* Optical vertical centering for uppercase-only text.
+     With line-height:1 flexbox centering, caps sit ~0.02em below
+     line-box center (descender < ascender in font metrics).
+     No translate needed — the offset is sub-pixel at all sizes. */
+}
+
+/* When text-box-trim lands, use metric-based trimming for pixel-perfect centering */
+@supports (text-box-trim: both) {
+  .avatar__initials {
+    text-box-trim: both;
+    text-box-edge: cap alphabetic;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   7.  ICON FALLBACK
+   ──────────────────────────────────────────────────────────────── */
+.avatar__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar__icon svg {
+  width: var(--_av-icon-size);
+  height: var(--_av-icon-size);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   8.  STATUS BADGE
+   ──────────────────────────────────────────────────────────────── */
+.avatar__badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: var(--avatar-badge-size);
+  height: var(--avatar-badge-size);
+  border-radius: var(--radius-full);
+  border: var(--avatar-badge-border-width) solid var(--avatar-badge-border-color);
+  background: var(--avatar-badge-offline);
+}
+.avatar__badge[data-status="online"] { background: var(--avatar-badge-online); }
+.avatar__badge[data-status="offline"] { background: var(--avatar-badge-offline); }
+.avatar__badge[data-status="busy"] { background: var(--avatar-badge-busy); }
+.avatar__badge[data-status="away"] { background: var(--avatar-badge-away); }
+
+/* ────────────────────────────────────────────────────────────────
+   9.  AVATAR GROUP
+   ──────────────────────────────────────────────────────────────── */
+.avatar-group {
+  display: inline-flex;
+  align-items: center;
+}
+.avatar-group .avatar + .avatar {
+  margin-inline-start: var(--_av-group-offset);
+}
+.avatar-group .avatar {
+  border: var(--avatar-ring-width) solid var(--avatar-ring-color);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   10. DISABLED
+   ──────────────────────────────────────────────────────────────── */
+.avatar[data-disabled] {
+  opacity: var(--avatar-disabled-opacity);
+  pointer-events: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   11. FOCUS
+   ──────────────────────────────────────────────────────────────── */
+.avatar:focus-visible {
+  outline: var(--avatar-focus-outline-width) solid var(--avatar-focus-outline-color);
+  outline-offset: var(--avatar-focus-outline-offset);
+}
+
+/* ────────────────────────────────────────────────────────────────   11b. ELEVATED (shadow)
+   ────────────────────────────────────────────────────────────────── */
+.avatar[data-strong] {
+  box-shadow: var(--avatar-shadow-strong);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   11c. LOADING (skeleton shimmer)
+   ────────────────────────────────────────────────────────────────── */
+.avatar[data-loading] {
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--avatar-loading-bg) 0%,
+    var(--avatar-loading-shimmer) 50%,
+    var(--avatar-loading-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: var(--avatar-animation-skeleton);
+}
+.avatar[data-loading] > * {
+  visibility: hidden;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   11d. STATUS BADGE PULSE (:has)
+   ────────────────────────────────────────────────────────────────── */
+.avatar__badge[data-status="online"] {
+  animation: var(--avatar-animation-pulse);
+}
+
+/* Count badge styling via :has() */
+.avatar.avatar--count {
+  --_av-bg: var(--surface-base-cm-bg);
+  --_av-fg: var(--surface-base-ct-subtle);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   11e. KEYFRAMES
+   ────────────────────────────────────────────────────────────────── */
+@keyframes avatar-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.7; }
+}
+
+@keyframes avatar-skeleton {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ──────────────────────────────────────────────────────────────────   12. FORCED COLORS
+   ──────────────────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .avatar {
+    border: 1px solid ButtonText;
+  }
+  .avatar__badge {
+    border-color: Canvas;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   13. REDUCED MOTION
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .avatar,
+  .avatar__badge {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

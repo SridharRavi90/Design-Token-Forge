@@ -1,0 +1,863 @@
+{
+  "$schema": "https://design-token-forge.dev/schema/component-manifest.v1.json",
+  "component": "tooltip",
+  "archetype": "utility-overlay",
+  "axes": {
+    "declared": [
+      "shape",
+      "dimension",
+      "surface",
+      "typography",
+      "slots",
+      "motion",
+      "a11y"
+    ],
+    "present": [
+      "a11y",
+      "dimension",
+      "motion",
+      "shape",
+      "slots",
+      "surface",
+      "typography"
+    ],
+    "tokenCountByAxis": {
+      "shape": 6,
+      "dimension": 14,
+      "surface": 19,
+      "typography": 8,
+      "slots": 4,
+      "motion": 7,
+      "a11y": 5
+    }
+  },
+  "enumerations": {
+    "variants": [],
+    "roles": [
+      "danger",
+      "info",
+      "success",
+      "warning"
+    ],
+    "states": [],
+    "sizes": [
+      "base",
+      "large",
+      "small"
+    ]
+  },
+  "fillSurfaces": [
+    {
+      "fillToken": "--tooltip-danger-bg",
+      "group": "danger",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--tooltip-warning-bg",
+      "group": "warning",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--tooltip-info-bg",
+      "group": "info",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--tooltip-success-bg",
+      "group": "success",
+      "states": [
+        "default"
+      ]
+    }
+  ],
+  "onComponentTokens": [],
+  "editorExposure": {
+    "--tooltip-arrow-size": "advanced",
+    "--tooltip-arrow-offset": "advanced",
+    "--tooltip-content-gap": "advanced",
+    "--tooltip-offset": "advanced",
+    "--tooltip-enter-scale": "advanced",
+    "--tooltip-show-delay": "advanced",
+    "--tooltip-hide-delay": "advanced"
+  },
+  "figma": {
+    "bindingPrefix": "tooltip/"
+  },
+  "gaps": {
+    "missingRoles": [],
+    "missingVariants": [
+      "default",
+      "light",
+      "danger",
+      "warning",
+      "info",
+      "success"
+    ],
+    "remapOnlyRoles": []
+  },
+  "tokenCount": 63,
+  "tokens": {
+    "--tooltip-radius": {
+      "name": "--tooltip-radius",
+      "axis": "shape",
+      "role": "radius",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "radius",
+      "value": "var(--radius-sm)",
+      "aliasOf": "--radius-sm",
+      "literal": false
+    },
+    "--tooltip-border-width": {
+      "name": "--tooltip-border-width",
+      "axis": "shape",
+      "role": "border-width",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-width",
+      "value": "1px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-border-style": {
+      "name": "--tooltip-border-style",
+      "axis": "shape",
+      "role": "border-style",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-style",
+      "value": "solid",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-border-color": {
+      "name": "--tooltip-border-color",
+      "axis": "shape",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-color",
+      "value": "transparent",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-arrow-size": {
+      "name": "--tooltip-arrow-size",
+      "axis": "shape",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "arrow-size",
+      "value": "6px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-arrow-offset": {
+      "name": "--tooltip-arrow-offset",
+      "axis": "shape",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "arrow-offset",
+      "value": "12px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-padding-y-small": {
+      "name": "--tooltip-padding-y-small",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-4)",
+      "aliasOf": "--spacing-4",
+      "literal": false
+    },
+    "--tooltip-padding-x-small": {
+      "name": "--tooltip-padding-x-small",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-8)",
+      "aliasOf": "--spacing-8",
+      "literal": false
+    },
+    "--tooltip-padding-y-base": {
+      "name": "--tooltip-padding-y-base",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-6)",
+      "aliasOf": "--spacing-6",
+      "literal": false
+    },
+    "--tooltip-padding-x-base": {
+      "name": "--tooltip-padding-x-base",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-10)",
+      "aliasOf": "--spacing-10",
+      "literal": false
+    },
+    "--tooltip-padding-y-large": {
+      "name": "--tooltip-padding-y-large",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-8)",
+      "aliasOf": "--spacing-8",
+      "literal": false
+    },
+    "--tooltip-padding-x-large": {
+      "name": "--tooltip-padding-x-large",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-14)",
+      "aliasOf": "--spacing-14",
+      "literal": false
+    },
+    "--tooltip-max-width-small": {
+      "name": "--tooltip-max-width-small",
+      "axis": "dimension",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "max-width",
+      "value": "180px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-max-width-base": {
+      "name": "--tooltip-max-width-base",
+      "axis": "dimension",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "max-width",
+      "value": "240px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-max-width-large": {
+      "name": "--tooltip-max-width-large",
+      "axis": "dimension",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "max-width",
+      "value": "320px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-gap-small": {
+      "name": "--tooltip-gap-small",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-4)",
+      "aliasOf": "--spacing-4",
+      "literal": false
+    },
+    "--tooltip-gap-base": {
+      "name": "--tooltip-gap-base",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-6)",
+      "aliasOf": "--spacing-6",
+      "literal": false
+    },
+    "--tooltip-gap-large": {
+      "name": "--tooltip-gap-large",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-8)",
+      "aliasOf": "--spacing-8",
+      "literal": false
+    },
+    "--tooltip-content-gap": {
+      "name": "--tooltip-content-gap",
+      "axis": "dimension",
+      "role": "spacing",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "content-gap",
+      "value": "2px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-offset": {
+      "name": "--tooltip-offset",
+      "axis": "dimension",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "offset",
+      "value": "var(--spacing-8)",
+      "aliasOf": "--spacing-8",
+      "literal": false
+    },
+    "--tooltip-bg": {
+      "name": "--tooltip-bg",
+      "axis": "surface",
+      "role": "surface-bg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--surface-base-ct-default)",
+      "aliasOf": "--surface-base-ct-default",
+      "literal": false
+    },
+    "--tooltip-fg": {
+      "name": "--tooltip-fg",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--surface-base-cn-bg)",
+      "aliasOf": "--surface-base-cn-bg",
+      "literal": false
+    },
+    "--tooltip-arrow-color": {
+      "name": "--tooltip-arrow-color",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "arrow-color",
+      "value": "var(--surface-base-ct-default)",
+      "aliasOf": "--surface-base-ct-default",
+      "literal": false
+    },
+    "--tooltip-light-bg": {
+      "name": "--tooltip-light-bg",
+      "axis": "surface",
+      "role": "surface-bg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "light-bg",
+      "value": "var(--surface-base-cn-bg)",
+      "aliasOf": "--surface-base-cn-bg",
+      "literal": false
+    },
+    "--tooltip-light-fg": {
+      "name": "--tooltip-light-fg",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "light-fg",
+      "value": "var(--surface-base-ct-default)",
+      "aliasOf": "--surface-base-ct-default",
+      "literal": false
+    },
+    "--tooltip-light-border-color": {
+      "name": "--tooltip-light-border-color",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "light-border-color",
+      "value": "var(--surface-base-cm-outline)",
+      "aliasOf": "--surface-base-cm-outline",
+      "literal": false
+    },
+    "--tooltip-light-arrow-color": {
+      "name": "--tooltip-light-arrow-color",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "light-arrow-color",
+      "value": "var(--surface-base-cn-bg)",
+      "aliasOf": "--surface-base-cn-bg",
+      "literal": false
+    },
+    "--tooltip-danger-bg": {
+      "name": "--tooltip-danger-bg",
+      "axis": "surface",
+      "role": "surface-bg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--tooltip-danger-fg": {
+      "name": "--tooltip-danger-fg",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--danger-on-component)",
+      "aliasOf": "--danger-on-component",
+      "literal": false
+    },
+    "--tooltip-danger-arrow-color": {
+      "name": "--tooltip-danger-arrow-color",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "arrow-color",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--tooltip-warning-bg": {
+      "name": "--tooltip-warning-bg",
+      "axis": "surface",
+      "role": "surface-bg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--tooltip-warning-fg": {
+      "name": "--tooltip-warning-fg",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--warning-on-component)",
+      "aliasOf": "--warning-on-component",
+      "literal": false
+    },
+    "--tooltip-warning-arrow-color": {
+      "name": "--tooltip-warning-arrow-color",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "arrow-color",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--tooltip-info-bg": {
+      "name": "--tooltip-info-bg",
+      "axis": "surface",
+      "role": "surface-bg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--tooltip-info-fg": {
+      "name": "--tooltip-info-fg",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--info-on-component)",
+      "aliasOf": "--info-on-component",
+      "literal": false
+    },
+    "--tooltip-info-arrow-color": {
+      "name": "--tooltip-info-arrow-color",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "arrow-color",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--tooltip-success-bg": {
+      "name": "--tooltip-success-bg",
+      "axis": "surface",
+      "role": "surface-bg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--tooltip-success-fg": {
+      "name": "--tooltip-success-fg",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--success-on-component)",
+      "aliasOf": "--success-on-component",
+      "literal": false
+    },
+    "--tooltip-success-arrow-color": {
+      "name": "--tooltip-success-arrow-color",
+      "axis": "surface",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "arrow-color",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--tooltip-font-family": {
+      "name": "--tooltip-font-family",
+      "axis": "typography",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "font-family",
+      "value": "var(--font-family-sans)",
+      "aliasOf": "--font-family-sans",
+      "literal": false
+    },
+    "--tooltip-font-weight": {
+      "name": "--tooltip-font-weight",
+      "axis": "typography",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "font-weight",
+      "value": "var(--font-weight-normal)",
+      "aliasOf": "--font-weight-normal",
+      "literal": false
+    },
+    "--tooltip-line-height": {
+      "name": "--tooltip-line-height",
+      "axis": "typography",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "line-height",
+      "value": "1.4",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-letter-spacing": {
+      "name": "--tooltip-letter-spacing",
+      "axis": "typography",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "letter-spacing",
+      "value": "0em",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-font-size-small": {
+      "name": "--tooltip-font-size-small",
+      "axis": "typography",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-11)",
+      "aliasOf": "--font-size-11",
+      "literal": false
+    },
+    "--tooltip-font-size-base": {
+      "name": "--tooltip-font-size-base",
+      "axis": "typography",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-12)",
+      "aliasOf": "--font-size-12",
+      "literal": false
+    },
+    "--tooltip-font-size-large": {
+      "name": "--tooltip-font-size-large",
+      "axis": "typography",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-14)",
+      "aliasOf": "--font-size-14",
+      "literal": false
+    },
+    "--tooltip-title-font-weight": {
+      "name": "--tooltip-title-font-weight",
+      "axis": "typography",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "title-font-weight",
+      "value": "var(--font-weight-semibold)",
+      "aliasOf": "--font-weight-semibold",
+      "literal": false
+    },
+    "--tooltip-icon-size-small": {
+      "name": "--tooltip-icon-size-small",
+      "axis": "slots",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-14)",
+      "aliasOf": "--spacing-14",
+      "literal": false
+    },
+    "--tooltip-icon-size-base": {
+      "name": "--tooltip-icon-size-base",
+      "axis": "slots",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-16)",
+      "aliasOf": "--spacing-16",
+      "literal": false
+    },
+    "--tooltip-icon-size-large": {
+      "name": "--tooltip-icon-size-large",
+      "axis": "slots",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-18)",
+      "aliasOf": "--spacing-18",
+      "literal": false
+    },
+    "--tooltip-icon-color": {
+      "name": "--tooltip-icon-color",
+      "axis": "slots",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "currentColor",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-transition-property": {
+      "name": "--tooltip-transition-property",
+      "axis": "motion",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-property",
+      "value": "opacity, transform",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-transition-duration": {
+      "name": "--tooltip-transition-duration",
+      "axis": "motion",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-duration",
+      "value": "var(--duration-fast)",
+      "aliasOf": "--duration-fast",
+      "literal": false
+    },
+    "--tooltip-transition-easing": {
+      "name": "--tooltip-transition-easing",
+      "axis": "motion",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-easing",
+      "value": "var(--easing-in-out)",
+      "aliasOf": "--easing-in-out",
+      "literal": false
+    },
+    "--tooltip-enter-scale": {
+      "name": "--tooltip-enter-scale",
+      "axis": "motion",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "enter-scale",
+      "value": "0.96",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-show-delay": {
+      "name": "--tooltip-show-delay",
+      "axis": "motion",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "show-delay",
+      "value": "200ms",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-hide-delay": {
+      "name": "--tooltip-hide-delay",
+      "axis": "motion",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "hide-delay",
+      "value": "0ms",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-animation-enter": {
+      "name": "--tooltip-animation-enter",
+      "axis": "motion",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "animation-enter",
+      "value": "tooltip-enter 0.15s var(--easing-in-out)",
+      "aliasOf": "--easing-in-out",
+      "literal": false
+    },
+    "--tooltip-z-index": {
+      "name": "--tooltip-z-index",
+      "axis": "a11y",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "z-index",
+      "value": "1000",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-pointer-events": {
+      "name": "--tooltip-pointer-events",
+      "axis": "a11y",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "pointer-events",
+      "value": "none",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-disabled-opacity": {
+      "name": "--tooltip-disabled-opacity",
+      "axis": "a11y",
+      "role": "opacity",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "disabled-opacity",
+      "value": "0.5",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--tooltip-shadow": {
+      "name": "--tooltip-shadow",
+      "axis": "a11y",
+      "role": "shadow",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "shadow",
+      "value": "var(--shadow-sm)",
+      "aliasOf": "--shadow-sm",
+      "literal": false
+    },
+    "--tooltip-light-shadow": {
+      "name": "--tooltip-light-shadow",
+      "axis": "a11y",
+      "role": "shadow",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "light-shadow",
+      "value": "var(--shadow-md)",
+      "aliasOf": "--shadow-md",
+      "literal": false
+    }
+  }
+}

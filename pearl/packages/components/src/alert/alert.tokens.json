@@ -1,0 +1,1669 @@
+{
+  "$schema": "https://design-token-forge.dev/schema/component-manifest.v1.json",
+  "component": "alert",
+  "archetype": "feedback-banner",
+  "axes": {
+    "declared": [
+      "shape",
+      "dimension",
+      "surface",
+      "typography",
+      "slots",
+      "motion",
+      "a11y"
+    ],
+    "present": [],
+    "tokenCountByAxis": {
+      "unclassified": 122
+    }
+  },
+  "enumerations": {
+    "variants": [],
+    "roles": [
+      "brand",
+      "danger",
+      "info",
+      "neutral",
+      "success",
+      "warning"
+    ],
+    "states": [
+      "hover"
+    ],
+    "sizes": [
+      "base",
+      "large",
+      "small"
+    ]
+  },
+  "fillSurfaces": [
+    {
+      "fillToken": "--alert-brand-bg",
+      "group": "brand",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-info-bg",
+      "group": "info",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-success-bg",
+      "group": "success",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-warning-bg",
+      "group": "warning",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-danger-bg",
+      "group": "danger",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-neutral-bg",
+      "group": "neutral",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-brand-filled-bg",
+      "group": "brand",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-info-filled-bg",
+      "group": "info",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-success-filled-bg",
+      "group": "success",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-warning-filled-bg",
+      "group": "warning",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-danger-filled-bg",
+      "group": "danger",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-neutral-filled-bg",
+      "group": "neutral",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-brand-soft-bg",
+      "group": "brand",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-info-soft-bg",
+      "group": "info",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-success-soft-bg",
+      "group": "success",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-warning-soft-bg",
+      "group": "warning",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-danger-soft-bg",
+      "group": "danger",
+      "states": [
+        "default"
+      ]
+    },
+    {
+      "fillToken": "--alert-neutral-soft-bg",
+      "group": "neutral",
+      "states": [
+        "default"
+      ]
+    }
+  ],
+  "onComponentTokens": [
+    {
+      "token": "--alert-{role}-filled-fg",
+      "fillStates": [
+        "--alert-{role}-filled-bg"
+      ],
+      "derivation": "auto-aa",
+      "wcag": "AA",
+      "notes": "Filled-variant text reads against component fill; ships from {role}-on-component derivation."
+    }
+  ],
+  "editorExposure": {
+    "--alert-accent-width": "advanced",
+    "--alert-accent-radius": "advanced",
+    "--alert-min-height": "advanced",
+    "--alert-icon-offset": "advanced",
+    "--alert-close-opacity": "advanced",
+    "--alert-close-hover-opacity": "advanced",
+    "--alert-close-hover-bg": "advanced",
+    "--alert-animation-enter": "advanced",
+    "--alert-animation-dismiss": "advanced",
+    "--alert-focus-outline-offset": "advanced"
+  },
+  "figma": {
+    "bindingPrefix": "alert/"
+  },
+  "gaps": {
+    "missingRoles": [],
+    "missingVariants": [
+      "default",
+      "outlined",
+      "soft"
+    ],
+    "remapOnlyRoles": []
+  },
+  "tokenCount": 122,
+  "tokens": {
+    "--alert-radius": {
+      "name": "--alert-radius",
+      "axis": "unclassified",
+      "role": "radius",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "radius",
+      "value": "var(--radius-md)",
+      "aliasOf": "--radius-md",
+      "literal": false
+    },
+    "--alert-border-width": {
+      "name": "--alert-border-width",
+      "axis": "unclassified",
+      "role": "border-width",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-width",
+      "value": "1px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-border-style": {
+      "name": "--alert-border-style",
+      "axis": "unclassified",
+      "role": "border-style",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-style",
+      "value": "solid",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-border-color": {
+      "name": "--alert-border-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "border-color",
+      "value": "transparent",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-accent-width": {
+      "name": "--alert-accent-width",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "accent-width",
+      "value": "4px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-accent-radius": {
+      "name": "--alert-accent-radius",
+      "axis": "unclassified",
+      "role": "radius",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "accent-radius",
+      "value": "var(--radius-full)",
+      "aliasOf": "--radius-full",
+      "literal": false
+    },
+    "--alert-padding-y-small": {
+      "name": "--alert-padding-y-small",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-10)",
+      "aliasOf": "--spacing-10",
+      "literal": false
+    },
+    "--alert-padding-x-small": {
+      "name": "--alert-padding-x-small",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-12)",
+      "aliasOf": "--spacing-12",
+      "literal": false
+    },
+    "--alert-gap-small": {
+      "name": "--alert-gap-small",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-8)",
+      "aliasOf": "--spacing-8",
+      "literal": false
+    },
+    "--alert-content-gap-small": {
+      "name": "--alert-content-gap-small",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "content-gap",
+      "value": "var(--spacing-2)",
+      "aliasOf": "--spacing-2",
+      "literal": false
+    },
+    "--alert-font-size-small": {
+      "name": "--alert-font-size-small",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-13)",
+      "aliasOf": "--font-size-13",
+      "literal": false
+    },
+    "--alert-title-font-size-small": {
+      "name": "--alert-title-font-size-small",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "title-font-size",
+      "value": "var(--font-size-13)",
+      "aliasOf": "--font-size-13",
+      "literal": false
+    },
+    "--alert-icon-size-small": {
+      "name": "--alert-icon-size-small",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-16)",
+      "aliasOf": "--spacing-16",
+      "literal": false
+    },
+    "--alert-close-size-small": {
+      "name": "--alert-close-size-small",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "small",
+      "state": null,
+      "property": "close-size",
+      "value": "var(--spacing-16)",
+      "aliasOf": "--spacing-16",
+      "literal": false
+    },
+    "--alert-padding-y-base": {
+      "name": "--alert-padding-y-base",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-14)",
+      "aliasOf": "--spacing-14",
+      "literal": false
+    },
+    "--alert-padding-x-base": {
+      "name": "--alert-padding-x-base",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-16)",
+      "aliasOf": "--spacing-16",
+      "literal": false
+    },
+    "--alert-gap-base": {
+      "name": "--alert-gap-base",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-12)",
+      "aliasOf": "--spacing-12",
+      "literal": false
+    },
+    "--alert-content-gap-base": {
+      "name": "--alert-content-gap-base",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "content-gap",
+      "value": "var(--spacing-4)",
+      "aliasOf": "--spacing-4",
+      "literal": false
+    },
+    "--alert-font-size-base": {
+      "name": "--alert-font-size-base",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-14)",
+      "aliasOf": "--font-size-14",
+      "literal": false
+    },
+    "--alert-title-font-size-base": {
+      "name": "--alert-title-font-size-base",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "title-font-size",
+      "value": "var(--font-size-14)",
+      "aliasOf": "--font-size-14",
+      "literal": false
+    },
+    "--alert-icon-size-base": {
+      "name": "--alert-icon-size-base",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-20)",
+      "aliasOf": "--spacing-20",
+      "literal": false
+    },
+    "--alert-close-size-base": {
+      "name": "--alert-close-size-base",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "base",
+      "state": null,
+      "property": "close-size",
+      "value": "var(--spacing-20)",
+      "aliasOf": "--spacing-20",
+      "literal": false
+    },
+    "--alert-padding-y-large": {
+      "name": "--alert-padding-y-large",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "padding-y",
+      "value": "var(--spacing-18)",
+      "aliasOf": "--spacing-18",
+      "literal": false
+    },
+    "--alert-padding-x-large": {
+      "name": "--alert-padding-x-large",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "padding-x",
+      "value": "var(--spacing-20)",
+      "aliasOf": "--spacing-20",
+      "literal": false
+    },
+    "--alert-gap-large": {
+      "name": "--alert-gap-large",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "gap",
+      "value": "var(--spacing-14)",
+      "aliasOf": "--spacing-14",
+      "literal": false
+    },
+    "--alert-content-gap-large": {
+      "name": "--alert-content-gap-large",
+      "axis": "unclassified",
+      "role": "spacing",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "content-gap",
+      "value": "var(--spacing-6)",
+      "aliasOf": "--spacing-6",
+      "literal": false
+    },
+    "--alert-font-size-large": {
+      "name": "--alert-font-size-large",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "font-size",
+      "value": "var(--font-size-16)",
+      "aliasOf": "--font-size-16",
+      "literal": false
+    },
+    "--alert-title-font-size-large": {
+      "name": "--alert-title-font-size-large",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "title-font-size",
+      "value": "var(--font-size-16)",
+      "aliasOf": "--font-size-16",
+      "literal": false
+    },
+    "--alert-icon-size-large": {
+      "name": "--alert-icon-size-large",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "icon-size",
+      "value": "var(--spacing-24)",
+      "aliasOf": "--spacing-24",
+      "literal": false
+    },
+    "--alert-close-size-large": {
+      "name": "--alert-close-size-large",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": "large",
+      "state": null,
+      "property": "close-size",
+      "value": "var(--spacing-24)",
+      "aliasOf": "--spacing-24",
+      "literal": false
+    },
+    "--alert-min-height": {
+      "name": "--alert-min-height",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "min-height",
+      "value": "48px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-icon-offset": {
+      "name": "--alert-icon-offset",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "icon-offset",
+      "value": "2px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-brand-bg": {
+      "name": "--alert-brand-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--brand-container-bg)",
+      "aliasOf": "--brand-container-bg",
+      "literal": false
+    },
+    "--alert-brand-fg": {
+      "name": "--alert-brand-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--brand-content-default)",
+      "aliasOf": "--brand-content-default",
+      "literal": false
+    },
+    "--alert-brand-accent": {
+      "name": "--alert-brand-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--brand-component-bg-default)",
+      "aliasOf": "--brand-component-bg-default",
+      "literal": false
+    },
+    "--alert-brand-border": {
+      "name": "--alert-brand-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "border",
+      "value": "var(--brand-container-bg)",
+      "aliasOf": "--brand-container-bg",
+      "literal": false
+    },
+    "--alert-brand-icon-color": {
+      "name": "--alert-brand-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--brand-component-bg-default)",
+      "aliasOf": "--brand-component-bg-default",
+      "literal": false
+    },
+    "--alert-brand-title-color": {
+      "name": "--alert-brand-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--brand-content-strong)",
+      "aliasOf": "--brand-content-strong",
+      "literal": false
+    },
+    "--alert-brand-link-color": {
+      "name": "--alert-brand-link-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "link-color",
+      "value": "var(--brand-content-default)",
+      "aliasOf": "--brand-content-default",
+      "literal": false
+    },
+    "--alert-brand-link-hover": {
+      "name": "--alert-brand-link-hover",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "brand",
+      "size": null,
+      "state": "hover",
+      "property": "link",
+      "value": "var(--brand-content-strong)",
+      "aliasOf": "--brand-content-strong",
+      "literal": false
+    },
+    "--alert-info-bg": {
+      "name": "--alert-info-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--info-container-bg)",
+      "aliasOf": "--info-container-bg",
+      "literal": false
+    },
+    "--alert-info-fg": {
+      "name": "--alert-info-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--info-content-default)",
+      "aliasOf": "--info-content-default",
+      "literal": false
+    },
+    "--alert-info-accent": {
+      "name": "--alert-info-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--alert-info-border": {
+      "name": "--alert-info-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "border",
+      "value": "var(--info-container-bg)",
+      "aliasOf": "--info-container-bg",
+      "literal": false
+    },
+    "--alert-info-icon-color": {
+      "name": "--alert-info-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--alert-info-title-color": {
+      "name": "--alert-info-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--info-content-strong)",
+      "aliasOf": "--info-content-strong",
+      "literal": false
+    },
+    "--alert-info-link-color": {
+      "name": "--alert-info-link-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "link-color",
+      "value": "var(--info-content-default)",
+      "aliasOf": "--info-content-default",
+      "literal": false
+    },
+    "--alert-info-link-hover": {
+      "name": "--alert-info-link-hover",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "info",
+      "size": null,
+      "state": "hover",
+      "property": "link",
+      "value": "var(--info-content-strong)",
+      "aliasOf": "--info-content-strong",
+      "literal": false
+    },
+    "--alert-success-bg": {
+      "name": "--alert-success-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--success-container-bg)",
+      "aliasOf": "--success-container-bg",
+      "literal": false
+    },
+    "--alert-success-fg": {
+      "name": "--alert-success-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--success-content-default)",
+      "aliasOf": "--success-content-default",
+      "literal": false
+    },
+    "--alert-success-accent": {
+      "name": "--alert-success-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--alert-success-border": {
+      "name": "--alert-success-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "border",
+      "value": "var(--success-container-bg)",
+      "aliasOf": "--success-container-bg",
+      "literal": false
+    },
+    "--alert-success-icon-color": {
+      "name": "--alert-success-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--alert-success-title-color": {
+      "name": "--alert-success-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--success-content-strong)",
+      "aliasOf": "--success-content-strong",
+      "literal": false
+    },
+    "--alert-success-link-color": {
+      "name": "--alert-success-link-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "link-color",
+      "value": "var(--success-content-default)",
+      "aliasOf": "--success-content-default",
+      "literal": false
+    },
+    "--alert-success-link-hover": {
+      "name": "--alert-success-link-hover",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "success",
+      "size": null,
+      "state": "hover",
+      "property": "link",
+      "value": "var(--success-content-strong)",
+      "aliasOf": "--success-content-strong",
+      "literal": false
+    },
+    "--alert-warning-bg": {
+      "name": "--alert-warning-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--warning-container-bg)",
+      "aliasOf": "--warning-container-bg",
+      "literal": false
+    },
+    "--alert-warning-fg": {
+      "name": "--alert-warning-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--warning-content-default)",
+      "aliasOf": "--warning-content-default",
+      "literal": false
+    },
+    "--alert-warning-accent": {
+      "name": "--alert-warning-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--alert-warning-border": {
+      "name": "--alert-warning-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "border",
+      "value": "var(--warning-container-bg)",
+      "aliasOf": "--warning-container-bg",
+      "literal": false
+    },
+    "--alert-warning-icon-color": {
+      "name": "--alert-warning-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--alert-warning-title-color": {
+      "name": "--alert-warning-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--warning-content-strong)",
+      "aliasOf": "--warning-content-strong",
+      "literal": false
+    },
+    "--alert-warning-link-color": {
+      "name": "--alert-warning-link-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "link-color",
+      "value": "var(--warning-content-default)",
+      "aliasOf": "--warning-content-default",
+      "literal": false
+    },
+    "--alert-warning-link-hover": {
+      "name": "--alert-warning-link-hover",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "warning",
+      "size": null,
+      "state": "hover",
+      "property": "link",
+      "value": "var(--warning-content-strong)",
+      "aliasOf": "--warning-content-strong",
+      "literal": false
+    },
+    "--alert-danger-bg": {
+      "name": "--alert-danger-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--danger-container-bg)",
+      "aliasOf": "--danger-container-bg",
+      "literal": false
+    },
+    "--alert-danger-fg": {
+      "name": "--alert-danger-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--danger-content-default)",
+      "aliasOf": "--danger-content-default",
+      "literal": false
+    },
+    "--alert-danger-accent": {
+      "name": "--alert-danger-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--alert-danger-border": {
+      "name": "--alert-danger-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "border",
+      "value": "var(--danger-container-bg)",
+      "aliasOf": "--danger-container-bg",
+      "literal": false
+    },
+    "--alert-danger-icon-color": {
+      "name": "--alert-danger-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--alert-danger-title-color": {
+      "name": "--alert-danger-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--danger-content-strong)",
+      "aliasOf": "--danger-content-strong",
+      "literal": false
+    },
+    "--alert-danger-link-color": {
+      "name": "--alert-danger-link-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "link-color",
+      "value": "var(--danger-content-default)",
+      "aliasOf": "--danger-content-default",
+      "literal": false
+    },
+    "--alert-danger-link-hover": {
+      "name": "--alert-danger-link-hover",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "danger",
+      "size": null,
+      "state": "hover",
+      "property": "link",
+      "value": "var(--danger-content-strong)",
+      "aliasOf": "--danger-content-strong",
+      "literal": false
+    },
+    "--alert-neutral-bg": {
+      "name": "--alert-neutral-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "bg",
+      "value": "var(--surface-base-cn-bg)",
+      "aliasOf": "--surface-base-cn-bg",
+      "literal": false
+    },
+    "--alert-neutral-fg": {
+      "name": "--alert-neutral-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "fg",
+      "value": "var(--surface-base-ct-default)",
+      "aliasOf": "--surface-base-ct-default",
+      "literal": false
+    },
+    "--alert-neutral-accent": {
+      "name": "--alert-neutral-accent",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "accent",
+      "value": "var(--surface-base-cm-outline)",
+      "aliasOf": "--surface-base-cm-outline",
+      "literal": false
+    },
+    "--alert-neutral-border": {
+      "name": "--alert-neutral-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "border",
+      "value": "var(--surface-base-cn-bg)",
+      "aliasOf": "--surface-base-cn-bg",
+      "literal": false
+    },
+    "--alert-neutral-icon-color": {
+      "name": "--alert-neutral-icon-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "icon-color",
+      "value": "var(--surface-base-ct-subtle)",
+      "aliasOf": "--surface-base-ct-subtle",
+      "literal": false
+    },
+    "--alert-neutral-title-color": {
+      "name": "--alert-neutral-title-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "title-color",
+      "value": "var(--surface-base-ct-strong)",
+      "aliasOf": "--surface-base-ct-strong",
+      "literal": false
+    },
+    "--alert-neutral-link-color": {
+      "name": "--alert-neutral-link-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "link-color",
+      "value": "var(--surface-base-ct-default)",
+      "aliasOf": "--surface-base-ct-default",
+      "literal": false
+    },
+    "--alert-neutral-link-hover": {
+      "name": "--alert-neutral-link-hover",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "neutral",
+      "size": null,
+      "state": "hover",
+      "property": "link",
+      "value": "var(--surface-base-ct-strong)",
+      "aliasOf": "--surface-base-ct-strong",
+      "literal": false
+    },
+    "--alert-brand-filled-bg": {
+      "name": "--alert-brand-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--brand-component-bg-default)",
+      "aliasOf": "--brand-component-bg-default",
+      "literal": false
+    },
+    "--alert-brand-filled-fg": {
+      "name": "--alert-brand-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--brand-on-component)",
+      "aliasOf": "--brand-on-component",
+      "literal": false
+    },
+    "--alert-info-filled-bg": {
+      "name": "--alert-info-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--alert-info-filled-fg": {
+      "name": "--alert-info-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--info-on-component)",
+      "aliasOf": "--info-on-component",
+      "literal": false
+    },
+    "--alert-success-filled-bg": {
+      "name": "--alert-success-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--alert-success-filled-fg": {
+      "name": "--alert-success-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--success-on-component)",
+      "aliasOf": "--success-on-component",
+      "literal": false
+    },
+    "--alert-warning-filled-bg": {
+      "name": "--alert-warning-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--alert-warning-filled-fg": {
+      "name": "--alert-warning-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--warning-on-component)",
+      "aliasOf": "--warning-on-component",
+      "literal": false
+    },
+    "--alert-danger-filled-bg": {
+      "name": "--alert-danger-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--alert-danger-filled-fg": {
+      "name": "--alert-danger-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--danger-on-component)",
+      "aliasOf": "--danger-on-component",
+      "literal": false
+    },
+    "--alert-neutral-filled-bg": {
+      "name": "--alert-neutral-filled-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "filled-bg",
+      "value": "var(--surface-base-cm-bg)",
+      "aliasOf": "--surface-base-cm-bg",
+      "literal": false
+    },
+    "--alert-neutral-filled-fg": {
+      "name": "--alert-neutral-filled-fg",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "filled-fg",
+      "value": "var(--surface-base-ct-strong)",
+      "aliasOf": "--surface-base-ct-strong",
+      "literal": false
+    },
+    "--alert-brand-outlined-border": {
+      "name": "--alert-brand-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--brand-component-bg-default)",
+      "aliasOf": "--brand-component-bg-default",
+      "literal": false
+    },
+    "--alert-info-outlined-border": {
+      "name": "--alert-info-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--info-component-bg-default)",
+      "aliasOf": "--info-component-bg-default",
+      "literal": false
+    },
+    "--alert-success-outlined-border": {
+      "name": "--alert-success-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--success-component-bg-default)",
+      "aliasOf": "--success-component-bg-default",
+      "literal": false
+    },
+    "--alert-warning-outlined-border": {
+      "name": "--alert-warning-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--warning-component-bg-default)",
+      "aliasOf": "--warning-component-bg-default",
+      "literal": false
+    },
+    "--alert-danger-outlined-border": {
+      "name": "--alert-danger-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--danger-component-bg-default)",
+      "aliasOf": "--danger-component-bg-default",
+      "literal": false
+    },
+    "--alert-neutral-outlined-border": {
+      "name": "--alert-neutral-outlined-border",
+      "axis": "unclassified",
+      "role": "unclassified",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "outlined-border",
+      "value": "var(--surface-base-cm-outline)",
+      "aliasOf": "--surface-base-cm-outline",
+      "literal": false
+    },
+    "--alert-brand-soft-bg": {
+      "name": "--alert-brand-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "brand",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--brand-container-bg)",
+      "aliasOf": "--brand-container-bg",
+      "literal": false
+    },
+    "--alert-info-soft-bg": {
+      "name": "--alert-info-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "info",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--info-container-bg)",
+      "aliasOf": "--info-container-bg",
+      "literal": false
+    },
+    "--alert-success-soft-bg": {
+      "name": "--alert-success-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "success",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--success-container-bg)",
+      "aliasOf": "--success-container-bg",
+      "literal": false
+    },
+    "--alert-warning-soft-bg": {
+      "name": "--alert-warning-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "warning",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--warning-container-bg)",
+      "aliasOf": "--warning-container-bg",
+      "literal": false
+    },
+    "--alert-danger-soft-bg": {
+      "name": "--alert-danger-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "danger",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--danger-container-bg)",
+      "aliasOf": "--danger-container-bg",
+      "literal": false
+    },
+    "--alert-neutral-soft-bg": {
+      "name": "--alert-neutral-soft-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": "neutral",
+      "size": null,
+      "state": null,
+      "property": "soft-bg",
+      "value": "var(--surface-base-cn-bg)",
+      "aliasOf": "--surface-base-cn-bg",
+      "literal": false
+    },
+    "--alert-font-family": {
+      "name": "--alert-font-family",
+      "axis": "unclassified",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "font-family",
+      "value": "var(--font-family-sans)",
+      "aliasOf": "--font-family-sans",
+      "literal": false
+    },
+    "--alert-font-weight": {
+      "name": "--alert-font-weight",
+      "axis": "unclassified",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "font-weight",
+      "value": "var(--font-weight-normal)",
+      "aliasOf": "--font-weight-normal",
+      "literal": false
+    },
+    "--alert-line-height": {
+      "name": "--alert-line-height",
+      "axis": "unclassified",
+      "role": "dimension",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "line-height",
+      "value": "1.5",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-title-font-weight": {
+      "name": "--alert-title-font-weight",
+      "axis": "unclassified",
+      "role": "typography",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "title-font-weight",
+      "value": "var(--font-weight-semibold)",
+      "aliasOf": "--font-weight-semibold",
+      "literal": false
+    },
+    "--alert-close-radius": {
+      "name": "--alert-close-radius",
+      "axis": "unclassified",
+      "role": "radius",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "close-radius",
+      "value": "var(--radius-sm)",
+      "aliasOf": "--radius-sm",
+      "literal": false
+    },
+    "--alert-close-opacity": {
+      "name": "--alert-close-opacity",
+      "axis": "unclassified",
+      "role": "opacity",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "close-opacity",
+      "value": "0.6",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-close-hover-opacity": {
+      "name": "--alert-close-hover-opacity",
+      "axis": "unclassified",
+      "role": "opacity",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "close-hover-opacity",
+      "value": "1",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-close-hover-bg": {
+      "name": "--alert-close-hover-bg",
+      "axis": "unclassified",
+      "role": "surface-bg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "close-hover-bg",
+      "value": "rgba(0,0,0,0.06)",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-transition-property": {
+      "name": "--alert-transition-property",
+      "axis": "unclassified",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-property",
+      "value": "opacity, transform",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-transition-duration": {
+      "name": "--alert-transition-duration",
+      "axis": "unclassified",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-duration",
+      "value": "var(--duration-normal)",
+      "aliasOf": "--duration-normal",
+      "literal": false
+    },
+    "--alert-transition-easing": {
+      "name": "--alert-transition-easing",
+      "axis": "unclassified",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "transition-easing",
+      "value": "var(--easing-in-out)",
+      "aliasOf": "--easing-in-out",
+      "literal": false
+    },
+    "--alert-animation-enter": {
+      "name": "--alert-animation-enter",
+      "axis": "unclassified",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "animation-enter",
+      "value": "alert-enter 0.25s var(--easing-in-out)",
+      "aliasOf": "--easing-in-out",
+      "literal": false
+    },
+    "--alert-animation-dismiss": {
+      "name": "--alert-animation-dismiss",
+      "axis": "unclassified",
+      "role": "motion",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "animation-dismiss",
+      "value": "alert-dismiss 0.2s var(--easing-in-out) forwards",
+      "aliasOf": "--easing-in-out",
+      "literal": false
+    },
+    "--alert-disabled-opacity": {
+      "name": "--alert-disabled-opacity",
+      "axis": "unclassified",
+      "role": "opacity",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "disabled-opacity",
+      "value": "0.5",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-focus-outline-width": {
+      "name": "--alert-focus-outline-width",
+      "axis": "unclassified",
+      "role": "outline",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "focus-outline-width",
+      "value": "2px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-focus-outline-color": {
+      "name": "--alert-focus-outline-color",
+      "axis": "unclassified",
+      "role": "surface-fg",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "focus-outline-color",
+      "value": "var(--brand-component-outline-default)",
+      "aliasOf": "--brand-component-outline-default",
+      "literal": false
+    },
+    "--alert-focus-outline-offset": {
+      "name": "--alert-focus-outline-offset",
+      "axis": "unclassified",
+      "role": "outline",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "focus-outline-offset",
+      "value": "2px",
+      "aliasOf": null,
+      "literal": true
+    },
+    "--alert-shadow": {
+      "name": "--alert-shadow",
+      "axis": "unclassified",
+      "role": "shadow",
+      "group": null,
+      "size": null,
+      "state": null,
+      "property": "shadow",
+      "value": "none",
+      "aliasOf": null,
+      "literal": true
+    }
+  }
+}

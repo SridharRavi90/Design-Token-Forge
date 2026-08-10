@@ -1,0 +1,179 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Progress Ring Token Defaults
+   Layer 0: System defaults for ~95 progress-ring variables.
+   SVG-driven circular progress indicator.
+   All values reference global tokens — zero hardcoded visuals.
+   ----------------------------------------------------------------
+   ANATOMY:
+     .progress-ring (wrapper, role="progressbar")
+       └─ <svg> (track circle + value circle)
+       └─ .progress-ring__label  (centered value / icon)
+       └─ .progress-ring__helper (optional external row)
+
+   VARIANTS  (data-variant):   filled (default) | outlined | soft
+   ROLES     (data-role):       brand (default) | danger | success | warning | info | neutral
+   STATES    (selectors):       default | indeterminate | disabled
+
+   ROLE TOKENS ship as inline named slots (--ring-{role}-fill / -soft-track),
+   mirroring progress-bar. data-role swaps the internal --_rg-* chain.
+   ════════════════════════════════════════════════════════════════ */
+
+.progress-ring {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+  --ring-stroke-linecap: round;
+  --ring-bg-opacity: 1;
+  --ring-rotation: -90deg;
+  --ring-direction: normal;
+
+  /* Shadow */
+  --ring-shadow: var(--shadow-none);
+  --ring-shadow-strong: var(--shadow-xs);
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (31 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Ring diameter per density */
+  --ring-size-micro: 16px;
+  --ring-size-tiny: 20px;
+  --ring-size-small: 24px;
+  --ring-size-base: 32px;
+  --ring-size-medium: 40px;
+  --ring-size-large: 48px;
+  --ring-size-big: 56px;
+  --ring-size-huge: 64px;
+  --ring-size-mega: 80px;
+  --ring-size-ultra: 96px;
+
+  /* Stroke width per density */
+  --ring-stroke-micro: 2px;
+  --ring-stroke-tiny: 2.5px;
+  --ring-stroke-small: 3px;
+  --ring-stroke-base: 3.5px;
+  --ring-stroke-medium: 4px;
+  --ring-stroke-large: 4.5px;
+  --ring-stroke-big: 5px;
+  --ring-stroke-huge: 5.5px;
+  --ring-stroke-mega: 6px;
+  --ring-stroke-ultra: 7px;
+
+  /* Gap between ring and external label per density */
+  --ring-gap-micro: var(--spacing-2);
+  --ring-gap-tiny: var(--spacing-3);
+  --ring-gap-small: var(--spacing-4);
+  --ring-gap-base: var(--spacing-6);
+  --ring-gap-medium: var(--spacing-6);
+  --ring-gap-large: var(--spacing-8);
+  --ring-gap-big: var(--spacing-10);
+  --ring-gap-huge: var(--spacing-12);
+  --ring-gap-mega: var(--spacing-14);
+  --ring-gap-ultra: var(--spacing-16);
+
+  /* Indeterminate dash width */
+  --ring-indeterminate-width: 25%;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (21 vars)
+     Pattern: --ring-{role}-{property}
+     ──────────────────────────────────────────────────────────── */
+
+  /* ── Track ── */
+  --ring-track-color: var(--surface-base-cm-bg);
+
+  /* ── BRAND role ── */
+  --ring-brand-fill: var(--brand-component-bg-default);
+  --ring-brand-soft-track: var(--brand-container-bg);
+
+  /* ── SUCCESS role ── */
+  --ring-success-fill: var(--success-component-bg-default);
+  --ring-success-soft-track: var(--success-container-bg);
+
+  /* ── WARNING role ── */
+  --ring-warning-fill: var(--warning-component-bg-default);
+  --ring-warning-soft-track: var(--warning-container-bg);
+
+  /* ── DANGER role ── */
+  --ring-danger-fill: var(--danger-component-bg-default);
+  --ring-danger-soft-track: var(--danger-container-bg);
+
+  /* ── INFO role ── */
+  --ring-info-fill: var(--info-component-bg-default);
+  --ring-info-soft-track: var(--info-container-bg);
+
+  /* ── NEUTRAL role ── */
+  --ring-neutral-fill: var(--surface-base-ct-faint);
+  --ring-neutral-soft-track: var(--surface-base-subtle);
+
+  /* ── Indeterminate ── */
+  --ring-indeterminate-fill: var(--brand-component-bg-default);
+
+  /* ── Disabled ── */
+  --ring-opacity-disabled: 0.5;
+
+  /* ── Label ── */
+  --ring-label-color: var(--surface-base-ct-default);
+  --ring-helper-color: var(--surface-base-ct-subtle);
+
+  /* ── Outline variant ── */
+  --ring-outlined-track-opacity: 0.3;
+  --ring-outlined-stroke-width-add: 0px;
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+  --ring-font-family: var(--font-family-sans);
+
+  /* Font size per density (for center label) */
+  --ring-font-size-micro: var(--font-size-10);
+  --ring-font-size-tiny: var(--font-size-10);
+  --ring-font-size-small: var(--font-size-10);
+  --ring-font-size-base: var(--font-size-10);
+  --ring-font-size-medium: var(--font-size-11);
+  --ring-font-size-large: var(--font-size-12);
+  --ring-font-size-big: var(--font-size-14);
+  --ring-font-size-huge: var(--font-size-16);
+  --ring-font-size-mega: var(--font-size-20);
+  --ring-font-size-ultra: var(--font-size-24);
+
+  --ring-font-weight: var(--font-weight-semibold);
+  --ring-line-height: var(--line-height-normal);
+  --ring-letter-spacing: var(--letter-spacing-normal);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Center icon size per density */
+  --ring-icon-size-micro: var(--spacing-8);
+  --ring-icon-size-tiny: var(--spacing-10);
+  --ring-icon-size-small: var(--spacing-12);
+  --ring-icon-size-base: var(--spacing-14);
+  --ring-icon-size-medium: var(--spacing-18);
+  --ring-icon-size-large: var(--spacing-20);
+  --ring-icon-size-big: var(--spacing-24);
+  --ring-icon-size-huge: var(--spacing-28);
+  --ring-icon-size-mega: var(--spacing-32);
+  --ring-icon-size-ultra: var(--spacing-40);
+
+  --ring-icon-color: currentColor;
+  --ring-helper-font-size: var(--font-size-11);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (5 vars)
+     ──────────────────────────────────────────────────────────── */
+  --ring-transition-duration: var(--duration-normal);
+  --ring-transition-easing: var(--easing-in-out);
+  --ring-indeterminate-duration: 1.4s;
+  --ring-indeterminate-easing: linear;
+  --ring-enter-duration: var(--duration-normal);
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+  --ring-focus-outline-width: var(--focus-outline-width);
+  --ring-focus-outline-color: var(--brand-component-outline-default);
+  --ring-focus-outline-offset: var(--focus-outline-offset);
+}

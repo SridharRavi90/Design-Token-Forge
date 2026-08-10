@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Framework Integration</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/button/button.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/button/button.css">
+<link rel="stylesheet" href="../packages/components/src/input/input.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/input/input.css">
+<link rel="stylesheet" href="../packages/components/src/select/select.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/select/select.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<style>
+.fw-header{padding:40px 40px 32px;max-width:1100px;width:100%;margin:0 auto;border-bottom:1px solid var(--demo-border)}
+.fw-header h1{font-size:var(--font-size-28,28px);font-weight:800;color:var(--demo-fg-strong);letter-spacing:-0.02em}
+.fw-header h1 span{font-weight:300;color:var(--demo-fg-subtle)}
+.fw-subtitle{font-size:var(--font-size-14,14px);color:var(--demo-fg-subtle);max-width:64ch;margin:8px 0 0;line-height:1.6}
+.fw-badges{display:flex;gap:8px;margin:16px 0 0;flex-wrap:wrap}
+.fw-badge{font-size:var(--font-size-11,11px);padding:3px 10px;border-radius:var(--radius-sm,4px);background:var(--demo-cm-bg);color:var(--demo-fg-subtle);font-weight:600;white-space:nowrap}
+.fw-main{max-width:1100px;width:100%;margin:0 auto;padding:40px;display:flex;flex-direction:column;gap:48px}
+
+/* Principle cards */
+.principle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.principle-card{padding:20px;border:1px solid var(--demo-border);border-radius:var(--radius-lg,12px);background:var(--demo-surface)}
+.principle-card .pc-icon{font-size:28px;margin-bottom:10px}
+.principle-card h3{font-size:var(--font-size-14,14px);font-weight:700;color:var(--demo-fg-strong);margin-bottom:6px}
+.principle-card p{font-size:var(--font-size-12,12px);color:var(--demo-fg-subtle);line-height:1.5}
+
+/* Code blocks */
+.code-block{position:relative;border-radius:var(--radius-md,6px);overflow:hidden;border:1px solid var(--demo-border)}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--demo-surface-alt);border-bottom:1px solid var(--demo-border);font-size:var(--font-size-11,11px);font-weight:600;color:var(--demo-fg-subtle)}
+.code-header .code-lang{display:flex;align-items:center;gap:6px}
+.code-header .code-file{font-family:var(--font-family-mono,monospace);color:var(--demo-fg-faint);font-weight:400}
+.code-copy{padding:3px 10px;border-radius:var(--radius-xs,3px);border:1px solid var(--demo-border);background:var(--demo-surface);color:var(--demo-fg-subtle);font-size:var(--font-size-10,10px);font-weight:600;cursor:pointer;font-family:inherit;transition:all 150ms ease}
+.code-copy:hover{background:var(--demo-surface-alt);color:var(--demo-fg-strong)}
+pre.code-body{margin:0;padding:16px;overflow-x:auto;font-family:var(--font-family-mono,monospace);font-size:var(--font-size-12,12px);line-height:1.65;color:var(--demo-fg);background:var(--demo-surface);tab-size:2}
+pre.code-body .kw{color:var(--brand-content-default,#286CE5)}
+pre.code-body .str{color:var(--success-content-default,#16a34a)}
+pre.code-body .cm{color:var(--demo-fg-faint);font-style:italic}
+pre.code-body .fn{color:var(--warning-content-default,#d97706)}
+pre.code-body .tag{color:var(--danger-content-default,#dc2626)}
+
+/* Framework tabs */
+.fw-tabs{display:flex;gap:0;border-bottom:2px solid var(--demo-border);margin-bottom:0}
+.fw-tab{padding:10px 20px;font-size:var(--font-size-12,12px);font-weight:600;color:var(--demo-fg-faint);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;transition:all 150ms ease;display:flex;align-items:center;gap:6px}
+.fw-tab:hover{color:var(--demo-fg-subtle)}
+.fw-tab[aria-selected="true"]{color:var(--brand-content-default);border-bottom-color:var(--brand-content-default)}
+.fw-tab-icon{width:16px;height:16px;opacity:0.6}
+.fw-tab[aria-selected="true"] .fw-tab-icon{opacity:1}
+.fw-panel{display:none}
+.fw-panel[data-active]{display:block}
+.fw-panel-stack{display:flex;flex-direction:column;gap:16px;padding-top:20px}
+
+/* Install steps */
+.install-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.install-pill{padding:4px 12px;border-radius:var(--radius-sm,4px);border:1px solid var(--demo-border);font-size:var(--font-size-11,11px);font-weight:600;font-family:var(--font-family-mono,monospace);color:var(--demo-fg-subtle);cursor:pointer;background:var(--demo-surface);transition:all 120ms ease}
+.install-pill:hover,.install-pill[aria-pressed="true"]{background:var(--demo-cm-bg);color:var(--demo-fg-strong);border-color:var(--brand-component-outline-default)}
+
+/* Architecture diagram */
+.arch-diagram{display:flex;flex-direction:column;gap:0;padding:24px;border:1px solid var(--demo-border);border-radius:var(--radius-lg,12px);background:var(--demo-surface)}
+.arch-row{display:flex;align-items:center;gap:12px;padding:12px 0}
+.arch-row+.arch-row{border-top:1px dashed var(--demo-border)}
+.arch-box{padding:8px 16px;border-radius:var(--radius-md,6px);font-size:var(--font-size-12,12px);font-weight:600;white-space:nowrap}
+.arch-css{background:var(--brand-component-bg-default);color:var(--brand-on-component)}
+.arch-yours{background:var(--demo-cm-bg);color:var(--demo-fg-subtle);border:1px dashed var(--demo-fg-faint)}
+.arch-arrow{color:var(--demo-fg-faint);font-size:18px}
+.arch-label{font-size:var(--font-size-11,11px);color:var(--demo-fg-faint);flex:1}
+
+/* Live preview */
+.live-preview{padding:24px;border:1px solid var(--demo-border);border-radius:var(--radius-lg,12px);background:var(--demo-surface);display:flex;flex-direction:column;gap:16px}
+.live-label{font-size:var(--font-size-11,11px);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--demo-fg-faint)}
+.live-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+
+/* Section */
+.fw-section{display:flex;flex-direction:column;gap:16px}
+.fw-section h2{font-size:var(--font-size-20,20px);font-weight:700;color:var(--demo-fg-strong);letter-spacing:-0.01em}
+.fw-section h3{font-size:var(--font-size-16,16px);font-weight:600;color:var(--demo-fg-strong)}
+.fw-section>p{font-size:var(--font-size-13,13px);color:var(--demo-fg-subtle);line-height:1.6;max-width:72ch}
+
+/* Mapping table */
+.map-table{width:100%;border-collapse:collapse;font-size:var(--font-size-12,12px)}
+.map-table th{text-align:left;padding:10px 16px;background:var(--demo-surface-alt);font-weight:700;color:var(--demo-fg-strong);border-bottom:2px solid var(--demo-border);font-size:var(--font-size-11,11px);text-transform:uppercase;letter-spacing:0.04em}
+.map-table td{padding:10px 16px;border-bottom:1px solid var(--demo-border);color:var(--demo-fg-subtle);vertical-align:top}
+.map-table code{font-size:var(--font-size-11,11px);padding:2px 6px;border-radius:var(--radius-xs,3px);background:var(--demo-cm-bg);font-family:var(--font-family-mono,monospace);white-space:nowrap}
+.map-table tr:last-child td{border-bottom:none}
+
+.sub-note{font-size:var(--font-size-11,11px);color:var(--demo-fg-faint);line-height:1.5;padding:12px 16px;border-left:3px solid var(--brand-component-outline-default);background:var(--demo-cm-bg);border-radius:0 var(--radius-sm,4px) var(--radius-sm,4px) 0}
+</style>
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────── -->
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<!-- ── Header ──────────────────────────────────────── -->
+<header class="fw-header">
+  <h1>Framework Integration <span>— Use DTF Anywhere</span></h1>
+  <p class="fw-subtitle">Design Token Forge is CSS-first and framework-agnostic. Our tokens are CSS custom properties, our components are pure CSS with data attributes. Your framework handles logic — our CSS handles every pixel.</p>
+  <div class="fw-badges">
+    <span class="fw-badge">React</span>
+    <span class="fw-badge">Vue</span>
+    <span class="fw-badge">Angular</span>
+    <span class="fw-badge">Svelte</span>
+    <span class="fw-badge">Solid</span>
+    <span class="fw-badge">Web Components</span>
+    <span class="fw-badge">Vanilla JS</span>
+    <span class="fw-badge">Slyte (Zoho)</span>
+    <span class="fw-badge">Zero Runtime</span>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────── -->
+<main class="fw-main">
+
+  <!-- ══ 1. Core Principle ════════════════════════════ -->
+  <section class="fw-section">
+    <h2>Core Principle</h2>
+    <p>Design Token Forge separates <strong>visual styling</strong> (CSS custom properties + data-attribute selectors) from <strong>component logic</strong> (events, state, reactivity). Your framework owns the logic. Our CSS owns every visual property.</p>
+
+    <div class="principle-grid">
+      <div class="principle-card">
+        <div class="pc-icon">🎨</div>
+        <h3>Tokens = CSS Vars</h3>
+        <p>All design tokens are native CSS custom properties. They work everywhere CSS works — no build step, no runtime, no JS overhead.</p>
+      </div>
+      <div class="principle-card">
+        <div class="pc-icon">📐</div>
+        <h3>Data Attributes</h3>
+        <p>Variants and sizes use <code>data-variant</code> and <code>data-size</code> — which map 1:1 to your component props.</p>
+      </div>
+      <div class="principle-card">
+        <div class="pc-icon">🔌</div>
+        <h3>Import CSS, Write Props</h3>
+        <p>Import our token + component CSS files. Then write thin wrapper components that pass props as data attributes.</p>
+      </div>
+      <div class="principle-card">
+        <div class="pc-icon">⚡</div>
+        <h3>Zero Runtime Cost</h3>
+        <p>No CSS-in-JS, no style injection, no theme provider. Pure CSS that the browser already knows how to optimize.</p>
+      </div>
+    </div>
+
+    <!-- Architecture diagram -->
+    <div class="arch-diagram">
+      <div class="arch-row">
+        <div class="arch-box arch-css">DTF Tokens CSS</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box arch-css">DTF Component CSS</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box arch-yours">Your Framework Wrapper</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box arch-yours">Your App</div>
+      </div>
+      <div class="arch-row">
+        <div class="arch-label">
+          <strong>What we provide:</strong> ~740 global tokens + per-component tokens + component CSS (data-attribute selectors)
+        </div>
+      </div>
+      <div class="arch-row">
+        <div class="arch-label">
+          <strong>What you write:</strong> A thin wrapper (5-20 lines) that maps your framework props → our HTML structure + data attributes
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 2. Installation ══════════════════════════════ -->
+  <section class="fw-section">
+    <h2>Installation</h2>
+    <p>Import the tokens and any component CSS you need. Works with any bundler, CDN, or direct link.</p>
+
+    <div class="install-pills" id="installPills">
+      <button class="install-pill" aria-pressed="true" data-pkg="npm" type="button">npm</button>
+      <button class="install-pill" aria-pressed="false" data-pkg="pnpm" type="button">pnpm</button>
+      <button class="install-pill" aria-pressed="false" data-pkg="yarn" type="button">yarn</button>
+      <button class="install-pill" aria-pressed="false" data-pkg="cdn" type="button">CDN</button>
+    </div>
+
+    <div class="code-block" id="installBlock">
+      <div class="code-header"><span class="code-lang">Terminal</span><button class="code-copy" data-target="installCode" type="button">Copy</button></div>
+      <pre class="code-body" id="installCode">npm install @design-token-forge/tokens @design-token-forge/components</pre>
+    </div>
+
+    <div class="code-block" style="margin-top:12px">
+      <div class="code-header"><span class="code-lang">CSS / JS</span><span class="code-file">Import in your entry point</span></div>
+      <pre class="code-body"><span class="cm">/* Import global tokens (required) */</span>
+<span class="kw">@import</span> <span class="str">'@design-token-forge/tokens'</span>;
+
+<span class="cm">/* Import only the components you use */</span>
+<span class="kw">@import</span> <span class="str">'@design-token-forge/components/button'</span>;
+<span class="kw">@import</span> <span class="str">'@design-token-forge/components/input'</span>;
+<span class="kw">@import</span> <span class="str">'@design-token-forge/components/select'</span>;
+<span class="cm">/* ... add more as needed */</span></pre>
+    </div>
+  </section>
+
+  <!-- ══ 3. Prop → Data Attribute Mapping ════════════ -->
+  <section class="fw-section">
+    <h2>How Props Map to CSS</h2>
+    <p>The key insight: your framework component props translate directly to HTML <code>data-*</code> attributes. Our CSS selectors do the rest.</p>
+
+    <table class="map-table">
+      <thead>
+        <tr><th>Your Prop</th><th>HTML Output</th><th>DTF CSS Selector</th><th>Effect</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>variant="brand"</code></td>
+          <td><code>data-variant="filled" data-role="brand"</code></td>
+          <td><code>[data-variant="filled" data-role="brand"]</code></td>
+          <td>Applies brand surface colors</td>
+        </tr>
+        <tr>
+          <td><code>size="large"</code></td>
+          <td><code>data-size="large"</code></td>
+          <td><code>[data-size="large"]</code></td>
+          <td>Sets height, padding, font-size, radius</td>
+        </tr>
+        <tr>
+          <td><code>disabled</code></td>
+          <td><code>data-disabled</code> + <code>disabled</code></td>
+          <td><code>[data-disabled]</code></td>
+          <td>Applies disabled opacity + cursor</td>
+        </tr>
+        <tr>
+          <td><code>error</code></td>
+          <td><code>data-error</code></td>
+          <td><code>[aria-invalid="true"]</code></td>
+          <td>Switches to error border + text colors</td>
+        </tr>
+        <tr>
+          <td><code>loading</code></td>
+          <td><code>data-loading</code></td>
+          <td><code>[data-loading]</code></td>
+          <td>Shows shimmer / spinner animation</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-note">
+      <strong>That's the whole pattern.</strong> Every DTF component uses the same convention: props become data attributes, our CSS selectors match them, and the browser renders everything. No JS runtime needed for styling.
+    </div>
+  </section>
+
+  <!-- ══ 4. Framework Examples ════════════════════════ -->
+  <section class="fw-section">
+    <h2>Framework Wrappers</h2>
+    <p>Select your framework to see how to wrap DTF components. Each wrapper is typically 10-20 lines.</p>
+
+    <!-- Tabs -->
+    <div class="fw-tabs" role="tablist" aria-label="Framework selector" id="fwTabs">
+      <button class="fw-tab" role="tab" aria-selected="true"  data-fw="slyte"   id="tab-slyte"   aria-controls="panel-slyte"   type="button">Slyte</button>
+      <button class="fw-tab" role="tab" aria-selected="false" data-fw="react"   id="tab-react"   aria-controls="panel-react"   type="button">React</button>
+      <button class="fw-tab" role="tab" aria-selected="false" data-fw="vue"     id="tab-vue"     aria-controls="panel-vue"     type="button">Vue</button>
+      <button class="fw-tab" role="tab" aria-selected="false" data-fw="angular" id="tab-angular" aria-controls="panel-angular" type="button">Angular</button>
+      <button class="fw-tab" role="tab" aria-selected="false" data-fw="svelte"  id="tab-svelte"  aria-controls="panel-svelte"  type="button">Svelte</button>
+      <button class="fw-tab" role="tab" aria-selected="false" data-fw="solid"   id="tab-solid"   aria-controls="panel-solid"   type="button">Solid</button>
+      <button class="fw-tab" role="tab" aria-selected="false" data-fw="wc"      id="tab-wc"      aria-controls="panel-wc"      type="button">Web Components</button>
+    </div>
+
+    <!-- ─── Slyte ─── -->
+    <div class="fw-panel" id="panel-slyte" role="tabpanel" aria-labelledby="tab-slyte" data-active>
+      <div class="fw-panel-stack">
+        <h3>Setup — ComponentRegistry</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Lyte / Slyte</span><button class="code-copy" data-target="slyteCR" type="button">Copy</button></div>
+          <pre class="code-body" id="slyteCR"><span class="cm">// Register all DTF components once in your Lyte app</span>
+<span class="kw">import</span> {
+  DtfButton, DtfInput, DtfSelect, DtfToggle, DtfCheckbox,
+  DtfRadio, DtfTextarea, DtfSlider, DtfAvatar, DtfBadge,
+  DtfTooltip, DtfAlert, DtfToast, DtfProgressBar, DtfProgressRing,
+  DtfSpinner, DtfSkeleton, DtfCard, DtfDivider, DtfKbd,
+  DtfIconButton, DtfMenuButton, DtfSplitButton, DtfDatepicker, DtfFileUpload
+} <span class="kw">from</span> <span class="str">'@design-token-forge/slyte'</span>;
+
+<span class="kw">class</span> <span class="fn">AppRegistry</span> <span class="kw">extends</span> ComponentRegistry {
+  <span class="fn">components</span>() {
+    <span class="kw">return</span> [
+      DtfButton, DtfInput, DtfSelect, DtfToggle, DtfCheckbox,
+      DtfRadio, DtfTextarea, DtfSlider, DtfAvatar, DtfBadge,
+      DtfTooltip, DtfAlert, DtfToast, DtfProgressBar, DtfProgressRing,
+      DtfSpinner, DtfSkeleton, DtfCard, DtfDivider, DtfKbd,
+      DtfIconButton, DtfMenuButton, DtfSplitButton, DtfDatepicker, DtfFileUpload
+    ];
+  }
+}</pre>
+        </div>
+
+        <h3>dtf-button — Button</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Slyte Template</span><button class="code-copy" data-target="slyteBtn" type="button">Copy</button></div>
+          <pre class="code-body" id="slyteBtn"><span class="cm">&lt;!-- String props via lt-prop-* --&gt;</span>
+&lt;<span class="tag">dtf-button</span>
+  <span class="kw">lt-prop-variant</span>=<span class="str">"filled"</span>
+  <span class="kw">lt-prop-color-role</span>=<span class="str">"brand"</span>
+  <span class="kw">lt-prop-size</span>=<span class="str">"base"</span>&gt;
+  &lt;<span class="tag">template</span> is=<span class="str">"registerYield"</span> yield-name=<span class="str">"yield"</span>&gt;Submit&lt;/<span class="tag">template</span>&gt;
+&lt;/<span class="tag">dtf-button</span>&gt;
+
+<span class="cm">&lt;!-- Outlined danger, disabled --&gt;</span>
+&lt;<span class="tag">dtf-button</span>
+  <span class="kw">lt-prop-variant</span>=<span class="str">"outlined"</span>
+  <span class="kw">lt-prop-color-role</span>=<span class="str">"danger"</span>
+  <span class="kw">lt-prop-disabled</span>=<span class="str">"true"</span>&gt;
+  &lt;<span class="tag">template</span> is=<span class="str">"registerYield"</span> yield-name=<span class="str">"yield"</span>&gt;Delete&lt;/<span class="tag">template</span>&gt;
+&lt;/<span class="tag">dtf-button</span>&gt;</pre>
+        </div>
+
+        <h3>dtf-input — Text Input</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Slyte Template</span><button class="code-copy" data-target="slyteInp" type="button">Copy</button></div>
+          <pre class="code-body" id="slyteInp">&lt;<span class="tag">dtf-input</span>
+  <span class="kw">lt-prop-label</span>=<span class="str">"Email"</span>
+  <span class="kw">lt-prop-type</span>=<span class="str">"email"</span>
+  <span class="kw">lt-prop-placeholder</span>=<span class="str">"you@example.com"</span>
+  <span class="kw">lt-prop-size</span>=<span class="str">"base"</span>
+  <span class="kw">lt-prop-variant</span>=<span class="str">"outlined"</span>&gt;
+&lt;/<span class="tag">dtf-input</span>&gt;</pre>
+        </div>
+
+        <h3>dtf-toggle — Switch &amp; dtf-checkbox</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Slyte Template</span><button class="code-copy" data-target="slyteTog" type="button">Copy</button></div>
+          <pre class="code-body" id="slyteTog">&lt;<span class="tag">dtf-toggle</span>
+  <span class="kw">lt-prop-label</span>=<span class="str">"Dark mode"</span>
+  <span class="kw">lt-prop-color-role</span>=<span class="str">"brand"</span>
+  <span class="kw">lt-prop-checked</span>=<span class="str">"true"</span>
+  <span class="kw">on-change</span>=<span class="str">"{{method('onToggle')}}"</span>&gt;
+&lt;/<span class="tag">dtf-toggle</span>&gt;
+
+&lt;<span class="tag">dtf-checkbox</span>
+  <span class="kw">lt-prop-label</span>=<span class="str">"Accept terms"</span>
+  <span class="kw">lt-prop-color-role</span>=<span class="str">"brand"</span>
+  <span class="kw">on-change</span>=<span class="str">"{{method('onCheck')}}"</span>&gt;
+&lt;/<span class="tag">dtf-checkbox</span>&gt;</pre>
+        </div>
+
+        <div class="sub-note">
+          <strong>Props map to <code>lt-prop-*</code> attributes.</strong>
+          String props (variant, color-role, size) bind directly to <code>data-*</code> on the rendered element.
+          Boolean props (disabled, loading, checked) use <code>toggleAttribute</code> internally.
+          Slot content uses <code>&lt;template is="registerYield" yield-name="yield"&gt;</code>.
+          Events use <code>on-change="{{method('handler')}}"</code> or listen via <code>on()</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── React ─── -->
+    <div class="fw-panel" id="panel-react" role="tabpanel" aria-labelledby="tab-react">
+      <div class="fw-panel-stack">
+        <h3>DTFButton.tsx</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">React + TypeScript</span><button class="code-copy" data-target="reactBtn" type="button">Copy</button></div>
+          <pre class="code-body" id="reactBtn"><span class="kw">import</span> { forwardRef } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">type</span> Variant = <span class="str">'brand'</span> | <span class="str">'secondary'</span> | <span class="str">'ghost'</span> | <span class="str">'danger'</span> | <span class="str">'outline'</span>;
+<span class="kw">type</span> Size = <span class="str">'micro'</span> | <span class="str">'tiny'</span> | <span class="str">'small'</span> | <span class="str">'base'</span> | <span class="str">'medium'</span> | <span class="str">'large'</span> | <span class="str">'big'</span> | <span class="str">'huge'</span> | <span class="str">'mega'</span> | <span class="str">'ultra'</span>;
+
+<span class="kw">interface</span> DTFButtonProps <span class="kw">extends</span> React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt; {
+  variant?: Variant;
+  size?: Size;
+  loading?: <span class="kw">boolean</span>;
+}
+
+<span class="kw">export const</span> <span class="fn">DTFButton</span> = <span class="fn">forwardRef</span>&lt;HTMLButtonElement, DTFButtonProps&gt;(
+  ({ variant = <span class="str">'brand'</span>, size = <span class="str">'base'</span>, loading, disabled, children, ...rest }, ref) =&gt; (
+    &lt;<span class="tag">button</span>
+      ref={ref}
+      className=<span class="str">"btn"</span>
+      data-variant={variant}
+      data-size={size}
+      data-loading={loading || <span class="kw">undefined</span>}
+      data-disabled={disabled || <span class="kw">undefined</span>}
+      disabled={disabled}
+      {...rest}
+    &gt;
+      &lt;<span class="tag">span</span> className=<span class="str">"btn__label"</span>&gt;{children}&lt;/<span class="tag">span</span>&gt;
+    &lt;/<span class="tag">button</span>&gt;
+  )
+);</pre>
+        </div>
+        <h3>DTFInput.tsx</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">React + TypeScript</span><button class="code-copy" data-target="reactInp" type="button">Copy</button></div>
+          <pre class="code-body" id="reactInp"><span class="kw">interface</span> DTFInputProps <span class="kw">extends</span> React.InputHTMLAttributes&lt;HTMLInputElement&gt; {
+  variant?: <span class="str">'outline'</span> | <span class="str">'filled'</span> | <span class="str">'underline'</span>;
+  size?: Size;
+  label?: <span class="kw">string</span>;
+  helper?: <span class="kw">string</span>;
+  error?: <span class="kw">boolean</span>;
+}
+
+<span class="kw">export const</span> <span class="fn">DTFInput</span> = <span class="fn">forwardRef</span>&lt;HTMLInputElement, DTFInputProps&gt;(
+  ({ variant = <span class="str">'outline'</span>, size = <span class="str">'base'</span>, label, helper, error, disabled, ...rest }, ref) =&gt; (
+    &lt;<span class="tag">div</span>
+      className=<span class="str">"input-group"</span>
+      data-variant={variant}
+      data-size={size}
+      data-error={error || <span class="kw">undefined</span>}
+      data-disabled={disabled || <span class="kw">undefined</span>}
+    &gt;
+      {label &amp;&amp; &lt;<span class="tag">label</span> className=<span class="str">"input__label"</span>&gt;{label}&lt;/<span class="tag">label</span>&gt;}
+      &lt;<span class="tag">div</span> className=<span class="str">"input-field"</span>&gt;
+        &lt;<span class="tag">input</span> ref={ref} disabled={disabled} {...rest} /&gt;
+      &lt;/<span class="tag">div</span>&gt;
+      {helper &amp;&amp; &lt;<span class="tag">span</span> className=<span class="str">"input__helper"</span>&gt;{helper}&lt;/<span class="tag">span</span>&gt;}
+    &lt;/<span class="tag">div</span>&gt;
+  )
+);</pre>
+        </div>
+        <h3>Usage</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">JSX</span><span class="code-file">App.tsx</span></div>
+          <pre class="code-body"><span class="kw">import</span> { <span class="fn">DTFButton</span> } <span class="kw">from</span> <span class="str">'./DTFButton'</span>;
+<span class="kw">import</span> { <span class="fn">DTFInput</span> } <span class="kw">from</span> <span class="str">'./DTFInput'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">form</span>&gt;
+      &lt;<span class="fn">DTFInput</span> label=<span class="str">"Email"</span> variant=<span class="str">"outline"</span> size=<span class="str">"base"</span> type=<span class="str">"email"</span> /&gt;
+      &lt;<span class="fn">DTFButton</span> variant=<span class="str">"brand"</span> size=<span class="str">"large"</span>&gt;Submit&lt;/<span class="fn">DTFButton</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Vue ─── -->
+    <div class="fw-panel" id="panel-vue" role="tabpanel" aria-labelledby="tab-vue">
+      <div class="fw-panel-stack">
+        <h3>DTFButton.vue</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Vue 3 SFC</span><button class="code-copy" data-target="vueBtn" type="button">Copy</button></div>
+          <pre class="code-body" id="vueBtn">&lt;<span class="tag">script</span> setup lang=<span class="str">"ts"</span>&gt;
+<span class="kw">defineProps</span>&lt;{
+  variant?: <span class="str">'brand'</span> | <span class="str">'secondary'</span> | <span class="str">'ghost'</span> | <span class="str">'danger'</span> | <span class="str">'outline'</span>
+  size?: <span class="str">'micro'</span> | <span class="str">'tiny'</span> | <span class="str">'small'</span> | <span class="str">'base'</span> | <span class="str">'medium'</span> | <span class="str">'large'</span> | <span class="str">'big'</span> | <span class="str">'huge'</span> | <span class="str">'mega'</span> | <span class="str">'ultra'</span>
+  loading?: <span class="kw">boolean</span>
+  disabled?: <span class="kw">boolean</span>
+}&gt;()
+&lt;/<span class="tag">script</span>&gt;
+
+&lt;<span class="tag">template</span>&gt;
+  &lt;<span class="tag">button</span>
+    class=<span class="str">"btn"</span>
+    :<span class="kw">data-variant</span>=<span class="str">"variant ?? 'brand'"</span>
+    :<span class="kw">data-size</span>=<span class="str">"size ?? 'base'"</span>
+    :<span class="kw">data-loading</span>=<span class="str">"loading || undefined"</span>
+    :<span class="kw">data-disabled</span>=<span class="str">"disabled || undefined"</span>
+    :<span class="kw">disabled</span>=<span class="str">"disabled"</span>
+  &gt;
+    &lt;<span class="tag">span</span> class=<span class="str">"btn__label"</span>&gt;&lt;slot /&gt;&lt;/<span class="tag">span</span>&gt;
+  &lt;/<span class="tag">button</span>&gt;
+&lt;/<span class="tag">template</span>&gt;</pre>
+        </div>
+        <h3>DTFInput.vue</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Vue 3 SFC</span><button class="code-copy" data-target="vueInp" type="button">Copy</button></div>
+          <pre class="code-body" id="vueInp">&lt;<span class="tag">script</span> setup lang=<span class="str">"ts"</span>&gt;
+<span class="kw">defineProps</span>&lt;{
+  variant?: <span class="str">'outline'</span> | <span class="str">'filled'</span> | <span class="str">'underline'</span>
+  size?: <span class="kw">string</span>
+  label?: <span class="kw">string</span>
+  helper?: <span class="kw">string</span>
+  error?: <span class="kw">boolean</span>
+  disabled?: <span class="kw">boolean</span>
+  modelValue?: <span class="kw">string</span>
+}&gt;()
+<span class="kw">defineEmits</span>([<span class="str">'update:modelValue'</span>])
+&lt;/<span class="tag">script</span>&gt;
+
+&lt;<span class="tag">template</span>&gt;
+  &lt;<span class="tag">div</span> class=<span class="str">"input-group"</span>
+    :<span class="kw">data-variant</span>=<span class="str">"variant ?? 'outline'"</span>
+    :<span class="kw">data-size</span>=<span class="str">"size ?? 'base'"</span>
+    :<span class="kw">data-error</span>=<span class="str">"error || undefined"</span>
+    :<span class="kw">data-disabled</span>=<span class="str">"disabled || undefined"</span>&gt;
+    &lt;<span class="tag">label</span> v-if=<span class="str">"label"</span> class=<span class="str">"input__label"</span>&gt;{{ label }}&lt;/<span class="tag">label</span>&gt;
+    &lt;<span class="tag">div</span> class=<span class="str">"input-field"</span>&gt;
+      &lt;<span class="tag">input</span> :<span class="kw">value</span>=<span class="str">"modelValue"</span> @input=<span class="str">"$emit('update:modelValue', ($event.target as HTMLInputElement).value)"</span> :<span class="kw">disabled</span>=<span class="str">"disabled"</span> /&gt;
+    &lt;/<span class="tag">div</span>&gt;
+    &lt;<span class="tag">span</span> v-if=<span class="str">"helper"</span> class=<span class="str">"input__helper"</span>&gt;{{ helper }}&lt;/<span class="tag">span</span>&gt;
+  &lt;/<span class="tag">div</span>&gt;
+&lt;/<span class="tag">template</span>&gt;</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Angular ─── -->
+    <div class="fw-panel" id="panel-angular" role="tabpanel" aria-labelledby="tab-angular">
+      <div class="fw-panel-stack">
+        <h3>dtf-button.component.ts</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Angular 17+</span><button class="code-copy" data-target="ngBtn" type="button">Copy</button></div>
+          <pre class="code-body" id="ngBtn"><span class="kw">import</span> { Component, <span class="fn">input</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+@<span class="fn">Component</span>({
+  selector: <span class="str">'dtf-button'</span>,
+  standalone: <span class="kw">true</span>,
+  template: <span class="str">`
+    &lt;button
+      class="btn"
+      [attr.data-variant]="variant()"
+      [attr.data-size]="size()"
+      [attr.data-loading]="loading() ? '' : null"
+      [attr.data-disabled]="disabled() ? '' : null"
+      [disabled]="disabled()"&gt;
+      &lt;span class="btn__label"&gt;&lt;ng-content /&gt;&lt;/span&gt;
+    &lt;/button&gt;
+  `</span>
+})
+<span class="kw">export class</span> <span class="fn">DtfButtonComponent</span> {
+  variant = <span class="fn">input</span>(<span class="str">'brand'</span>);
+  size    = <span class="fn">input</span>(<span class="str">'base'</span>);
+  loading = <span class="fn">input</span>(<span class="kw">false</span>);
+  disabled = <span class="fn">input</span>(<span class="kw">false</span>);
+}</pre>
+        </div>
+        <h3>Usage</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">HTML Template</span></div>
+          <pre class="code-body"><span class="cm">&lt;!-- In your Angular template --&gt;</span>
+&lt;<span class="tag">dtf-button</span> variant=<span class="str">"danger"</span> size=<span class="str">"large"</span>&gt;Delete&lt;/<span class="tag">dtf-button</span>&gt;
+&lt;<span class="tag">dtf-button</span> [loading]=<span class="str">"isSubmitting"</span>&gt;Save&lt;/<span class="tag">dtf-button</span>&gt;</pre>
+        </div>
+        <div class="sub-note">
+          <strong>CSS import:</strong> Add the DTF CSS files to your <code>angular.json</code> <code>styles</code> array, or <code>@import</code> them in your global <code>styles.css</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Svelte ─── -->
+    <div class="fw-panel" id="panel-svelte" role="tabpanel" aria-labelledby="tab-svelte">
+      <div class="fw-panel-stack">
+        <h3>DTFButton.svelte</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Svelte 5</span><button class="code-copy" data-target="svelteBtn" type="button">Copy</button></div>
+          <pre class="code-body" id="svelteBtn">&lt;<span class="tag">script</span> lang=<span class="str">"ts"</span>&gt;
+  <span class="kw">import type</span> { Snippet } <span class="kw">from</span> <span class="str">'svelte'</span>;
+
+  <span class="kw">let</span> {
+    variant = <span class="str">'brand'</span>,
+    size = <span class="str">'base'</span>,
+    loading = <span class="kw">false</span>,
+    disabled = <span class="kw">false</span>,
+    children,
+    ...rest
+  }: {
+    variant?: <span class="kw">string</span>; size?: <span class="kw">string</span>;
+    loading?: <span class="kw">boolean</span>; disabled?: <span class="kw">boolean</span>;
+    children?: Snippet; [key: <span class="kw">string</span>]: <span class="kw">any</span>;
+  } = $props();
+&lt;/<span class="tag">script</span>&gt;
+
+&lt;<span class="tag">button</span>
+  class=<span class="str">"btn"</span>
+  data-variant={variant}
+  data-size={size}
+  data-loading={loading || <span class="kw">undefined</span>}
+  data-disabled={disabled || <span class="kw">undefined</span>}
+  {disabled}
+  {...rest}
+&gt;
+  &lt;<span class="tag">span</span> class=<span class="str">"btn__label"</span>&gt;{@render children?.()}&lt;/<span class="tag">span</span>&gt;
+&lt;/<span class="tag">button</span>&gt;</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Solid ─── -->
+    <div class="fw-panel" id="panel-solid" role="tabpanel" aria-labelledby="tab-solid">
+      <div class="fw-panel-stack">
+        <h3>DTFButton.tsx</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">SolidJS</span><button class="code-copy" data-target="solidBtn" type="button">Copy</button></div>
+          <pre class="code-body" id="solidBtn"><span class="kw">import</span> { splitProps } <span class="kw">from</span> <span class="str">'solid-js'</span>;
+<span class="kw">import type</span> { JSX } <span class="kw">from</span> <span class="str">'solid-js'</span>;
+
+<span class="kw">interface</span> Props <span class="kw">extends</span> JSX.ButtonHTMLAttributes&lt;HTMLButtonElement&gt; {
+  variant?: <span class="kw">string</span>;
+  size?: <span class="kw">string</span>;
+  loading?: <span class="kw">boolean</span>;
+}
+
+<span class="kw">export function</span> <span class="fn">DTFButton</span>(props: Props) {
+  <span class="kw">const</span> [local, rest] = <span class="fn">splitProps</span>(props, [<span class="str">'variant'</span>, <span class="str">'size'</span>, <span class="str">'loading'</span>, <span class="str">'children'</span>]);
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">button</span>
+      class=<span class="str">"btn"</span>
+      data-variant={local.variant ?? <span class="str">'brand'</span>}
+      data-size={local.size ?? <span class="str">'base'</span>}
+      data-loading={local.loading || <span class="kw">undefined</span>}
+      {...rest}
+    &gt;
+      &lt;<span class="tag">span</span> class=<span class="str">"btn__label"</span>&gt;{local.children}&lt;/<span class="tag">span</span>&gt;
+    &lt;/<span class="tag">button</span>&gt;
+  );
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Web Components ─── -->
+    <div class="fw-panel" id="panel-wc" role="tabpanel" aria-labelledby="tab-wc">
+      <div class="fw-panel-stack">
+        <h3>dtf-button.js</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Custom Element</span><button class="code-copy" data-target="wcBtn" type="button">Copy</button></div>
+          <pre class="code-body" id="wcBtn"><span class="kw">class</span> <span class="fn">DtfButton</span> <span class="kw">extends</span> HTMLElement {
+  <span class="kw">static</span> observedAttributes = [<span class="str">'variant'</span>, <span class="str">'size'</span>, <span class="str">'disabled'</span>, <span class="str">'loading'</span>];
+
+  <span class="fn">connectedCallback</span>() { this.<span class="fn">render</span>(); }
+  <span class="fn">attributeChangedCallback</span>() { this.<span class="fn">render</span>(); }
+
+  <span class="fn">render</span>() {
+    <span class="kw">const</span> v = this.<span class="fn">getAttribute</span>(<span class="str">'variant'</span>) || <span class="str">'brand'</span>;
+    <span class="kw">const</span> s = this.<span class="fn">getAttribute</span>(<span class="str">'size'</span>) || <span class="str">'base'</span>;
+    <span class="kw">const</span> d = this.<span class="fn">hasAttribute</span>(<span class="str">'disabled'</span>);
+
+    this.innerHTML = <span class="str">`
+      &lt;button class="btn" data-variant="${v}" data-size="${s}"
+        ${d ? 'data-disabled disabled' : ''}&gt;
+        &lt;span class="btn__label"&gt;${this.textContent}&lt;/span&gt;
+      &lt;/button&gt;
+    `</span>;
+  }
+}
+customElements.<span class="fn">define</span>(<span class="str">'dtf-button'</span>, <span class="fn">DtfButton</span>);</pre>
+        </div>
+        <div class="sub-note">
+          <strong>No Shadow DOM needed.</strong> Since DTF CSS is global (custom properties cascade everywhere), you can use Light DOM and the styles just work. If you use Shadow DOM, adopt the stylesheets via <code>adoptedStyleSheets</code>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 5. Token Overrides ══════════════════════════ -->
+  <section class="fw-section">
+    <h2>Customizing Tokens</h2>
+    <p>Override any token at any scope — globally, per-section, or per-instance. No build step, no theme provider.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">CSS</span><span class="code-file">Override examples</span></div>
+      <pre class="code-body"><span class="cm">/* Global override — affects all buttons */</span>
+:root {
+  <span class="kw">--btn-radius-base</span>: <span class="str">var(--radius-full)</span>;  <span class="cm">/* pill-shaped buttons */</span>
+}
+
+<span class="cm">/* Scoped override — only inside this container */</span>
+.my-sidebar {
+  <span class="kw">--btn-height-base</span>: <span class="str">var(--spacing-32)</span>;  <span class="cm">/* compact buttons */</span>
+  <span class="kw">--btn-font-size-base</span>: <span class="str">var(--font-size-11)</span>;
+}
+
+<span class="cm">/* Instance override — inline on one element */</span>
+&lt;button class=<span class="str">"btn"</span> data-variant=<span class="str">"filled"</span> data-role=<span class="str">"brand"</span>
+  style=<span class="str">"--btn-filled-bg: #8B5CF6"</span>&gt;
+  Custom Purple
+&lt;/button&gt;</pre>
+    </div>
+
+    <!-- Live preview of overrides -->
+    <div class="live-preview">
+      <span class="live-label">Live — Token Override Demo</span>
+      <div class="live-row">
+        <button class="btn" data-variant="filled" data-role="brand" data-size="base"><span class="btn__label">Default Primary</span></button>
+        <button class="btn" data-variant="filled" data-role="brand" data-size="base" style="--btn-filled-bg:#8B5CF6;--btn-filled-bg-hover:#7C3AED"><span class="btn__label">Purple Override</span></button>
+        <button class="btn" data-variant="filled" data-role="brand" data-size="base" style="--btn-radius-base:var(--radius-full)"><span class="btn__label">Pill Shape</span></button>
+      </div>
+      <div class="live-row" style="--btn-height-base:var(--spacing-28);--btn-font-size-base:var(--font-size-10)">
+        <span style="font-size:var(--font-size-11);color:var(--demo-fg-faint);align-self:center">Compact scope →</span>
+        <button class="btn" data-variant="filled" data-role="brand" data-size="base"><span class="btn__label">Compact</span></button>
+        <button class="btn" data-variant="outlined" data-size="base"><span class="btn__label">Compact</span></button>
+        <button class="btn" data-variant="ghost" data-size="base"><span class="btn__label">Compact</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 6. CSS Import Strategies ════════════════════ -->
+  <section class="fw-section">
+    <h2>Import Strategies</h2>
+    <p>Choose the approach that fits your build setup.</p>
+
+    <table class="map-table">
+      <thead>
+        <tr><th>Strategy</th><th>How</th><th>Best For</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Full bundle</strong></td>
+          <td><code>@import '@dtf/components'</code></td>
+          <td>Apps using most components</td>
+        </tr>
+        <tr>
+          <td><strong>Per-component</strong></td>
+          <td><code>@import '@dtf/components/button'</code></td>
+          <td>Tree-shaking conscious apps</td>
+        </tr>
+        <tr>
+          <td><strong>Tokens only</strong></td>
+          <td><code>@import '@dtf/tokens'</code></td>
+          <td>Custom components using DTF tokens</td>
+        </tr>
+        <tr>
+          <td><strong>CDN</strong></td>
+          <td><code>&lt;link href="cdn/tokens.css"&gt;</code></td>
+          <td>Prototypes, no-build setups</td>
+        </tr>
+        <tr>
+          <td><strong>Copy CSS</strong></td>
+          <td>Copy <code>.tokens.css</code> + <code>.css</code> files</td>
+          <td>Vendor-lock-free, full ownership</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-note">
+      <strong>Tokens CSS is always required.</strong> Component CSS files reference global tokens (spacing, radius, colors). Always import the tokens package first.
+    </div>
+  </section>
+
+  <!-- ══ 7. Live Components ══════════════════════════ -->
+  <section class="fw-section">
+    <h2>Live Components — Same CSS, Any Framework</h2>
+    <p>These are the actual DTF components rendered right here. The same CSS that powers these will power your React/Vue/Angular/Svelte wrappers — zero difference.</p>
+
+    <div class="live-preview">
+      <span class="live-label">Buttons</span>
+      <div class="live-row">
+        <button class="btn" data-variant="filled" data-role="brand" data-size="base"><span class="btn__label">Filled</span></button>
+        <button class="btn" data-variant="outlined" data-size="base"><span class="btn__label">Outlined</span></button>
+        <button class="btn" data-variant="ghost" data-size="base"><span class="btn__label">Ghost</span></button>
+        <button class="btn" data-variant="filled" data-role="danger" data-size="base"><span class="btn__label">Danger</span></button>
+        <button class="btn" data-variant="outlined" data-size="base"><span class="btn__label">Outline</span></button>
+      </div>
+    </div>
+
+    <div class="live-preview">
+      <span class="live-label">Inputs</span>
+      <div class="live-row">
+        <div class="input-group" data-variant="outlined" data-size="base" style="width:220px">
+          <label class="input__label">Outline</label>
+          <div class="input-field"><input placeholder="Type here…"></div>
+        </div>
+        <div class="input-group" data-variant="filled" data-size="base" style="width:220px">
+          <label class="input__label">Filled</label>
+          <div class="input-field"><input placeholder="Type here…"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="live-preview">
+      <span class="live-label">Selects</span>
+      <div class="live-row">
+        <div class="select-group" data-variant="outlined" data-size="base" style="width:220px">
+          <label class="select__label">Country</label>
+          <div class="select-field">
+            <select><option value="" disabled selected>Choose…</option><option>United States</option><option>Germany</option></select>
+            <span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </div>
+        <div class="select-group" data-variant="filled" data-size="base" style="width:220px">
+          <label class="select__label">Size</label>
+          <div class="select-field">
+            <select><option>Small</option><option selected>Medium</option><option>Large</option></select>
+            <span class="select__chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-note">
+      <strong>What you see = what they get.</strong> These are rendered with the exact same CSS files your framework wrappers will import. The output HTML structure is identical regardless of framework.
+    </div>
+  </section>
+
+</main>
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+/* ── Framework tabs ───────────────────────────────── */
+document.getElementById('fwTabs').addEventListener('click', function(e) {
+  var tab = e.target.closest('.fw-tab');
+  if (!tab) return;
+  this.querySelectorAll('.fw-tab').forEach(function(t) { t.setAttribute('aria-selected', 'false'); });
+  tab.setAttribute('aria-selected', 'true');
+  document.querySelectorAll('.fw-panel').forEach(function(p) { p.removeAttribute('data-active'); });
+  var panel = document.getElementById(tab.getAttribute('aria-controls'));
+  if (panel) panel.setAttribute('data-active', '');
+});
+
+/* ── Install pills ────────────────────────────────── */
+var INSTALL_CMDS = {
+  npm:  'npm install @design-token-forge/tokens @design-token-forge/components',
+  pnpm: 'pnpm add @design-token-forge/tokens @design-token-forge/components',
+  yarn: 'yarn add @design-token-forge/tokens @design-token-forge/components',
+  cdn:  '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@design-token-forge/tokens/dist/index.css">\n<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@design-token-forge/components/dist/button.css">'
+};
+document.getElementById('installPills').addEventListener('click', function(e) {
+  var pill = e.target.closest('.install-pill');
+  if (!pill) return;
+  this.querySelectorAll('.install-pill').forEach(function(p) { p.setAttribute('aria-pressed', 'false'); });
+  pill.setAttribute('aria-pressed', 'true');
+  var code = document.getElementById('installCode');
+  code.textContent = INSTALL_CMDS[pill.dataset.pkg] || '';
+});
+
+/* ── Copy buttons ─────────────────────────────────── */
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.code-copy');
+  if (!btn) return;
+  var target = document.getElementById(btn.dataset.target);
+  if (!target) return;
+  navigator.clipboard.writeText(target.textContent).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+});
+</script>
+</body>
+</html>

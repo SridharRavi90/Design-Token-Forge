@@ -1,0 +1,31 @@
+{
+  "archetype": "feedback-progress",
+  "tokenPrefix": "ring",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "indeterminate", "disabled"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "outlined", "soft"],
+  "onComponentTokens": [],
+  "editorExposureOverrides": {
+    "--ring-stroke-linecap": "advanced",
+    "--ring-rotation": "advanced",
+    "--ring-direction": "advanced",
+    "--ring-bg-opacity": "advanced",
+    "--ring-shadow": "advanced",
+    "--ring-shadow-strong": "advanced",
+    "--ring-indeterminate-width": "advanced",
+    "--ring-indeterminate-duration": "advanced",
+    "--ring-outlined-track-opacity": "advanced",
+    "--ring-outlined-stroke-width-add": "advanced",
+    "--ring-focus-outline-offset": "advanced"
+  },
+  "figmaBindingPrefix": "progress-ring/",
+  "notes": [
+    "Feedback-progress archetype, circular peer of progress-bar. SVG-driven: two concentric arcs (track + value) with optional centered label/icon and external helper row.",
+    "Three variants: filled (default, solid track + colored arc), outlined (semi-transparent track), soft (role-tinted container track + same arc). Stroke-width add allows the outlined variant to compensate for the lighter track visually.",
+    "Roles brand|danger|warning|info|success|neutral expose two slots each (--ring-{role}-fill / -soft-track) — no separate label colour because the centered label inherits surface text via --ring-label-color. data-role swaps the internal --_rg-* chain.",
+    "Track is intentionally NEUTRAL in filled variant (--surface-base-cm-bg); only the value arc carries role colour.",
+    "Has NO interactive states (hover/focus/pressed) by design — progressbar is a status output, not an input.",
+    "Direction token (--ring-direction) allows clockwise/counter-clockwise sweep; rotation token (-90deg default) places the sweep origin at top."
+  ]
+}

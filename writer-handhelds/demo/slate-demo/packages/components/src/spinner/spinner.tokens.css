@@ -1,0 +1,153 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Spinner Token Defaults
+   Layer 0: System defaults for ~85 spinner variables.
+   All values reference global tokens — zero hardcoded visuals.
+   ────────────────────────────────────────────────────────────────
+   ANATOMY:
+     .spinner (wrapper, role="status")
+       └─ .spinner__track   (background circle/ring)
+       └─ .spinner__arc     (animated indicator)
+       └─ .spinner__label   (optional text label)
+
+   VARIANTS  (data-variant):  ring (default) | dots
+   ROLES     (data-role):     brand (default) | danger | success | warning | info | neutral
+   ════════════════════════════════════════════════════════════════ */
+
+.spinner {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Track stroke width per density */
+  --spin-track-width-micro:  2px;
+  --spin-track-width-tiny:   2px;
+  --spin-track-width-small:  2px;
+  --spin-track-width-base:   3px;
+  --spin-track-width-medium: 3px;
+  --spin-track-width-large:  3px;
+  --spin-track-width-big:    4px;
+  --spin-track-width-huge:   4px;
+  --spin-track-width-mega:   5px;
+  --spin-track-width-ultra:  6px;
+
+  /* Border-radius (always full circle) */
+  --spin-radius: var(--radius-full);
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (30 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Spinner size (width = height) per density */
+  --spin-size-micro:   12px;
+  --spin-size-tiny:    14px;
+  --spin-size-small:   16px;
+  --spin-size-base:    20px;
+  --spin-size-medium:  24px;
+  --spin-size-large:   28px;
+  --spin-size-big:     32px;
+  --spin-size-huge:    40px;
+  --spin-size-mega:    48px;
+  --spin-size-ultra:   64px;
+
+  /* Label gap per density */
+  --spin-label-gap-micro:  var(--spacing-2);
+  --spin-label-gap-tiny:   var(--spacing-3);
+  --spin-label-gap-small:  var(--spacing-4);
+  --spin-label-gap-base:   var(--spacing-6);
+  --spin-label-gap-medium: var(--spacing-6);
+  --spin-label-gap-large:  var(--spacing-8);
+  --spin-label-gap-big:    var(--spacing-8);
+  --spin-label-gap-huge:   var(--spacing-10);
+  --spin-label-gap-mega:   var(--spacing-12);
+  --spin-label-gap-ultra:  var(--spacing-14);
+
+  /* Dot size per density (dots variant) */
+  --spin-dot-size-micro:   3px;
+  --spin-dot-size-tiny:    4px;
+  --spin-dot-size-small:   5px;
+  --spin-dot-size-base:    6px;
+  --spin-dot-size-medium:  7px;
+  --spin-dot-size-large:   8px;
+  --spin-dot-size-big:     9px;
+  --spin-dot-size-huge:    10px;
+  --spin-dot-size-mega:    12px;
+  --spin-dot-size-ultra:   14px;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE  (14 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Role colors (arc indicator) */
+  --spin-brand-color:   var(--brand-component-bg-default);
+  --spin-danger-color:  var(--danger-component-bg-default);
+  --spin-success-color: var(--success-component-bg-default);
+  --spin-warning-color: var(--warning-component-bg-default);
+  --spin-info-color:    var(--info-component-bg-default);
+  --spin-neutral-color: var(--surface-base-ct-subtle);
+
+  /* Track (background ring) */
+  --spin-track-color:   currentColor;
+  --spin-track-opacity: 0.15;
+
+  /* Arc sweep proportion (0 to 1, where 1 = full circle) */
+  --spin-arc-length: 0.75;
+
+  /* Disabled */
+  --spin-opacity-disabled: 0.4;
+
+  /* Dots variant gap */
+  --spin-dot-gap-micro:  2px;
+  --spin-dot-gap-tiny:   2px;
+  --spin-dot-gap-small:  3px;
+  --spin-dot-gap-base:   4px;
+  --spin-dot-gap-medium: 4px;
+  --spin-dot-gap-large:  5px;
+  --spin-dot-gap-big:    5px;
+  --spin-dot-gap-huge:   6px;
+  --spin-dot-gap-mega:   6px;
+  --spin-dot-gap-ultra:  8px;
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (12 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --spin-font-family: var(--font-family-sans);
+  --spin-font-weight: var(--font-weight-medium);
+  --spin-line-height: var(--line-height-normal);
+  --spin-label-color: var(--surface-base-ct-subtle);
+
+  /* Font-size per density */
+  --spin-font-size-micro:  10px;
+  --spin-font-size-tiny:   11px;
+  --spin-font-size-small:  12px;
+  --spin-font-size-base:   13px;
+  --spin-font-size-medium: 13px;
+  --spin-font-size-large:  14px;
+  --spin-font-size-big:    14px;
+  --spin-font-size-huge:   16px;
+  --spin-font-size-mega:   16px;
+  --spin-font-size-ultra:  18px;
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (2 vars — track and arc handled above)
+     ──────────────────────────────────────────────────────────── */
+
+  --spin-label-opacity: 1;
+  --spin-label-letter-spacing: var(--letter-spacing-normal);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (4 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  --spin-duration:      800ms;
+  --spin-easing:        var(--easing-linear);
+  --spin-dots-duration: 1200ms;
+  --spin-dots-easing:   var(--easing-in-out);
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ A11Y  (1 var — spinner is non-interactive)
+     ──────────────────────────────────────────────────────────── */
+
+  --spin-min-tap-target: 0px;
+}

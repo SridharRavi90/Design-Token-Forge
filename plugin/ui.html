@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px; color: #333; background: #fff; padding: 16px;
+    overflow-y: auto;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  .header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .logo {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: linear-gradient(135deg, #BD22AB, #FF70E0);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .logo svg { width: 16px; height: 16px; }
+  .header h1 { font-size: 14px; font-weight: 600; }
+  .header p  { font-size: 10px; color: #888; margin-top: 1px; }
+
+  /* ── Project bar (top-most element) ────────────────── */
+  .project-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; margin: -16px -16px 12px -16px;
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+    color: #fff;
+  }
+  .project-bar-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; opacity: 0.7; white-space: nowrap;
+  }
+  .project-bar select {
+    flex: 1; padding: 5px 8px; border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.15); color: #fff;
+    font-size: 12px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+    padding-right: 24px;
+  }
+  .project-bar select:focus { outline: none; border-color: rgba(255,255,255,0.6); }
+  .project-bar select option { color: #333; background: #fff; }
+
+
+  /* ── Connection bar ─────────────────────────────────── */
+  .conn-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 6px;
+    margin-bottom: 12px; font-size: 11px;
+    background: #f5f5f5; border: 1px solid #e0e0e0; color: #888;
+  }
+  .conn-bar.live { background: #e6f9e6; border-color: #bbf7d0; color: #166534; }
+  .conn-bar.error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: #ccc;
+  }
+  .conn-bar.live .dot { background: #16A34A; animation: pulse 2s infinite; }
+  .conn-bar.error .dot { background: #DC2626; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .conn-meta { margin-left: auto; font-size: 10px; opacity: 0.5; font-family: 'SF Mono', Monaco, Menlo, monospace; }
+
+  /* ── Notification card ──────────────────────────────── */
+  .notif {
+    border-radius: 8px; padding: 14px; margin-bottom: 12px;
+    border: 1px solid #e0e0e0; background: #fafafa;
+    display: none;
+  }
+  .notif.visible { display: block; }
+  .notif.has-changes {
+    background: #FFF7ED; border-color: #FDBA74;
+    animation: slideIn 0.3s ease;
+  }
+  .notif.synced { background: #e6f9e6; border-color: #bbf7d0; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  .notif-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px; font-weight: 600; font-size: 12px;
+  }
+  .notif-icon { font-size: 16px; }
+  .notif-badge {
+    margin-left: auto; padding: 2px 8px; border-radius: 10px;
+    font-size: 10px; font-weight: 700; background: #F97316; color: #fff;
+  }
+  .notif.synced .notif-badge { background: #16A34A; }
+  .notif-body { font-size: 11px; color: #666; line-height: 1.5; }
+  .notif-body strong { color: #333; }
+
+  /* ── Change list ────────────────────────────────────── */
+  .changes {
+    margin-top: 10px; max-height: 140px; overflow-y: auto;
+    border: 1px solid #eee; border-radius: 4px; background: #fff;
+  }
+  .change-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 8px; font-size: 10px; border-bottom: 1px solid #f5f5f5;
+    font-family: 'SF Mono', Monaco, Menlo, monospace;
+  }
+  .change-item:last-child { border-bottom: none; }
+  .ch-tag {
+    font-size: 9px; font-weight: 700; padding: 1px 4px;
+    border-radius: 2px; flex-shrink: 0;
+  }
+  .ch-tag.add { background: #DCFCE7; color: #166534; }
+  .ch-tag.upd { background: #FEF3CD; color: #92400E; }
+  .ch-tag.rem { background: #FEE2E2; color: #991B1B; }
+  .ch-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ch-val { color: #999; font-size: 9px; }
+
+  /* ── Stats row ──────────────────────────────────────── */
+  .stats-row {
+    display: flex; gap: 12px; padding: 8px 12px;
+    font-size: 11px; color: #666;
+    background: #f9fafb; border-radius: 6px;
+    border: 1px solid #f0f0f0;
+  }
+  .stats-row strong { color: #1a1a1a; }
+  .stats-row .hash-val { font-family: 'SF Mono', Monaco, Menlo, monospace; font-size: 10px; color: #999; }
+
+  /* ── Actions ────────────────────────────────────────── */
+  .actions { display: flex; gap: 8px; margin-top: 12px; }
+  button {
+    flex: 1; padding: 10px 16px; border-radius: 6px;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    border: none; transition: all 120ms ease;
+  }
+  .btn-sync { background: #F97316; color: #fff; }
+  .btn-sync:hover { background: #EA580C; }
+  .btn-sync.ready { background: #16A34A; }
+  .btn-sync.ready:hover { background: #15803D; }
+  .btn-sync:disabled { background: #e5e5e5; color: #999; }
+  .btn-cancel { background: #fff; color: #555; border: 1px solid #d4d4d4; flex: 0 0 auto; min-width: 80px; padding: 10px 16px; }
+  .btn-cancel:hover { background: #f5f5f5; }
+
+  /* ── Status bar ─────────────────────────────────────── */
+  .status-bar {
+    margin-top: 10px; padding: 8px 10px; border-radius: 6px;
+    font-size: 11px; display: none;
+  }
+  .status-bar.ok   { display: block; background: #e6f9e6; color: #166534; border: 1px solid #bbf7d0; }
+  .status-bar.err  { display: block; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .status-bar.work { display: block; background: #e8f0fe; color: #1E54B3; border: 1px solid #bfdbfe; }
+
+  /* ── Fallback section ───────────────────────────────── */
+  .fallback {
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;
+  }
+  .fallback summary {
+    font-size: 11px; color: #888; cursor: pointer; user-select: none;
+  }
+  .fallback summary:hover { color: #555; }
+  .fallback-inner { margin-top: 8px; }
+  .fallback textarea {
+    width: 100%; height: 80px;
+    border: 1px solid #d4d4d4; border-radius: 4px;
+    padding: 8px; font-family: 'SF Mono', Monaco, Menlo, monospace;
+    font-size: 10px; resize: vertical; color: #333; background: #fafafa;
+  }
+  .fallback .file-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+  .fallback .file-btn {
+    padding: 4px 10px; background: #f5f5f5;
+    border: 1px dashed #ccc; border-radius: 4px;
+    font-size: 10px; cursor: pointer; color: #555;
+  }
+  input[type="file"] { display: none; }
+  .file-name { font-size: 10px; color: #888; }
+
+  /* ── Project mismatch warning ─────────────────────────── */
+  .project-warn {
+    display: none; border-radius: 8px; padding: 14px;
+    margin-bottom: 12px; background: #FFF7ED; border: 1px solid #FDBA74;
+    animation: slideIn 0.3s ease;
+  }
+  .project-warn.visible { display: block; }
+  .project-warn-header {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 12px; margin-bottom: 8px;
+  }
+  .project-warn-icon { font-size: 16px; }
+  .project-warn-body { font-size: 11px; color: #666; line-height: 1.5; margin-bottom: 10px; }
+  .project-warn-body strong { color: #333; }
+  .project-warn-actions { display: flex; gap: 8px; }
+  .project-warn-actions button {
+    padding: 6px 14px; border-radius: 5px; font-size: 11px;
+    font-weight: 500; cursor: pointer; border: none;
+  }
+  .btn-switch { background: #F97316; color: #fff; }
+  .btn-switch:hover { background: #EA580C; }
+  .btn-keep { background: #f0f0f0; color: #555; border: 1px solid #d4d4d4; }
+  .btn-keep:hover { background: #e5e5e5; }
+  .project-bar-lock {
+    font-size: 12px; cursor: default; opacity: 0.6; flex-shrink: 0;
+    title: 'Linked to this file';
+  }
+
+  /* ── Undo warning ────────────────────────────────────── */
+  .undo-warn {
+    display: none; border-radius: 8px; padding: 12px 14px;
+    margin-bottom: 12px; background: #FEF2F2; border: 1px solid #FCA5A5;
+    animation: shake 0.4s ease;
+  }
+  .undo-warn.visible { display: flex; align-items: center; gap: 10px; }
+  .undo-warn-icon { font-size: 18px; flex-shrink: 0; }
+  .undo-warn-text { font-size: 11px; color: #991B1B; line-height: 1.4; }
+  .undo-warn-text strong { font-weight: 600; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(2px); }
+  }
+
+  /* ── Auto-sync toggle ───────────────────────────────── */
+  .auto-sync-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 6px; padding: 6px 0;
+    font-size: 11px; color: #888;
+  }
+  .auto-sync-row label { cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .auto-sync-row input[type="checkbox"] { cursor: pointer; accent-color: #16A34A; }
+
+  /* ── Setup section ──────────────────────────────────── */
+  #setupSection {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid #eee;
+  }
+
+  /* ── Server URL config ──────────────────────────────── */
+  .server-config {
+    margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;
+  }
+  .server-config summary {
+    font-size: 11px; color: #888; cursor: pointer; user-select: none;
+  }
+  .server-config summary:hover { color: #555; }
+  .server-config-inner { margin-top: 8px; }
+  .server-url-row {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .server-url-row input[type="text"] {
+    flex: 1; padding: 6px 8px; border: 1px solid #d4d4d4; border-radius: 4px;
+    font-size: 11px; font-family: 'SF Mono', Monaco, Menlo, monospace;
+    color: #333; background: #fafafa;
+  }
+  .server-url-row input:focus { outline: none; border-color: #F97316; }
+  .btn-url-save {
+    padding: 6px 10px; background: #f5f5f5; border: 1px solid #d4d4d4;
+    border-radius: 4px; font-size: 10px; cursor: pointer; color: #555;
+    white-space: nowrap;
+  }
+  .btn-url-save:hover { background: #e5e5e5; }
+  .server-presets { margin-top: 6px; font-size: 10px; color: #999; }
+  .server-presets button {
+    color: #F97316; text-decoration: none; cursor: pointer; margin-right: 10px;
+    background: none; border: none; padding: 0; font: inherit; font-size: 10px;
+  }
+  .server-presets button:hover { text-decoration: underline; }
+
+  /* ── Change notification pulse ───────────────────────── */
+  .notif.has-changes { animation: slideIn 0.3s ease, ringPulse 1s ease 0.3s; }
+  @keyframes ringPulse {
+    0% { box-shadow: 0 0 0 0 rgba(249,115,22,0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(249,115,22,0); }
+    100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
+  }
+
+  /* ── Changelog ──────────────────────────────────────── */
+  .changelog { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+  .changelog summary { font-size: 11px; color: #888; cursor: pointer; }
+  .log-list { margin-top: 6px; max-height: 120px; overflow-y: auto; }
+  .log-entry {
+    padding: 4px 0; font-size: 10px; color: #666;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .log-time { color: #999; }
+</style>
+</head>
+<body>
+
+<!-- Project bar (top-most) -->
+<div class="project-bar" id="projectBar">
+  <span class="project-bar-label">Project</span>
+  <select id="projectSelect"><option value="">Loading&hellip;</option></select>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 18 18" fill="none">
+      <path d="M3 9h12M9 3v12M5 5l8 8M13 5L5 13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div>
+    <h1>Design Token Forge</h1>
+    <p>Live sync &mdash; token changes appear here automatically</p>
+  </div>
+</div>
+
+<!-- Connection status -->
+<div class="conn-bar" id="connBar">
+  <span class="dot"></span>
+  <span id="connText">Connecting to sync server&hellip;</span>
+  <span class="conn-meta" id="connMeta"></span>
+</div>
+
+<!-- Project mismatch warning -->
+<div class="project-warn" id="projectWarn">
+  <div class="project-warn-header">
+    <span class="project-warn-icon">&#9888;</span>
+    <span id="projectWarnTitle">Project mismatch</span>
+  </div>
+  <div class="project-warn-body" id="projectWarnBody"></div>
+  <div class="project-warn-actions">
+    <button class="btn-switch" id="projectSwitchBtn">Switch &amp; Sync</button>
+    <button class="btn-keep" id="projectKeepBtn">Keep current</button>
+  </div>
+</div>
+
+<!-- Undo warning -->
+<div class="undo-warn" id="undoWarn">
+  <span class="undo-warn-icon">&#9888;</span>
+  <div class="undo-warn-text">
+    <strong>Variables removed (undo detected)</strong><br>
+    Figma variables were removed — likely by Cmd+Z. Hit <strong>Re-sync</strong> to restore them.
+  </div>
+</div>
+
+<!-- Notification card -->
+<div class="notif" id="notif">
+  <div class="notif-header">
+    <span class="notif-icon" id="notifIcon">&#9889;</span>
+    <span id="notifTitle">Token changes available</span>
+    <span class="notif-badge" id="notifBadge">0</span>
+  </div>
+  <div class="notif-body" id="notifBody"></div>
+  <div class="changes" id="changeList" style="display:none"></div>
+</div>
+
+<!-- Figma state -->
+<div class="stats-row" id="figmaStats" style="display:none">
+  <span>Figma: <strong id="fVars">0</strong> vars</span>
+  <span>in <strong id="fCols">0</strong> collections</span>
+  <span style="margin-left:auto" class="hash-val" id="fHash" title="Content hash">-</span>
+</div>
+
+<!-- Actions -->
+<div class="actions">
+  <button class="btn-cancel" id="cancelBtn">Close</button>
+  <button class="btn-sync" id="syncBtn" disabled>Waiting for server&hellip;</button>
+</div>
+
+<div class="status-bar" id="statusBar"></div>
+
+<!-- Auto-sync toggle -->
+<div class="auto-sync-row">
+  <label><input type="checkbox" id="autoSyncCb"> Auto-sync when tokens change</label>
+</div>
+
+<!-- Setup: PAT-first flow -->
+<div id="setupSection">
+  <div id="setupAuth" class="server-config-inner">
+    <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:#333">Connect your GitHub account</div>
+    <div class="server-url-row">
+      <input type="password" id="ghPatInput" placeholder="Paste your GitHub PAT (ghp_...)" spellcheck="false" style="flex:1;font-family:monospace;font-size:11px">
+      <button class="btn-url-save" id="ghVerifyBtn">Connect</button>
+    </div>
+    <div id="ghIdentityError" style="display:none;font-size:10px;color:#DC2626;margin-top:4px"></div>
+    <div style="font-size:10px;color:#888;margin-top:6px">
+      One-time setup. Needs <code>repo</code> + <code>workflow</code> scope.
+      <a href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=DTF+Figma+Plugin" target="_blank" rel="noopener" style="color:#286CE5">Get a token &rarr;</a>
+    </div>
+  </div>
+  <div id="setupDone" style="display:none;align-items:center;gap:8px;padding:8px 12px;background:#DCFCE7;border-radius:6px;font-size:11px">
+    <span style="color:#166534;font-weight:600" id="ghIdentityName"></span>
+    <span style="flex:1"></span>
+    <button type="button" id="ghIdentityReset" style="font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid #bbf7d0;background:#fff;cursor:pointer;color:#666">Disconnect</button>
+  </div>
+</div>
+<input type="hidden" id="serverUrlInput" value="">
+
+<!-- Advanced: manual server URL override -->
+<details class="server-config" style="margin-top:4px">
+  <summary style="font-size:10px;color:#999">Advanced</summary>
+  <div class="server-config-inner">
+    <div class="server-url-row">
+      <input type="text" id="serverUrlOverride" placeholder="Custom server URL (leave blank for default)" spellcheck="false">
+      <button class="btn-url-save" id="saveUrlBtn">Save</button>
+    </div>
+    <div class="server-presets">
+      <button type="button" id="presetLocal">Local</button>
+    </div>
+  </div>
+</details>
+
+<!-- Fallback: manual load -->
+<details class="fallback">
+  <summary>Manual sync (if server is offline)</summary>
+  <div class="fallback-inner">
+    <div class="file-row">
+      <label class="file-btn" for="fileInput">Load JSON file&hellip;</label>
+      <input type="file" id="fileInput" accept=".json">
+      <span class="file-name" id="fileName"></span>
+    </div>
+    <textarea id="jsonInput" placeholder="Paste dtf-figma-tokens.json here..."></textarea>
+  </div>
+</details>
+
+<!-- Changelog -->
+<details class="changelog" id="changelogSection" style="display:none">
+  <summary>Change history</summary>
+  <div class="log-list" id="logList"></div>
+</details>
+
+<script>
+  /* ── Global error handler — shows JS errors in the UI ── */
+  window.onerror = function(msg, src, line, col, err) {
+    var el = document.createElement('div');
+    el.style.cssText = 'background:#fef2f2;color:#991b1b;border:2px solid red;padding:10px;margin:8px 0;font-size:11px;font-family:monospace;word-break:break-all;border-radius:6px;';
+    el.textContent = 'JS ERROR: ' + msg + ' (line ' + line + ')';
+    document.body.insertBefore(el, document.body.firstChild);
+  };
+
+  /* ── Elements ────────────────────────────────────────── */
+  var connBar    = document.getElementById('connBar');
+  var connText   = document.getElementById('connText');
+  var connMeta   = document.getElementById('connMeta');
+  var notif      = document.getElementById('notif');
+  var notifIcon  = document.getElementById('notifIcon');
+  var notifTitle = document.getElementById('notifTitle');
+  var notifBadge = document.getElementById('notifBadge');
+  var notifBody  = document.getElementById('notifBody');
+  var changeList = document.getElementById('changeList');
+  var syncBtn    = document.getElementById('syncBtn');
+  var cancelBtn  = document.getElementById('cancelBtn');
+  var statusBar  = document.getElementById('statusBar');
+  var figmaStats = document.getElementById('figmaStats');
+  var logList    = document.getElementById('logList');
+  var jsonInput  = document.getElementById('jsonInput');
+  var fileInput  = document.getElementById('fileInput');
+  var fileNameEl = document.getElementById('fileName');
+
+  var undoWarn   = document.getElementById('undoWarn');
+  var autoSyncCb = document.getElementById('autoSyncCb');
+  var serverUrlInput = document.getElementById('serverUrlInput');
+  var projectSelect = document.getElementById('projectSelect');
+
+  var saveUrlBtn = document.getElementById('saveUrlBtn');
+
+  /* Safe storage — Figma plugin iframes block localStorage */
+  var _mem = {};
+  function storageGet(k) { try { return localStorage.getItem(k); } catch(e) { return _mem[k] || null; } }
+  function storageSet(k,v) { try { localStorage.setItem(k,v); } catch(e) { _mem[k]=v; } }
+
+  var DEFAULT_SERVER = 'https://sridhar-ravi-2917.github.io/Design-Token-Forge';
+  var SERVER = storageGet('dtf-server-url') || DEFAULT_SERVER;
+
+  serverUrlInput.value = SERVER;
+
+  var CURRENT_PROJECT = storageGet('dtf-project-id') || '';
+  var GH_USERNAME = storageGet('dtf-gh-username') || '';
+  var GH_PAT = storageGet('dtf-gh-pat') || '';
+  var ADMIN_USER = 'sridhar-ravi-2917';
+  var COLOR_ONLY_COLLECTIONS = ['T0 Primitive Colors', 'T1 Color Tokens', 'T2 Surface Context Tokens', 'T3 Status Context Tokens'];
+
+  function filterCollections(data) {
+    if (!data || !data.collections) return data;
+    if (!GH_USERNAME || GH_USERNAME.toLowerCase() === ADMIN_USER.toLowerCase()) return data;
+    var filtered = JSON.parse(JSON.stringify(data));
+    filtered.collections = filtered.collections.filter(function(c) {
+      return COLOR_ONLY_COLLECTIONS.indexOf(c.name) !== -1;
+    });
+    var total = 0;
+    for (var i = 0; i < filtered.collections.length; i++) total += filtered.collections[i].variables.length;
+    filtered.stats.totalVariables = total;
+    filtered.stats.totalCollections = filtered.collections.length;
+    return filtered;
+  }
+  var projectList = [];
+  var documentProject = '';       /* project stored in this Figma file */
+  var pendingSwitchProject = '';  /* project user wants to switch to */
+
+  var projectWarn = document.getElementById('projectWarn');
+  var projectWarnBody = document.getElementById('projectWarnBody');
+  var projectSwitchBtn = document.getElementById('projectSwitchBtn');
+  var projectKeepBtn = document.getElementById('projectKeepBtn');
+
+  /* Detect if server is static (GitHub Pages) or live (localhost/API) */
+  function isStaticHost() {
+    return SERVER.indexOf('github.io') !== -1 || SERVER.indexOf('.pages.dev') !== -1;
+  }
+  function apiUrl(endpoint) {
+    /* Static hosts serve .json files; live server uses clean paths */
+    if (isStaticHost()) {
+      var cb = '_cb=' + Date.now();  /* cache-bust GitHub Pages CDN */
+      var base = CURRENT_PROJECT ? SERVER + '/' + CURRENT_PROJECT : SERVER;
+      if (endpoint === '/status')  return base + '/status.json?' + cb;
+      if (endpoint === '/tokens')  return base + '/tokens.json?' + cb;
+      if (endpoint === '/projects') return SERVER + '/projects.json?' + cb;
+      return null; /* changelog, ack not available on static */
+    }
+    return SERVER + endpoint;
+  }
+  var POLL_MS = 3000;
+  function log(msg) { console.log('[DTF] ' + msg); }
+  var VERIFY_MS = 2000;
+  var pollTimer = null;
+  var verifyTimer = null;
+  var serverStatus = null;
+  var tokenData = null;
+  var figmaHash = '';
+  var lastSyncedVarCount = 0;
+  var syncing = false;
+  var connected = false;
+  var hasExistingVars = false;
+  var undoDetected = false;
+  var pendingResync = false;  /* true after Reset ID map / Force re-sync — pauses poll UI updates */
+
+  /* ── Deploy-in-flight detection (GitHub Pages) ───────── */
+  var lastSeenHash = '';          /* hash from previous poll */
+  var hashStableCount = 0;       /* consecutive polls with same hash */
+  var HASH_SETTLE_POLLS = 2;     /* require 2 stable polls before enabling sync */
+  var deploySettling = false;     /* true while hash is still changing */
+
+  /* ── Scan Figma on load ──────────────────────────────── */
+  parent.postMessage({ pluginMessage: { type: 'scan' } }, '*');
+
+  /* ── Polling ─────────────────────────────────────────── */
+  function startPolling() {
+    if (!SERVER) {
+      connected = false;
+      connBar.className = 'conn-bar disconnected';
+      connText.textContent = 'Enter your GitHub Pages URL above to connect';
+      return;
+    }
+    poll();
+    pollTimer = setInterval(poll, POLL_MS);
+  }
+
+  function poll() {
+    var url = apiUrl('/status');
+    fetch(url, { cache: 'no-store' })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        if (!connected) {
+          connected = true;
+          if (!projectsFetched) fetchProjects();
+          if (!isStaticHost()) fetchChangelog();
+        }
+        serverStatus = data;
+
+        /* Deploy-in-flight detection (static hosts only) */
+        if (isStaticHost() && data.hash) {
+          if (lastSeenHash && data.hash !== lastSeenHash) {
+            /* Hash just changed — deploy may be mid-flight */
+            hashStableCount = 0;
+            deploySettling = true;
+            log('Hash changed (' + lastSeenHash + ' → ' + data.hash + ') — waiting for deploy to settle');
+          } else if (data.hash === lastSeenHash) {
+            hashStableCount++;
+          }
+          lastSeenHash = data.hash;
+
+          if (deploySettling && hashStableCount >= HASH_SETTLE_POLLS) {
+            deploySettling = false;
+            log('Deploy settled on hash ' + data.hash);
+          }
+        }
+
+        updateConnectionUI(true, data);
+        checkForChanges(data);
+      })
+      .catch(function(err) {
+        connected = false;
+        updateConnectionUI(false, null);
+        log('Poll failed: ' + (err.message || err));
+      });
+  }
+
+  function updateConnectionUI(ok, data) {
+    if (ok) {
+      connBar.className = 'conn-bar live';
+      var src = isStaticHost() ? 'GitHub Pages' : 'Live server';
+      connText.textContent = src + ' — ' + (data.totalVariables || 0) + ' tokens';
+      connMeta.textContent = data.hash || '';
+
+    } else {
+      connBar.className = 'conn-bar error';
+      connText.textContent = 'Cannot reach server — check Server URL setting';
+      connMeta.textContent = '';
+      notif.className = 'notif';
+      notif.style.display = 'none';
+      if (!syncing) {
+        syncBtn.disabled = !tokenData;
+        syncBtn.textContent = tokenData ? 'Sync (manual)' : 'Server offline';
+        syncBtn.className = 'btn-sync';
+      }
+    }
+  }
+
+  function checkForChanges(data) {
+    if (syncing || pendingResync) return;
+
+    /* Block sync while deploy is mid-flight */
+    if (deploySettling) {
+      notif.className = 'notif visible has-changes';
+      notifIcon.textContent = '\u23F3';
+      notifTitle.textContent = 'Deployment in progress\u2026';
+      notifBadge.style.display = 'none';
+      notifBody.innerHTML = 'Waiting for GitHub Pages to finish deploying. This will auto-resolve in a few seconds.';
+      syncBtn.disabled = true;
+      syncBtn.textContent = 'Deploying\u2026';
+      syncBtn.className = 'btn-sync';
+      return;
+    }
+
+    var serverHash = data.hash;
+    var hasPending = serverHash !== figmaHash && figmaHash !== '';
+    var isFirstRun = figmaHash === '' && data.totalVariables > 0;
+
+    if (hasPending) {
+      fetchTokenData();
+      notif.className = 'notif visible has-changes';
+      notifIcon.textContent = '\u26A1';
+      notifTitle.textContent = 'Token changes detected';
+      notifBadge.textContent = data.pendingChanges || '!';
+      notifBadge.style.display = '';
+      notifBody.innerHTML = '<strong>' + data.totalVariables + '</strong> variables ready. '
+        + 'Server hash: <strong>' + serverHash + '</strong>';
+      syncBtn.disabled = false;
+      syncBtn.textContent = 'Update Variables';
+      syncBtn.className = 'btn-sync';
+
+      /* Auto-sync if enabled */
+      if (autoSyncCb.checked && tokenData && !syncing) {
+        setTimeout(function() { syncBtn.click(); }, 500);
+      }
+    } else if (isFirstRun) {
+      fetchTokenData();
+      notif.className = 'notif visible' + (hasExistingVars ? ' has-changes' : '');
+      notifIcon.textContent = hasExistingVars ? '\u26A1' : '\u2728';
+      notifTitle.textContent = hasExistingVars ? 'Token update available' : 'Ready to sync';
+      notifBadge.style.display = 'none';
+      notifBody.innerHTML = '<strong>' + data.totalVariables + '</strong> variables available in <strong>' + data.totalCollections + '</strong> collections.';
+      syncBtn.disabled = false;
+      syncBtn.textContent = hasExistingVars ? 'Update Variables' : 'Create Variables';
+      syncBtn.className = 'btn-sync' + (hasExistingVars ? '' : ' ready');
+    } else if (figmaHash === serverHash) {
+      notif.className = 'notif visible synced';
+      notifIcon.textContent = '\u2713';
+      notifTitle.textContent = 'Variables are up to date';
+      notifBadge.style.display = 'none';
+      notifBody.innerHTML = 'Figma variables match the source of truth. <a href="#" id="forceResyncLink" style="color:var(--accent);cursor:pointer">Force re-sync</a> · <a href="#" id="resetIdMapLink" style="color:#888;cursor:pointer;font-size:10px">Reset ID map</a>';
+      syncBtn.disabled = true;
+      syncBtn.textContent = 'Up to date \u2713';
+      syncBtn.className = 'btn-sync ready';
+    }
+  }
+
+  var fetchRetries = 0;
+  var MAX_FETCH_RETRIES = 2;
+
+  function fetchTokenData() {
+    fetch(apiUrl('/tokens'), { cache: 'no-store' })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        /* Verify fetched data hash matches the server status hash.
+           If not, the CDN served a stale tokens.json — retry up to 2 times. */
+        if (serverStatus && data.contentHash && data.contentHash !== serverStatus.hash) {
+          fetchRetries++;
+          if (fetchRetries <= MAX_FETCH_RETRIES) {
+            log('Stale tokens.json (got ' + data.contentHash + ', expected ' + serverStatus.hash + ') — retry ' + fetchRetries);
+            setTimeout(fetchTokenData, 1500);
+            return;
+          }
+          log('Stale tokens.json after ' + fetchRetries + ' retries — using what we have');
+        }
+        fetchRetries = 0;
+        tokenData = filterCollections(data);
+        showChangeDetails(tokenData);
+      })
+      .catch(function(err) {
+        log('fetchTokenData failed: ' + (err.message || err));
+        setStatus('Failed to fetch tokens — check connection', 'err');
+      });
+  }
+
+  function fetchChangelog() {
+    if (isStaticHost()) return;
+    fetch(SERVER + '/changelog')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.entries && data.entries.length > 0) {
+          document.getElementById('changelogSection').style.display = '';
+          var html = '';
+          for (var i = 0; i < data.entries.length; i++) {
+            var e = data.entries[i];
+            var t = new Date(e.time).toLocaleTimeString();
+            html += '<div class="log-entry"><span class="log-time">' + t + '</span> '
+              + esc(e.summary.detail) + ' <span class="log-time">(' + e.newHash + ')</span></div>';
+          }
+          logList.innerHTML = html;
+        }
+      })
+      .catch(function() {});
+  }
+
+  function showChangeDetails(data) {
+    if (isStaticHost()) { changeList.style.display = 'none'; return; }
+    /* Fetch latest changelog for details */
+    fetch(SERVER + '/changelog')
+      .then(function(r) { return r.json(); })
+      .then(function(log) {
+        if (!log.entries || log.entries.length === 0) { changeList.style.display = 'none'; return; }
+        var latest = log.entries[0];
+        if (!latest.summary.changedVars || latest.summary.changedVars.length === 0) {
+          changeList.style.display = 'none';
+          return;
+        }
+        var html = '';
+        var vars = latest.summary.changedVars;
+        for (var i = 0; i < vars.length; i++) {
+          var v = vars[i];
+          html += '<div class="change-item">'
+            + '<span class="ch-tag upd">UPD</span>'
+            + '<span class="ch-name">' + esc(v.name) + '</span>'
+            + '<span class="ch-val">' + esc(v.from) + ' \u2192 ' + esc(v.to) + '</span>'
+            + '</div>';
+        }
+        if (latest.summary.added > 0) {
+          html += '<div class="change-item"><span class="ch-tag add">NEW</span>'
+            + '<span class="ch-name">+' + latest.summary.added + ' new variables</span></div>';
+        }
+        if (latest.summary.removed > 0) {
+          html += '<div class="change-item"><span class="ch-tag rem">DEL</span>'
+            + '<span class="ch-name">-' + latest.summary.removed + ' removed</span></div>';
+        }
+        changeList.innerHTML = html;
+        changeList.style.display = '';
+      })
+      .catch(function() { changeList.style.display = 'none'; });
+  }
+
+  /* ── Sync ────────────────────────────────────────────── */
+  var syncVerifyAttempts = 0;
+  var MAX_SYNC_VERIFY = 5;
+
+  syncBtn.addEventListener('click', function() {
+    if (syncing) return;
+    if (!tokenData) {
+      /* tokenData may be null if file was already in-sync and tokens were never fetched */
+      syncBtn.textContent = 'Fetching tokens\u2026';
+      syncBtn.disabled = true;
+      fetchTokenData();
+      setTimeout(function() {
+        syncBtn.disabled = false;
+        if (tokenData) {
+          syncBtn.click();
+        } else {
+          syncBtn.textContent = 'Re-sync Variables';
+          setStatus('Could not fetch tokens — try again', 'err');
+        }
+      }, 2000);
+      return;
+    }
+
+    /* On static hosts, always re-verify that status & tokens hashes match
+       to prevent syncing stale CDN data during a deploy */
+    if (isStaticHost()) {
+      syncBtn.textContent = 'Verifying deployment\u2026';
+      syncBtn.disabled = true;
+      fetch(apiUrl('/status'), { cache: 'no-store' })
+        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(freshStatus) {
+          serverStatus = freshStatus;
+          /* Now fetch tokens and compare hashes */
+          return fetch(apiUrl('/tokens'), { cache: 'no-store' })
+            .then(function(r2) { if (!r2.ok) throw new Error('HTTP ' + r2.status); return r2.json(); })
+            .then(function(freshTokens) {
+              if (freshTokens.contentHash !== freshStatus.hash) {
+                /* Deploy mid-flight: tokens.json and status.json disagree */
+                syncVerifyAttempts++;
+                if (syncVerifyAttempts >= MAX_SYNC_VERIFY) {
+                  syncVerifyAttempts = 0;
+                  syncBtn.disabled = false;
+                  syncBtn.textContent = 'Update Variables';
+                  setStatus('Deploy may still be in progress \u2014 try again shortly', 'err');
+                  return;
+                }
+                log('Deploy in-flight: status=' + freshStatus.hash + ' tokens=' + freshTokens.contentHash + ' (attempt ' + syncVerifyAttempts + ')');
+                syncBtn.textContent = 'Waiting for deploy\u2026';
+                setTimeout(function() { syncBtn.disabled = false; syncBtn.click(); }, 3000);
+                return;
+              }
+              /* Hashes match — safe to sync */
+              syncVerifyAttempts = 0;
+              tokenData = filterCollections(freshTokens);
+              startSync();
+            });
+        })
+        .catch(function(err) {
+          syncBtn.disabled = false;
+          syncBtn.textContent = 'Update Variables';
+          setStatus('Verification failed: ' + (err.message || err), 'err');
+        });
+      return;
+    }
+
+    /* Live server: check tokenData hash matches server */
+    if (serverStatus && tokenData.contentHash && tokenData.contentHash !== serverStatus.hash) {
+      syncBtn.textContent = 'Fetching latest tokens\u2026';
+      syncBtn.disabled = true;
+      fetchTokenData();
+      setTimeout(function() {
+        syncBtn.disabled = false;
+        if (tokenData && tokenData.contentHash === serverStatus.hash) {
+          syncBtn.click();
+        } else {
+          syncBtn.textContent = 'Update Variables';
+          setStatus('Waited for fresh tokens \u2014 try again', 'err');
+        }
+      }, 3000);
+      return;
+    }
+
+    startSync();
+  });
+
+  function startSync() {
+    /* Guard: if file is linked to a different project, show warning */
+    if (documentProject && CURRENT_PROJECT !== documentProject) {
+      showProjectMismatchWarning();
+      return;
+    }
+    doSync();
+  }
+
+  function doSync() {
+    syncing = true;
+    pendingResync = false;
+    syncBtn.disabled = true;
+    syncBtn.textContent = 'Syncing\u2026';
+    setStatus('Updating variables in-place\u2026', 'work');
+    parent.postMessage({
+      pluginMessage: {
+        type: 'sync',
+        data: tokenData,
+        hash: tokenData.contentHash || '',
+        project: CURRENT_PROJECT
+      }
+    }, '*');
+  }
+
+  function showProjectMismatchWarning() {
+    var fromName = projectDisplayName(documentProject);
+    var toName = projectDisplayName(CURRENT_PROJECT);
+    projectWarnBody.innerHTML =
+      'This file is linked to <strong>' + esc(fromName) + '</strong>. '
+      + 'You are about to sync <strong>' + esc(toName) + '</strong> instead.<br>'
+      + 'This will replace all existing token variables with the new project\u2019s tokens.';
+    pendingSwitchProject = CURRENT_PROJECT;
+    projectWarn.className = 'project-warn visible';
+    syncBtn.disabled = true;
+  }
+
+  projectSwitchBtn.addEventListener('click', function() {
+    projectWarn.className = 'project-warn';
+    documentProject = pendingSwitchProject;
+    syncBtn.disabled = false;
+    doSync();
+  });
+
+  projectKeepBtn.addEventListener('click', function() {
+    projectWarn.className = 'project-warn';
+    /* Revert dropdown to the document's linked project */
+    CURRENT_PROJECT = documentProject;
+    storageSet('dtf-project-id', CURRENT_PROJECT);
+    selectProjectInDropdown(CURRENT_PROJECT);
+    syncBtn.disabled = false;
+    /* Re-poll for the correct project */
+    connected = false;
+    tokenData = null;
+    serverStatus = null;
+    lastSeenHash = ''; hashStableCount = 0; deploySettling = false;
+    if (pollTimer) clearInterval(pollTimer);
+    startPolling();
+  });
+
+  /* Force re-sync link handler (delegated since the link is created dynamically) */
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'forceResyncLink') {
+      e.preventDefault();
+      figmaHash = '';
+      pendingResync = true;
+      syncBtn.disabled = false;
+      syncBtn.textContent = 'Re-sync Variables';
+      syncBtn.className = 'btn-sync';
+      notifTitle.textContent = 'Force re-sync';
+      notifBody.innerHTML = 'Click <strong>Re-sync Variables</strong> to re-apply all tokens and clean up orphans.';
+      notif.className = 'notif visible has-changes';
+      /* Ensure tokenData is loaded (may be null if file was already in-sync) */
+      if (!tokenData) fetchTokenData();
+    }
+    if (e.target && e.target.id === 'resetIdMapLink') {
+      e.preventDefault();
+      parent.postMessage({ pluginMessage: { type: 'reset-idmap' } }, '*');
+      figmaHash = '';
+      pendingResync = true;
+      syncBtn.disabled = false;
+      syncBtn.textContent = 'Re-sync Variables (fresh)';
+      syncBtn.className = 'btn-sync';
+      notifTitle.textContent = 'ID Map Reset';
+      notifBody.innerHTML = 'Internal mapping cleared. Click <strong>Re-sync Variables (fresh)</strong> to apply — renames will use name matching.';
+      notif.className = 'notif visible has-changes';
+      /* Ensure tokenData is loaded (may be null if file was already in-sync) */
+      if (!tokenData) fetchTokenData();
+    }
+  });
+
+  function projectDisplayName(id) {
+    for (var i = 0; i < projectList.length; i++) {
+      if (projectList[i].id === id) return projectList[i].name;
+    }
+    return id; /* fallback to raw id */
+  }
+
+  function selectProjectInDropdown(id) {
+    for (var i = 0; i < projectSelect.options.length; i++) {
+      if (projectSelect.options[i].value === id) {
+        projectSelect.selectedIndex = i;
+        return;
+      }
+    }
+  }
+
+  cancelBtn.addEventListener('click', function() {
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+  });
+
+  /* ── Messages from code.js ──────────────────────────── */
+  window.onmessage = function(event) {
+    var msg = event.data.pluginMessage;
+    if (!msg) return;
+
+    if (msg.type === 'scan-result') {
+      hasExistingVars = msg.found;
+      /* Restore per-document sync state */
+      if (msg.savedHash && figmaHash === '') {
+        figmaHash = msg.savedHash;
+        lastSyncedVarCount = msg.savedVarCount || 0;
+      }
+      /* Restore per-document project link */
+      if (msg.savedProject) {
+        documentProject = msg.savedProject;
+        CURRENT_PROJECT = msg.savedProject;
+        storageSet('dtf-project-id', CURRENT_PROJECT);
+        selectProjectInDropdown(CURRENT_PROJECT);
+        /* Restart polling with the correct project */
+        if (pollTimer) clearInterval(pollTimer);
+        connected = false;
+        tokenData = null;
+        serverStatus = null;
+        lastSeenHash = ''; hashStableCount = 0; deploySettling = false;
+        startPolling();
+      }
+      if (msg.found) {
+        figmaStats.style.display = 'flex';
+        document.getElementById('fVars').textContent = msg.varCount;
+        document.getElementById('fCols').textContent = msg.colNames.length;
+        document.getElementById('fHash').textContent = figmaHash || 'unknown';
+        /* Start verify loop if we have synced vars — covers crash-recovery */
+        if (lastSyncedVarCount > 0) startVerifyLoop();
+      }
+
+      /* Undo detection: if we had synced vars but now count is 0 */
+      if (lastSyncedVarCount > 0 && msg.varCount === 0) {
+        onUndoDetected();
+      } else if (msg.varCount > 0) {
+        undoDetected = false;
+        undoWarn.className = 'undo-warn';
+      }
+    }
+
+    if (msg.type === 'verify-result') {
+      /* varCount === -1 means the verify errored (e.g. after crash).
+         Ignore it — don't trigger false undo detection. */
+      if (msg.varCount >= 0) {
+        if (msg.varCount === 0 && lastSyncedVarCount > 0) {
+          onUndoDetected();
+        } else if (msg.varCount > 0 && undoDetected) {
+          undoDetected = false;
+          undoWarn.className = 'undo-warn';
+          lastSyncedVarCount = msg.varCount;
+          figmaStats.style.display = 'flex';
+          document.getElementById('fVars').textContent = msg.varCount;
+        }
+      }
+    }
+
+    if (msg.type === 'progress') {
+      setStatus(msg.text, 'work');
+    }
+
+    /* URL migration from code.js clientStorage */
+    if (msg.type === 'set-server-url') {
+      setServerUrl(msg.url);
+    }
+
+    if (msg.type === 'done') {
+      syncing = false;
+      var s = msg.stats;
+      figmaHash = msg.hash || (tokenData ? tokenData.contentHash : '');
+      var text = '';
+      if (s.renamed > 0) text += s.renamed + ' renamed. ';
+      if (s.orphansRemoved > 0) text += s.orphansRemoved + ' orphans removed. ';
+      if (s.updated > 0) text += s.updated + ' updated in-place. ';
+      if (s.created > 0) text += s.created + ' created. ';
+      text += s.variables + ' variables in ' + s.collections + ' collections.'
+        + (s.aliases > 0 ? ' ' + s.aliases + ' aliases linked.' : '');
+      setStatus(text, s.errors.length > 0 ? 'err' : 'ok');
+
+      /* If sync resulted in 0 actual variables, don't show "up to date" —
+         something went wrong and the user needs to retry */
+      if (s.variables === 0 && s.errors.length > 0) {
+        notif.className = 'notif visible has-changes';
+        notifIcon.textContent = '\u26A0';
+        notifTitle.textContent = 'Sync completed with errors';
+        notifBadge.style.display = 'none';
+        notifBody.innerHTML = 'No variables were created. ' + s.errors.length + ' error(s). Try clicking <strong>Retry Sync</strong>.';
+        syncBtn.disabled = false;
+        syncBtn.textContent = 'Retry Sync';
+        syncBtn.className = 'btn-sync';
+        figmaHash = ''; /* Clear so next poll re-detects */
+      } else {
+        /* Immediately show Up to date state */
+        notif.className = 'notif visible synced';
+        notifIcon.textContent = '\u2713';
+        notifTitle.textContent = 'Variables are up to date';
+        notifBadge.style.display = 'none';
+        notifBody.innerHTML = text;
+        syncBtn.disabled = true;
+        syncBtn.textContent = 'Up to date \u2713';
+        syncBtn.className = 'btn-sync ready';
+      }
+      hasExistingVars = true;
+
+      /* Acknowledge to server */
+      if (figmaHash) {
+        if (!isStaticHost()) {
+          fetch(SERVER + '/ack', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hash: figmaHash })
+          }).catch(function() {});
+        }
+      }
+
+      /* Update Figma stats */
+      figmaStats.style.display = 'flex';
+      document.getElementById('fVars').textContent = s.variables;
+      document.getElementById('fCols').textContent = s.collections;
+      document.getElementById('fHash').textContent = figmaHash;
+
+      /* Track synced count for undo detection */
+      lastSyncedVarCount = s.variables;
+
+      /* Update document-linked project */
+      documentProject = CURRENT_PROJECT;
+
+      /* Start verify timer to detect undo */
+      startVerifyLoop();
+
+      /* Re-scan */
+      parent.postMessage({ pluginMessage: { type: 'scan' } }, '*');
+      fetchChangelog();
+    }
+
+    if (msg.type === 'error') {
+      syncing = false;
+      setStatus('Error: ' + msg.error, 'err');
+      syncBtn.disabled = false;
+      syncBtn.textContent = 'Retry Sync';
+    }
+
+
+  };
+
+  /* ── Manual fallback ─────────────────────────────────── */
+  fileInput.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    fileNameEl.textContent = file.name;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      jsonInput.value = ev.target.result;
+      tryManualParse();
+    };
+    reader.readAsText(file);
+  });
+  jsonInput.addEventListener('input', debounce(tryManualParse, 300));
+
+  function tryManualParse() {
+    try {
+      tokenData = filterCollections(JSON.parse(jsonInput.value.trim()));
+      syncBtn.disabled = false;
+      syncBtn.textContent = 'Sync (manual)';
+    } catch(e) {}
+  }
+
+  /* ── Utils ───────────────────────────────────────────── */
+  function setStatus(text, type) {
+    statusBar.className = 'status-bar' + (type ? ' ' + type : '');
+    statusBar.textContent = text;
+    statusBar.style.display = text ? 'block' : 'none';
+  }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function debounce(fn, ms) {
+    var t; return function() { clearTimeout(t); var a = arguments, c = this;
+      t = setTimeout(function() { fn.apply(c, a); }, ms); };
+  }
+
+  /* ── Undo detection ──────────────────────────────────── */
+  function startVerifyLoop() {
+    if (verifyTimer) clearInterval(verifyTimer);
+    verifyTimer = setInterval(function() {
+      parent.postMessage({ pluginMessage: { type: 'verify' } }, '*');
+    }, VERIFY_MS);
+  }
+
+  function onUndoDetected() {
+    undoDetected = true;
+    figmaHash = '';
+    /* Keep lastSyncedVarCount so verify loop can self-correct
+       if variables reappear (e.g. Cmd+Z was re-done) */
+    undoWarn.className = 'undo-warn visible';
+    syncBtn.disabled = false;
+    syncBtn.textContent = 'Re-sync Variables';
+    syncBtn.className = 'btn-sync';
+    figmaStats.style.display = 'none';
+    notif.className = 'notif';
+    notif.style.display = 'none';
+  }
+
+  /* ── Start ───────────────────────────────────────────── */
+  fetchProjects();
+  startPolling();
+
+  /* ── Server URL config ──────────────────────────────── */
+  function setServerUrl(url) {
+    url = url.replace(/\/+$/, ''); /* strip trailing slash */
+    SERVER = url;
+    storageSet('dtf-server-url', url);
+    /* Also persist via Figma clientStorage (more reliable than iframe localStorage) */
+    parent.postMessage({ pluginMessage: { type: 'save-server-url', url: url } }, '*');
+    serverUrlInput.value = url;
+    /* Reset state and reconnect */
+    connected = false;
+    projectsFetched = false;
+    figmaHash = '';
+    lastSeenHash = ''; hashStableCount = 0; deploySettling = false;
+    if (pollTimer) clearInterval(pollTimer);
+    fetchProjects();
+    startPolling();
+  }
+
+  saveUrlBtn.addEventListener('click', function() {
+    var el = document.getElementById('serverUrlOverride');
+    var url = el.value.trim();
+    if (url) setServerUrl(url);
+  });
+
+  /* Presets */
+  document.getElementById('presetLocal').addEventListener('click', function() {
+    setServerUrl('http://localhost:9500');
+    document.getElementById('serverUrlOverride').value = 'http://localhost:9500';
+  });
+
+  /* ── GitHub identity verification ──────────────────── */
+  var ghPatInput = document.getElementById('ghPatInput');
+  var ghVerifyBtn = document.getElementById('ghVerifyBtn');
+  var setupAuth = document.getElementById('setupAuth');
+  var setupDone = document.getElementById('setupDone');
+  var ghIdentityName = document.getElementById('ghIdentityName');
+  var ghIdentityError = document.getElementById('ghIdentityError');
+  var ghIdentityReset = document.getElementById('ghIdentityReset');
+
+  function showIdentityState() {
+    if (GH_USERNAME) {
+      setupAuth.style.display = 'none';
+      setupDone.style.display = 'flex';
+      ghIdentityName.textContent = '\u2713 ' + GH_USERNAME;
+      ghIdentityError.style.display = 'none';
+    } else {
+      setupAuth.style.display = 'block';
+      setupDone.style.display = 'none';
+    }
+  }
+  showIdentityState();
+
+  ghVerifyBtn.addEventListener('click', function() {
+    var token = ghPatInput.value.trim();
+    if (!token) { ghPatInput.focus(); return; }
+    ghVerifyBtn.disabled = true;
+    ghVerifyBtn.textContent = 'Verifying...';
+    ghIdentityError.style.display = 'none';
+    fetch('https://api.github.com/user', {
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' }
+    }).then(function(r) {
+      if (!r.ok) throw new Error(r.status === 401 ? 'Invalid token — needs repo scope' : 'HTTP ' + r.status);
+      return r.json();
+    }).then(function(user) {
+      GH_USERNAME = user.login;
+      GH_PAT = token;
+      storageSet('dtf-gh-username', GH_USERNAME);
+      storageSet('dtf-gh-pat', GH_PAT);
+      ghPatInput.value = '';
+      /* Use the single Zoho Pages URL (no per-user fork model) */
+      setServerUrl(DEFAULT_SERVER);
+      projectsFetched = false;
+      fetchProjects();
+      showIdentityState();
+      startPolling();
+    }).catch(function(e) {
+      ghIdentityError.textContent = '\u2717 ' + e.message;
+      ghIdentityError.style.display = 'block';
+    }).finally(function() {
+      ghVerifyBtn.disabled = false;
+      ghVerifyBtn.textContent = 'Connect';
+    });
+  });
+  ghPatInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); ghVerifyBtn.click(); }
+  });
+
+  ghIdentityReset.addEventListener('click', function() {
+    GH_USERNAME = '';
+    GH_PAT = '';
+    storageSet('dtf-gh-username', '');
+    storageSet('dtf-gh-pat', '');
+    setupAuth.style.display = 'block';
+    setupDone.style.display = 'none';
+    projectsFetched = false;
+    fetchProjects();
+  });
+
+  /* ── Project selector ──────────────────────────────── */
+  var projectsFetched = false;
+
+  /* When the user has connected a PAT, ALWAYS list projects from
+     their own fork via the GitHub Contents API. The static
+     projects.json on a Pages site (a) belongs to whichever fork is
+     deployed, so on the maintainer's URL it leaks the maintainer's
+     project list, and (b) doesn't exist at all on a fresh fork
+     until Pages + the workflow have run. Hitting /repos/<user>/Design-Token-Forge/contents/projects
+     side-steps both problems. */
+  function fetchProjectsFromForkApi() {
+    var apiBase = 'https://api.github.com/repos/' + GH_USERNAME + '/Design-Token-Forge';
+    var hdrs = {
+      'Authorization': 'Bearer ' + GH_PAT,
+      'Accept': 'application/vnd.github+json'
+    };
+    return fetch(apiBase + '/contents/projects?ref=main&_cb=' + Date.now(), { headers: hdrs })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(dirs) {
+        if (!Array.isArray(dirs)) throw new Error('Not an array');
+        var projects = dirs.filter(function(d) { return d.type === 'dir'; });
+        if (!projects.length) return [];
+        return Promise.all(projects.map(function(dir) {
+          return fetch(apiBase + '/contents/projects/' + dir.name + '/config.json?ref=main', { headers: hdrs })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(file) {
+              if (file && file.content) {
+                try {
+                  var cfg = JSON.parse(atob(file.content.replace(/\n/g, '')));
+                  return { id: cfg.id || dir.name, name: cfg.name || dir.name, owner: cfg.owner || GH_USERNAME };
+                } catch (_e) {}
+              }
+              return { id: dir.name, name: dir.name, owner: GH_USERNAME };
+            })
+            .catch(function() { return { id: dir.name, name: dir.name, owner: GH_USERNAME }; });
+        }));
+      });
+  }
+
+  function fetchProjects() {
+    /* Authenticated path: use Contents API on the user's fork. */
+    if (GH_PAT && GH_USERNAME) {
+      fetchProjectsFromForkApi()
+        .then(function(list) { renderProjectList(list); })
+        .catch(function(err) {
+          log('Fork API list failed (' + err.message + ') — falling back to static projects.json');
+          fetchProjectsStatic();
+        });
+      return;
+    }
+    fetchProjectsStatic();
+  }
+
+  function fetchProjectsStatic() {
+    var url = apiUrl('/projects');
+    if (!url) {
+      /* Local server — use the /projects endpoint */
+      url = SERVER + '/projects';
+    }
+    fetch(url, { cache: 'no-store' }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function(list) {
+      if (!Array.isArray(list)) throw new Error('Not an array');
+      renderProjectList(list);
+    }).catch(function() {
+      if (!projectsFetched) {
+        projectSelect.innerHTML = '<option value="">(connecting&hellip;)</option>';
+      }
+    });
+  }
+
+  function renderProjectList(list) {
+      projectsFetched = true;
+      projectList = list;
+      if (!GH_USERNAME) {
+        projectSelect.innerHTML = '<option value="">Set your GitHub username below</option>';
+        return;
+      }
+      /* Show ONLY projects this user owns. The fork inherits every
+         upstream project dir, so an unfiltered list leaks the
+         maintainer's projects into every colleague's dropdown.
+         Ownerless legacy configs are treated as the fork owner's. */
+      var ghUserLc = GH_USERNAME.toLowerCase();
+      var filtered = list.filter(function(p) {
+        return !p.owner || p.owner.toLowerCase() === ghUserLc;
+      });
+      projectSelect.innerHTML = '';
+      if (filtered.length === 0) {
+        projectSelect.innerHTML = '<option value="">No projects</option>';
+        CURRENT_PROJECT = '';
+        storageSet('dtf-project-id', '');
+        return;
+      }
+      /* Reset CURRENT_PROJECT if the stored id isn't owned by the
+         signed-in user (account switch / prior session leftover). */
+      var stillVisible = filtered.some(function(p) { return p.id === CURRENT_PROJECT; });
+      if (!CURRENT_PROJECT || !stillVisible) {
+        CURRENT_PROJECT = filtered[0].id;
+        storageSet('dtf-project-id', CURRENT_PROJECT);
+      }
+      for (var i = 0; i < filtered.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = filtered[i].id;
+        opt.textContent = filtered[i].name;
+        if (filtered[i].id === CURRENT_PROJECT) opt.selected = true;
+        projectSelect.appendChild(opt);
+      }
+      /* If document is linked to a project, ensure it's selected (covers race with scan-result) */
+      if (documentProject) {
+        var docProjectFound = false;
+        for (var j = 0; j < list.length; j++) {
+          if (list[j].id === documentProject) { docProjectFound = true; break; }
+        }
+        if (docProjectFound) {
+          CURRENT_PROJECT = documentProject;
+          storageSet('dtf-project-id', CURRENT_PROJECT);
+          selectProjectInDropdown(CURRENT_PROJECT);
+        } else {
+          /* Document was linked to a project that no longer exists on server */
+          log('Document was linked to "' + documentProject + '" but that project was not found on server');
+          setStatus('Previously linked project "' + documentProject + '" not found on server \u2014 choose a project and re-sync.', 'err');
+          documentProject = '';
+        }
+      }
+  }
+
+  projectSelect.addEventListener('change', function() {
+    CURRENT_PROJECT = projectSelect.value;
+    storageSet('dtf-project-id', CURRENT_PROJECT);
+    /* Hide any stale mismatch warning */
+    projectWarn.className = 'project-warn';
+    /* Reset state and re-poll with new project path */
+    connected = false;
+    figmaHash = '';
+    tokenData = null;
+    serverStatus = null;
+    lastSeenHash = ''; hashStableCount = 0; deploySettling = false;
+    if (pollTimer) clearInterval(pollTimer);
+    startPolling();
+    log('Switched to project: ' + CURRENT_PROJECT);
+  });
+
+</script>
+</body>
+</html>

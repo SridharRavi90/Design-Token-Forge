@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Forge — Radio Explorer</title>
+<!-- Auth gate — must be first, no defer, so body hides before paint. -->
+<script src="auth-gate.js?v=7"></script>
+<link rel="stylesheet" href="../packages/tokens/src/index.css">
+<link rel="stylesheet" href="../packages/components/src/radio/radio.tokens.css">
+<link rel="stylesheet" href="../packages/components/src/radio/radio.css">
+<link rel="stylesheet" href="shared.css?v=1008">
+<!-- Live-preview: inject live colour before first paint (no flash). -->
+<script>(function(){try{var p=localStorage.getItem('dtf-active-project')||'';var k='ev2-live-preview-'+(p||'_');var c=localStorage.getItem(k);if(c){var s=document.createElement('style');s.id='ev2-live-preview-overlay';s.textContent=c;document.head.appendChild(s);}}catch(e){}}());</script>
+</head>
+<body>
+
+<nav class="explorer-nav" aria-label="Site navigation"></nav>
+
+<div class="page-layout">
+<aside class="sidebar-nav" id="sidebarNav" aria-label="Section navigation">
+  <a href="#sec-hero"><span class="sn-num">1</span>Hero Inspector</a>
+  <a href="#sec-density"><span class="sn-num">2</span>Density Scale</a>
+  <a href="#sec-states"><span class="sn-num">3</span>State Matrix</a>
+  <a href="#sec-anatomy"><span class="sn-num">4</span>Slots &amp; Anatomy</a>
+  <a href="#sec-surface"><span class="sn-num">5</span>Surface Context</a>
+  <a href="#sec-groups"><span class="sn-num">6</span>Radio Groups</a>
+  <a href="#sec-motion"><span class="sn-num">7</span>Motion</a>
+  <a href="#sec-playground"><span class="sn-num">8</span>Context Playground</a>
+  <a href="#sec-a11y"><span class="sn-num">9</span>Accessibility</a>
+  <a href="#sec-framework"><span class="sn-num">10</span>Use in Framework</a>
+</aside>
+<div class="page-content">
+
+<header class="demo-header">
+  <h1>Radio Explorer <span>— Design Token Forge</span></h1>
+  <div class="demo-meta">
+    <span class="demo-badge">73 CSS Variables</span>
+    <span class="demo-badge">2 Variants</span>
+    <span class="demo-badge">10 Sizes</span>
+    <span class="demo-badge">7 Axes</span>
+  </div>
+</header>
+
+<nav class="global-controls" aria-label="Global radio preview controls">
+  <div class="control-group">
+    <label>State</label>
+    <div class="pill-bar" id="stateBar" role="radiogroup" aria-label="Checked state">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-state="unchecked" type="button">Unchecked</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-state="checked" type="button">Checked</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Variant</label>
+    <div class="pill-bar" id="variantBar" role="radiogroup" aria-label="Variant selector">
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-variant="" type="button">Filled</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-variant="outlined" type="button">Outlined</button>
+    </div>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Size</label>
+    <div class="pill-bar" id="sizeBar" role="radiogroup" aria-label="Size selector">
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="micro" type="button">Micro</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="tiny" type="button">Tiny</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="small" type="button">Small</button>
+      <button class="pill" role="radio" aria-pressed="true" data-ctrl-size="base" type="button">Base</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="medium" type="button">Medium</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="large" type="button">Large</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="big" type="button">Big</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="huge" type="button">Huge</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="mega" type="button">Mega</button>
+      <button class="pill" role="radio" aria-pressed="false" data-ctrl-size="ultra" type="button">Ultra</button>
+    </div>
+  </div>
+</nav>
+
+<main class="demo-main">
+
+  <!-- 1. HERO -->
+  <section class="section" id="sec-hero">
+    <div class="section-header"><h2>Hero Inspector</h2><span class="section-tag">Live</span></div>
+    <p class="section-desc">Click a radio to select. Inspector shows resolved token values for the current state and size.</p>
+    <div class="section-body">
+      <div class="hero">
+        <div class="hero-preview" style="display:flex;align-items:center;gap:24px">
+          <fieldset class="radio-group" id="heroGroup" style="border:none;padding:0;margin:0">
+            <label class="radio synced-rd" data-size="base">
+              <input type="radio" class="radio__control" name="heroGroup" value="a" checked>
+              <span class="radio__circle"><span class="radio__dot"></span></span>
+              <span class="radio__label">Option A</span>
+            </label>
+            <label class="radio synced-rd" data-size="base">
+              <input type="radio" class="radio__control" name="heroGroup" value="b">
+              <span class="radio__circle"><span class="radio__dot"></span></span>
+              <span class="radio__label">Option B</span>
+            </label>
+            <label class="radio synced-rd" data-size="base">
+              <input type="radio" class="radio__control" name="heroGroup" value="c">
+              <span class="radio__circle"><span class="radio__dot"></span></span>
+              <span class="radio__label">Option C</span>
+            </label>
+          </fieldset>
+        </div>
+        <div class="hero-inspector" id="heroInspector"><div class="inspector-title">Resolved Tokens</div></div>
+              
+</div>
+    </div>
+  </section>
+
+  <!-- 2. DENSITY SCALE -->
+  <section class="section" id="sec-density">
+    <div class="section-header"><h2>Density Scale</h2><span class="section-tag">Dimension</span></div>
+    <p class="section-desc">All 10 density modes. Each maps circle + dot size. Click any radio to toggle.</p>
+    <div class="section-body"><div class="density-strip" id="densityScale"></div></div>
+  </section>
+
+  <!-- 3. STATE MATRIX -->
+  <section class="section" id="sec-states">
+    <div class="section-header"><h2>State Matrix</h2><span class="section-tag">States</span></div>
+    <p class="section-desc">Every interactive state: unchecked, checked, disabled-off, disabled-on, error-off, error-on.</p>
+    <div class="section-body"><div id="stateMatrix" style="display:flex;flex-direction:column;gap:0"></div></div>
+  </section>
+
+  <!-- 4. ANATOMY -->
+  <section class="section" id="sec-anatomy">
+    <div class="section-header"><h2>Slots &amp; Anatomy</h2><span class="section-tag">Slots</span></div>
+    <p class="section-desc">Compound component: label wrapper &gt; hidden native input + styled circle (with inner dot) + label text. Optional required indicator.</p>
+    <div class="section-body"><div class="slot-grid" id="slotsDemo"></div></div>
+  </section>
+
+  <!-- 5. SURFACE CONTEXT -->
+  <section class="section" id="sec-surface">
+    <div class="section-header"><h2>Surface Context</h2><span class="section-tag">Surface</span></div>
+    <p class="section-desc">Radios on three background levels. Circle and label adapt to surface context.</p>
+    <div class="section-body">
+      <div class="surface-strip">
+        <div class="surface-panel surface-panel--base" id="surfaceBase"><span class="surface-panel-label">surface-base-bg</span></div>
+        <div class="surface-panel surface-panel--alt" id="surfaceAlt"><span class="surface-panel-label">surface-base-subtle</span></div>
+        <div class="surface-panel surface-panel--deep" id="surfaceDeep"><span class="surface-panel-label">surface-deep-bg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. RADIO GROUPS -->
+  <section class="section" id="sec-groups">
+    <div class="section-header"><h2>Radio Groups</h2><span class="section-tag">Groups</span></div>
+    <p class="section-desc">Radios are used in groups via <code>fieldset</code> + shared <code>name</code> attribute. Vertical (default) and horizontal layouts.</p>
+    <div class="section-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0" id="groupsDemo"></div>
+    </div>
+  </section>
+
+  <!-- 7. MOTION -->
+  <section class="section" id="sec-motion">
+    <div class="section-header"><h2>Motion</h2><span class="section-tag">Motion</span></div>
+    <p class="section-desc">Circle transitions background-color and border-color. Dot enters with scale + opacity. Active state adds press-scale feedback.</p>
+    <div class="section-body"><div class="motion-strip" id="motionDemo"></div></div>
+  </section>
+
+  <!-- 8. CONTEXT PLAYGROUND -->
+  <section class="section" id="sec-playground">
+    <div class="section-header"><h2>Context Playground</h2><span class="section-tag">Surface × Role</span></div>
+    <p class="section-desc">See how radios adapt across surface contexts and semantic color roles. Two cards with independent surface + role.</p>
+    <div class="section-body">
+      <div class="pg-controls">
+        <div class="pg-ctrl"><label>Density</label>
+          <div class="pill-bar" id="pgDensityBar" role="radiogroup" aria-label="Playground density">
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="small" type="button">small</button>
+            <button class="pill" role="radio" aria-pressed="true" data-pg-size="base" type="button">base</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="large" type="button">large</button>
+            <button class="pill" role="radio" aria-pressed="false" data-pg-size="huge" type="button">huge</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg-cards">
+        <!-- Card A -->
+        <div class="pg-card" id="pgCardA">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card A</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="A"><option value="base" selected>Base</option><option value="bright">Bright</option><option value="deep">Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="A"><option value="brand" selected>Brand</option><option value="danger">Danger</option><option value="warning">Warning</option><option value="info">Info</option><option value="success">Success</option><option value="neutral">Neutral</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyA"></div>
+        </div>
+        <!-- Card B -->
+        <div class="pg-card" id="pgCardB">
+          <div class="pg-card-head">
+            <span class="pg-card-label">Card B</span>
+            <div class="pg-ctrl"><label>Surface</label><select data-pg-surface="B"><option value="base">Base</option><option value="bright">Bright</option><option value="deep" selected>Deep</option><option value="accent">Accent</option><option value="dim">Dim</option><option value="container">Container</option><option value="over-container">Over-container</option><option value="float">Float</option></select></div>
+            <div class="pg-ctrl"><label>Role</label><select data-pg-role="B"><option value="danger" selected>Danger</option><option value="warning">Warning</option><option value="info">Info</option><option value="success">Success</option><option value="brand">Brand</option><option value="neutral">Neutral</option></select></div>
+          </div>
+          <div class="pg-card-body" id="pgBodyB"></div>
+        </div>
+      </div>
+      <div class="pg-chain" id="pgChain"></div>
+    </div>
+  </section>
+
+  <!-- 9. ACCESSIBILITY -->
+  <section class="section" id="sec-a11y">
+    <div class="section-header"><h2>Accessibility</h2><span class="section-tag">A11y</span></div>
+    <p class="section-desc">Focus ring, native &lt;input type="radio"&gt;, aria-invalid, disabled states, and forced-colors handling.</p>
+    <div class="section-body">
+      <div class="a11y-grid">
+        <div class="a11y-card">
+          <div class="a11y-card-title">Focus Ring</div>
+          <p class="a11y-card-desc">Tab to focus. <code>:focus-visible</code> ring wraps the circle.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" id="a11yFocus"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Disabled</div>
+          <p class="a11y-card-desc"><code>disabled</code> attribute reduces opacity and blocks interaction.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" id="a11yDisabled"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Invalid</div>
+          <p class="a11y-card-desc"><code>aria-invalid="true"</code> for form validation. Hooks the invalid surface tokens.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" id="a11yError"></div>
+        </div>
+        <div class="a11y-card">
+          <div class="a11y-card-title">Forced Colors</div>
+          <p class="a11y-card-desc">High Contrast uses <code>ButtonText</code>, <code>Highlight</code>, <code>GrayText</code>.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" id="a11yForced"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ USE IN YOUR FRAMEWORK ═════════ -->
+  <section class="section" id="sec-framework">
+    <div class="section-header"><h2>Use in Your Framework</h2><span class="section-tag">Integration</span></div>
+    <p class="section-desc">Wrap this component in your framework. Props become data attributes — our CSS does the rest.</p>
+    <div class="section-body">
+      <div class="fw-snippet">
+        <div class="fw-snippet-head">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Radio Wrapper</h3>
+          <a class="fw-snippet-link" href="frameworks.html">Full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fw-snippet-tabs" data-tabs="fw-rd">
+          <button class="fw-snippet-tab" aria-selected="true" data-tab="slyte" type="button">Slyte</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="react" type="button">React</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="vue" type="button">Vue</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="html" type="button">HTML</button>
+          <button class="fw-snippet-tab" aria-selected="false" data-tab="css" type="button">CSS Tokens</button>
+        </div>
+        <div class="fw-snippet-code" data-panel="react">&lt;label
+  className="radio"
+  data-size={size}
+  data-variant={variant}     {/* omit for filled | "outlined" */}
+  data-direction={direction} {/* omit for vertical | "horizontal" */}
+  aria-invalid={error || undefined}
+  data-disabled={disabled || undefined}
+&gt;
+  &lt;input type="radio" name={name} value={value} checked={selected === value} onChange={onChange} disabled={disabled} /&gt;
+  &lt;span className="radio__dot" /&gt;
+  {label &amp;&amp; &lt;span className="radio__label"&gt;{label}&lt;/span&gt;}
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="vue">&lt;label
+  class="radio"
+  :data-size="size"
+  :data-variant="variant || undefined"
+  :data-direction="direction || undefined"
+  :aria-invalid="error || undefined"
+  :data-disabled="disabled || undefined"
+&gt;
+  &lt;input type="radio" :name="name" :value="value" :checked="modelValue === value" @change="$emit('update:modelValue', value)" :disabled="disabled" /&gt;
+  &lt;span class="radio__dot" /&gt;
+  &lt;span v-if="label" class="radio__label"&gt;{{ label }}&lt;/span&gt;
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="html">&lt;label class="radio" data-size="base"&gt;
+  &lt;input type="radio" name="plan" value="pro"&gt;
+  &lt;span class="radio__dot"&gt;&lt;/span&gt;
+  &lt;span class="radio__label"&gt;Pro plan&lt;/span&gt;
+&lt;/label&gt;</div>
+        <div class="fw-snippet-code" data-panel="css">/* Shape */
+--radio-circle-size-{size}
+--radio-dot-size-{size}        /* inner dot */
+
+/* Surface */
+--radio-circle-bg / -hover / -checked / -disabled
+--radio-circle-border-color / -hover / -checked
+--radio-dot-color
+--radio-outlined-circle-bg / -border-color
+--radio-invalid-border-color
+
+/* Layout */
+--radio-direction              /* vertical | horizontal */
+--radio-gap-{size}             /* circle↔label gap */
+--radio-group-gap              /* between radio items */
+
+/* Slots */
+--radio-label-font-size-{size}
+--radio-label-color
+
+/* Motion */
+--radio-transition-duration / -easing / -property
+
+/* A11y */
+--radio-focus-outline-width / -offset / -color
+--radio-min-tap-target        
+</div>
+        <div class="fw-snippet-code" data-panel="slyte" data-active>import { DtfRadio } from '@design-token-forge/slyte';
+
+&lt;dtf-radio lt-prop-name="plan" lt-prop-value="free"  lt-prop-label="Free"  lt-prop-checked="true"&gt;&lt;/dtf-radio&gt;
+&lt;dtf-radio lt-prop-name="plan" lt-prop-value="pro"   lt-prop-label="Pro"&gt;&lt;/dtf-radio&gt;
+&lt;dtf-radio lt-prop-name="plan" lt-prop-value="team"  lt-prop-label="Team"&gt;&lt;/dtf-radio&gt;</div>
+      </div>
+    </div>
+        
+  </section>
+
+</main>
+</div><!-- /.page-content -->
+</div><!-- /.page-layout -->
+
+<script src="dtf-topbar.js?v=9"></script>
+<script src="nav.js?v=3"></script>
+<script src="shared.js?v=1105"></script>
+<script>
+(function(){
+  'use strict';
+
+  var SIZES=['micro','tiny','small','base','medium','large','big','huge','mega','ultra'];
+  var CIRCLE_DIMS={
+    micro:'14px',tiny:'16px',small:'18px',base:'20px',medium:'22px',
+    large:'24px',big:'28px',huge:'32px',mega:'36px',ultra:'40px'
+  };
+  var DOT_DIMS={
+    micro:'6px',tiny:'7px',small:'8px',base:'9px',medium:'10px',
+    large:'11px',big:'13px',huge:'15px',mega:'17px',ultra:'19px'
+  };
+
+  var curS='base', curState='unchecked', curVariant='';
+  var groupCounter=0;
+
+  /* ── Factory ──────────────────────────────────────── */
+  function makeRadio(size,o){
+    o=o||{};
+    var lbl=document.createElement('label');
+    lbl.className='radio';
+    var s=size||curS;
+    lbl.dataset.size=s;
+    var variant=o.variant!==undefined?o.variant:curVariant;
+    if(variant) lbl.dataset.variant=variant;
+    if(o.error) lbl.setAttribute('aria-invalid', 'true');
+    if(o.disabled) lbl.dataset.disabled='';
+    if(!o.noSync) lbl.classList.add('synced-rd');
+
+    var inp=document.createElement('input');
+    inp.type='radio';
+    inp.className='radio__control';
+    inp.name=o.name||('rdGroup_'+groupCounter);
+    inp.value=o.value||'v';
+    if(o.checked) inp.checked=true;
+    if(o.disabled) inp.disabled=true;
+    if(o.error) inp.setAttribute('aria-invalid','true');
+
+    var circle=document.createElement('span');
+    circle.className='radio__circle';
+    var dot=document.createElement('span');
+    dot.className='radio__dot';
+    circle.appendChild(dot);
+
+    lbl.appendChild(inp);
+    lbl.appendChild(circle);
+
+    if(o.label){
+      var sp=document.createElement('span');sp.className='radio__label';sp.textContent=o.label;
+      if(o.required){var req=document.createElement('span');req.className='radio__required';req.textContent='*';sp.appendChild(req);}
+      lbl.appendChild(sp);
+    }
+
+    if(o.style){for(var k in o.style){if(o.style.hasOwnProperty(k))lbl.style.setProperty(k,o.style[k])}}
+    return lbl;
+  }
+
+  function makeGroup(options,o){
+    o=o||{};
+    groupCounter++;
+    var fs=document.createElement('fieldset');
+    fs.className='radio-group';
+    if(o.direction) fs.dataset.direction=o.direction;
+    fs.style.border='none';fs.style.padding='0';fs.style.margin='0';
+    if(o.legendText){
+      var leg=document.createElement('legend');leg.className='radio-group__legend';leg.textContent=o.legendText;fs.appendChild(leg);
+    }
+    var name='rdGroup_'+groupCounter;
+    options.forEach(function(opt,i){
+      fs.appendChild(makeRadio(o.size||curS,{
+        noSync:o.noSync!==undefined?o.noSync:true,
+        name:name,
+        value:'v'+i,
+        label:opt.label||opt,
+        checked:opt.checked||false,
+        disabled:o.disabled||opt.disabled||false,
+        error:o.error||opt.error||false,
+        variant:o.variant!==undefined?o.variant:undefined,
+        style:o.style||null
+      }));
+    });
+    return fs;
+  }
+
+  function wrapCard(el,t){var d=document.createElement('div');d.className='variant-card';d.appendChild(el);var l=document.createElement('span');l.className='variant-label';l.textContent=t;d.appendChild(l);return d}
+  function clr(id){var e=document.getElementById(id);e.innerHTML='';return e}
+
+  /* ── Section Renderers ──────────────────────────────── */
+
+  function renderDensity(){
+    var el=clr('densityScale');
+    SIZES.forEach(function(s){
+      groupCounter++;
+      var it=document.createElement('div');it.className='density-item';
+      var rb=makeRadio(s,{noSync:true,checked:false,label:s,name:'density_'+s,style:{'min-height':'0'}});
+      it.appendChild(rb);
+      var m=document.createElement('div');m.className='density-meta';
+      requestAnimationFrame(function(){
+        var cs=getComputedStyle(rb);
+        var circ=cs.getPropertyValue('--radio-circle-size-'+s).trim()||CIRCLE_DIMS[s];
+        var dot=cs.getPropertyValue('--radio-dot-size-'+s).trim()||DOT_DIMS[s];
+        m.textContent=circ+' circle \u00B7 '+dot+' dot';
+      });
+      m.textContent='\u2026';
+      it.appendChild(m);el.appendChild(it);
+    });
+  }
+
+  function renderStates(){
+    var el=clr('stateMatrix');
+    var states=[
+      {label:'Unchecked',opts:{}},
+      {label:'Checked',opts:{checked:true}},
+      {label:'Disabled Off',opts:{disabled:true}},
+      {label:'Disabled On',opts:{checked:true,disabled:true}},
+      {label:'Error Off',opts:{error:true}},
+      {label:'Error On',opts:{checked:true,error:true}}
+    ];
+    var variants=[{label:'Filled',variant:''},{label:'Outlined',variant:'outlined'}];
+    variants.forEach(function(v){
+      var row=document.createElement('div');row.style.cssText='display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px 32px;border-bottom:1px solid var(--demo-border)';
+      var vLabel=document.createElement('div');vLabel.className='sub-label';vLabel.textContent=v.label+' variant';vLabel.style.cssText='width:100%;padding:0 0 8px';
+      row.appendChild(vLabel);
+      states.forEach(function(st){
+        groupCounter++;
+        row.appendChild(wrapCard(makeRadio(curS,Object.assign({noSync:true,name:'state_'+v.label+'_'+st.label,label:st.label,variant:v.variant},st.opts)),st.label));
+      });
+      el.appendChild(row);
+    });
+  }
+
+  function renderSlots(){
+    var el=clr('slotsDemo');
+    var combos=[
+      {label:'Circle only (no label)',fn:function(){groupCounter++;return makeRadio(curS,{noSync:true,checked:true,name:'slot_0'})}},
+      {label:'With label',fn:function(){groupCounter++;return makeRadio(curS,{noSync:true,checked:false,label:'Enable notifications',name:'slot_1'})}},
+      {label:'Checked with label',fn:function(){groupCounter++;return makeRadio(curS,{noSync:true,checked:true,label:'Selected option',name:'slot_2'})}},
+      {label:'Required',fn:function(){groupCounter++;return makeRadio(curS,{noSync:true,checked:false,label:'Accept terms',required:true,name:'slot_3'})}},
+      {label:'Disabled with label',fn:function(){groupCounter++;return makeRadio(curS,{noSync:true,disabled:true,checked:true,label:'Locked option',name:'slot_4'})}},
+    ];
+    combos.forEach(function(c){
+      var cd=document.createElement('div');cd.className='slot-card';
+      cd.appendChild(c.fn());
+      var l=document.createElement('span');l.className='slot-label';l.textContent=c.label;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  function renderSurface(){
+    ['surfaceBase','surfaceAlt','surfaceDeep'].forEach(function(id){
+      var p=document.getElementById(id);
+      while(p.children.length>1)p.removeChild(p.lastChild);
+      if (id === 'surfaceDeep') {
+        applySurface(p, 'deep');
+      }
+      var wrap=document.createElement('div');wrap.style.cssText='display:flex;gap:16px;align-items:center;padding:8px 0;flex-wrap:wrap';
+      wrap.appendChild(makeGroup([
+        {label:'Option A',checked:false},
+        {label:'Option B',checked:true},
+        {label:'Option C',checked:false}
+      ],{noSync:true,direction:'horizontal'}));
+      p.appendChild(wrap);
+    });
+  }
+
+  function renderGroups(){
+    var el=clr('groupsDemo');
+
+    function makeGroupCard(titleText, groupEl){
+      var card=document.createElement('div');
+      card.style.cssText='padding:24px 32px;display:flex;flex-direction:column;gap:4px;border-bottom:1px solid var(--demo-border);border-right:1px solid var(--demo-border)';
+      var title=document.createElement('div');title.className='sub-label';title.textContent=titleText;title.style.cssText='padding:0 0 8px';
+      card.appendChild(title);
+      card.appendChild(groupEl);
+      return card;
+    }
+
+    /* Vertical group */
+    el.appendChild(makeGroupCard('Vertical (default)', makeGroup([
+      {label:'Email',checked:true},
+      {label:'SMS'},
+      {label:'Push notification'},
+      {label:'No notifications'}
+    ],{noSync:true,legendText:'Notification preference'})));
+
+    /* Horizontal group */
+    el.appendChild(makeGroupCard('Horizontal', makeGroup([
+      {label:'Small',checked:false},
+      {label:'Medium',checked:true},
+      {label:'Large'}
+    ],{noSync:true,direction:'horizontal',legendText:'Size preference'})));
+
+    /* Disabled group */
+    el.appendChild(makeGroupCard('Disabled group', makeGroup([
+      {label:'Option A',checked:true},
+      {label:'Option B'},
+      {label:'Option C'}
+    ],{noSync:true,disabled:true,legendText:'Locked settings'})));
+
+    /* Error group */
+    el.appendChild(makeGroupCard('Error state', makeGroup([
+      {label:'Yes'},
+      {label:'No'},
+      {label:'Maybe'}
+    ],{noSync:true,error:true,legendText:'Required selection'})));
+  }
+
+  function renderMotion(){
+    var el=clr('motionDemo');
+    var items=[
+      {label:'Default (fast + ease-in-out)',sub:'duration-fast',opts:{}},
+      {label:'Slow + linear',sub:'duration-slow',opts:{style:{'--radio-transition-duration':'var(--duration-slow)','--radio-transition-easing':'var(--easing-linear)','--radio-dot-transition-duration':'var(--duration-slow)'}}},
+      {label:'Fast + bounce',sub:'easing-bounce',opts:{style:{'--radio-dot-transition-easing':'var(--easing-bounce)','--radio-dot-transition-duration':'var(--duration-normal)'}}},
+      {label:'No motion',sub:'0ms',opts:{style:{'--radio-transition-duration':'0ms','--radio-dot-transition-duration':'0ms'}}}
+    ];
+    items.forEach(function(it){
+      var cd=document.createElement('div');cd.className='motion-card';
+      cd.appendChild(makeGroup([
+        {label:'On',checked:true},{label:'Off'}
+      ],Object.assign({noSync:true,direction:'horizontal'},it.opts)));
+      var l=document.createElement('span');l.className='motion-label';l.textContent=it.sub;cd.appendChild(l);el.appendChild(cd);
+    });
+  }
+
+  function renderA11y(){
+    /* Focus */
+    var af=clr('a11yFocus');
+    af.appendChild(makeGroup([{label:'Tab to focus',checked:false},{label:'Another option'}],{noSync:true}));
+
+    /* Disabled */
+    var ad=clr('a11yDisabled');
+    groupCounter++;
+    ad.appendChild(makeRadio(curS,{noSync:true,disabled:true,label:'Disabled off',name:'a11y_dis_off'}));
+    groupCounter++;
+    ad.appendChild(makeRadio(curS,{noSync:true,disabled:true,checked:true,label:'Disabled on',name:'a11y_dis_on'}));
+
+    /* Error */
+    var ae=clr('a11yError');
+    groupCounter++;
+    ae.appendChild(makeRadio(curS,{noSync:true,error:true,label:'Error unchecked',name:'a11y_err_off'}));
+    groupCounter++;
+    ae.appendChild(makeRadio(curS,{noSync:true,error:true,checked:true,label:'Error checked',name:'a11y_err_on'}));
+
+    /* Forced */
+    var afc=clr('a11yForced');
+    afc.appendChild(makeGroup([{label:'Off'},{label:'On',checked:true}],{noSync:true,direction:'horizontal'}));
+  }
+
+  /* ── Inspector ──────────────────────────────────────── */
+  function updateInspector(){
+    var heroGrp=document.getElementById('heroGroup');
+    if(!heroGrp)return;
+    var checked=heroGrp.querySelector('.radio__control:checked');
+    var circle=checked?checked.nextElementSibling:heroGrp.querySelector('.radio__circle');
+    var bcs=circle?getComputedStyle(circle):{};
+    var s=curS;
+    var isChecked=!!checked;
+    var tokens=[
+      ['--radio-circle-size-'+s, CIRCLE_DIMS[s], bcs.width||'\u2014'],
+      ['--radio-dot-size-'+s, DOT_DIMS[s], '\u2014'],
+      [isChecked?'bg-on':'bg-off', '\u2014', bcs.backgroundColor||'\u2014'],
+      [isChecked?'border-on':'border-off', '\u2014', bcs.borderColor||'\u2014'],
+      ['border-width', '\u2014', bcs.borderWidth||'\u2014'],
+      ['border-radius', '50%', bcs.borderRadius||'\u2014'],
+      ['box-shadow', '\u2014', bcs.boxShadow||'\u2014'],
+      ['--radio-transition-duration', '--duration-fast', bcs.transitionDuration||'\u2014'],
+    ];
+    var ins=document.getElementById('heroInspector');
+    ins.innerHTML='<div class="inspector-title">Resolved Tokens ('+(isChecked?'checked':'unchecked')+' / '+s+' / '+(curVariant||'filled')+')</div>'+
+      tokens.map(function(t){
+        return '<div class="inspector-row"><span class="token-name">'+t[0]+'</span><span class="token-val">'+t[2]+(t[1]!=='\u2014'?'<br><span style="opacity:0.5;font-size:9px">\u2192 '+t[1]+'</span>':'')+'</span></div>';
+      }).join('');
+  }
+
+  /* ── Hero Change Listener ───────────────────────────── */
+  document.getElementById('heroGroup').addEventListener('change',function(){
+    requestAnimationFrame(updateInspector);
+  });
+
+  /* ── Apply Globals ──────────────────────────────── */
+  function applyGlobals(){
+    var heroRadios=document.querySelectorAll('#heroGroup .radio');
+    heroRadios.forEach(function(r){
+      r.dataset.size=curS;
+      if(curVariant) r.dataset.variant=curVariant; else delete r.dataset.variant;
+    });
+    if(curState==='checked'){
+      var first=document.querySelector('#heroGroup .radio__control');
+      if(first&&!document.querySelector('#heroGroup .radio__control:checked'))first.checked=true;
+    } else {
+      document.querySelectorAll('#heroGroup .radio__control').forEach(function(inp){inp.checked=false;});
+    }
+    renderDensity();renderStates();renderSlots();renderSurface();
+    renderGroups();renderMotion();
+    renderA11y();renderPlayground();
+    requestAnimationFrame(updateInspector);
+  }
+
+  /* ── Global Controls ────────────────────────────────── */
+  document.getElementById('stateBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');
+    curState=pill.dataset.ctrlState;
+    applyGlobals();
+  });
+
+  document.getElementById('sizeBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');curS=pill.dataset.ctrlSize;applyGlobals();
+  });
+
+  document.getElementById('variantBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');curVariant=pill.dataset.ctrlVariant;applyGlobals();
+  });
+
+  window.DTF.onThemeChange = updateInspector;
+
+  /* ── Context Playground ─────────────────────────────── */
+  var SURFACE_TOKENS=[
+    'bg','hover','pressed','outline','separator',
+    'ct-default','ct-strong','ct-subtle','ct-faint',
+    'cm-bg','cm-bg-hover','cm-bg-pressed',
+    'cm-outline','cm-outline-hover','cm-outline-pressed','cm-separator'
+  ];
+  var ROLE_TOKENS=[
+    'content-default','content-strong','content-subtle','content-faint',
+    'component-bg-default','component-bg-hover','component-bg-pressed',
+    'component-outline-default','component-outline-hover','component-outline-pressed',
+    'component-separator',
+    'container-bg','container-hover','container-pressed',
+    'container-outline','container-separator',
+    'on-component','on-container'
+  ];
+
+  function applySurface(bodyEl,surfaceId){
+    if(surfaceId==='base'){
+      SURFACE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--surface-base-'+tok);});
+      bodyEl.style.background='var(--surface-base-bg)';
+      bodyEl.removeAttribute('data-theme');
+    } else {
+      SURFACE_TOKENS.forEach(function(tok){
+        bodyEl.style.setProperty('--surface-base-'+tok,'var(--surface-'+surfaceId+'-'+tok+')');
+      });
+      bodyEl.style.background='var(--surface-'+surfaceId+'-bg)';
+      if(surfaceId==='inverse'){bodyEl.setAttribute('data-theme','dark');}else{bodyEl.removeAttribute('data-theme');}
+    }
+  }
+
+  function applyRole(bodyEl,roleId){
+    if(roleId==='brand'){
+      ROLE_TOKENS.forEach(function(tok){bodyEl.style.removeProperty('--brand-'+tok);});
+    } else {
+      ROLE_TOKENS.forEach(function(tok){
+        bodyEl.style.setProperty('--brand-'+tok,'var(--'+roleId+'-'+tok+')');
+      });
+    }
+  }
+
+  function renderPlayground(){
+    ['A','B'].forEach(function(card){
+      var body=document.getElementById('pgBody'+card);
+      body.innerHTML='';
+      body.appendChild(makeGroup([
+        {label:'Option 1',checked:true},
+        {label:'Option 2'},
+        {label:'Option 3'},
+        {label:'Disabled',disabled:true}
+      ],{noSync:true}));
+      pgApplyCard(card);
+    });
+    requestAnimationFrame(pgUpdateChain);
+  }
+
+  function pgApplyCard(card){
+    var body=document.getElementById('pgBody'+card);
+    var surfSel=document.querySelector('[data-pg-surface="'+card+'"]');
+    var roleSel=document.querySelector('[data-pg-role="'+card+'"]');
+    applySurface(body,surfSel.value);
+    applyRole(body,roleSel.value);
+  }
+
+  function pgUpdateChain(){
+    var surfSel=document.querySelector('[data-pg-surface="A"]');
+    var roleSel=document.querySelector('[data-pg-role="A"]');
+    var chain=document.getElementById('pgChain');
+    var s=surfSel.value,r=roleSel.value;
+    var rows=[
+      {sec:'Filled Variant (off)'},
+      {label:'Circle BG Off',token:'--radio-circle-bg-off',via:'--surface-'+s+'-cm-bg'},
+      {label:'Circle BG Off Hover',token:'--radio-circle-bg-off-hover',via:'--surface-'+s+'-cm-bg-hover'},
+      {label:'Circle Border Off',token:'--radio-circle-border-color-off',via:'--surface-'+s+'-cm-outline'},
+      {label:'Circle Border Off Hover',token:'--radio-circle-border-color-off-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {sec:'Filled Variant (on)'},
+      {label:'Circle BG On',token:'--radio-circle-bg-on',via:'--'+r+'-component-bg-default'},
+      {label:'Circle BG On Hover',token:'--radio-circle-bg-on-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Circle Border On',token:'--radio-circle-border-color-on',via:'--'+r+'-component-bg-default'},
+      {label:'Circle Border On Hover',token:'--radio-circle-border-color-on-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Dot Color',token:'--radio-dot-color',via:'--color-fixed-white'},
+      {sec:'Outlined Variant (off)'},
+      {label:'Circle BG Off Hover',token:'--radio-outlined-circle-bg-off-hover',via:'--surface-'+s+'-cm-bg-hover'},
+      {label:'Circle Border Off',token:'--radio-outlined-circle-border-color-off',via:'--surface-'+s+'-cm-outline'},
+      {label:'Circle Border Off Hover',token:'--radio-outlined-circle-border-color-off-hover',via:'--surface-'+s+'-cm-outline-hover'},
+      {sec:'Outlined Variant (on)'},
+      {label:'Circle BG On',token:'--radio-outlined-circle-bg-on',via:'--'+r+'-component-bg-default'},
+      {label:'Circle BG On Hover',token:'--radio-outlined-circle-bg-on-hover',via:'--'+r+'-component-bg-hover'},
+      {label:'Circle Border On',token:'--radio-outlined-circle-border-color-on',via:'--'+r+'-component-bg-default'},
+      {label:'Dot Color',token:'--radio-outlined-dot-color',via:'--color-fixed-white'},
+      {sec:'Error States'},
+      {label:'Border Error',token:'--radio-circle-border-color-invalid',via:'--danger-component-outline-default'},
+      {label:'Border Error Hover',token:'--radio-circle-border-color-invalid-hover',via:'--danger-component-outline-hover'},
+      {label:'BG On Error',token:'--radio-circle-bg-on-invalid',via:'--danger-component-bg-default'},
+      {label:'BG On Error Hover',token:'--radio-circle-bg-on-invalid-hover',via:'--danger-component-bg-hover'},
+      {sec:'Disabled'},
+      {label:'Border Disabled',token:'--radio-circle-border-color-disabled',via:'--surface-'+s+'-cm-outline'},
+      {label:'BG On Disabled',token:'--radio-circle-bg-on-disabled',via:'--'+r+'-component-bg-default'},
+      {sec:'Focus / A11y'},
+      {label:'Focus Ring',token:'--radio-focus-outline-color',via:'--'+r+'-component-outline-default'}
+    ];
+    var h='<div class="pg-chain-title">Token Resolution Chain (Card A: surface-'+s+' / '+r+')</div>';
+    rows.forEach(function(row){
+      if(row.sec){h+='<div class="pg-chain-sec">'+row.sec+'</div>';return;}
+      h+='<div class="pg-chain-row">';
+      h+='<span>'+row.label+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.token+'</span> <span class="pg-chain-arrow">\u2192</span> <span>'+row.via+'</span>';
+      h+='</div>';
+    });
+    chain.innerHTML=h;
+  }
+
+  document.querySelectorAll('[data-pg-surface],[data-pg-role]').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var card=this.dataset.pgSurface||this.dataset.pgRole;
+      pgApplyCard(card);
+      requestAnimationFrame(pgUpdateChain);
+    });
+  });
+
+  document.getElementById('pgDensityBar').addEventListener('click',function(e){
+    var pill=e.target.closest('.pill');if(!pill)return;
+    this.querySelectorAll('.pill').forEach(function(p){p.setAttribute('aria-pressed','false')});
+    pill.setAttribute('aria-pressed','true');
+    var sz=pill.dataset.pgSize;
+    document.querySelectorAll('#pgCardA .radio, #pgCardB .radio').forEach(function(rd){rd.dataset.size=sz});
+    requestAnimationFrame(pgUpdateChain);
+  });
+
+  applyGlobals();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Input / TextField
+   Variable-driven rendering — reads only from --input-* tokens.
+
+   Markup:
+   <div class="input-group" data-variant="outlined" data-size="base">
+     <label class="input__label" for="x">Label</label>
+     <div class="input-field">
+       <span class="input__prefix">…</span>
+       <input type="text" id="x" placeholder="Placeholder">
+       <span class="input__suffix">…</span>
+     </div>
+     <span class="input__helper">Helper text</span>
+   </div>
+   ════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────
+   1.  BASE — Internal active variables (default = base + outlined)
+   ──────────────────────────────────────────────────────────────── */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  inline-size: var(--input-inline-size);
+  max-width: var(--input-max-width);
+  font-family: var(--input-font-family);
+
+  /* Dimension active vars (base density) */
+  --_input-height: var(--input-height-base);
+  --_input-px: var(--input-padding-x-base);
+  --_input-px-icon: var(--input-padding-x-icon-base);
+  --_input-py: var(--input-padding-y-base);
+  --_input-fs: var(--input-font-size-base);
+  --_input-min-width: var(--input-min-width-base);
+  --_input-radius: var(--input-radius-base);
+  --_input-affix-size: var(--input-affix-size-base);
+  --_input-affix-px: var(--input-affix-px-base);
+  --_input-gap: var(--input-gap-base);
+
+  /* Surface active vars (outlined default) */
+  --_input-bg: var(--input-outlined-bg);
+  --_input-fg: var(--input-outlined-fg);
+  --_input-border-color: var(--input-outlined-border-color);
+  --_input-placeholder: var(--input-outlined-placeholder);
+  --_input-shadow: var(--input-shadow);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   2.  SIZE SELECTORS — map density tokens → active vars
+   ──────────────────────────────────────────────────────────────── */
+.input-group[data-size="micro"] {
+  --_input-height: var(--input-height-micro);
+  --_input-px: var(--input-padding-x-micro);
+  --_input-px-icon: var(--input-padding-x-icon-micro);
+  --_input-py: var(--input-padding-y-micro);
+  --_input-fs: var(--input-font-size-micro);
+  --_input-min-width: var(--input-min-width-micro);
+  --_input-radius: var(--input-radius-micro);
+  --_input-affix-size: var(--input-affix-size-micro);
+  --_input-affix-px: var(--input-affix-px-micro);
+  --_input-gap: var(--input-gap-micro);
+}
+.input-group[data-size="tiny"] {
+  --_input-height: var(--input-height-tiny);
+  --_input-px: var(--input-padding-x-tiny);
+  --_input-px-icon: var(--input-padding-x-icon-tiny);
+  --_input-py: var(--input-padding-y-tiny);
+  --_input-fs: var(--input-font-size-tiny);
+  --_input-min-width: var(--input-min-width-tiny);
+  --_input-radius: var(--input-radius-tiny);
+  --_input-affix-size: var(--input-affix-size-tiny);
+  --_input-affix-px: var(--input-affix-px-tiny);
+  --_input-gap: var(--input-gap-tiny);
+}
+.input-group[data-size="small"] {
+  --_input-height: var(--input-height-small);
+  --_input-px: var(--input-padding-x-small);
+  --_input-px-icon: var(--input-padding-x-icon-small);
+  --_input-py: var(--input-padding-y-small);
+  --_input-fs: var(--input-font-size-small);
+  --_input-min-width: var(--input-min-width-small);
+  --_input-radius: var(--input-radius-small);
+  --_input-affix-size: var(--input-affix-size-small);
+  --_input-affix-px: var(--input-affix-px-small);
+  --_input-gap: var(--input-gap-small);
+}
+.input-group[data-size="base"] {
+  --_input-height: var(--input-height-base);
+  --_input-px: var(--input-padding-x-base);
+  --_input-px-icon: var(--input-padding-x-icon-base);
+  --_input-py: var(--input-padding-y-base);
+  --_input-fs: var(--input-font-size-base);
+  --_input-min-width: var(--input-min-width-base);
+  --_input-radius: var(--input-radius-base);
+  --_input-affix-size: var(--input-affix-size-base);
+  --_input-affix-px: var(--input-affix-px-base);
+  --_input-gap: var(--input-gap-base);
+}
+.input-group[data-size="medium"] {
+  --_input-height: var(--input-height-medium);
+  --_input-px: var(--input-padding-x-medium);
+  --_input-px-icon: var(--input-padding-x-icon-medium);
+  --_input-py: var(--input-padding-y-medium);
+  --_input-fs: var(--input-font-size-medium);
+  --_input-min-width: var(--input-min-width-medium);
+  --_input-radius: var(--input-radius-medium);
+  --_input-affix-size: var(--input-affix-size-medium);
+  --_input-affix-px: var(--input-affix-px-medium);
+  --_input-gap: var(--input-gap-medium);
+}
+.input-group[data-size="large"] {
+  --_input-height: var(--input-height-large);
+  --_input-px: var(--input-padding-x-large);
+  --_input-px-icon: var(--input-padding-x-icon-large);
+  --_input-py: var(--input-padding-y-large);
+  --_input-fs: var(--input-font-size-large);
+  --_input-min-width: var(--input-min-width-large);
+  --_input-radius: var(--input-radius-large);
+  --_input-affix-size: var(--input-affix-size-large);
+  --_input-affix-px: var(--input-affix-px-large);
+  --_input-gap: var(--input-gap-large);
+}
+.input-group[data-size="big"] {
+  --_input-height: var(--input-height-big);
+  --_input-px: var(--input-padding-x-big);
+  --_input-px-icon: var(--input-padding-x-icon-big);
+  --_input-py: var(--input-padding-y-big);
+  --_input-fs: var(--input-font-size-big);
+  --_input-min-width: var(--input-min-width-big);
+  --_input-radius: var(--input-radius-big);
+  --_input-affix-size: var(--input-affix-size-big);
+  --_input-affix-px: var(--input-affix-px-big);
+  --_input-gap: var(--input-gap-big);
+}
+.input-group[data-size="huge"] {
+  --_input-height: var(--input-height-huge);
+  --_input-px: var(--input-padding-x-huge);
+  --_input-px-icon: var(--input-padding-x-icon-huge);
+  --_input-py: var(--input-padding-y-huge);
+  --_input-fs: var(--input-font-size-huge);
+  --_input-min-width: var(--input-min-width-huge);
+  --_input-radius: var(--input-radius-huge);
+  --_input-affix-size: var(--input-affix-size-huge);
+  --_input-affix-px: var(--input-affix-px-huge);
+  --_input-gap: var(--input-gap-huge);
+}
+.input-group[data-size="mega"] {
+  --_input-height: var(--input-height-mega);
+  --_input-px: var(--input-padding-x-mega);
+  --_input-px-icon: var(--input-padding-x-icon-mega);
+  --_input-py: var(--input-padding-y-mega);
+  --_input-fs: var(--input-font-size-mega);
+  --_input-min-width: var(--input-min-width-mega);
+  --_input-radius: var(--input-radius-mega);
+  --_input-affix-size: var(--input-affix-size-mega);
+  --_input-affix-px: var(--input-affix-px-mega);
+  --_input-gap: var(--input-gap-mega);
+}
+.input-group[data-size="ultra"] {
+  --_input-height: var(--input-height-ultra);
+  --_input-px: var(--input-padding-x-ultra);
+  --_input-px-icon: var(--input-padding-x-icon-ultra);
+  --_input-py: var(--input-padding-y-ultra);
+  --_input-fs: var(--input-font-size-ultra);
+  --_input-min-width: var(--input-min-width-ultra);
+  --_input-radius: var(--input-radius-ultra);
+  --_input-affix-size: var(--input-affix-size-ultra);
+  --_input-affix-px: var(--input-affix-px-ultra);
+  --_input-gap: var(--input-gap-ultra);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   3.  VARIANT SELECTORS — map surface tokens → active vars
+   ──────────────────────────────────────────────────────────────── */
+
+/* Outlined (default — no data-variant needed) */
+.input-group,
+.input-group[data-variant="outlined"] {
+  --_input-bg: var(--input-outlined-bg);
+  --_input-fg: var(--input-outlined-fg);
+  --_input-border-color: var(--input-outlined-border-color);
+  --_input-placeholder: var(--input-outlined-placeholder);
+}
+
+/* Filled */
+.input-group[data-variant="filled"] {
+  --_input-bg: var(--input-filled-bg);
+  --_input-fg: var(--input-filled-fg);
+  --_input-border-color: var(--input-filled-border-color);
+  --_input-placeholder: var(--input-filled-placeholder);
+}
+
+/* Underline */
+.input-group[data-variant="underline"] {
+  --_input-bg: var(--input-underline-bg);
+  --_input-fg: var(--input-underline-fg);
+  --_input-border-color: var(--input-underline-border-color);
+  --_input-placeholder: var(--input-underline-placeholder);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   ROLE SELECTORS — palette-level remapping (affects focus ring,
+   caret, focus border, focus label color). data-role="brand" is
+   the default (no remap needed). Invalid state (aria-invalid)
+   always overrides role.
+   ──────────────────────────────────────────────────────────────── */
+
+.input-group[data-role="danger"] {
+  --brand-component-bg-default: var(--danger-component-bg-default);
+  --brand-component-outline-default: var(--danger-component-outline-default);
+  --brand-content-default: var(--danger-content-default);
+}
+.input-group[data-role="success"] {
+  --brand-component-bg-default: var(--success-component-bg-default);
+  --brand-component-outline-default: var(--success-component-outline-default);
+  --brand-content-default: var(--success-content-default);
+}
+.input-group[data-role="warning"] {
+  --brand-component-bg-default: var(--warning-component-bg-default);
+  --brand-component-outline-default: var(--warning-component-outline-default);
+  --brand-content-default: var(--warning-content-default);
+}
+.input-group[data-role="info"] {
+  --brand-component-bg-default: var(--info-component-bg-default);
+  --brand-component-outline-default: var(--info-component-outline-default);
+  --brand-content-default: var(--info-content-default);
+}
+.input-group[data-role="neutral"] {
+  --brand-component-bg-default: var(--surface-base-cm-bg-pressed);
+  --brand-component-outline-default: var(--surface-base-cm-outline-hover);
+  --brand-content-default: var(--surface-base-ct-default);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   4.  STATE OVERRIDES — hover, focus, invalid, disabled
+   ──────────────────────────────────────────────────────────────── */
+
+/* ── Hover (outline) ──────────────────────────────────────── */
+.input-group:not([data-disabled]):not([data-readonly]):not([data-variant]):has(.input-field:hover),
+.input-group[data-variant="outlined"]:not([data-disabled]):not([data-readonly]):has(.input-field:hover) {
+  --_input-bg: var(--input-outlined-bg-hover);
+  --_input-border-color: var(--input-outlined-border-color-hover);
+}
+
+/* ── Hover (filled) ───────────────────────────────────────── */
+.input-group[data-variant="filled"]:not([data-disabled]):not([data-readonly]):has(.input-field:hover) {
+  --_input-bg: var(--input-filled-bg-hover);
+  --_input-border-color: var(--input-filled-border-color-hover);
+}
+
+/* ── Hover (underline) ────────────────────────────────────── */
+.input-group[data-variant="underline"]:not([data-disabled]):not([data-readonly]):has(.input-field:hover) {
+  --_input-bg: var(--input-underline-bg-hover);
+  --_input-border-color: var(--input-underline-border-color-hover);
+}
+
+/* ── Focus (outline) ──────────────────────────────────────── */
+.input-group:not([data-disabled]):not([data-variant]):has(.input-field:focus-visible),
+.input-group[data-variant="outlined"]:not([data-disabled]):has(.input-field:focus-visible) {
+  --_input-bg: var(--input-outlined-bg-focus);
+  --_input-border-color: var(--input-outlined-border-color-focus);
+  --_input-shadow: var(--input-shadow-focus);
+}
+
+/* ── Focus (filled) ───────────────────────────────────────── */
+.input-group[data-variant="filled"]:not([data-disabled]):has(.input-field:focus-visible) {
+  --_input-bg: var(--input-filled-bg-focus);
+  --_input-border-color: var(--input-filled-border-color-focus);
+  --_input-shadow: var(--input-shadow-focus);
+}
+
+/* ── Focus (underline) ────────────────────────────────────── */
+.input-group[data-variant="underline"]:not([data-disabled]):has(.input-field:focus-visible) {
+  --_input-bg: var(--input-underline-bg-focus);
+  --_input-border-color: var(--input-underline-border-color-focus);
+  --_input-shadow: var(--input-shadow-focus);
+}
+
+/* ── Invalid (outlined) ──────────────────────────────────── */
+.input-group[aria-invalid="true"]:not([data-variant]),
+.input-group[aria-invalid="true"][data-variant="outlined"] {
+  --_input-bg: var(--input-outlined-bg-invalid);
+  --_input-border-color: var(--input-outlined-border-color-invalid);
+}
+
+/* ── Invalid (filled) ────────────────────────────────────── */
+.input-group[aria-invalid="true"][data-variant="filled"] {
+  --_input-bg: var(--input-filled-bg-invalid);
+  --_input-border-color: var(--input-filled-border-color-invalid);
+}
+
+/* ── Invalid (underline) ─────────────────────────────────── */
+.input-group[aria-invalid="true"][data-variant="underline"] {
+  --_input-bg: var(--input-underline-bg-invalid);
+  --_input-border-color: var(--input-underline-border-color-invalid);
+}
+
+/* Invalid + Focus should keep invalid border color */
+.input-group[aria-invalid="true"]:has(.input-field:focus-visible) {
+  --_input-shadow: var(--input-shadow-focus);
+}
+
+/* ── Disabled (all variants) ──────────────────────────────── */
+.input-group[data-disabled]:not([data-variant]),
+.input-group[data-disabled][data-variant="outlined"] {
+  --_input-bg: var(--input-outlined-bg-disabled);
+  --_input-fg: var(--input-outlined-fg-disabled);
+  --_input-border-color: var(--input-outlined-border-color-disabled);
+  --_input-placeholder: var(--input-outlined-placeholder-disabled);
+}
+.input-group[data-disabled][data-variant="filled"] {
+  --_input-bg: var(--input-filled-bg-disabled);
+  --_input-fg: var(--input-filled-fg-disabled);
+  --_input-border-color: var(--input-filled-border-color-disabled);
+  --_input-placeholder: var(--input-filled-placeholder-disabled);
+}
+.input-group[data-disabled][data-variant="underline"] {
+  --_input-bg: var(--input-underline-bg-disabled);
+  --_input-fg: var(--input-underline-fg-disabled);
+  --_input-border-color: var(--input-underline-border-color-disabled);
+  --_input-placeholder: var(--input-underline-placeholder-disabled);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   5.  FIELD RENDERING — .input-field reads active vars
+   ──────────────────────────────────────────────────────────────── */
+.input-field {
+  display: flex;
+  align-items: center;
+  height: var(--_input-height);
+  min-width: var(--_input-min-width);
+  padding-inline: var(--_input-px);
+  padding-block: 0;
+  gap: var(--_input-gap);
+
+  background: var(--_input-bg);
+  color: var(--_input-fg);
+  border-width: var(--input-border-width-t) var(--input-border-width-r) var(--input-border-width-b) var(--input-border-width-l);
+  border-style: var(--input-border-style);
+  border-color: var(--_input-border-color);
+  border-radius: var(--_input-radius);
+  box-shadow: var(--_input-shadow);
+
+  font-family: var(--input-font-family);
+  font-size: var(--_input-fs);
+  font-weight: var(--input-font-weight);
+  line-height: var(--input-line-height);
+  letter-spacing: var(--input-letter-spacing);
+  clip-path: var(--input-clip-path);
+  overflow: var(--input-overflow);
+  caret-color: var(--input-caret-color);
+
+  transition-property: var(--input-transition-property);
+  transition-duration: var(--input-transition-duration);
+  transition-timing-function: var(--input-transition-easing);
+  cursor: text;
+}
+
+/* Filled variant shape override — same full border, same radius as outline */
+/* (No shape override needed — filled inherits standard .input-field border.) */
+
+/* Underline variant shape override — only bottom border */
+.input-group[data-variant="underline"] .input-field {
+  border-width: 0 0 var(--input-border-width-b) 0;
+  border-radius: 0;
+  padding-inline-start: 0;
+}
+.input-group[data-variant="underline"]:not([data-disabled]):has(.input-field:focus-visible) .input-field {
+  border-bottom-width: 2px;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   6.  NATIVE INPUT RESET — <input> / <textarea> inside field
+   ──────────────────────────────────────────────────────────────── */
+.input-field input,
+.input-field textarea {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  outline: none;
+}
+
+.input-field input::placeholder,
+.input-field textarea::placeholder {
+  color: var(--_input-placeholder);
+  font-style: var(--input-placeholder-style);
+  opacity: 1;
+}
+
+.input-field textarea {
+  resize: vertical;
+  min-height: 100%;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   7.  FOCUS RING — on :focus-visible
+   ──────────────────────────────────────────────────────────────── */
+.input-group:not([data-disabled]):has(.input-field:focus-visible) .input-field {
+  outline: var(--input-focus-outline-width) var(--input-outline-style) var(--input-focus-outline-color);
+  outline-offset: var(--input-focus-outline-offset);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   8.  DISABLED STATE — opacity + cursor
+   ──────────────────────────────────────────────────────────────── */
+.input-group[data-disabled] .input-field {
+
+}
+.input-group[data-disabled]:not([data-variant]) .input-field,
+.input-group[data-disabled][data-variant="outlined"] .input-field {
+  opacity: var(--input-outlined-opacity-disabled);
+}
+.input-group[data-disabled][data-variant="filled"] .input-field {
+  opacity: var(--input-filled-opacity-disabled);
+}
+.input-group[data-disabled][data-variant="underline"] .input-field {
+  opacity: var(--input-underline-opacity-disabled);
+}
+
+.input-group[data-disabled] .input-field input,
+.input-group[data-disabled] .input-field textarea {
+
+}
+
+/* ── Readonly ─────────────────────────────────────────────── */
+.input-group[data-readonly] .input-field {
+  cursor: default;
+}
+.input-group[data-readonly] .input-field input,
+.input-group[data-readonly] .input-field textarea {
+  cursor: default;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   9.  LABEL SLOT — .input__label
+   ──────────────────────────────────────────────────────────────── */
+.input__label {
+  font-size: var(--input-label-font-size);
+  font-weight: var(--input-label-font-weight);
+  line-height: var(--input-line-height);
+  color: var(--input-label-color);
+  margin-bottom: var(--input-label-gap);
+}
+
+.input-group:has(.input-field:focus-visible) .input__label {
+  color: var(--input-label-color-focus);
+}
+.input-group[aria-invalid="true"] .input__label {
+  color: var(--input-label-color-invalid);
+}
+.input-group[data-disabled] .input__label {
+  color: var(--input-label-color-disabled);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   10. HELPER SLOT — .input__helper
+   ──────────────────────────────────────────────────────────────── */
+.input__helper {
+  font-size: var(--input-helper-font-size);
+  font-weight: var(--input-helper-font-weight);
+  letter-spacing: var(--input-helper-letter-spacing);
+  line-height: var(--input-line-height);
+  color: var(--input-helper-color);
+  margin-top: var(--input-helper-gap);
+}
+
+.input-group[aria-invalid="true"] .input__helper {
+  color: var(--input-helper-color-invalid);
+}
+.input-group[data-disabled] .input__helper {
+  color: var(--input-label-color-disabled);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   11. PREFIX / SUFFIX SLOTS
+   ──────────────────────────────────────────────────────────────── */
+.input__prefix,
+.input__suffix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding-inline: var(--_input-affix-px);
+  color: var(--input-affix-color);
+  pointer-events: none;
+}
+
+.input__prefix svg,
+.input__suffix svg {
+  width: var(--_input-affix-size);
+  height: var(--_input-affix-size);
+}
+
+/* Tighter padding on the icon side for visual balance */
+.input-field:has(.input__prefix) {
+  padding-inline-start: var(--_input-px-icon);
+}
+.input-field:has(.input__suffix) {
+  padding-inline-end: var(--_input-px-icon);
+}
+
+/* Suffix can be interactive (clear button) */
+.input__suffix[role="button"] {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.input-group[data-disabled] .input__prefix,
+.input-group[data-disabled] .input__suffix {
+  color: var(--input-affix-color-disabled);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12. ACCESSIBILITY — Min tap target + forced colors
+   ──────────────────────────────────────────────────────────────── */
+.input-group {
+  min-height: var(--input-min-tap-target);
+}
+
+/* Rounded (pill) override */
+.input-group[data-rounded] .input-field {
+  --_input-radius: var(--input-radius-rounded);
+}
+
+@media (forced-colors: active) {
+  .input-field {
+    border-color: ButtonText;
+  }
+  .input-group:has(.input-field:focus-visible) .input-field {
+    outline-color: Highlight;
+    border-color: Highlight;
+  }
+  .input-group[data-disabled] .input-field {
+    border-color: GrayText;
+    color: GrayText;
+  }
+  .input-group[aria-invalid="true"] .input-field {
+    border-color: LinkText;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .input-field {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

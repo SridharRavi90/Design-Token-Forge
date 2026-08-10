@@ -1,0 +1,46 @@
+{
+  "archetype": "control-range",
+  "tokenPrefix": "slider",
+  "axes": ["shape", "dimension", "surface", "typography", "slots", "motion", "a11y"],
+  "states": ["default", "hover", "focus-visible", "pressed", "disabled"],
+  "rolesSupported": ["brand", "danger", "warning", "info", "success", "neutral"],
+  "variantsSupported": ["filled", "soft"],
+  "onComponentTokens": [
+    {
+      "token": "--slider-tooltip-fg",
+      "fillStates": ["--slider-tooltip-bg"],
+      "derivation": "manual",
+      "wcag": "AA",
+      "notes": "Tooltip text on filled tooltip bg; reads --brand-on-component so it follows role remap."
+    },
+    {
+      "token": "--slider-thumb-icon-color",
+      "fillStates": ["--slider-thumb-bg"],
+      "derivation": "manual",
+      "wcag": "AA-non-text",
+      "notes": "Optional thumb glyph; reads --brand-on-component (thumb is white-fill so this rarely renders but ships for completeness)."
+    }
+  ],
+  "editorExposureOverrides": {
+    "--slider-min-tap-target": "required",
+    "--slider-thumb-shadow": "required",
+    "--slider-thumb-shadow-hover": "advanced",
+    "--slider-thumb-shadow-pressed": "advanced",
+    "--slider-thumb-halo-opacity": "advanced",
+    "--slider-thumb-scale-pressed": "advanced",
+    "--slider-focus-outline-offset": "advanced",
+    "--slider-tooltip-offset": "advanced",
+    "--slider-label-gap": "advanced",
+    "--slider-required-indicator": "required",
+    "--slider-required-color": "required"
+  },
+  "figmaBindingPrefix": "slider/",
+  "notes": [
+    "Control-range archetype: track + fill + thumb with optional ticks, tooltip, and label rows. First member of a family that will later include range-dual + color-slider.",
+    "Variant pair is filled (solid value bar) + soft (container-tinted value bar). Thumb stays white with coloured border for both variants — keeps the handle visually distinct from the fill at all sizes.",
+    "Roles brand|danger|warning|info|success|neutral remap --brand-* palette vars. Both variants read --brand-* so role swap works for both filled fill and soft container-tinted fill.",
+    "Track (unfilled rail) is intentionally NEUTRAL (--surface-base-cm-outline-hover), never role-coloured — only the value range carries the role colour.",
+    "Halo is a Material-style hover ring around the thumb, sized ≈2× thumb-width per density. Halo opacity ships at 0.2 so it never competes with the thumb itself.",
+    "Ticks have a separate active/inactive split (--slider-tick-color vs --slider-tick-color-pressed) that follows the fill colour automatically."
+  ]
+}

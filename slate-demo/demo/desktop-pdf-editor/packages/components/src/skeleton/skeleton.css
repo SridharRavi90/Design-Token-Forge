@@ -1,0 +1,146 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Skeleton Structural CSS
+   Implements placeholder loading shapes with shimmer/pulse animation.
+   Uses internal bridge vars (--_sk-*) for variant/size switching.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ──────────────────────────────────────────────── */
+
+@keyframes skel-shimmer {
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(150%); }
+}
+
+@keyframes skel-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+
+.skeleton {
+  /* Internal bridge vars */
+  --_sk-h:      var(--skel-height-base);
+  --_sk-w:      var(--skel-width-text);
+  --_sk-r:      var(--skel-radius-text);
+  --_sk-bg:     var(--skel-bg);
+  --_sk-dur:    var(--skel-animation-duration);
+  --_sk-ease:   var(--skel-easing);
+
+  position: relative;
+  display: block;
+  width: var(--_sk-w);
+  height: var(--_sk-h);
+  border-radius: var(--_sk-r);
+  background-color: var(--_sk-bg);
+  overflow: hidden;
+  isolation: isolate;
+  padding-inline: 0px;  /* RTL-ready logical property */
+
+  /* No pointer events on placeholder */
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Shimmer pseudo-element */
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: var(--skel-shimmer-width);
+  background: linear-gradient(
+    90deg,
+    var(--skel-shimmer-from) 0%,
+    var(--skel-shimmer-via) 50%,
+    var(--skel-shimmer-to) 100%
+  );
+  animation: skel-shimmer var(--_sk-dur) var(--_sk-ease) infinite;
+}
+
+/* Pulse mode — replaces shimmer */
+.skeleton[data-animation="pulse"]::after {
+  content: none;
+}
+.skeleton[data-animation="pulse"] {
+  animation: skel-pulse var(--_sk-dur) var(--_sk-ease) infinite;
+}
+
+/* ── Variant: text (default) ────────────────────────────────── */
+/* Already default via bridge vars */
+
+/* ── Variant: rect ──────────────────────────────────────────── */
+.skeleton[data-variant="rect"] {
+  --_sk-w: var(--skel-width-rect);
+  --_sk-r: var(--skel-radius-rect);
+}
+
+/* ── Variant: circle ────────────────────────────────────────── */
+.skeleton[data-variant="circle"] {
+  --_sk-r: var(--skel-radius-circle);
+  aspect-ratio: 1;
+  width: auto;
+  height: auto;
+}
+
+/* ── Size selectors ─────────────────────────────────────────── */
+.skeleton[data-size="micro"]  { --_sk-h: var(--skel-height-micro); }
+.skeleton[data-size="tiny"]   { --_sk-h: var(--skel-height-tiny); }
+.skeleton[data-size="small"]  { --_sk-h: var(--skel-height-small); }
+.skeleton[data-size="base"]   { --_sk-h: var(--skel-height-base); }
+.skeleton[data-size="medium"] { --_sk-h: var(--skel-height-medium); }
+.skeleton[data-size="large"]  { --_sk-h: var(--skel-height-large); }
+.skeleton[data-size="big"]    { --_sk-h: var(--skel-height-big); }
+.skeleton[data-size="huge"]   { --_sk-h: var(--skel-height-huge); }
+.skeleton[data-size="mega"]   { --_sk-h: var(--skel-height-mega); }
+.skeleton[data-size="ultra"]  { --_sk-h: var(--skel-height-ultra); }
+
+/* Circle uses dedicated circle-size token */
+.skeleton[data-variant="circle"][data-size="micro"]  { width: var(--skel-circle-size-micro);  height: var(--skel-circle-size-micro); }
+.skeleton[data-variant="circle"][data-size="tiny"]   { width: var(--skel-circle-size-tiny);   height: var(--skel-circle-size-tiny); }
+.skeleton[data-variant="circle"][data-size="small"]  { width: var(--skel-circle-size-small);  height: var(--skel-circle-size-small); }
+.skeleton[data-variant="circle"][data-size="base"]   { width: var(--skel-circle-size-base);   height: var(--skel-circle-size-base); }
+.skeleton[data-variant="circle"][data-size="medium"] { width: var(--skel-circle-size-medium); height: var(--skel-circle-size-medium); }
+.skeleton[data-variant="circle"][data-size="large"]  { width: var(--skel-circle-size-large);  height: var(--skel-circle-size-large); }
+.skeleton[data-variant="circle"][data-size="big"]    { width: var(--skel-circle-size-big);    height: var(--skel-circle-size-big); }
+.skeleton[data-variant="circle"][data-size="huge"]   { width: var(--skel-circle-size-huge);   height: var(--skel-circle-size-huge); }
+.skeleton[data-variant="circle"][data-size="mega"]   { width: var(--skel-circle-size-mega);   height: var(--skel-circle-size-mega); }
+.skeleton[data-variant="circle"][data-size="ultra"]  { width: var(--skel-circle-size-ultra);  height: var(--skel-circle-size-ultra); }
+
+/* ── Skeleton group (stacked lines) ────────────────────────── */
+.skeleton-group {
+  --skel-gap: var(--spacing-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--skel-gap);
+}
+
+/* ── Disabled (pause animation) ─────────────────────────────── */
+.skeleton[data-disabled] {
+  animation-play-state: paused;
+}
+.skeleton[data-disabled]::after {
+  animation-play-state: paused;
+}
+
+/* ── Forced colors (high contrast) ─────────────────────────── */
+@media (forced-colors: active) {
+  .skeleton {
+    border: 1px solid GrayText;
+    background-color: Canvas;
+  }
+  .skeleton::after {
+    background: none;
+    animation: none;
+  }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+  .skeleton[data-animation="pulse"] {
+    animation: none;
+    opacity: 0.7;
+  }
+}

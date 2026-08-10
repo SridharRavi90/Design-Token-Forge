@@ -1,0 +1,227 @@
+/* ════════════════════════════════════════════════════════════════
+   Design Token Forge — Textarea Token Defaults
+   Layer 0: System defaults for ~114 textarea variables.
+
+   Anatomy:
+     <div.textarea-group>
+       <label.textarea-label/>          (optional)
+       <div.textarea-field>
+         <textarea.textarea-control/>
+       </div>
+       <div.textarea-helper/>           (optional — helper or invalid msg)
+     </div>
+
+   Variants: outlined (default) | filled | underline
+   Roles:    brand (default) | danger | warning | info | success | neutral
+             (applied via [data-role="…"]; remaps --brand-* primitives
+              that drive focus ring + caret + focus border)
+   States:   default | hover | focus-visible | disabled | readonly
+             | invalid (aria-invalid="true")
+
+   Multi-line peer of input — same form-text archetype. Adds rows /
+   resize / min-height (via line-height × rows) instead of a fixed
+   height + affix slots.
+
+   Invalid is a STATE (triggered by aria-invalid="true"), not a role —
+   it always paints danger surfaces regardless of the active role.
+
+   All values reference global tokens — zero hardcoded visuals.
+   ════════════════════════════════════════════════════════════════ */
+
+.textarea-group {
+
+  /* ────────────────────────────────────────────────────────────
+     📐 SHAPE  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Border radius per density mode — one step ahead of button scale, capped at xl */
+  --textarea-radius-micro: var(--radius-sm);     /* 4px  — same as btn-micro */
+  --textarea-radius-tiny: var(--radius-sm);      /* 4px  — same as btn-tiny */
+  --textarea-radius-small: var(--radius-md);     /* 6px  — same as btn-small */
+  --textarea-radius-base: var(--radius-DEFAULT); /* 8px  — one step above btn-base */
+  --textarea-radius-medium: var(--radius-DEFAULT); /* 8px */
+  --textarea-radius-large: var(--radius-md-lg);  /* 10px — one step above btn-large */
+  --textarea-radius-big: var(--radius-md-lg);    /* 10px — same as btn-big */
+  --textarea-radius-huge: var(--radius-lg);      /* 12px — one step above btn-huge */
+  --textarea-radius-mega: var(--radius-lg);      /* 12px — same as btn-mega */
+  --textarea-radius-ultra: var(--radius-xl);     /* 16px — capped */
+  --textarea-radius-rounded: var(--radius-full);
+
+  /* Border */
+  --textarea-border-width: 1px;
+  --textarea-border-style: solid;
+
+  /* Shadow */
+  --textarea-shadow: var(--shadow-none);
+  --textarea-shadow-focus: var(--shadow-none);
+
+  --textarea-outline-style: solid;
+
+  /* ────────────────────────────────────────────────────────────
+     📏 DIMENSION  (36 vars)
+     ──────────────────────────────────────────────────────────── */
+
+  /* Horizontal padding per density mode */
+  --textarea-padding-x-micro: var(--spacing-6);
+  --textarea-padding-x-tiny: var(--spacing-8);
+  --textarea-padding-x-small: var(--spacing-10);
+  --textarea-padding-x-base: var(--spacing-12);
+  --textarea-padding-x-medium: var(--spacing-14);
+  --textarea-padding-x-large: var(--spacing-16);
+  --textarea-padding-x-big: var(--spacing-16);
+  --textarea-padding-x-huge: var(--spacing-18);
+  --textarea-padding-x-mega: var(--spacing-20);
+  --textarea-padding-x-ultra: var(--spacing-20);
+
+  /* Vertical padding per density mode — input-padding-y + 2px throughout */
+  --textarea-padding-y-micro: var(--spacing-4);   /* input: 2px  + 2 */
+  --textarea-padding-y-tiny: var(--spacing-5);    /* input: 3px  + 2 */
+  --textarea-padding-y-small: var(--spacing-6);   /* input: 4px  + 2 */
+  --textarea-padding-y-base: var(--spacing-8);    /* input: 6px  + 2 */
+  --textarea-padding-y-medium: var(--spacing-10); /* input: 8px  + 2 */
+  --textarea-padding-y-large: var(--spacing-12);  /* input: 10px + 2 */
+  --textarea-padding-y-big: var(--spacing-14);    /* input: 12px + 2 */
+  --textarea-padding-y-huge: var(--spacing-16);   /* input: 14px + 2 */
+  --textarea-padding-y-mega: var(--spacing-18);   /* input: 16px + 2 */
+  --textarea-padding-y-ultra: var(--spacing-22);  /* input: 20px + 2 */
+
+  /* Fixed height per density mode (used when data-height="fixed") */
+  --textarea-height-micro: var(--spacing-24);
+  --textarea-height-tiny: var(--spacing-28);
+  --textarea-height-small: var(--spacing-32);
+  --textarea-height-base: var(--spacing-36);
+  --textarea-height-medium: var(--spacing-40);
+  --textarea-height-large: var(--spacing-44);
+  --textarea-height-big: var(--spacing-48);
+  --textarea-height-huge: var(--spacing-56);
+  --textarea-height-mega: var(--spacing-64);
+  --textarea-height-ultra: var(--spacing-72);
+
+  /* Rows — controls min/max height via line-height × rows */
+  --textarea-min-rows: 3;
+  --textarea-max-rows: none;
+
+  /* Resize */
+  --textarea-resize: vertical;
+
+  /* Width model */
+  --textarea-min-width: var(--spacing-120);
+  --textarea-max-width: none;
+  --textarea-inline-size: 100%;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — OUTLINED VARIANT  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-outlined-bg: transparent;
+  --textarea-outlined-bg-hover: transparent;
+  --textarea-outlined-bg-focus: transparent;
+  --textarea-outlined-bg-disabled: transparent;
+  --textarea-outlined-bg-invalid: transparent;
+  --textarea-outlined-fg: var(--surface-base-ct-default);
+  --textarea-outlined-fg-disabled: var(--surface-base-ct-faint);
+  --textarea-outlined-border-color: var(--surface-base-cm-outline);
+  --textarea-outlined-border-color-hover: var(--surface-base-cm-outline-hover);
+  --textarea-outlined-border-color-focus: var(--brand-component-outline-default);
+  --textarea-outlined-border-color-disabled: var(--surface-base-cm-outline);
+  --textarea-outlined-border-color-invalid: var(--danger-component-outline-default);
+  --textarea-outlined-placeholder: var(--surface-base-ct-faint);
+  --textarea-outlined-placeholder-disabled: var(--surface-base-ct-faint);
+  --textarea-outlined-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — FILLED VARIANT  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-filled-bg: var(--surface-base-cm-bg);
+  --textarea-filled-bg-hover: var(--surface-base-cm-bg-hover);
+  --textarea-filled-bg-focus: var(--surface-base-cm-bg);
+  --textarea-filled-bg-disabled: var(--surface-base-cm-bg);
+  --textarea-filled-bg-invalid: var(--surface-base-cm-bg);
+  --textarea-filled-fg: var(--surface-base-ct-default);
+  --textarea-filled-fg-disabled: var(--surface-base-ct-faint);
+  --textarea-filled-border-color: var(--surface-base-cm-outline);
+  --textarea-filled-border-color-hover: var(--surface-base-cm-outline-hover);
+  --textarea-filled-border-color-focus: var(--brand-component-outline-default);
+  --textarea-filled-border-color-disabled: var(--surface-base-cm-outline);
+  --textarea-filled-border-color-invalid: var(--danger-component-outline-default);
+  --textarea-filled-placeholder: var(--surface-base-ct-faint);
+  --textarea-filled-placeholder-disabled: var(--surface-base-ct-faint);
+  --textarea-filled-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — UNDERLINE VARIANT  (15 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-underline-bg: transparent;
+  --textarea-underline-bg-hover: transparent;
+  --textarea-underline-bg-focus: transparent;
+  --textarea-underline-bg-disabled: transparent;
+  --textarea-underline-bg-invalid: transparent;
+  --textarea-underline-fg: var(--surface-base-ct-default);
+  --textarea-underline-fg-disabled: var(--surface-base-ct-faint);
+  --textarea-underline-border-color: var(--surface-base-cm-outline);
+  --textarea-underline-border-color-hover: var(--surface-base-ct-subtle);
+  --textarea-underline-border-color-focus: var(--brand-component-outline-default);
+  --textarea-underline-border-color-disabled: var(--surface-base-cm-outline);
+  --textarea-underline-border-color-invalid: var(--danger-component-outline-default);
+  --textarea-underline-placeholder: var(--surface-base-ct-faint);
+  --textarea-underline-placeholder-disabled: var(--surface-base-ct-faint);
+  --textarea-underline-opacity-disabled: 0.5;
+
+  /* ────────────────────────────────────────────────────────────
+     🎨 SURFACE — SHARED  (7 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-label-color: var(--surface-base-ct-subtle);
+  --textarea-label-color-focus: var(--brand-content-default);
+  --textarea-label-color-invalid: var(--danger-content-default);
+  --textarea-label-color-disabled: var(--surface-base-ct-faint);
+  --textarea-helper-color: var(--surface-base-ct-subtle);
+  --textarea-helper-color-invalid: var(--danger-content-default);
+  --textarea-caret-color: var(--brand-component-bg-default);
+
+  /* ────────────────────────────────────────────────────────────
+     ✏️ TYPOGRAPHY  (13 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-font-family: var(--font-family-sans);
+
+  /* Font size per density mode */
+  --textarea-font-size-micro: var(--font-size-10);
+  --textarea-font-size-tiny: var(--font-size-11);
+  --textarea-font-size-small: var(--font-size-12);
+  --textarea-font-size-base: var(--font-size-14);
+  --textarea-font-size-medium: var(--font-size-14);
+  --textarea-font-size-large: var(--font-size-16);
+  --textarea-font-size-big: var(--font-size-16);
+  --textarea-font-size-huge: var(--font-size-18);
+  --textarea-font-size-mega: var(--font-size-20);
+  --textarea-font-size-ultra: var(--font-size-24);
+
+  --textarea-font-weight: var(--font-weight-regular);
+  --textarea-line-height: var(--line-height-relaxed);
+
+  /* ────────────────────────────────────────────────────────────
+     🧩 SLOTS  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-label-font-size: var(--font-size-13);
+  --textarea-label-font-weight: var(--font-weight-medium);
+  --textarea-label-gap: var(--spacing-6);
+  --textarea-helper-font-size: var(--font-size-12);
+  --textarea-helper-font-weight: var(--font-weight-regular);
+  --textarea-helper-gap: var(--spacing-4);
+
+  /* ────────────────────────────────────────────────────────────
+     ⚡ MOTION  (3 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-transition-property: border-color, background-color, box-shadow, color, opacity;
+  --textarea-transition-duration: var(--duration-normal);
+  --textarea-transition-easing: var(--easing-in-out);
+
+  /* ────────────────────────────────────────────────────────────
+     ♿ ACCESSIBILITY  (6 vars)
+     ──────────────────────────────────────────────────────────── */
+  --textarea-focus-outline-width: var(--focus-outline-width);
+  --textarea-focus-outline-color: var(--brand-component-outline-default);
+  --textarea-focus-outline-offset: var(--focus-outline-offset);
+  --textarea-min-tap-target: 44px;
+  --textarea-required-indicator: '*';
+  --textarea-required-color: var(--danger-content-default);
+}
+
