@@ -61,12 +61,12 @@ async function resolveUserId(req) {
   // Query param first — cross-origin browser calls never have a session cookie
   const qUserId = (qs(req).user_id || '').trim();
   if (qUserId) {
-    const app = catalyst.initialize(req, { type: 'applogic' });
+    const app = catalyst.initialize(req, { type: catalyst.type.advancedio });
     return { app, userId: qUserId };
   }
   const bearerUserId = verifyBearerJwt(req);
   if (bearerUserId) {
-    const app = catalyst.initialize(req, { type: 'applogic' });
+    const app = catalyst.initialize(req, { type: catalyst.type.advancedio });
     return { app, userId: bearerUserId };
   }
   // Try Catalyst session (same-origin Slate calls with cookie)

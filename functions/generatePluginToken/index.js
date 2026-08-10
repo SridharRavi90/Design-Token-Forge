@@ -93,7 +93,7 @@ module.exports = async (req, res) => {
      req.query.challenge was undefined). */
   let app;
   try {
-    app = catalyst.initialize(req, { type: 'applogic' });
+    app = catalyst.initialize(req, { type: catalyst.type.advancedio });
   } catch (initErr) {
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');

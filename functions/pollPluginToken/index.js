@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
      Initialize in anonymous/app mode. */
   let app;
   try {
-    app = catalyst.initialize(req, { type: 'applogic' });
+    app = catalyst.initialize(req, { type: catalyst.type.advancedio });
   } catch (_) {
     try { app = catalyst.initialize(req); } catch (e) {
       res.statusCode = 500;

@@ -60,7 +60,7 @@ async function resolveUserAndApp(req) {
   /* Bearer JWT path (Figma plugin — no session cookie) */
   const bearerUid = verifyBearerJwt(req);
   if (bearerUid) {
-    const app = catalyst.initialize(req, { type: 'applogic' });
+    const app = catalyst.initialize(req, { type: catalyst.type.advancedio });
     return { app, userId: bearerUid };
   }
   /* Catalyst session path (web browser) */

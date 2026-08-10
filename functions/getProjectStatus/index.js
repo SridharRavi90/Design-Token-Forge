@@ -66,7 +66,7 @@ async function resolveUserId(req) {
   /* Try bearer token first (Figma plugin path — no Catalyst session cookie) */
   const bearerUserId = verifyBearerJwt(req);
   if (bearerUserId) {
-    const app = catalyst.initialize(req, { type: 'applogic' });
+    const app = catalyst.initialize(req, { type: catalyst.type.advancedio });
     return { app, userId: bearerUserId };
   }
   /* Fall back to Catalyst session (web browser path) */

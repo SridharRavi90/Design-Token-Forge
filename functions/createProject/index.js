@@ -46,7 +46,7 @@ function verifyBearerJwt(req) {
 async function resolveUserAndApp(req) {
   const bearerUid = verifyBearerJwt(req);
   if (bearerUid) {
-    const app = catalyst.initialize(req, { type: 'applogic' });
+    const app = catalyst.initialize(req, { type: catalyst.type.advancedio });
     return { app, userId: bearerUid };
   }
   const app = catalyst.initialize(req);
