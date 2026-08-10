@@ -113,7 +113,9 @@ module.exports = async (req, res) => {
 
     /* Find or create the project row */
     const LEGACY_UID = 'sridhar-2917';
-    const allRows  = await app.datastore().table(TABLE).getAllRows();
+    let allRows;
+    try { allRows = await app.datastore().table(TABLE).getAllRows(); }
+    catch(e) { throw new Error('getAllRows failed: ' + e.message); }
     const rawList  = Array.isArray(allRows) ? allRows : (allRows && allRows.data ? allRows.data : []);
     const match    = rawList.find(function(r) {
       const row = r[TABLE] || r;
@@ -128,11 +130,14 @@ module.exports = async (req, res) => {
       try { descBlob = JSON.parse(existingRow.description || '{}'); } catch(_) {}
     } else {
       /* First publish for this project — create the row */
-      const created = await app.datastore().table(TABLE).insertRow({
-        user_id:     userId || LEGACY_UID,
-        project_id:  projectId,
-        description: '{}'
-      });
+      let created;
+      try {
+        created = await app.datastore().table(TABLE).insertRow({
+          user_id:     userId || LEGACY_UID,
+          project_id:  projectId,
+          description: '{}'
+        });
+      } catch(e) { throw new Error('insertRow failed: ' + e.message); }
       existingRow = created[TABLE] || created;
       rowId = existingRow.ROWID;
     }
