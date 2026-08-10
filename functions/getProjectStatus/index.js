@@ -69,7 +69,8 @@ async function resolveUserId(req) {
     const app = catalyst.initialize(req, { type: catalyst.type.advancedio });
     return { app, userId: bearerUserId };
   }
-  /* Fall back to Catalyst session (web browser path) */
+  /* Fall back to Catalyst session (web browser path) — bail fast if no cookie to avoid 60s hang */
+  if (!(req.headers && req.headers.cookie)) throw new Error('Not authenticated');
   const app = catalyst.initialize(req);
   const user = await app.auth().getCurrentUser();
   const ud = user && user.user_details ? user.user_details : (user || {});

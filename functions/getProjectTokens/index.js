@@ -71,6 +71,7 @@ async function resolveUserId(req) {
   }
   // Try Catalyst session (same-origin Slate calls with cookie)
   try {
+    if (!(req.headers && req.headers.cookie)) throw new Error('Not authenticated');
     const app = catalyst.initialize(req);
     const user = await app.auth().getCurrentUser();
     const ud = user && user.user_details ? user.user_details : (user || {});
